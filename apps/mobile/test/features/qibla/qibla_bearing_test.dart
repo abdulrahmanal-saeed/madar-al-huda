@@ -70,15 +70,20 @@ void main() {
       );
     });
 
-    test('manual presets use the official P00-10 city identities and IANA zones', () {
-      expect(
-        ManualCity.values.map((city) => city.id).toSet(),
-        {'dubai-ae', 'abu-dhabi-ae', 'cairo-eg', 'alexandria-eg'},
-      );
-      expect(ManualCity.dubai.timeZone, 'Asia/Dubai');
-      expect(ManualCity.abuDhabi.timeZone, 'Asia/Dubai');
-      expect(ManualCity.cairo.timeZone, 'Africa/Cairo');
-      expect(ManualCity.alexandria.timeZone, 'Africa/Cairo');
-    });
+    test(
+      'manual presets use the official P00-10 city identities and IANA zones',
+      () {
+        expect(ManualCity.values.map((city) => city.id).toSet(), {
+          'dubai-ae',
+          'abu-dhabi-ae',
+          'cairo-eg',
+          'alexandria-eg',
+        });
+        expect(ManualCity.dubai.timeZone, 'Asia/Dubai');
+        expect(ManualCity.abuDhabi.timeZone, 'Asia/Dubai');
+        expect(ManualCity.cairo.timeZone, 'Africa/Cairo');
+        expect(ManualCity.alexandria.timeZone, 'Africa/Cairo');
+      },
+    );
   });
 }

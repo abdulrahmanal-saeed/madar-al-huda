@@ -42,7 +42,8 @@ abstract final class QiblaBearing {
 
     final halfLat = math.sin((targetLatitude - latitude) / 2);
     final halfLon = math.sin(deltaLongitude / 2);
-    final haversine = halfLat * halfLat +
+    final haversine =
+        halfLat * halfLat +
         math.cos(latitude) * math.cos(targetLatitude) * halfLon * halfLon;
 
     if (haversine < epsilon || 1 - haversine < epsilon) {
@@ -50,7 +51,8 @@ abstract final class QiblaBearing {
     }
 
     final y = math.sin(deltaLongitude) * math.cos(targetLatitude);
-    final x = math.cos(latitude) * math.sin(targetLatitude) -
+    final x =
+        math.cos(latitude) * math.sin(targetLatitude) -
         math.sin(latitude) *
             math.cos(targetLatitude) *
             math.cos(deltaLongitude);
@@ -60,13 +62,23 @@ abstract final class QiblaBearing {
   }
 
   static void _validate(GeoCoordinate point) {
-    if (!point.latitude.isFinite || point.latitude < -90 || point.latitude > 90) {
-      throw ArgumentError.value(point.latitude, 'latitude', 'Must be within -90 and 90');
+    if (!point.latitude.isFinite ||
+        point.latitude < -90 ||
+        point.latitude > 90) {
+      throw ArgumentError.value(
+        point.latitude,
+        'latitude',
+        'Must be within -90 and 90',
+      );
     }
     if (!point.longitude.isFinite ||
         point.longitude < -180 ||
         point.longitude > 180) {
-      throw ArgumentError.value(point.longitude, 'longitude', 'Must be within -180 and 180');
+      throw ArgumentError.value(
+        point.longitude,
+        'longitude',
+        'Must be within -180 and 180',
+      );
     }
   }
 
