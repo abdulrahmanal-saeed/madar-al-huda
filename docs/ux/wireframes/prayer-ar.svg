@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 390 844" width="390" height="844" lang="ar" role="img" aria-label="مواقيت الصلاة P00-04 wireframe">
+<title>مواقيت الصلاة — AR P00-04</title>
+<rect x="0" y="0" width="390" height="844" rx="0" fill="#F8F5ED" stroke="none"/>
+<rect x="0" y="0" width="390" height="31" rx="0" fill="#173F39" stroke="none"/>
+<text x="343" y="20" font-family="'IBM Plex Sans Arabic','Noto Sans Arabic',sans-serif" direction="ltr" font-size="10" font-weight="500" text-anchor="end" fill="#F8F5ED">MADAR AL-HUDA · WIREFRAME</text>
+<rect x="0" y="32" width="390" height="70" rx="0" fill="#FFFDF8" stroke="none"/>
+<text x="343" y="76" font-family="'IBM Plex Sans Arabic','Noto Sans Arabic',sans-serif" direction="rtl" font-size="23" font-weight="700" text-anchor="end" fill="#173F39">مواقيت الصلاة</text>
+<text x="343" y="137" font-family="'IBM Plex Sans Arabic','Noto Sans Arabic',sans-serif" direction="rtl" font-size="16" font-weight="600" text-anchor="end" fill="#263B38">المدينة: اختيار يدوي</text>
+<rect x="20" y="165" width="350" height="60" rx="12" fill="#FFFDF8" stroke="#DDD9CD"/>
+<rect x="317" y="177" width="23" height="23" rx="8" fill="#E8EFEA" stroke="none"/>
+<text x="307" y="201" font-family="'IBM Plex Sans Arabic','Noto Sans Arabic',sans-serif" direction="rtl" font-size="13" font-weight="550" text-anchor="end" fill="#263B38">دبي / أبوظبي / القاهرة / الإسكندرية</text>
+<rect x="20" y="235" width="350" height="60" rx="12" fill="#FFFDF8" stroke="#DDD9CD"/>
+<rect x="317" y="247" width="23" height="23" rx="8" fill="#E8EFEA" stroke="none"/>
+<text x="307" y="271" font-family="'IBM Plex Sans Arabic','Noto Sans Arabic',sans-serif" direction="rtl" font-size="13" font-weight="550" text-anchor="end" fill="#263B38">طريقة الحساب والمذهب في العصر</text>
+<rect x="20" y="305" width="350" height="60" rx="12" fill="#FFFDF8" stroke="#DDD9CD"/>
+<rect x="317" y="317" width="23" height="23" rx="8" fill="#E8EFEA" stroke="none"/>
+<text x="307" y="341" font-family="'IBM Plex Sans Arabic','Noto Sans Arabic',sans-serif" direction="rtl" font-size="13" font-weight="550" text-anchor="end" fill="#263B38">الفجر — --:--</text>
+<rect x="20" y="375" width="350" height="60" rx="12" fill="#FFFDF8" stroke="#DDD9CD"/>
+<rect x="317" y="387" width="23" height="23" rx="8" fill="#E8EFEA" stroke="none"/>
+<text x="307" y="411" font-family="'IBM Plex Sans Arabic','Noto Sans Arabic',sans-serif" direction="rtl" font-size="13" font-weight="550" text-anchor="end" fill="#263B38">الظهر — --:--</text>
+<rect x="20" y="445" width="350" height="60" rx="12" fill="#FFFDF8" stroke="#DDD9CD"/>
+<rect x="317" y="457" width="23" height="23" rx="8" fill="#E8EFEA" stroke="none"/>
+<text x="307" y="481" font-family="'IBM Plex Sans Arabic','Noto Sans Arabic',sans-serif" direction="rtl" font-size="13" font-weight="550" text-anchor="end" fill="#263B38">العصر — --:--</text>
+<rect x="20" y="515" width="350" height="60" rx="12" fill="#FFFDF8" stroke="#DDD9CD"/>
+<rect x="317" y="527" width="23" height="23" rx="8" fill="#E8EFEA" stroke="none"/>
+<text x="307" y="551" font-family="'IBM Plex Sans Arabic','Noto Sans Arabic',sans-serif" direction="rtl" font-size="13" font-weight="550" text-anchor="end" fill="#263B38">المغرب والعشاء — --:--</text>
+<rect x="20" y="609" width="350" height="79" rx="14" fill="#E8EFEA" stroke="#DDD9CD"/>
+<rect x="323" y="627" width="17" height="17" rx="8" fill="#C7A86D" stroke="none"/>
+<text x="307" y="639" font-family="'IBM Plex Sans Arabic','Noto Sans Arabic',sans-serif" direction="rtl" font-size="11" font-weight="600" text-anchor="end" fill="#173F39">لا مواقيت فعلية قبل اختبار المصدر الرسمي</text>
+<text x="343" y="666" font-family="'IBM Plex Sans Arabic','Noto Sans Arabic',sans-serif" direction="rtl" font-size="10" font-weight="400" text-anchor="end" fill="#657D74">هذه واجهة تصورية وليست محتوى معتمدًا</text>
+<rect x="0" y="769" width="390" height="75" rx="0" fill="#FFFDF8" stroke="none"/>
+<rect x="0" y="769" width="390" height="1" rx="0" fill="#DDD9CD" stroke="none"/>
+<rect x="27" y="788" width="24" height="22" rx="7" fill="#E8EFEA" stroke="none"/>
+<text x="39" y="828" font-family="'IBM Plex Sans Arabic','Noto Sans Arabic',sans-serif" direction="rtl" font-size="10" font-weight="550" text-anchor="middle" fill="#173F39">تعلّم</text>
+<rect x="105" y="788" width="24" height="22" rx="7" fill="#E8EFEA" stroke="none"/>
+<text x="117" y="828" font-family="'IBM Plex Sans Arabic','Noto Sans Arabic',sans-serif" direction="rtl" font-size="10" font-weight="550" text-anchor="middle" fill="#173F39">مكتبة</text>
+<rect x="183" y="788" width="24" height="22" rx="7" fill="#E8EFEA" stroke="none"/>
+<text x="195" y="828" font-family="'IBM Plex Sans Arabic','Noto Sans Arabic',sans-serif" direction="rtl" font-size="10" font-weight="550" text-anchor="middle" fill="#173F39">عبادة</text>
+<rect x="261" y="788" width="24" height="22" rx="7" fill="#E8EFEA" stroke="none"/>
+<text x="273" y="828" font-family="'IBM Plex Sans Arabic','Noto Sans Arabic',sans-serif" direction="rtl" font-size="10" font-weight="550" text-anchor="middle" fill="#173F39">قرآن</text>
+<rect x="339" y="788" width="24" height="22" rx="7" fill="#E8EFEA" stroke="none"/>
+<text x="351" y="828" font-family="'IBM Plex Sans Arabic','Noto Sans Arabic',sans-serif" direction="rtl" font-size="10" font-weight="550" text-anchor="middle" fill="#173F39">الرئيسية</text>
+</svg>
