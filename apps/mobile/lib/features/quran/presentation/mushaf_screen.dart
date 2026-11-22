@@ -485,7 +485,9 @@ class _TafsirSheetState extends ConsumerState<_TafsirSheet> {
                       }
                       return Text(
                         state.data!,
-                        textDirection: TextDirection.rtl,
+                        textDirection: _resource?.language == 'english'
+                            ? TextDirection.ltr
+                            : TextDirection.rtl,
                       );
                     },
                   ),
