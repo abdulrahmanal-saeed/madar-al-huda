@@ -27,19 +27,29 @@ final quranPositionProvider = Provider<ReadingPositionRepository>(
 );
 
 class QuranResource {
-  const QuranResource(this.id, this.name);
+  const QuranResource(this.id, this.name, {this.language});
   final int id;
   final String name;
+  final String? language;
 
-  factory QuranResource.fromJson(Map<String, dynamic> json) =>
-      QuranResource(json['id'] as int, json['name'] as String);
+  factory QuranResource.fromJson(Map<String, dynamic> json) => QuranResource(
+    json['id'] as int,
+    json['name'] as String,
+    language: json['language'] as String?,
+  );
 }
 
 class QuranCatalog {
-  const QuranCatalog(this.ayatBySurah, this.tafsirs, this.reciters);
+  const QuranCatalog(
+    this.ayatBySurah,
+    this.tafsirs,
+    this.reciters, {
+    this.isPreview = false,
+  });
   final Map<int, int> ayatBySurah;
   final List<QuranResource> tafsirs;
   final List<QuranResource> reciters;
+  final bool isPreview;
 }
 
 class QuranApi {
@@ -62,6 +72,9 @@ class QuranApi {
       },
       resources('tafsirs'),
       resources('reciters'),
+      isPreview:
+          (json['availability'] as Map<String, dynamic>?)?['environment'] ==
+          'prelive',
     );
   }
 

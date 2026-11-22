@@ -35,7 +35,7 @@ void main() {
                   {'id': 2, 'verses': 286},
                 ],
                 'tafsirs': [
-                  {'id': 15, 'name': 'Source'},
+                  {'id': 15, 'name': 'Source', 'language': 'english'},
                 ],
                 'reciters': [],
               }),
@@ -91,6 +91,10 @@ void main() {
           find.text('Tafsir fixture'),
           findsOneWidget,
           reason: '$requested',
+        );
+        expect(
+          tester.widget<Text>(find.text('Tafsir fixture')).textDirection,
+          TextDirection.ltr,
         );
         final context = tester.element(find.text('Tafsir fixture'));
         Navigator.of(context).pop();

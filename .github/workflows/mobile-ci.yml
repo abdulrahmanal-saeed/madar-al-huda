@@ -136,7 +136,40 @@ jobs:
         run: flutter pub get --enforce-lockfile
 
       - name: Build debug APK
-        run: flutter build apk --debug
+        env:
+          MADAR_QURAN_API_URL: ${{ vars.MADAR_QURAN_API_URL }}
+          MADAR_SUPABASE_ANON_KEY: ${{ vars.MADAR_SUPABASE_ANON_KEY }}
+        run: |
+          if [[ -z "$MADAR_QURAN_API_URL" && -z "$MADAR_SUPABASE_ANON_KEY" ]]; then
+            flutter build apk --debug
+            exit
+          fi
+          config="$RUNNER_TEMP/madar-public-config.json"
+          python3 - "$config" <<'PY'
+          import base64
+          import json
+          import os
+          import sys
+          from pathlib import Path
+          from urllib.parse import urlsplit
+
+          url = os.environ["MADAR_QURAN_API_URL"]
+          key = os.environ["MADAR_SUPABASE_ANON_KEY"]
+          try:
+              project = urlsplit(url)
+              segment = key.split(".")[1]
+              payload = json.loads(base64.urlsafe_b64decode(segment + "=" * (-len(segment) % 4)))
+              assert project.scheme == "https" and project.path == "/functions/v1/quran"
+              assert project.hostname and project.hostname.endswith(".supabase.co")
+              assert payload["role"] == "anon" and payload["ref"] == project.hostname.split(".")[0]
+          except (AssertionError, ValueError, IndexError, KeyError, TypeError):
+              raise SystemExit("Configure this project’s URL and public legacy anon key.")
+
+          Path(sys.argv[1]).write_text(json.dumps({
+              "MADAR_QURAN_API_URL": url, "MADAR_SUPABASE_ANON_KEY": key
+          }), encoding="utf-8")
+          PY
+          MADAR_CHANNEL=preview flutter build apk --debug --dart-define-from-file="$config"
 
       - name: Record APK checksum
         run: sha256sum build/app/outputs/flutter-apk/app-debug.apk

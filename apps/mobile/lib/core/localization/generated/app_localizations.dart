@@ -853,6 +853,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Loading tafsir…'**
   String get readerTafsirLoading;
+
+  /// Explains the limited Quran Foundation test content on other chapters.
+  ///
+  /// In en, this message translates to:
+  /// **'Tafsir and recitation are available for Al-Fatihah and Al-Baqarah in this preview.'**
+  String get readerPreliveCoverage;
 }
 
 class _AppLocalizationsDelegate

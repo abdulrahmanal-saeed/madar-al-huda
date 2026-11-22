@@ -327,7 +327,13 @@ class _ReaderState extends ConsumerState<_Reader> {
               Row(
                 children: [
                   const SizedBox(width: 12),
-                  Expanded(child: Text(l10n.readerResourcesUnavailable)),
+                  Expanded(
+                    child: Text(
+                      data?.isPreview == true && !matched
+                          ? l10n.readerPreliveCoverage
+                          : l10n.readerResourcesUnavailable,
+                    ),
+                  ),
                   IconButton(
                     tooltip: l10n.readerRetry,
                     icon: const Icon(Icons.refresh),

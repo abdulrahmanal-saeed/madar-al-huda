@@ -410,4 +410,8 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get readerTafsirLoading => 'جارٍ تحميل التفسير…';
+
+  @override
+  String get readerPreliveCoverage =>
+      'التفسير والتلاوة متاحان حاليًا للفاتحة والبقرة في نسخة الاختبار.';
 }

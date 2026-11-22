@@ -134,5 +134,6 @@
   "readerPause": "إيقاف التلاوة مؤقتًا",
   "readerResume": "استئناف التلاوة",
   "readerStop": "إيقاف التلاوة",
-  "readerTafsirLoading": "جارٍ تحميل التفسير…"
+  "readerTafsirLoading": "جارٍ تحميل التفسير…",
+  "readerPreliveCoverage": "التفسير والتلاوة متاحان حاليًا للفاتحة والبقرة في نسخة الاختبار."
 }

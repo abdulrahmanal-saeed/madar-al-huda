@@ -379,5 +379,9 @@
   "readerTafsirLoading": "Loading tafsir…",
   "@readerTafsirLoading": {
     "description": "Loading tafsir…"
+  },
+  "readerPreliveCoverage": "Tafsir and recitation are available for Al-Fatihah and Al-Baqarah in this preview.",
+  "@readerPreliveCoverage": {
+    "description": "Explains the limited Quran Foundation test content on other chapters."
   }
 }

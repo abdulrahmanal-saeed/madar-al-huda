@@ -160,8 +160,25 @@ function listed(rows: Json[], ids: number[]) {
     const row = rows.find((entry) => entry.id === id);
     const translated = row?.translated_name as Json | undefined;
     const name = translated?.name ?? row?.name;
-    return typeof name === "string" && name.length > 0 ? [{ id, name }] : [];
+    if (typeof name !== "string" || !name.trim()) return [];
+    const language = row?.language_name;
+    return [{
+      id,
+      name,
+      ...(typeof language === "string" ? { language } : {}),
+    }];
   });
+}
+
+// The documented Ibn Kathir resource may be the only edition in prelive.
+export function previewTafsirIds(rows: Json[]): number[] {
+  const arabicIds = ["ar-tafsir-ibn-kathir", "ar-tafsir-al-tabari"].flatMap(
+    (slug) =>
+      rows.flatMap((row) =>
+        row.slug === slug && typeof row.id === "number" ? [row.id] : []
+      ),
+  );
+  return arabicIds.length > 0 ? arabicIds : [169];
 }
 
 async function fetchCatalog(lang: string): Promise<Json> {
@@ -176,17 +193,14 @@ async function fetchCatalog(lang: string): Promise<Json> {
     path: string,
     type: Scope,
     enabled: boolean,
-  ): Promise<Json> {
-    if (!enabled) return {};
+  ): Promise<{ data: Json; state: string }> {
+    if (!enabled) return { data: {}, state: "not_configured" };
     try {
-      return await provider(path, type, query);
+      return { data: await provider(path, type, query), state: "available" };
     } catch (error) {
-      console.warn(
-        "Quran resource catalog unavailable",
-        type,
-        error instanceof ApiError ? error.code : "request_failed",
-      );
-      return {};
+      const state = error instanceof ApiError ? error.code : "request_failed";
+      console.warn("Quran resource catalog unavailable", type, state);
+      return { data: {}, state };
     }
   }
 
@@ -199,17 +213,23 @@ async function fetchCatalog(lang: string): Promise<Json> {
       preview || reciterIds.length > 0,
     ),
   ]);
-  const tafsirs = objects(tafsirList.tafsirs);
-  const reciters = objects(reciterList.reciters);
-  // The provider's prelive catalog is for testing the owner-selected sources.
-  // Production uses only resource IDs approved for this application.
-  const previewTafsirIds = ["ar-tafsir-ibn-kathir", "ar-tafsir-al-tabari"]
-    .flatMap(
-      (slug) =>
-        tafsirs.flatMap((row) =>
-          row.slug === slug && typeof row.id === "number" ? [row.id] : []
-        ),
-    );
+  const tafsirs = objects(tafsirList.data.tafsirs);
+  const reciters = objects(reciterList.data.reciters);
+  const tafsirOptions = listed(
+    tafsirs,
+    tafsirIds.length > 0 || !preview ? tafsirIds : previewTafsirIds(tafsirs),
+  );
+  const enabledReciters = preview && !reciterIds.length
+    ? reciters.some((reciter) => reciter.id === 159) ? [159] : [7]
+    : reciterIds;
+  const reciterOptions = listed(reciters, enabledReciters);
+
+  function availability(state: string, count: number, enabled: number) {
+    if (state !== "available") return state;
+    if (enabled > 0) return "ready";
+    return count === 0 ? "empty_catalog" : "approved_resources_absent";
+  }
+
   return {
     chapters: objects(chapters.chapters).flatMap((chapter) =>
       Number.isInteger(chapter.id) && Number.isInteger(chapter.verses_count) &&
@@ -217,14 +237,21 @@ async function fetchCatalog(lang: string): Promise<Json> {
         ? [{ id: chapter.id, verses: chapter.verses_count }]
         : []
     ),
-    tafsirs: listed(
-      tafsirs,
-      preview && !tafsirIds.length ? previewTafsirIds : tafsirIds,
-    ),
-    reciters: listed(
-      reciters,
-      preview && !reciterIds.length ? [159] : reciterIds,
-    ),
+    tafsirs: tafsirOptions,
+    reciters: reciterOptions,
+    availability: {
+      environment: env,
+      tafsir: availability(
+        tafsirList.state,
+        tafsirs.length,
+        tafsirOptions.length,
+      ),
+      recitation: availability(
+        reciterList.state,
+        reciters.length,
+        reciterOptions.length,
+      ),
+    },
   };
 }
 

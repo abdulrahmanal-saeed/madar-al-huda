@@ -420,4 +420,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get readerTafsirLoading => 'Loading tafsir…';
+
+  @override
+  String get readerPreliveCoverage =>
+      'Tafsir and recitation are available for Al-Fatihah and Al-Baqarah in this preview.';
 }

@@ -1,4 +1,4 @@
-import { handleRequest, plainText } from "./handler.ts";
+import { handleRequest, plainText, previewTafsirIds } from "./handler.ts";
 
 function equal(actual: unknown, expected: unknown) {
   if (JSON.stringify(actual) !== JSON.stringify(expected)) {
@@ -12,6 +12,18 @@ Deno.test("tafsir markup is rendered as inert text in the client", () => {
   equal(
     plainText("<p>One &amp; two</p><script>omit()</script><p>Three</p>"),
     "One & two\n\nThree",
+  );
+});
+
+Deno.test("prelive prefers the selected Arabic editions and falls back to documented Ibn Kathir", () => {
+  equal(previewTafsirIds([{ id: 169 }]), [169]);
+  equal(
+    previewTafsirIds([
+      { id: 15, slug: "ar-tafsir-al-tabari" },
+      { id: 14, slug: "ar-tafsir-ibn-kathir" },
+      { id: 169, slug: "en-tafsir-ibn-kathir" },
+    ]),
+    [14, 15],
   );
 });
 
@@ -112,6 +124,11 @@ Deno.test("guest reader gets only approved resources, matched tafsir and audio",
       chapters: [{ id: 1, verses: 7 }, { id: 2, verses: 286 }],
       tafsirs: [{ id: 100, name: "Approved author" }],
       reciters: [{ id: 200, name: "Approved reader" }],
+      availability: {
+        environment: "prelive",
+        tafsir: "ready",
+        recitation: "ready",
+      },
     });
     equal((await request("catalog?lang=ar")).status, 200);
     equal(await (await request("tafsir?surah=2&ayah=4&resource=100")).json(), {
