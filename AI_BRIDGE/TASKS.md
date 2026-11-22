@@ -9,7 +9,7 @@ Project-level roadmap and statuses: [../plan/README.md](../plan/README.md) and [
 | MHD-009 | Architecture/ERD/RLS design review (`P00-05`) | ChatGPT | DONE | [Issue #13](https://github.com/abdulrahmanal-saeed/madar-al-huda/issues/13); architecture pack merged via [PR #14](https://github.com/abdulrahmanal-saeed/madar-al-huda/pull/14); no live database deployment |
 | MHD-010 | Identity source and launcher assets (`P00-03`) | ChatGPT | DONE | [Issue #15](https://github.com/abdulrahmanal-saeed/madar-al-huda/issues/15), Existing SVG/wordmarks/icons unchanged and approved by owner 2026-11-22; only legal R-10 remains for store release |
 | MHD-002 | Verify Quran source and legal edition | Content lead | BLOCKED | Rights log, attribution, fixed checksum |
-| MHD-003 | Prototype prayer time + Qibla calculation | Coding agent | TODO | UAE/Egypt fixtures + timezone/DST tests |
+| MHD-003 | Official prayer references / TZ groundwork (`P00-10`) | ChatGPT | IN_PROGRESS | [Issue #21](https://github.com/abdulrahmanal-saeed/madar-al-huda/issues/21): ESA Cairo/Alexandria source times and zoneinfo checks; UAE authoritative values and actual prayer calculations still pending |
 | MHD-004 | Route-aligned bilingual wireframes (`P00-04`) | ChatGPT | REVIEW | [Issue #18](https://github.com/abdulrahmanal-saeed/madar-al-huda/issues/18): 14 source SVGs and UX spec; source checker added to existing CI; pending review |
 | MHD-005 | Verify reciter and tafsir distribution rights | Content lead | BLOCKED | 3 reciters and 2 tafsir sources assessed |
 | MHD-006 | Define fiqh reviewer workflow | Content lead | BLOCKED | Qualified reviewer and approval gates documented |

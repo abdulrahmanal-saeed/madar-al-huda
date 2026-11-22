@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "assembled_on": "2026-11-22",
+  "purpose": "Independent official published local time references, NOT calculated by Madar Al-Huda",
+  "fields": [
+    "fajr",
+    "sunrise",
+    "dhuhr",
+    "asr",
+    "maghrib",
+    "isha"
+  ],
+  "cities": [
+    {
+      "city_id": "cairo-eg",
+      "name": "Cairo",
+      "country": "EG",
+      "time_zone": "Africa/Cairo",
+      "date": "2026-11-22",
+      "source_status": "official_transcribed",
+      "source_name": "Egyptian General Survey Authority",
+      "source_url": "https://www.esa.gov.eg/praytimes.aspx",
+      "source_access_date": "2026-11-22",
+      "method_parameters": "Not fully published in captured table; must verify before comparison with any implementation",
+      "asr_rule": "not specified in source table",
+      "local_times": {
+        "fajr": "04:55",
+        "sunrise": "06:26",
+        "dhuhr": "11:41",
+        "asr": "14:36",
+        "maghrib": "16:56",
+        "isha": "18:17"
+      }
+    },
+    {
+      "city_id": "alexandria-eg",
+      "name": "Alexandria",
+      "country": "EG",
+      "time_zone": "Africa/Cairo",
+      "date": "2026-11-22",
+      "source_status": "official_transcribed",
+      "source_name": "Egyptian General Survey Authority",
+      "source_url": "https://www.esa.gov.eg/praytimes.aspx",
+      "source_access_date": "2026-11-22",
+      "method_parameters": "Not fully published in captured table; must verify before comparison with any implementation",
+      "asr_rule": "not specified in source table",
+      "local_times": {
+        "fajr": "05:01",
+        "sunrise": "06:33",
+        "dhuhr": "11:46",
+        "asr": "14:39",
+        "maghrib": "16:59",
+        "isha": "18:21"
+      }
+    },
+    {
+      "city_id": "dubai-ae",
+      "name": "Dubai",
+      "country": "AE",
+      "time_zone": "Asia/Dubai",
+      "date": "2026-11-22",
+      "source_status": "pending_official_dated_timetable",
+      "source_name": "Islamic Affairs and Charitable Activities Department (Dubai), Dulook DXB",
+      "source_url": "https://ipt.iacad.gov.ae/",
+      "source_access_date": "2026-11-22",
+      "method_parameters": "Official city/date-specific table not yet captured",
+      "asr_rule": "pending",
+      "local_times": null
+    },
+    {
+      "city_id": "abu-dhabi-ae",
+      "name": "Abu Dhabi",
+      "country": "AE",
+      "time_zone": "Asia/Dubai",
+      "date": "2026-11-22",
+      "source_status": "pending_official_dated_timetable",
+      "source_name": "General Authority of Islamic Affairs, Endowments and Zakat (Awqaf UAE)",
+      "source_url": "https://www.awqaf.gov.ae/",
+      "source_access_date": "2026-11-22",
+      "method_parameters": "Official city/date-specific table not yet captured",
+      "asr_rule": "pending",
+      "local_times": null
+    }
+  ],
+  "limitations": [
+    "Egyptian published values are transcribed from the official current daily table; independently dated archived publisher copy is preferable for audit.",
+    "Do not calculate missing UAE expected values from third-party apps or algorithm under test.",
+    "No new prayer-time algorithm was implemented or validated in this task.",
+    "No UI prayer time or ungating is authorized by this data alone."
+  ]
+}

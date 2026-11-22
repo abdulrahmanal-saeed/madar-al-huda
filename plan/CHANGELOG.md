@@ -1,5 +1,10 @@
 # Plan Changelog
 
+## 2026-11-22 — P00-10 official reference groundwork
+- Added two date-stamped Egypt Survey Authority prayer-time reference rows (Cairo/Alexandria, 2026-11-22); Dubai/Abu Dhabi official expected values explicitly pending, not invented.
+- Added zoneinfo 2026 DST/UTC offset validation in a zero-dependency Python checker; P00-10 stays IN_PROGRESS until all four authorities/calculation comparisons are verified.
+
+
 ## 2026-11-22 — Existing identity approved; nonduplicative P00-04 design handoff
 - Owner approved the current name/logo without changes. P00-03 creative identity DONE; official trademark/store clearance tracked separately in R-10 / Issue #19.
 - P00-04: 14 source-controlled SVG wireframes (seven screens × Arabic RTL/English LTR), mapped to existing routes and content gates. No alterations to existing brand assets or Home screen. Static checker added to existing CI.
