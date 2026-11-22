@@ -1,6 +1,6 @@
 # Tracker — مصدر الحقيقة لحالة العمل
 
-**Snapshot بتاريخ 2026-11-23:** 60 مهمة، 6 DONE، 2 REVIEW، 14 IN_PROGRESS، 6 BLOCKED، 31 TODO، 1 DEFERRED.
+**Snapshot بتاريخ 2026-11-23:** 60 مهمة، 6 DONE، 3 REVIEW، 13 IN_PROGRESS، 6 BLOCKED، 31 TODO، 1 DEFERRED.
 
 **Status:** `TODO` · `IN_PROGRESS` · `BLOCKED` · `REVIEW` · `DONE` · `DEFERRED` · `CANCELLED`.
 
@@ -35,7 +35,7 @@
 
 | ID | المهمة | Status | Dependencies | Evidence / Issue |
 |---|---|---|---|---|
-| `P01-01` | نص المصحف والآيات immutable | `IN_PROGRESS` | P00-07,P00-06 | [PR #28](https://github.com/abdulrahmanal-saeed/madar-al-huda/pull/28) · نص Tanzil Uthmani 1.1 وبياناته مثبتان بالبصمة، والمراجعة النهائية مفتوحة. |
+| `P01-01` | نص المصحف والآيات immutable | `REVIEW` | P00-07,P00-06 | [PR #28](https://github.com/abdulrahmanal-saeed/madar-al-huda/pull/28) · نص Tanzil Uthmani 1.1 وبياناته مثبتان بالبصمة، والمراجعة النهائية مفتوحة. [CI على كود المصحف](https://github.com/abdulrahmanal-saeed/madar-al-huda/actions/runs/45081381574). |
 | `P01-02` | القارئ والفهرسة والتنقل | `IN_PROGRESS` | P01-01 | [PR #28](https://github.com/abdulrahmanal-saeed/madar-al-huda/pull/28): 604 صفحات مصحف متصلة وفهارس السور والأجزاء والأحزاب والصفحات وتحويل المسارات القديمة. المراجعة البصرية على جهاز مفتوحة. |
 | `P01-03` | بحث وعلامات وآخر موضع | `IN_PROGRESS` | P01-01 | [PR #28](https://github.com/abdulrahmanal-saeed/madar-al-huda/pull/28): بحث محلي بالنص واسم السورة ورقم الآية، علامات مرجعية، واستعادة المؤشر القديم بالإصدار والسورة والآية. |
 | `P01-04` | ترجمة معاني القرآن للإنجليزية | `IN_PROGRESS` | P00-07,P01-01 | QuranEnc Rowwad `english_rwwad`: الإصدار المتاح وقت التحقق 1.0.21؛ معنى الآية يظهر عند الطلب في القارئ الإنجليزي مع المصدر والإصدار، والمراجعة النهائية مفتوحة. |
