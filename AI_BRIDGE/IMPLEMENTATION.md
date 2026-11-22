@@ -1,5 +1,14 @@
 # Implementation log
 
+## 2026-11-22 — P01-08 Qibla geometry foundation
+- Owner asked to continue features already planned without duplicating the logo, Flutter shell, Home UI or existing P00-10 reference fixtures.
+- Pure Dart great-circle true-north bearing under `apps/mobile/lib/features/qibla/domain/qibla_bearing.dart`, four manual city-centre presets and deterministic test scenarios for London, NYC, Dubai, Abu Dhabi, Cairo and Alexandria, invalid coordinates, geographic poles and no-unique-bearing cases.
+- Qibla screen stays gated; no GPS or compass permission; no sensor accuracy or on-device QA is claimed. **P01-08 is IN_PROGRESS, not DONE** until app UI and sensor/manual fallback are tested.
+- Official IACAD Dulook DXB and UAE Awqaf pages were reviewed for P00-10; no dated city-specific Dubai/Abu Dhabi six-time timetable was retrievable from those pages, so no UAE expected prayer times were added. In contrast, P00-10 Egyptian official records remain in `docs/prayer/reference/official-2026-11-22.json`.
+- Tests pending latest-head GitHub CI; no Flutter commands claimed as locally executed.
+
+---
+
 ## 2026-11-22 — P00-10 official prayer-time references (partial)
 - **Source:** Egyptian General Survey Authority official table dated 2026-11-22, https://www.esa.gov.eg/praytimes.aspx; local times transcribed for Cairo and Alexandria, not calculated by the app.
 - **New:** docs/prayer/reference/official-2026-11-22.json, README.md and independent zero-dependency zoneinfo/format checker. Includes 2026 Egypt DST offset changes and UAE stable UTC+4.

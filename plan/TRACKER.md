@@ -41,8 +41,8 @@
 | `P01-04` | ترجمة معاني القرآن للإنجليزية | `BLOCKED` | P00-07,P01-01 | — |
 | `P01-05` | تفسير الطبري وابن كثير | `BLOCKED` | P00-07,P01-01 | — |
 | `P01-06` | مشغل صوت وتلاوة أولى | `BLOCKED` | P00-07,P00-06 | — |
-| `P01-07` | صلاة حسب المدينة والموقع | `TODO` | P00-10,P00-06 | — |
-| `P01-08` | القبلة ومعايرة المستشعر | `TODO` | P00-06 | — |
+| `P01-07` | صلاة حسب المدينة والموقع | `TODO` | P00-10,P00-06 | [Issue #24](https://github.com/abdulrahmanal-saeed/madar-al-huda/issues/24); depends on official 4-city fixtures P00-10 and validated calculation. Do not display invented times. |
+| `P01-08` | القبلة ومعايرة المستشعر | `IN_PROGRESS` | P00-06 | [Issue #23](https://github.com/abdulrahmanal-saeed/madar-al-huda/issues/23) · [Qibla geometry](../docs/qibla/README.md): pure offline great-circle true-north bearing, coordinate validation and 4 city-centre presets with tests. Sensor/declination/calibration, app UI and device QA pending; **no availability claim**. Provisionally started while P00-06 manual QA remains REVIEW, reusing existing app shell. |
 | `P01-09` | قبول MVP End-to-End | `TODO` | P01-02,P01-03,P01-04,P01-05,P01-06,P01-07,P01-08 | — |
 
 ## Phase 02 — Worship & Daily Journey — الأذكار والدعاء والورد والتلاوات

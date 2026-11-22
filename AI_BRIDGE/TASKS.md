@@ -16,6 +16,8 @@ Project-level roadmap and statuses: [../plan/README.md](../plan/README.md) and [
 | MHD-008 | Dev update channel: signed dev APK on GitHub prereleases + Obtainium (`P00-11`) | Coding agent (Claude Code) | REVIEW | Workflow after green CI on main; fixed dev key via secrets; `.dev` app id; docs/DEV_UPDATES.md — branch `phase-00/p00-11-dev-updates`, [PR #6](https://github.com/abdulrahmanal-saeed/madar-al-huda/pull/6) merged; pending signing secrets and first published APK/Obtainium update |
 | MHD-007 | QA rules, Definition of Done, PR template (`P00-09`) | Coding agent (Claude Code) | DONE | DoD per task type, manual QA checklist, PR template; no duplicate CI — branch `phase-00/p00-09-qa-dod`, [PR #5](https://github.com/abdulrahmanal-saeed/madar-al-huda/pull/5) merged |
 
+| MHD-011 | Qibla mathematical engine (`P01-08` foundation) | ChatGPT | IN_PROGRESS | [Issue #23](https://github.com/abdulrahmanal-saeed/madar-al-huda/issues/23), great-circle bearing, city-centre presets and unit tests; sensor and live UI later; status stays gated |
+
 ## Execution rules
 - Explicit owner, branch, tests and reviewer comments for each task.
 - Never infer content reuse rights from public web availability.

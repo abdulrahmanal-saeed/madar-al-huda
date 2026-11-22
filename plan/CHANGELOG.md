@@ -1,5 +1,11 @@
 # Plan Changelog
 
+## 2026-11-22 — P01-08 Qibla mathematical foundation
+- Added permission-free, offline true-north Qibla bearing calculator and four approximate manual city-centre locations, with deterministic tests and explicit non-unique/invalid-coordinate handling.
+- Existing `/worship/qibla` remains gated until verified UI and sensor/calibration/manual fallback; no logo, UI shell or Quran content was rebuilt.
+- P01-07 issue created for future method-aware, official-reference-tested prayer calculations; P00-10 UAE dated official expected values remain pending.
+
+
 ## 2026-11-22 — P00-04 bilingual wireframes merged
 - PR #20 merged with all 3 CI jobs successful. P00-04 DONE for **design handoff only**, not a claim of implemented reader/player/prayer UI. Existing brand and Home remain unchanged.
 

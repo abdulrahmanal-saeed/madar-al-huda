@@ -30,3 +30,7 @@ The machine-readable fixture [official-2026-11-22.json](reference/official-2026-
 Run `python3 docs/prayer/check_reference_fixtures.py`, which verifies format, city IDs, chronology, official source provenance fields and UTC offset transitions. It explicitly verifies that **the two UAE expected time sets are absent**, preventing accidental invention and false acceptance.
 
 **Still open before P00-10 DONE:** (1) official date-stamped Dubai and Abu Dhabi expected timetable values with authority/parameter evidence, (2) calculation engine with method/Asr/rounding rules, (3) justified minute tolerance and independent numerical comparisons for all four cities, including DST, (4) device/manual fallback and error checks. The code checker is not a prayer calculation and does not certify actual religious times.
+
+## 2026-11-22 official UAE source inspection
+
+[Dubai IACAD Dulook DXB](https://ipt.iacad.gov.ae/) confirms an official prayer-time application, and [UAE Awqaf](https://www.awqaf.gov.ae/) is an official authority, but their publicly indexed pages did **not** expose a reliably captured **2026-11-22 dated six-time schedule** for both Dubai and Abu Dhabi during this review. It would be unsafe to infer official expected times from third-party calculations or the app under test. The UAE fields remain `null`, and P00-10 is still **IN_PROGRESS**. [P01-07 Issue #24](https://github.com/abdulrahmanal-saeed/madar-al-huda/issues/24) tracks the eventual method-aware calculation engine; P01-08 Qibla geometry is unrelated to this prayer-time validation gate.
