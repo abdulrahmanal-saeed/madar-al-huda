@@ -1,5 +1,9 @@
 # Plan Changelog
 
+## 2026-11-22 — P00-07 source evidence
+- Documented Tanzil official text v1.1 and verbatim-use, attribution and notice conditions. Exact chosen Quran dataset and hash, translation/tafsir/audio rights remain unverified, so P00-07 remains BLOCKED. Issue #26.
+
+
 ## 2026-11-22 — P01-08 Qibla mathematical foundation
 - Added permission-free, offline true-north Qibla bearing calculator and four approximate manual city-centre locations, with deterministic tests and explicit non-unique/invalid-coordinate handling.
 - Existing `/worship/qibla` remains gated until verified UI and sensor/calibration/manual fallback; no logo, UI shell or Quran content was rebuilt.
