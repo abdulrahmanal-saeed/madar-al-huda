@@ -1,6 +1,6 @@
 # Tracker — مصدر الحقيقة لحالة العمل
 
-**Snapshot بتاريخ 2026-11-19:** Phase 00 IN_PROGRESS. عدد المهام 59، منها 5 DONE (P00-01 وP00-02 وP00-03 وP00-05 وP00-09)، و3 REVIEW (`P00-04`، `P00-06`، `P00-11`)، و13 BLOCKED بسبب متطلبات لم تتحقق بعد. الحالة تتغير عبر PRs وليست متابعة تلقائية.
+**Snapshot بتاريخ 2026-11-19:** Phase 00 IN_PROGRESS. عدد المهام 59، منها 6 DONE (P00-01 وP00-02 وP00-03 وP00-04 وP00-05 وP00-09)، و2 REVIEW (`P00-06`، `P00-11`)؛ P00-10 IN_PROGRESS، و13 BLOCKED بسبب متطلبات لم تتحقق بعد. الحالة تتغير عبر PRs وليست متابعة تلقائية.
 
 **Status:** `TODO` · `IN_PROGRESS` · `BLOCKED` · `REVIEW` · `DONE` · `DEFERRED` · `CANCELLED`.
 
@@ -22,7 +22,7 @@
 | `P00-01` | تثبيت قرارات المنتج والاسم | `DONE` | — | PR #1 |
 | `P00-02` | دمج مستندات التأسيس على main | `DONE` | P00-01 | PR #1 |
 | `P00-03` | اعتماد الهوية واسم المنتج بصريًا | `DONE` | P00-01 | [Issue #15](https://github.com/abdulrahmanal-saeed/madar-al-huda/issues/15) · [PR #16 merged](https://github.com/abdulrahmanal-saeed/madar-al-huda/pull/16): original editable SVG icon/wordmarks, Android adaptive + monochrome vectors, five legacy PNG densities, tokens and CI check. **Owner approved existing name and logo on 2026-11-22; no redesign.** Legal trademark/store/package verification is separate [R-10 / Issue #19](https://github.com/abdulrahmanal-saeed/madar-al-huda/issues/19) before Play publication; NOT claimed cleared. |
-| `P00-04` | Wireframes عربية وإنجليزية | `REVIEW` | P00-03 | [Issue #18](https://github.com/abdulrahmanal-saeed/madar-al-huda/issues/18) · [14 AR/EN SVG wireframes](../docs/ux/README.md), mapped to existing routes, no duplicate logo or Home; pending CI/review/merge. |
+| `P00-04` | Wireframes عربية وإنجليزية | `DONE` | P00-03 | [Issue #18](https://github.com/abdulrahmanal-saeed/madar-al-huda/issues/18) · [14 AR/EN SVG wireframes](../docs/ux/README.md), mapped to existing routes, without duplicate logo or Home; [PR #20](https://github.com/abdulrahmanal-saeed/madar-al-huda/pull/20) **merged**, 3 green CI jobs on head ffd2071, including XML/source validation. This is a design handoff, not implemented future P01 UI. |
 | `P00-05` | اعتماد ERD والمعمارية وRLS | `DONE` | P00-01 | [Issue #13](https://github.com/abdulrahmanal-saeed/madar-al-huda/issues/13) · architecture ADR, ERD, RLS matrix, SQL reference blueprint, threat model in `docs/architecture/`; [PR #14](https://github.com/abdulrahmanal-saeed/madar-al-huda/pull/14) **merged** with three green CI jobs. Engineering architecture baseline delegated for completion by owner; database design only, not deployed; later SQL migrations and role tests remain separate implementation gates |
 | `P00-06` | Flutter skeleton + Android CI | `REVIEW` | P00-03,P00-05 | Issue #2 / MHD-001 · branch `claude/serene-galileo-f2ia01` · [PR #4](https://github.com/abdulrahmanal-saeed/madar-al-huda/pull/4) **merged**. الاختبارات الآلية ناجحة؛ اختبار Android على جهاز/محاكي بالعربية والإنجليزية، ومراجعة TalkBack والنص العربي لا تزال مطلوبة قبل إغلاق المهمة. بُني على Tokens وهوية **مؤقتة** ومعمارية **مقترحة** بقرار المالك حتى لا تتعطل الهندسة؛ لا يثبّت شيئًا من P00-03/P00-05 (D-16). |
 | `P00-07` | تحقيق حقوق مصادر المصحف والتفسير والصوت | `BLOCKED` | P00-01 | — |

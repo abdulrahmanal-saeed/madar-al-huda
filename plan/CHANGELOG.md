@@ -1,5 +1,9 @@
 # Plan Changelog
 
+## 2026-11-22 — P00-04 bilingual wireframes merged
+- PR #20 merged with all 3 CI jobs successful. P00-04 DONE for **design handoff only**, not a claim of implemented reader/player/prayer UI. Existing brand and Home remain unchanged.
+
+
 ## 2026-11-22 — P00-10 official reference groundwork
 - Added two date-stamped Egypt Survey Authority prayer-time reference rows (Cairo/Alexandria, 2026-11-22); Dubai/Abu Dhabi official expected values explicitly pending, not invented.
 - Added zoneinfo 2026 DST/UTC offset validation in a zero-dependency Python checker; P00-10 stays IN_PROGRESS until all four authorities/calculation comparisons are verified.
