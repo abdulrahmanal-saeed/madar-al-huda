@@ -43,9 +43,9 @@ void main() {
         const GeoCoordinate(-91, 0),
         const GeoCoordinate(0, 181),
         const GeoCoordinate(0, -181),
-        GeoCoordinate(double.nan, 0),
-        GeoCoordinate(0, double.infinity),
-        GeoCoordinate(double.negativeInfinity, 0),
+        const GeoCoordinate(double.nan, 0),
+        const GeoCoordinate(0, double.infinity),
+        const GeoCoordinate(double.negativeInfinity, 0),
       ]) {
         expect(() => QiblaBearing.calculate(point), throwsArgumentError);
       }
