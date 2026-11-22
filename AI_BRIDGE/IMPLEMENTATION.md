@@ -208,3 +208,9 @@ Visual check: screens were rendered through a temporary golden test with the rea
 
 ## 2026-11-19 — Foundation
 - Established initial repository documentation and Phase 0 planning branch.
+
+## P01 prayer, Qibla and unified Quran preview
+
+- Branch `phase-01/prayer-qibla-quran` implements one location selection, offline prayer calculation, Android Qibla heading, and one verse reader with sourced audio and tafsir integration.
+- Published source status is still gated by the [prayer references](../docs/prayer/README.md), [source register](../docs/CONTENT_SOURCES.md), and device acceptance. Debug builds exercise the complete UI; reviewed preview distribution can opt in via a dart-define.
+- Supabase preview function and rate-limit migration were deployed. Verified gateway authentication, input rejection, two prelive chapters, and service-role-only execution of the rate-limit RPC.

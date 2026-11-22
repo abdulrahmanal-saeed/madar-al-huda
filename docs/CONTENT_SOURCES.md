@@ -4,7 +4,7 @@
 
 | Content | Preferred candidate | Status | Required proof |
 |---|---|---|---|
-| Quran text | Tanzil / verified Uthmani edition | Official verbatim-use terms documented; exact export/hash pending | Select Tanzil v1.1 Uthmani settings and SHA-256; preserve credit/link and notice; independent approval still pending |
+| Quran text | Tanzil / verified Uthmani edition | Official verbatim-use terms documented; pinned export and structural checks complete | Keep the pinned manifest and app credit; complete independent publication review |
 | Quran meaning EN | QuranEnc / an authorized English translator | Pending | Edition/license, attribution, updates, lawful offline scope |
 | Tafsir | al-Tabari — Jami' al-Bayan | Pending | Edition/source provenance, reproduction rights, verse mapping |
 | Tafsir | Ibn Kathir — Tafsir al-Qur'an al-'Azim | Pending | Edition/source provenance, reproduction rights, verse mapping |
@@ -33,3 +33,13 @@ source URL; legal owner; text/audio edition; permission evidence/date; allowed l
 - This licence does **not** automatically grant rights to English translations, al-Tabari/Ibn Kathir digital editions, or reciters' audio, playback/caching or downloading. Those require separate provider permission checks.
 
 **R-01 remains OPEN and P00-07 BLOCKED** until the exact source manifest and other launch rights are evidenced. [Issue #26](https://github.com/abdulrahmanal-saeed/madar-al-huda/issues/26). No Quran text has been imported.
+
+## P01 preview source manifest
+
+| Asset | Origin and options | SHA-256 |
+|---|---|---|
+| Tanzil Uthmani 1.1 text | [Official download](https://tanzil.net/pub/download/index.php?marks=true&sajdah=true&tatweel=true&quranType=uthmani&outType=txt-2&agree=true), text with surah and ayah numbers, marks, sajdah, and tatweel | `6933e133dd56db778c801bf738848454e43648105a151e8d84d86a7cae39ec5f` |
+| Tanzil v1.0 metadata | [Original XML](https://tanzil.net/res/text/metadata/quran-data.xml) | `8867c1d88191472adec9db694b3cd9f135b1a2ef580574d32cf888dcb22c5c7a` |
+| Amiri Quran 1.003 | [Publisher release](https://github.com/aliftype/amiri/releases/tag/1.003), SIL OFL, bundled with its notice | `e2a47644762d16bdfb6d33e0d8db8c6ff30beae84150ef5a705316bbd829455c` |
+
+The reader checks the original UTF-8 files against their hashes and verifies every chapter, verse key and declared count against the supplied metadata. The source file retains its copyright block and the reader links to Tanzil. Independent publication and device typography reviews remain open. Quran Foundation resources are streamed or fetched on demand. Quran Foundation prelive provides only two chapters for integration checks. Record the exact digital edition or recording and approval for each production resource before enabling its ID.

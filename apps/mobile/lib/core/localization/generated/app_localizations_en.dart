@@ -251,4 +251,173 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notFoundAction => 'Back to home';
+
+  @override
+  String get cityDubai => 'Dubai';
+
+  @override
+  String get cityAbuDhabi => 'Abu Dhabi';
+
+  @override
+  String get cityCairo => 'Cairo';
+
+  @override
+  String get cityAlexandria => 'Alexandria';
+
+  @override
+  String get chooseCity => 'Choose a city';
+
+  @override
+  String get useLocation => 'Use my location';
+
+  @override
+  String get deviceLocation => 'Device location';
+
+  @override
+  String get locationDenied =>
+      'Location permission was declined. You can choose a city.';
+
+  @override
+  String get locationUnavailable =>
+      'Location is unavailable. Check location services or choose a city.';
+
+  @override
+  String get locationOutside =>
+      'Device location is supported in Egypt and the UAE. Choose a city to continue.';
+
+  @override
+  String get locationLoading => 'Finding your location…';
+
+  @override
+  String get localSaveFailed => 'Could not save on this device.';
+
+  @override
+  String get prayerPreview =>
+      'Calculated times for testing while local references are being verified.';
+
+  @override
+  String get prayerEgyptMethod => 'Calculation method · Egypt';
+
+  @override
+  String get prayerDubaiMethod => 'Calculation method · Dubai';
+
+  @override
+  String get hanafiAsr => 'Asr calculation';
+
+  @override
+  String get asrHanafi => 'Hanafi';
+
+  @override
+  String get asrStandard => 'Standard';
+
+  @override
+  String get nextPrayer => 'Next prayer';
+
+  @override
+  String get prayerFajr => 'Fajr';
+
+  @override
+  String get prayerSunrise => 'Sunrise';
+
+  @override
+  String get prayerDhuhr => 'Dhuhr';
+
+  @override
+  String get prayerAsr => 'Asr';
+
+  @override
+  String get prayerMaghrib => 'Maghrib';
+
+  @override
+  String get prayerIsha => 'Isha';
+
+  @override
+  String trueBearing(String degrees) {
+    return '$degrees° from true north';
+  }
+
+  @override
+  String get cityBearingApproximate =>
+      'Approximate direction from the selected city centre.';
+
+  @override
+  String get compassHoldFlat => 'Hold your phone flat and away from metal.';
+
+  @override
+  String get compassCalibrate =>
+      'Compass signal is weak. Move your phone in a figure eight away from metal.';
+
+  @override
+  String get compassWaiting => 'Waiting for the compass…';
+
+  @override
+  String get compassUnavailable => 'A live compass reading is unavailable.';
+
+  @override
+  String get readerSurahs => 'Surahs';
+
+  @override
+  String get readerGoToVerse => 'Go to verse';
+
+  @override
+  String get readerVerseNumber => 'Verse number';
+
+  @override
+  String readerVerseInvalid(int count) {
+    return 'Enter a verse number from 1 to $count.';
+  }
+
+  @override
+  String get readerGo => 'Go';
+
+  @override
+  String get readerCancel => 'Cancel';
+
+  @override
+  String get readerTafsir => 'Tafsir';
+
+  @override
+  String readerTafsirFor(int verse) {
+    return 'Tafsir · verse $verse';
+  }
+
+  @override
+  String get readerReciter => 'Reciter';
+
+  @override
+  String get readerTanzil => 'Quran text by Tanzil Project';
+
+  @override
+  String get readerQuranFoundation => 'Quran Foundation';
+
+  @override
+  String get readerRetry => 'Retry';
+
+  @override
+  String get readerLoadFailed => 'Could not load the Quran text.';
+
+  @override
+  String get readerResourcesUnavailable =>
+      'Tafsir and recitations are currently unavailable.';
+
+  @override
+  String get readerTafsirUnavailable => 'Tafsir is unavailable for this verse.';
+
+  @override
+  String get readerAudioUnavailable => 'Could not load this recitation.';
+
+  @override
+  String get readerPlay => 'Play surah';
+
+  @override
+  String get readerPause => 'Pause recitation';
+
+  @override
+  String get readerResume => 'Resume recitation';
+
+  @override
+  String get readerStop => 'Stop recitation';
+
+  @override
+  String get readerTafsirLoading => 'Loading tafsir…';
 }

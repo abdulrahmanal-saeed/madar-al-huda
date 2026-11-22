@@ -156,5 +156,228 @@
   "notFoundBody": "The page you were looking for doesn't exist.",
   "@notFoundBody": {"description": "Body shown for an unknown route."},
   "notFoundAction": "Back to home",
-  "@notFoundAction": {"description": "Button that returns to the home screen."}
+  "@notFoundAction": {"description": "Button that returns to the home screen."},
+  "cityDubai": "Dubai",
+  "@cityDubai": {
+    "description": "Dubai"
+  },
+  "cityAbuDhabi": "Abu Dhabi",
+  "@cityAbuDhabi": {
+    "description": "Abu Dhabi"
+  },
+  "cityCairo": "Cairo",
+  "@cityCairo": {
+    "description": "Cairo"
+  },
+  "cityAlexandria": "Alexandria",
+  "@cityAlexandria": {
+    "description": "Alexandria"
+  },
+  "chooseCity": "Choose a city",
+  "@chooseCity": {
+    "description": "Choose a city"
+  },
+  "useLocation": "Use my location",
+  "@useLocation": {
+    "description": "Use my location"
+  },
+  "deviceLocation": "Device location",
+  "@deviceLocation": {
+    "description": "Device location"
+  },
+  "locationDenied": "Location permission was declined. You can choose a city.",
+  "@locationDenied": {
+    "description": "Location permission was declined. You can choose a city."
+  },
+  "locationUnavailable": "Location is unavailable. Check location services or choose a city.",
+  "@locationUnavailable": {
+    "description": "Location is unavailable. Check location services or choose a city."
+  },
+  "locationOutside": "Device location is supported in Egypt and the UAE. Choose a city to continue.",
+  "@locationOutside": {
+    "description": "Device location is supported in Egypt and the UAE. Choose a city to continue."
+  },
+  "locationLoading": "Finding your location…",
+  "@locationLoading": {
+    "description": "Finding your location…"
+  },
+  "localSaveFailed": "Could not save on this device.",
+  "@localSaveFailed": {
+    "description": "Could not save on this device."
+  },
+  "prayerPreview": "Calculated times for testing while local references are being verified.",
+  "@prayerPreview": {
+    "description": "Calculated times for testing while local references are being verified."
+  },
+  "prayerEgyptMethod": "Calculation method · Egypt",
+  "@prayerEgyptMethod": {
+    "description": "Calculation method · Egypt"
+  },
+  "prayerDubaiMethod": "Calculation method · Dubai",
+  "@prayerDubaiMethod": {
+    "description": "Calculation method · Dubai"
+  },
+  "hanafiAsr": "Asr calculation",
+  "@hanafiAsr": {
+    "description": "Asr calculation"
+  },
+  "asrHanafi": "Hanafi",
+  "@asrHanafi": {
+    "description": "Hanafi"
+  },
+  "asrStandard": "Standard",
+  "@asrStandard": {
+    "description": "Standard"
+  },
+  "nextPrayer": "Next prayer",
+  "@nextPrayer": {
+    "description": "Next prayer"
+  },
+  "prayerFajr": "Fajr",
+  "@prayerFajr": {
+    "description": "Fajr"
+  },
+  "prayerSunrise": "Sunrise",
+  "@prayerSunrise": {
+    "description": "Sunrise"
+  },
+  "prayerDhuhr": "Dhuhr",
+  "@prayerDhuhr": {
+    "description": "Dhuhr"
+  },
+  "prayerAsr": "Asr",
+  "@prayerAsr": {
+    "description": "Asr"
+  },
+  "prayerMaghrib": "Maghrib",
+  "@prayerMaghrib": {
+    "description": "Maghrib"
+  },
+  "prayerIsha": "Isha",
+  "@prayerIsha": {
+    "description": "Isha"
+  },
+  "trueBearing": "{degrees}° from true north",
+  "@trueBearing": {
+    "description": "{degrees}° from true north",
+    "placeholders": {
+      "degrees": {
+        "type": "String"
+      }
+    }
+  },
+  "cityBearingApproximate": "Approximate direction from the selected city centre.",
+  "@cityBearingApproximate": {
+    "description": "Approximate direction from the selected city centre."
+  },
+  "compassHoldFlat": "Hold your phone flat and away from metal.",
+  "@compassHoldFlat": {
+    "description": "Hold your phone flat and away from metal."
+  },
+  "compassCalibrate": "Compass signal is weak. Move your phone in a figure eight away from metal.",
+  "@compassCalibrate": {
+    "description": "Compass signal is weak. Move your phone in a figure eight away from metal."
+  },
+  "compassWaiting": "Waiting for the compass…",
+  "@compassWaiting": {
+    "description": "Waiting for the compass…"
+  },
+  "compassUnavailable": "A live compass reading is unavailable.",
+  "@compassUnavailable": {
+    "description": "A live compass reading is unavailable."
+  },
+  "readerSurahs": "Surahs",
+  "@readerSurahs": {
+    "description": "Surahs"
+  },
+  "readerGoToVerse": "Go to verse",
+  "@readerGoToVerse": {
+    "description": "Go to verse"
+  },
+  "readerVerseNumber": "Verse number",
+  "@readerVerseNumber": {
+    "description": "Verse number"
+  },
+  "readerVerseInvalid": "Enter a verse number from 1 to {count}.",
+  "@readerVerseInvalid": {
+    "description": "Enter a verse number from 1 to {count}.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "readerGo": "Go",
+  "@readerGo": {
+    "description": "Go"
+  },
+  "readerCancel": "Cancel",
+  "@readerCancel": {
+    "description": "Cancel"
+  },
+  "readerTafsir": "Tafsir",
+  "@readerTafsir": {
+    "description": "Tafsir"
+  },
+  "readerTafsirFor": "Tafsir · verse {verse}",
+  "@readerTafsirFor": {
+    "description": "Tafsir · verse {verse}",
+    "placeholders": {
+      "verse": {
+        "type": "int"
+      }
+    }
+  },
+  "readerReciter": "Reciter",
+  "@readerReciter": {
+    "description": "Reciter"
+  },
+  "readerTanzil": "Quran text by Tanzil Project",
+  "@readerTanzil": {
+    "description": "Quran text by Tanzil Project"
+  },
+  "readerQuranFoundation": "Quran Foundation",
+  "@readerQuranFoundation": {
+    "description": "Quran Foundation"
+  },
+  "readerRetry": "Retry",
+  "@readerRetry": {
+    "description": "Retry"
+  },
+  "readerLoadFailed": "Could not load the Quran text.",
+  "@readerLoadFailed": {
+    "description": "Could not load the Quran text."
+  },
+  "readerResourcesUnavailable": "Tafsir and recitations are currently unavailable.",
+  "@readerResourcesUnavailable": {
+    "description": "Tafsir and recitations are currently unavailable."
+  },
+  "readerTafsirUnavailable": "Tafsir is unavailable for this verse.",
+  "@readerTafsirUnavailable": {
+    "description": "Tafsir is unavailable for this verse."
+  },
+  "readerAudioUnavailable": "Could not load this recitation.",
+  "@readerAudioUnavailable": {
+    "description": "Could not load this recitation."
+  },
+  "readerPlay": "Play surah",
+  "@readerPlay": {
+    "description": "Play surah"
+  },
+  "readerPause": "Pause recitation",
+  "@readerPause": {
+    "description": "Pause recitation"
+  },
+  "readerResume": "Resume recitation",
+  "@readerResume": {
+    "description": "Resume recitation"
+  },
+  "readerStop": "Stop recitation",
+  "@readerStop": {
+    "description": "Stop recitation"
+  },
+  "readerTafsirLoading": "Loading tafsir…",
+  "@readerTafsirLoading": {
+    "description": "Loading tafsir…"
+  }
 }

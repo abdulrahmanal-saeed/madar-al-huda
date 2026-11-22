@@ -541,6 +541,318 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Back to home'**
   String get notFoundAction;
+
+  /// Dubai
+  ///
+  /// In en, this message translates to:
+  /// **'Dubai'**
+  String get cityDubai;
+
+  /// Abu Dhabi
+  ///
+  /// In en, this message translates to:
+  /// **'Abu Dhabi'**
+  String get cityAbuDhabi;
+
+  /// Cairo
+  ///
+  /// In en, this message translates to:
+  /// **'Cairo'**
+  String get cityCairo;
+
+  /// Alexandria
+  ///
+  /// In en, this message translates to:
+  /// **'Alexandria'**
+  String get cityAlexandria;
+
+  /// Choose a city
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a city'**
+  String get chooseCity;
+
+  /// Use my location
+  ///
+  /// In en, this message translates to:
+  /// **'Use my location'**
+  String get useLocation;
+
+  /// Device location
+  ///
+  /// In en, this message translates to:
+  /// **'Device location'**
+  String get deviceLocation;
+
+  /// Location permission was declined. You can choose a city.
+  ///
+  /// In en, this message translates to:
+  /// **'Location permission was declined. You can choose a city.'**
+  String get locationDenied;
+
+  /// Location is unavailable. Check location services or choose a city.
+  ///
+  /// In en, this message translates to:
+  /// **'Location is unavailable. Check location services or choose a city.'**
+  String get locationUnavailable;
+
+  /// Device location is supported in Egypt and the UAE. Choose a city to continue.
+  ///
+  /// In en, this message translates to:
+  /// **'Device location is supported in Egypt and the UAE. Choose a city to continue.'**
+  String get locationOutside;
+
+  /// Finding your location…
+  ///
+  /// In en, this message translates to:
+  /// **'Finding your location…'**
+  String get locationLoading;
+
+  /// Could not save on this device.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save on this device.'**
+  String get localSaveFailed;
+
+  /// Calculated times for testing while local references are being verified.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculated times for testing while local references are being verified.'**
+  String get prayerPreview;
+
+  /// Calculation method · Egypt
+  ///
+  /// In en, this message translates to:
+  /// **'Calculation method · Egypt'**
+  String get prayerEgyptMethod;
+
+  /// Calculation method · Dubai
+  ///
+  /// In en, this message translates to:
+  /// **'Calculation method · Dubai'**
+  String get prayerDubaiMethod;
+
+  /// Asr calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Asr calculation'**
+  String get hanafiAsr;
+
+  /// Hanafi
+  ///
+  /// In en, this message translates to:
+  /// **'Hanafi'**
+  String get asrHanafi;
+
+  /// Standard
+  ///
+  /// In en, this message translates to:
+  /// **'Standard'**
+  String get asrStandard;
+
+  /// Next prayer
+  ///
+  /// In en, this message translates to:
+  /// **'Next prayer'**
+  String get nextPrayer;
+
+  /// Fajr
+  ///
+  /// In en, this message translates to:
+  /// **'Fajr'**
+  String get prayerFajr;
+
+  /// Sunrise
+  ///
+  /// In en, this message translates to:
+  /// **'Sunrise'**
+  String get prayerSunrise;
+
+  /// Dhuhr
+  ///
+  /// In en, this message translates to:
+  /// **'Dhuhr'**
+  String get prayerDhuhr;
+
+  /// Asr
+  ///
+  /// In en, this message translates to:
+  /// **'Asr'**
+  String get prayerAsr;
+
+  /// Maghrib
+  ///
+  /// In en, this message translates to:
+  /// **'Maghrib'**
+  String get prayerMaghrib;
+
+  /// Isha
+  ///
+  /// In en, this message translates to:
+  /// **'Isha'**
+  String get prayerIsha;
+
+  /// {degrees}° from true north
+  ///
+  /// In en, this message translates to:
+  /// **'{degrees}° from true north'**
+  String trueBearing(String degrees);
+
+  /// Approximate direction from the selected city centre.
+  ///
+  /// In en, this message translates to:
+  /// **'Approximate direction from the selected city centre.'**
+  String get cityBearingApproximate;
+
+  /// Hold your phone flat and away from metal.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold your phone flat and away from metal.'**
+  String get compassHoldFlat;
+
+  /// Compass signal is weak. Move your phone in a figure eight away from metal.
+  ///
+  /// In en, this message translates to:
+  /// **'Compass signal is weak. Move your phone in a figure eight away from metal.'**
+  String get compassCalibrate;
+
+  /// Waiting for the compass…
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the compass…'**
+  String get compassWaiting;
+
+  /// A live compass reading is unavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'A live compass reading is unavailable.'**
+  String get compassUnavailable;
+
+  /// Surahs
+  ///
+  /// In en, this message translates to:
+  /// **'Surahs'**
+  String get readerSurahs;
+
+  /// Go to verse
+  ///
+  /// In en, this message translates to:
+  /// **'Go to verse'**
+  String get readerGoToVerse;
+
+  /// Verse number
+  ///
+  /// In en, this message translates to:
+  /// **'Verse number'**
+  String get readerVerseNumber;
+
+  /// Enter a verse number from 1 to {count}.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a verse number from 1 to {count}.'**
+  String readerVerseInvalid(int count);
+
+  /// Go
+  ///
+  /// In en, this message translates to:
+  /// **'Go'**
+  String get readerGo;
+
+  /// Cancel
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get readerCancel;
+
+  /// Tafsir
+  ///
+  /// In en, this message translates to:
+  /// **'Tafsir'**
+  String get readerTafsir;
+
+  /// Tafsir · verse {verse}
+  ///
+  /// In en, this message translates to:
+  /// **'Tafsir · verse {verse}'**
+  String readerTafsirFor(int verse);
+
+  /// Reciter
+  ///
+  /// In en, this message translates to:
+  /// **'Reciter'**
+  String get readerReciter;
+
+  /// Quran text by Tanzil Project
+  ///
+  /// In en, this message translates to:
+  /// **'Quran text by Tanzil Project'**
+  String get readerTanzil;
+
+  /// Quran Foundation
+  ///
+  /// In en, this message translates to:
+  /// **'Quran Foundation'**
+  String get readerQuranFoundation;
+
+  /// Retry
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get readerRetry;
+
+  /// Could not load the Quran text.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load the Quran text.'**
+  String get readerLoadFailed;
+
+  /// Tafsir and recitations are currently unavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Tafsir and recitations are currently unavailable.'**
+  String get readerResourcesUnavailable;
+
+  /// Tafsir is unavailable for this verse.
+  ///
+  /// In en, this message translates to:
+  /// **'Tafsir is unavailable for this verse.'**
+  String get readerTafsirUnavailable;
+
+  /// Could not load this recitation.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load this recitation.'**
+  String get readerAudioUnavailable;
+
+  /// Play surah
+  ///
+  /// In en, this message translates to:
+  /// **'Play surah'**
+  String get readerPlay;
+
+  /// Pause recitation
+  ///
+  /// In en, this message translates to:
+  /// **'Pause recitation'**
+  String get readerPause;
+
+  /// Resume recitation
+  ///
+  /// In en, this message translates to:
+  /// **'Resume recitation'**
+  String get readerResume;
+
+  /// Stop recitation
+  ///
+  /// In en, this message translates to:
+  /// **'Stop recitation'**
+  String get readerStop;
+
+  /// Loading tafsir…
+  ///
+  /// In en, this message translates to:
+  /// **'Loading tafsir…'**
+  String get readerTafsirLoading;
 }
 
 class _AppLocalizationsDelegate

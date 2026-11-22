@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 import 'package:material_ui/material_ui.dart';
 
 import 'app/app.dart';
@@ -12,6 +13,19 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   _registerFontLicense();
 
+  if (defaultTargetPlatform == TargetPlatform.android) {
+    try {
+      await JustAudioBackground.init(
+        androidNotificationChannelId: 'com.abdulrahmanalsaeed.madar.recitation',
+        androidNotificationChannelName: 'Quran recitation',
+        androidNotificationOngoing: true,
+      );
+    } catch (error, stack) {
+      FlutterError.reportError(
+        FlutterErrorDetails(exception: error, stack: stack),
+      );
+    }
+  }
   final store = await _openPreferences();
 
   runApp(
@@ -27,7 +41,13 @@ Future<void> main() async {
 Future<KeyValueStore> _openPreferences() async {
   try {
     return await SharedPreferencesKeyValueStore.create(
-      allowList: SettingsRepository.keys,
+      allowList: {
+        ...SettingsRepository.keys,
+        'worship.manualCity',
+        'worship.hanafiAsr',
+        'quran.lastRead.v1',
+        'quran.reciter.v1',
+      },
     );
   } catch (error, stack) {
     FlutterError.reportError(
@@ -49,5 +69,8 @@ void _registerFontLicense() {
       'assets/fonts/ibm_plex_sans_arabic/OFL.txt',
     );
     yield LicenseEntryWithLineBreaks(['IBM Plex Sans Arabic'], text);
+    yield LicenseEntryWithLineBreaks([
+      'Amiri Quran',
+    ], await rootBundle.loadString('assets/fonts/amiri_quran/OFL.txt'));
   });
 }

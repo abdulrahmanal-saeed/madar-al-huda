@@ -57,6 +57,17 @@ jobs:
       - name: Validate prayer reference and timezone data
         run: python3 docs/prayer/check_reference_fixtures.py
 
+  quran-edge:
+    name: Quran Edge Function
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Check formatting and endpoint contracts
+        run: |
+          npx --yes deno@2.9.6 fmt --check supabase/functions/quran
+          npx --yes deno@2.9.6 test --allow-env supabase/functions/quran/handler_test.ts
+
   analyze-test:
     name: Format, analyze & test
     runs-on: ubuntu-latest

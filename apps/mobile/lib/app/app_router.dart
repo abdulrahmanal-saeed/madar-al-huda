@@ -15,9 +15,6 @@ import '../features/library/presentation/library_hub_screen.dart';
 import '../features/prayer/presentation/prayer_times_screen.dart';
 import '../features/qibla/presentation/qibla_screen.dart';
 import '../features/quran/presentation/mushaf_screen.dart';
-import '../features/quran/presentation/quran_hub_screen.dart';
-import '../features/quran/presentation/recitations_screen.dart';
-import '../features/quran/presentation/tafsir_screen.dart';
 import '../features/settings/presentation/settings_screen.dart';
 import '../features/worship/presentation/worship_hub_screen.dart';
 import 'app_shell.dart';
@@ -36,7 +33,13 @@ GoRouter buildAppRouter({String initialLocation = AppRoutes.home}) {
     navigatorKey: rootNavigatorKey,
     initialLocation: initialLocation,
     errorBuilder: (_, _) => const NotFoundScreen(),
-    redirect: (_, state) => state.uri.path == '/' ? AppRoutes.home : null,
+    redirect: (_, state) => switch (state.uri.path) {
+      '/' => AppRoutes.home,
+      AppRoutes.mushaf ||
+      AppRoutes.recitations ||
+      AppRoutes.tafsir => AppRoutes.quran,
+      _ => null,
+    },
     routes: [
       StatefulShellRoute.indexedStack(
         builder: (_, _, shell) => AppShell(navigationShell: shell),
@@ -53,24 +56,7 @@ GoRouter buildAppRouter({String initialLocation = AppRoutes.home}) {
             routes: [
               GoRoute(
                 path: AppRoutes.quran,
-                builder: (_, _) => const QuranHubScreen(),
-                routes: [
-                  _child(
-                    AppRoutes.mushaf,
-                    AppRoutes.quran,
-                    const MushafScreen(),
-                  ),
-                  _child(
-                    AppRoutes.recitations,
-                    AppRoutes.quran,
-                    const RecitationsScreen(),
-                  ),
-                  _child(
-                    AppRoutes.tafsir,
-                    AppRoutes.quran,
-                    const TafsirScreen(),
-                  ),
-                ],
+                builder: (_, _) => const MushafScreen(),
               ),
             ],
           ),

@@ -243,4 +243,171 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get notFoundAction => 'العودة إلى الرئيسية';
+
+  @override
+  String get cityDubai => 'دبي';
+
+  @override
+  String get cityAbuDhabi => 'أبوظبي';
+
+  @override
+  String get cityCairo => 'القاهرة';
+
+  @override
+  String get cityAlexandria => 'الإسكندرية';
+
+  @override
+  String get chooseCity => 'اختر مدينة';
+
+  @override
+  String get useLocation => 'استخدم موقعي';
+
+  @override
+  String get deviceLocation => 'موقع الجهاز';
+
+  @override
+  String get locationDenied => 'تم رفض إذن الموقع. يمكنك اختيار مدينة.';
+
+  @override
+  String get locationUnavailable =>
+      'تعذّر تحديد الموقع. تحقق من خدمة الموقع أو اختر مدينة.';
+
+  @override
+  String get locationOutside =>
+      'موقع الجهاز مدعوم داخل مصر والإمارات. اختر مدينة للمتابعة.';
+
+  @override
+  String get locationLoading => 'جارٍ تحديد موقعك…';
+
+  @override
+  String get localSaveFailed => 'تعذّر الحفظ على هذا الجهاز.';
+
+  @override
+  String get prayerPreview =>
+      'مواقيت محسوبة للاختبار خلال التحقق من المراجع المحلية.';
+
+  @override
+  String get prayerEgyptMethod => 'طريقة الحساب · مصر';
+
+  @override
+  String get prayerDubaiMethod => 'طريقة الحساب · دبي';
+
+  @override
+  String get hanafiAsr => 'حساب العصر';
+
+  @override
+  String get asrHanafi => 'حنفي';
+
+  @override
+  String get asrStandard => 'قياسي';
+
+  @override
+  String get nextPrayer => 'الصلاة القادمة';
+
+  @override
+  String get prayerFajr => 'الفجر';
+
+  @override
+  String get prayerSunrise => 'الشروق';
+
+  @override
+  String get prayerDhuhr => 'الظهر';
+
+  @override
+  String get prayerAsr => 'العصر';
+
+  @override
+  String get prayerMaghrib => 'المغرب';
+
+  @override
+  String get prayerIsha => 'العشاء';
+
+  @override
+  String trueBearing(String degrees) {
+    return '$degrees° من الشمال الجغرافي';
+  }
+
+  @override
+  String get cityBearingApproximate => 'اتجاه تقريبي من مركز المدينة المختارة.';
+
+  @override
+  String get compassHoldFlat => 'أمسك الهاتف أفقيًا وأبعده عن المعادن.';
+
+  @override
+  String get compassCalibrate =>
+      'قراءة البوصلة ضعيفة. حرّك الهاتف على شكل رقم ثمانية بعيدًا عن المعادن.';
+
+  @override
+  String get compassWaiting => 'في انتظار قراءة البوصلة…';
+
+  @override
+  String get compassUnavailable => 'قراءة البوصلة المباشرة غير متاحة.';
+
+  @override
+  String get readerSurahs => 'السور';
+
+  @override
+  String get readerGoToVerse => 'انتقل إلى آية';
+
+  @override
+  String get readerVerseNumber => 'رقم الآية';
+
+  @override
+  String readerVerseInvalid(int count) {
+    return 'أدخل رقم آية من ١ إلى $count.';
+  }
+
+  @override
+  String get readerGo => 'انتقل';
+
+  @override
+  String get readerCancel => 'إلغاء';
+
+  @override
+  String get readerTafsir => 'التفسير';
+
+  @override
+  String readerTafsirFor(int verse) {
+    return 'التفسير · الآية $verse';
+  }
+
+  @override
+  String get readerReciter => 'القارئ';
+
+  @override
+  String get readerTanzil => 'نص القرآن من مشروع تنزيل';
+
+  @override
+  String get readerQuranFoundation => 'مؤسسة القرآن';
+
+  @override
+  String get readerRetry => 'إعادة المحاولة';
+
+  @override
+  String get readerLoadFailed => 'تعذّر تحميل نص القرآن.';
+
+  @override
+  String get readerResourcesUnavailable =>
+      'التفسير والتلاوات غير متاحين حاليًا.';
+
+  @override
+  String get readerTafsirUnavailable => 'التفسير غير متاح لهذه الآية.';
+
+  @override
+  String get readerAudioUnavailable => 'تعذّر تحميل هذه التلاوة.';
+
+  @override
+  String get readerPlay => 'تشغيل السورة';
+
+  @override
+  String get readerPause => 'إيقاف التلاوة مؤقتًا';
+
+  @override
+  String get readerResume => 'استئناف التلاوة';
+
+  @override
+  String get readerStop => 'إيقاف التلاوة';
+
+  @override
+  String get readerTafsirLoading => 'جارٍ تحميل التفسير…';
 }

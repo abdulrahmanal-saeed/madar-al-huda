@@ -34,3 +34,15 @@ Run `python3 docs/prayer/check_reference_fixtures.py`, which verifies format, ci
 ## 2026-11-22 official UAE source inspection
 
 [Dubai IACAD Dulook DXB](https://ipt.iacad.gov.ae/) confirms an official prayer-time application, and [UAE Awqaf](https://www.awqaf.gov.ae/) is an official authority, but their publicly indexed pages did **not** expose a reliably captured **2026-11-22 dated six-time schedule** for both Dubai and Abu Dhabi during this review. It would be unsafe to infer official expected times from third-party calculations or the app under test. The UAE fields remain `null`, and P00-10 is still **IN_PROGRESS**. [P01-07 Issue #24](https://github.com/abdulrahmanal-saeed/madar-al-huda/issues/24) tracks the eventual method-aware calculation engine; P01-08 Qibla geometry is unrelated to this prayer-time validation gate.
+
+## P01 preview comparison
+
+The Android preview runs Adhan Dart 2.0.1 with the Egyptian and Dubai parameter sets. These comparisons use standard Asr, the four preset city centres, and the selected city's local date. Signed differences below are calculated minutes minus reference minutes.
+
+| City | Reference date | Fajr | Sunrise | Dhuhr | Asr | Maghrib | Isha |
+|---|---|---:|---:|---:|---:|---:|---:|
+| Cairo | 2026-11-22 | 0 | 0 | +1 | 0 | 0 | 0 |
+| Alexandria | 2026-11-22 | +1 | 0 | +1 | 0 | 0 | 0 |
+| Abu Dhabi | 2026-02-18 | 0 | — | 0 | +3 | 0 | 0 |
+
+The Abu Dhabi comparison uses the [Sheikh Zayed Grand Mosque Centre Ramadan 1447 calendar](https://www.szgmc.gov.ae/en/worshippers/ramadan-kareem), which lists five prayers. The 2026-11-22 UAE fixture is still pending. Dubai requires a date-stamped table from [Dulook DXB](https://ipt.iacad.gov.ae/). Abu Dhabi still requires a dated sunrise and corroboration of the Asr settings and difference. Both checks remain required before approving the prayer-time release.

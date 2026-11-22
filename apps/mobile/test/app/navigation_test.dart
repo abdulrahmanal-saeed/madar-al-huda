@@ -1,10 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:madar_al_huda/app/app_shell.dart';
 import 'package:madar_al_huda/core/localization/app_locales.dart';
+import 'package:madar_al_huda/core/routing/app_routes.dart';
 import 'package:madar_al_huda/core/routing/app_sections.dart';
 import 'package:madar_al_huda/core/widgets/content_status_panel.dart';
 import 'package:madar_al_huda/core/widgets/section_card.dart';
 import 'package:madar_al_huda/core/widgets/settings_button.dart';
+import 'package:madar_al_huda/features/quran/presentation/mushaf_screen.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../helpers/pump_app.dart';
@@ -33,7 +35,6 @@ void main() {
   ) async {
     await pumpMadarApp(tester);
     final expected = {
-      'Quran': [AppSection.mushaf, AppSection.recitations, AppSection.tafsir],
       'Worship': [AppSection.prayerTimes, AppSection.qibla, AppSection.adhkar],
       'Library': [AppSection.hadith, AppSection.fiqh, AppSection.articles],
       'Learning': [AppSection.lessons, AppSection.stories],
@@ -60,7 +61,14 @@ void main() {
     testWidgets('[$locale] every section screen is reachable and shows only '
         'a gated status panel', (tester) async {
       final l10n = lookupAppLocalizations(locale);
-      for (final section in AppSection.values) {
+      for (final section in const [
+        AppSection.adhkar,
+        AppSection.hadith,
+        AppSection.fiqh,
+        AppSection.articles,
+        AppSection.lessons,
+        AppSection.stories,
+      ]) {
         await pumpMadarApp(
           tester,
           deviceLocales: [locale],
@@ -81,6 +89,19 @@ void main() {
     });
   }
 
+  testWidgets('legacy Quran paths all open the unified reader', (tester) async {
+    for (final path in [
+      AppRoutes.quran,
+      AppRoutes.mushaf,
+      AppRoutes.recitations,
+      AppRoutes.tafsir,
+    ]) {
+      await pumpMadarApp(tester, initialLocation: path);
+      expect(find.byType(MushafScreen), findsOneWidget);
+      expect(find.byType(ContentStatusPanel), findsNothing);
+    }
+  });
+
   testWidgets('tabs keep their own navigation stack', (tester) async {
     await pumpMadarApp(tester);
 
@@ -89,15 +110,15 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(SectionCard.keyFor(AppSection.prayerTimes)));
     await tester.pumpAndSettle();
-    expect(find.byType(ContentStatusPanel), findsOneWidget);
+    expect(find.text('Choose a city'), findsOneWidget);
 
     // Switch to Quran and back: Prayer Times is still open.
     await tester.tap(navTab('Quran'));
     await tester.pumpAndSettle();
-    expect(find.byType(ContentStatusPanel), findsNothing);
+    expect(find.byType(MushafScreen), findsOneWidget);
     await tester.tap(navTab('Worship'));
     await tester.pumpAndSettle();
-    expect(find.byType(ContentStatusPanel), findsOneWidget);
+    expect(find.text('Choose a city'), findsOneWidget);
     expect(find.text('Prayer Times'), findsWidgets);
 
     // Re-selecting the active tab pops to its root.
@@ -130,7 +151,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.byType(ContentStatusPanel), findsOneWidget);
+    expect(find.text('Choose a city'), findsOneWidget);
     final bar = tester.widget<NavigationBar>(
       find.byKey(AppShell.navigationBarKey),
     );

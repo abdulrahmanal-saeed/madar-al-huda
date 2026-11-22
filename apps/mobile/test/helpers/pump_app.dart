@@ -1,9 +1,12 @@
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:madar_al_huda/app/app.dart';
 import 'package:madar_al_huda/app/app_router.dart';
 import 'package:madar_al_huda/core/storage/key_value_store.dart';
 import 'package:madar_al_huda/core/storage/storage_providers.dart';
+import 'package:madar_al_huda/features/quran/data/mushaf_edition.dart';
+import 'package:madar_al_huda/features/quran/data/quran_services.dart';
 import 'package:material_ui/material_ui.dart';
 
 /// Phone-sized logical viewport (Pixel-class device).
@@ -16,14 +19,18 @@ const Size tabletSize = Size(1024, 768);
 ///
 /// [deviceLocales] simulates the device language list; [store] lets a test
 /// pre-seed or inspect persisted preferences.
+MushafEdition? _testMushaf;
+
 Future<InMemoryKeyValueStore> pumpMadarApp(
   WidgetTester tester, {
   InMemoryKeyValueStore? store,
   List<Locale> deviceLocales = const [Locale('en', 'US')],
   Size size = phoneSize,
   String? initialLocation,
+  QuranApi? quranApi,
 }) async {
   final kv = store ?? InMemoryKeyValueStore();
+  _testMushaf ??= await tester.runAsync(() => MushafEdition.load(rootBundle));
 
   tester.view.devicePixelRatio = 1;
   tester.view.physicalSize = size;
@@ -37,6 +44,8 @@ Future<InMemoryKeyValueStore> pumpMadarApp(
       key: UniqueKey(),
       overrides: [
         keyValueStoreProvider.overrideWithValue(kv),
+        mushafEditionProvider.overrideWith((_) => _testMushaf!),
+        if (quranApi != null) quranApiProvider.overrideWithValue(quranApi),
         if (initialLocation != null)
           appRouterProvider.overrideWith((ref) {
             final router = buildAppRouter(initialLocation: initialLocation);

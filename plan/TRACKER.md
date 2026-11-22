@@ -28,7 +28,7 @@
 | `P00-07` | تحقيق حقوق مصادر المصحف والتفسير والصوت | `BLOCKED` | P00-01 | [Issue #26](https://github.com/abdulrahmanal-saeed/madar-al-huda/issues/26): [source rights audit](../docs/CONTENT_SOURCES.md) confirms Tanzil's verbatim-use terms but not an exact import manifest/hash; tafsir, translation, reciter rights still unverified. **R-01 OPEN, no religious text imported.** |
 | `P00-08` | تعيين مراجع شرعي مؤهل للفقه | `BLOCKED` | P00-01 | — |
 | `P00-09` | قواعد QA وDefinition of Done | `DONE` | P00-05 | branch `phase-00/p00-09-qa-dod` · [PR #5](https://github.com/abdulrahmanal-saeed/madar-al-huda/pull/5) **merged**; وثائق DoD وQA وقالب PR دُمجت بعد مراجعة الكود ونجاح CI — [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md)، [QA_CHECKLIST](../docs/QA_CHECKLIST.md)، PR template. بُني مؤقتًا قبل اعتماد P00-05 بموافقة المالك. |
-| `P00-10` | Prayer fixtures للإمارات ومصر | `IN_PROGRESS` | P00-05 | [Issue #21](https://github.com/abdulrahmanal-saeed/madar-al-huda/issues/21) · [official reference & timezone pack](../docs/prayer/README.md): Cairo and Alexandria 2026-11-22 ESA source rows plus 2026 DST tests; Dubai and Abu Dhabi authoritative dated values **pending**. No numerical prayer calculator yet; cannot close or ungate. |
+| `P00-10` | Prayer fixtures للإمارات ومصر | `IN_PROGRESS` | P00-05 | [Issue #21](https://github.com/abdulrahmanal-saeed/madar-al-huda/issues/21) · [official reference & timezone pack](../docs/prayer/README.md): Cairo and Alexandria 2026-11-22 ESA source rows plus 2026 DST tests; P01 preview compares Cairo/Alexandria and five published Abu Dhabi prayers. The complete UAE references and comparison review remain pending. |
 | `P00-11` | قناة تحديث نسخ التطوير (APK موقّع + Obtainium) | `REVIEW` | P00-06 | طلب المالك 2026-11-19 · branch `phase-00/p00-11-dev-updates` · [PR #6](https://github.com/abdulrahmanal-saeed/madar-al-huda/pull/6) **merged** · [DEV_UPDATES.md](../docs/DEV_UPDATES.md) · D-17. تم بنجاح نشر أول APK تطوير موقّع في [v0.1.0-dev.2](https://github.com/abdulrahmanal-saeed/madar-al-huda/releases/tag/v0.1.0-dev.2)، وأكد المالك تثبيته واستلامه عبر Obtainium بتاريخ 2026-11-19 ([دليل](https://github.com/abdulrahmanal-saeed/madar-al-huda/pull/6#issuecomment-7012989410)). **المتبقي:** إثبات تحديث تلقائي على الجهاز فوق النسخة الحالية؛ الحالة REVIEW وليست DONE. |
 
 ## Phase 01 — Quran & Prayer MVP — المصحف والصلاة والقبلة
@@ -36,12 +36,12 @@
 | ID | المهمة | Status | Dependencies | Evidence / Issue |
 |---|---|---|---|---|
 | `P01-01` | نص المصحف والآيات immutable | `BLOCKED` | P00-07,P00-06 | — |
-| `P01-02` | القارئ والفهرسة والتنقل | `TODO` | P01-01 | — |
+| `P01-02` | القارئ والفهرسة والتنقل | `IN_PROGRESS` | P01-01 | Unified reader and legacy redirects implemented in preview. |
 | `P01-03` | بحث وعلامات وآخر موضع | `TODO` | P01-01 | — |
 | `P01-04` | ترجمة معاني القرآن للإنجليزية | `BLOCKED` | P00-07,P01-01 | — |
 | `P01-05` | تفسير الطبري وابن كثير | `BLOCKED` | P00-07,P01-01 | — |
 | `P01-06` | مشغل صوت وتلاوة أولى | `BLOCKED` | P00-07,P00-06 | — |
-| `P01-07` | صلاة حسب المدينة والموقع | `TODO` | P00-10,P00-06 | [Issue #24](https://github.com/abdulrahmanal-saeed/madar-al-huda/issues/24); depends on official 4-city fixtures P00-10 and validated calculation. Do not display invented times. |
+| `P01-07` | صلاة حسب المدينة والموقع | `IN_PROGRESS` | P00-10,P00-06 | [Issue #24](https://github.com/abdulrahmanal-saeed/madar-al-huda/issues/24); Offline calculation implemented in preview. Remaining release evidence is in [the comparison report](../docs/prayer/README.md). |
 | `P01-08` | القبلة ومعايرة المستشعر | `IN_PROGRESS` | P00-06 | [Issue #23](https://github.com/abdulrahmanal-saeed/madar-al-huda/issues/23) · [Qibla geometry](../docs/qibla/README.md): pure offline great-circle true-north bearing, coordinate validation and 4 city-centre presets with tests. Sensor/declination/calibration, app UI and device QA pending; **no availability claim**. Provisionally started while P00-06 manual QA remains REVIEW, reusing existing app shell. |
 | `P01-09` | قبول MVP End-to-End | `TODO` | P01-02,P01-03,P01-04,P01-05,P01-06,P01-07,P01-08 | — |
 
