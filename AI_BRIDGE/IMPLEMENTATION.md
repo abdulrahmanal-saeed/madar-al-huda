@@ -1,5 +1,12 @@
 # Implementation log
 
+## 2026-11-22 — P00-07 Tanzil licence evidence only
+- Verified [official Tanzil text license](https://tanzil.net/docs/Text_License) and [download description](https://tanzil.net/pub/download/index.php); recorded conditions in `docs/CONTENT_SOURCES.md` and Issue #26.
+- No source Quran dataset was downloaded or imported, no SHA-256 or edition-specific totals asserted, and no recitation, translation or tafsir rights assumed. P00-07 remains BLOCKED and no content gate was opened.
+- Documentation-only PR. Validation: standard CI on latest PR head; no local Flutter run claimed.
+
+---
+
 ## 2026-11-22 — P01-08 Qibla geometry foundation
 - Owner asked to continue features already planned without duplicating the logo, Flutter shell, Home UI or existing P00-10 reference fixtures.
 - Pure Dart great-circle true-north bearing under `apps/mobile/lib/features/qibla/domain/qibla_bearing.dart`, four manual city-centre presets and deterministic test scenarios for London, NYC, Dubai, Abu Dhabi, Cairo and Alexandria, invalid coordinates, geographic poles and no-unique-bearing cases.
