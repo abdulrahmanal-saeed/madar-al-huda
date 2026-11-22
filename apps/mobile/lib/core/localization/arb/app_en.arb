@@ -383,5 +383,177 @@
   "readerPreliveCoverage": "Tafsir and recitation are available for Al-Fatihah and Al-Baqarah in this preview.",
   "@readerPreliveCoverage": {
     "description": "Explains the limited Quran Foundation test content on other chapters."
+  },
+  "readerIndex": "Quran index",
+  "readerJuzs": "Parts",
+  "readerHizbs": "Hizbs",
+  "readerPages": "Pages",
+  "readerBookmarks": "Bookmarks",
+  "readerSearch": "Search",
+  "readerSearchHint": "Search Arabic text, a surah, or a verse like 2:255",
+  "readerNoResults": "No verses found",
+  "readerNoBookmarks": "No bookmarks yet",
+  "readerPageActions": "Choose a verse for tafsir or bookmarking",
+  "readerAddBookmark": "Add bookmark",
+  "readerRemoveBookmark": "Remove bookmark",
+  "readerJuzLabel": "Juz {number}",
+  "readerHizbLabel": "Hizb {number}",
+  "readerPageLabel": "Page {number}",
+  "duaTitle": "Quranic supplications",
+  "duaOpenVerse": "Open in the Quran",
+  "duaTranslationUnavailable": "English meaning is temporarily unavailable.",
+  "duaTopics": "All topics",
+  "duaTopicForgiveness": "Forgiveness and mercy",
+  "duaTopicGuidance": "Guidance and knowledge",
+  "duaTopicFamily": "Family and community",
+  "duaTopicHardship": "Patience and relief",
+  "duaTopicGratitude": "Gratitude and provision",
+  "duaTopicWorship": "Worship and good deeds",
+  "duaTopicHereafter": "The Hereafter",
+  "duaTopicProtection": "Protection",
+  "duaTranslationSource": "English meaning · Rowwad Translation Center via QuranEnc",
+  "radioTitle": "Cairo Quran Radio",
+  "radioOpen": "Listen on the official site",
+  "radioOpenFailed": "Could not open the official broadcast site.",
+  "@readerJuzLabel": {
+    "description": "Mushaf part label.",
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "@readerHizbLabel": {
+    "description": "Mushaf hizb label.",
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "@readerPageLabel": {
+    "description": "Mushaf or list page label.",
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "@readerIndex": {
+    "description": "Quran index"
+  },
+  "@readerJuzs": {
+    "description": "Parts"
+  },
+  "@readerHizbs": {
+    "description": "Hizbs"
+  },
+  "@readerPages": {
+    "description": "Pages"
+  },
+  "@readerBookmarks": {
+    "description": "Bookmarks"
+  },
+  "@readerSearch": {
+    "description": "Search"
+  },
+  "@readerSearchHint": {
+    "description": "Search Arabic text, a surah, or a verse like 2:255"
+  },
+  "@readerNoResults": {
+    "description": "No verses found"
+  },
+  "@readerNoBookmarks": {
+    "description": "No bookmarks yet"
+  },
+  "@readerPageActions": {
+    "description": "Choose a verse for tafsir or bookmarking"
+  },
+  "@readerAddBookmark": {
+    "description": "Add bookmark"
+  },
+  "@readerRemoveBookmark": {
+    "description": "Remove bookmark"
+  },
+  "@duaTitle": {
+    "description": "Quranic supplications"
+  },
+  "@duaOpenVerse": {
+    "description": "Open in the Quran"
+  },
+  "@duaTranslationUnavailable": {
+    "description": "English meaning is temporarily unavailable."
+  },
+  "@duaTopics": {
+    "description": "All topics"
+  },
+  "@duaTopicForgiveness": {
+    "description": "Forgiveness and mercy"
+  },
+  "@duaTopicGuidance": {
+    "description": "Guidance and knowledge"
+  },
+  "@duaTopicFamily": {
+    "description": "Family and community"
+  },
+  "@duaTopicHardship": {
+    "description": "Patience and relief"
+  },
+  "@duaTopicGratitude": {
+    "description": "Gratitude and provision"
+  },
+  "@duaTopicWorship": {
+    "description": "Worship and good deeds"
+  },
+  "@duaTopicHereafter": {
+    "description": "The Hereafter"
+  },
+  "@duaTopicProtection": {
+    "description": "Protection"
+  },
+  "@duaTranslationSource": {
+    "description": "English meaning · Rowwad Translation Center via QuranEnc"
+  },
+  "@radioTitle": {
+    "description": "Cairo Quran Radio"
+  },
+  "@radioOpen": {
+    "description": "Listen on the official site"
+  },
+  "@radioOpenFailed": {
+    "description": "Could not open the official broadcast site."
+  },
+  "readerEnglishMeaning": "English meaning",
+  "@readerEnglishMeaning": {
+    "description": "Action to show the English meaning of an ayah."
+  },
+  "hadithSearchTopics": "Search hadith topics",
+  "hadithNoTopics": "No matching topics",
+  "hadithPrevious": "Previous page",
+  "hadithNext": "Next page",
+  "hadithProviderGrade": "Grade from HadeethEnc · {grade}",
+  "hadithUnavailable": "Hadith content is temporarily unavailable.",
+  "@hadithSearchTopics": {
+    "description": "Search hadith topics"
+  },
+  "@hadithNoTopics": {
+    "description": "No matching topics"
+  },
+  "@hadithPrevious": {
+    "description": "Previous page"
+  },
+  "@hadithNext": {
+    "description": "Next page"
+  },
+  "@hadithProviderGrade": {
+    "description": "Grade from HadeethEnc · {grade}",
+    "placeholders": {
+      "grade": {
+        "type": "String"
+      }
+    }
+  },
+  "@hadithUnavailable": {
+    "description": "Hadith content is temporarily unavailable."
   }
 }

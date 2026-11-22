@@ -859,6 +859,234 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tafsir and recitation are available for Al-Fatihah and Al-Baqarah in this preview.'**
   String get readerPreliveCoverage;
+
+  /// Quran index
+  ///
+  /// In en, this message translates to:
+  /// **'Quran index'**
+  String get readerIndex;
+
+  /// Parts
+  ///
+  /// In en, this message translates to:
+  /// **'Parts'**
+  String get readerJuzs;
+
+  /// Hizbs
+  ///
+  /// In en, this message translates to:
+  /// **'Hizbs'**
+  String get readerHizbs;
+
+  /// Pages
+  ///
+  /// In en, this message translates to:
+  /// **'Pages'**
+  String get readerPages;
+
+  /// Bookmarks
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmarks'**
+  String get readerBookmarks;
+
+  /// Search
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get readerSearch;
+
+  /// Search Arabic text, a surah, or a verse like 2:255
+  ///
+  /// In en, this message translates to:
+  /// **'Search Arabic text, a surah, or a verse like 2:255'**
+  String get readerSearchHint;
+
+  /// No verses found
+  ///
+  /// In en, this message translates to:
+  /// **'No verses found'**
+  String get readerNoResults;
+
+  /// No bookmarks yet
+  ///
+  /// In en, this message translates to:
+  /// **'No bookmarks yet'**
+  String get readerNoBookmarks;
+
+  /// Choose a verse for tafsir or bookmarking
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a verse for tafsir or bookmarking'**
+  String get readerPageActions;
+
+  /// Add bookmark
+  ///
+  /// In en, this message translates to:
+  /// **'Add bookmark'**
+  String get readerAddBookmark;
+
+  /// Remove bookmark
+  ///
+  /// In en, this message translates to:
+  /// **'Remove bookmark'**
+  String get readerRemoveBookmark;
+
+  /// Mushaf part label.
+  ///
+  /// In en, this message translates to:
+  /// **'Juz {number}'**
+  String readerJuzLabel(String number);
+
+  /// Mushaf hizb label.
+  ///
+  /// In en, this message translates to:
+  /// **'Hizb {number}'**
+  String readerHizbLabel(String number);
+
+  /// Mushaf or list page label.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {number}'**
+  String readerPageLabel(String number);
+
+  /// Quranic supplications
+  ///
+  /// In en, this message translates to:
+  /// **'Quranic supplications'**
+  String get duaTitle;
+
+  /// Open in the Quran
+  ///
+  /// In en, this message translates to:
+  /// **'Open in the Quran'**
+  String get duaOpenVerse;
+
+  /// English meaning is temporarily unavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'English meaning is temporarily unavailable.'**
+  String get duaTranslationUnavailable;
+
+  /// All topics
+  ///
+  /// In en, this message translates to:
+  /// **'All topics'**
+  String get duaTopics;
+
+  /// Forgiveness and mercy
+  ///
+  /// In en, this message translates to:
+  /// **'Forgiveness and mercy'**
+  String get duaTopicForgiveness;
+
+  /// Guidance and knowledge
+  ///
+  /// In en, this message translates to:
+  /// **'Guidance and knowledge'**
+  String get duaTopicGuidance;
+
+  /// Family and community
+  ///
+  /// In en, this message translates to:
+  /// **'Family and community'**
+  String get duaTopicFamily;
+
+  /// Patience and relief
+  ///
+  /// In en, this message translates to:
+  /// **'Patience and relief'**
+  String get duaTopicHardship;
+
+  /// Gratitude and provision
+  ///
+  /// In en, this message translates to:
+  /// **'Gratitude and provision'**
+  String get duaTopicGratitude;
+
+  /// Worship and good deeds
+  ///
+  /// In en, this message translates to:
+  /// **'Worship and good deeds'**
+  String get duaTopicWorship;
+
+  /// The Hereafter
+  ///
+  /// In en, this message translates to:
+  /// **'The Hereafter'**
+  String get duaTopicHereafter;
+
+  /// Protection
+  ///
+  /// In en, this message translates to:
+  /// **'Protection'**
+  String get duaTopicProtection;
+
+  /// English meaning · Rowwad Translation Center via QuranEnc
+  ///
+  /// In en, this message translates to:
+  /// **'English meaning · Rowwad Translation Center via QuranEnc'**
+  String get duaTranslationSource;
+
+  /// Cairo Quran Radio
+  ///
+  /// In en, this message translates to:
+  /// **'Cairo Quran Radio'**
+  String get radioTitle;
+
+  /// Listen on the official site
+  ///
+  /// In en, this message translates to:
+  /// **'Listen on the official site'**
+  String get radioOpen;
+
+  /// Could not open the official broadcast site.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open the official broadcast site.'**
+  String get radioOpenFailed;
+
+  /// Action to show the English meaning of an ayah.
+  ///
+  /// In en, this message translates to:
+  /// **'English meaning'**
+  String get readerEnglishMeaning;
+
+  /// Search hadith topics
+  ///
+  /// In en, this message translates to:
+  /// **'Search hadith topics'**
+  String get hadithSearchTopics;
+
+  /// No matching topics
+  ///
+  /// In en, this message translates to:
+  /// **'No matching topics'**
+  String get hadithNoTopics;
+
+  /// Previous page
+  ///
+  /// In en, this message translates to:
+  /// **'Previous page'**
+  String get hadithPrevious;
+
+  /// Next page
+  ///
+  /// In en, this message translates to:
+  /// **'Next page'**
+  String get hadithNext;
+
+  /// Grade from HadeethEnc · {grade}
+  ///
+  /// In en, this message translates to:
+  /// **'Grade from HadeethEnc · {grade}'**
+  String hadithProviderGrade(String grade);
+
+  /// Hadith content is temporarily unavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Hadith content is temporarily unavailable.'**
+  String get hadithUnavailable;
 }
 
 class _AppLocalizationsDelegate

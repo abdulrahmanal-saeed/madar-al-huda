@@ -7,6 +7,7 @@ import 'package:material_ui/material_ui.dart';
 import 'app/app.dart';
 import 'core/storage/key_value_store.dart';
 import 'core/storage/storage_providers.dart';
+import 'features/quran/data/local_quran_bookmarks.dart';
 import 'features/settings/data/settings_repository.dart';
 
 Future<void> main() async {
@@ -46,6 +47,7 @@ Future<KeyValueStore> _openPreferences() async {
         'worship.manualCity',
         'worship.hanafiAsr',
         'quran.lastRead.v1',
+        LocalQuranBookmarks.key,
         'quran.reciter.v1',
       },
     );

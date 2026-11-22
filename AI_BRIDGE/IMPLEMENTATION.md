@@ -214,3 +214,10 @@ Visual check: screens were rendered through a temporary golden test with the rea
 - Branch `phase-01/prayer-qibla-quran` implements one location selection, offline prayer calculation, Android Qibla heading, and one verse reader with sourced audio and tafsir integration.
 - Published source status is still gated by the [prayer references](../docs/prayer/README.md), [source register](../docs/CONTENT_SOURCES.md), and device acceptance. Debug builds exercise the complete UI; reviewed preview distribution can opt in via a dart-define.
 - Supabase preview function and rate-limit migration were deployed. Verified gateway authentication, input rejection, two prelive chapters, and service-role-only execution of the rate-limit RPC.
+
+### 2026-11-23 — Paginated reader and Android preview
+
+- PR #28 adds continuous 604-page reading from the pinned Tanzil metadata, verse-key navigation, local search, bookmarks and cursor restoration. Both language variants exercise long-press on 2:255 and bookmarking in a widget test. QuranEnc English meaning and version are queried when needed.
+- A private preview has 40 linked Quranic supplications in eight topics and a bilingual HadeethEnc browser. The Cairo radio card opens the broadcaster’s official site. The broadcaster’s permission for playback inside third-party apps is pending.
+- Prayer tests rerun the dated Egypt and UAE comparisons from the repository fixtures and verify Cairo DST and next-day rollover. Device-specific Qibla calibration and TalkBack checks are pending.
+- Analysis reported no issues and 112 Flutter tests passed locally after adding the preview. The dev workflow accepts the validated public Quran configuration. The .preview APK and public .dev release use separate distribution paths. D-21 reserves religious approval for the final whole-app review.

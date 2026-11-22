@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -76,10 +78,22 @@ void main() {
           findsOneWidget,
           reason: '$requested',
         );
-        final verse = find.byKey(const ValueKey('ayah-2-255'));
+        final edition = await tester.runAsync(
+          () => MushafEdition.load(rootBundle),
+        );
+        final text = edition!.surahs[1].verses[254];
+        final verse = find.byWidgetPredicate(
+          (widget) =>
+              widget is RichText && widget.text.toPlainText().contains(text),
+        );
         expect(verse.hitTestable(), findsOneWidget);
+        final paragraph = tester.renderObject<RenderParagraph>(verse);
+        final start = paragraph.text.toPlainText().indexOf(text);
+        final boxes = paragraph.getBoxesForSelection(
+          TextSelection(baseOffset: start, extentOffset: start + text.length),
+        );
         await tester.longPressAt(
-          tester.getTopLeft(verse) + const Offset(170, 36),
+          paragraph.localToGlobal(boxes.first.toRect().center),
         );
         await tester.pumpAndSettle();
         expect(
@@ -96,6 +110,9 @@ void main() {
           tester.widget<Text>(find.text('Tafsir fixture')).textDirection,
           TextDirection.ltr,
         );
+        await tester.tap(find.byTooltip(l10n.readerAddBookmark));
+        await tester.pumpAndSettle();
+        expect(find.byTooltip(l10n.readerRemoveBookmark), findsOneWidget);
         final context = tester.element(find.text('Tafsir fixture'));
         Navigator.of(context).pop();
         await tester.pumpAndSettle();

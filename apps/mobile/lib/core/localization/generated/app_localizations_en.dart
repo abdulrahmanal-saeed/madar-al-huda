@@ -424,4 +424,129 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get readerPreliveCoverage =>
       'Tafsir and recitation are available for Al-Fatihah and Al-Baqarah in this preview.';
+
+  @override
+  String get readerIndex => 'Quran index';
+
+  @override
+  String get readerJuzs => 'Parts';
+
+  @override
+  String get readerHizbs => 'Hizbs';
+
+  @override
+  String get readerPages => 'Pages';
+
+  @override
+  String get readerBookmarks => 'Bookmarks';
+
+  @override
+  String get readerSearch => 'Search';
+
+  @override
+  String get readerSearchHint =>
+      'Search Arabic text, a surah, or a verse like 2:255';
+
+  @override
+  String get readerNoResults => 'No verses found';
+
+  @override
+  String get readerNoBookmarks => 'No bookmarks yet';
+
+  @override
+  String get readerPageActions => 'Choose a verse for tafsir or bookmarking';
+
+  @override
+  String get readerAddBookmark => 'Add bookmark';
+
+  @override
+  String get readerRemoveBookmark => 'Remove bookmark';
+
+  @override
+  String readerJuzLabel(String number) {
+    return 'Juz $number';
+  }
+
+  @override
+  String readerHizbLabel(String number) {
+    return 'Hizb $number';
+  }
+
+  @override
+  String readerPageLabel(String number) {
+    return 'Page $number';
+  }
+
+  @override
+  String get duaTitle => 'Quranic supplications';
+
+  @override
+  String get duaOpenVerse => 'Open in the Quran';
+
+  @override
+  String get duaTranslationUnavailable =>
+      'English meaning is temporarily unavailable.';
+
+  @override
+  String get duaTopics => 'All topics';
+
+  @override
+  String get duaTopicForgiveness => 'Forgiveness and mercy';
+
+  @override
+  String get duaTopicGuidance => 'Guidance and knowledge';
+
+  @override
+  String get duaTopicFamily => 'Family and community';
+
+  @override
+  String get duaTopicHardship => 'Patience and relief';
+
+  @override
+  String get duaTopicGratitude => 'Gratitude and provision';
+
+  @override
+  String get duaTopicWorship => 'Worship and good deeds';
+
+  @override
+  String get duaTopicHereafter => 'The Hereafter';
+
+  @override
+  String get duaTopicProtection => 'Protection';
+
+  @override
+  String get duaTranslationSource =>
+      'English meaning · Rowwad Translation Center via QuranEnc';
+
+  @override
+  String get radioTitle => 'Cairo Quran Radio';
+
+  @override
+  String get radioOpen => 'Listen on the official site';
+
+  @override
+  String get radioOpenFailed => 'Could not open the official broadcast site.';
+
+  @override
+  String get readerEnglishMeaning => 'English meaning';
+
+  @override
+  String get hadithSearchTopics => 'Search hadith topics';
+
+  @override
+  String get hadithNoTopics => 'No matching topics';
+
+  @override
+  String get hadithPrevious => 'Previous page';
+
+  @override
+  String get hadithNext => 'Next page';
+
+  @override
+  String hadithProviderGrade(String grade) {
+    return 'Grade from HadeethEnc · $grade';
+  }
+
+  @override
+  String get hadithUnavailable => 'Hadith content is temporarily unavailable.';
 }

@@ -57,3 +57,7 @@ The Abu Dhabi comparison uses the [Sheikh Zayed Grand Mosque Centre Ramadan 1447
 | Abu Dhabi | 3 minutes | App 2–3 minutes later on the sampled dates |
 
 The [UAE Awqaf prayer service](https://www.awqaf.gov.ae/prayer-times) published dated rows for Al Rashidiya (Dubai) and Al Mushrif (Abu Dhabi) on November 23. Against Al Rashidiya, the app's sunrise was one minute later and Asr two minutes later. Against Al Mushrif, sunrise and Dhuhr were one minute later and Asr three minutes later. The app uses city-centre coordinates, and the authority service uses the selected districts. The calculated UAE profile in the preview remains subject to broader seasonal and regional verification before release.
+
+## Automated comparison evidence
+
+The Flutter prayer test reruns the calculation for the dated Egypt samples and all November UAE rows, including the Awqaf district entries. It verifies the saved per-prayer deltas and covers Egypt’s DST transitions, Dubai’s fixed offset, standard versus Hanafi Asr, and the rollover to the next local day. The maximum difference observed in the compared UAE rows remains 3 minutes. Authority rows are kept alongside the calculation method and the reason a district timetable can differ from the city-centre calculation.

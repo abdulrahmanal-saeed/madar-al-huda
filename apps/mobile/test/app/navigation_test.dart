@@ -58,12 +58,11 @@ void main() {
   });
 
   for (final locale in const [Locale('en'), Locale('ar')]) {
-    testWidgets('[$locale] every section screen is reachable and shows only '
-        'a gated status panel', (tester) async {
+    testWidgets('[$locale] unimplemented content keeps the status panel', (
+      tester,
+    ) async {
       final l10n = lookupAppLocalizations(locale);
       for (final section in const [
-        AppSection.adhkar,
-        AppSection.hadith,
         AppSection.fiqh,
         AppSection.articles,
         AppSection.lessons,
@@ -86,6 +85,20 @@ void main() {
         expect(find.text(section.status.title(l10n)), findsOneWidget);
         expect(find.text(section.status.body(l10n)), findsOneWidget);
       }
+    });
+
+    testWidgets('[$locale] the dua preview opens with a topic filter', (
+      tester,
+    ) async {
+      await pumpMadarApp(
+        tester,
+        deviceLocales: [locale],
+        initialLocation: AppRoutes.adhkar,
+      );
+      final l10n = lookupAppLocalizations(locale);
+      expect(find.text(l10n.duaTitle), findsOneWidget);
+      expect(find.text(l10n.duaTopics), findsOneWidget);
+      expect(find.byType(ExpansionTile), findsWidgets);
     });
   }
 

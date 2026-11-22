@@ -14,6 +14,8 @@ import '../features/learning/presentation/prophet_stories_screen.dart';
 import '../features/library/presentation/library_hub_screen.dart';
 import '../features/prayer/presentation/prayer_times_screen.dart';
 import '../features/qibla/presentation/qibla_screen.dart';
+import '../features/quran/data/mushaf_edition.dart';
+import '../features/quran/domain/quran_storage_contracts.dart';
 import '../features/quran/presentation/mushaf_screen.dart';
 import '../features/settings/presentation/settings_screen.dart';
 import '../features/worship/presentation/worship_hub_screen.dart';
@@ -37,7 +39,7 @@ GoRouter buildAppRouter({String initialLocation = AppRoutes.home}) {
       '/' => AppRoutes.home,
       AppRoutes.mushaf ||
       AppRoutes.recitations ||
-      AppRoutes.tafsir => AppRoutes.quran,
+      AppRoutes.tafsir => state.uri.replace(path: AppRoutes.quran).toString(),
       _ => null,
     },
     routes: [
@@ -56,7 +58,28 @@ GoRouter buildAppRouter({String initialLocation = AppRoutes.home}) {
             routes: [
               GoRoute(
                 path: AppRoutes.quran,
-                builder: (_, _) => const MushafScreen(),
+                builder: (_, state) {
+                  final surah = int.tryParse(
+                    state.uri.queryParameters['surah'] ?? '',
+                  );
+                  final ayah = int.tryParse(
+                    state.uri.queryParameters['ayah'] ?? '',
+                  );
+                  return MushafScreen(
+                    initialVerse:
+                        surah != null &&
+                            surah >= 1 &&
+                            surah <= surahCount &&
+                            ayah != null &&
+                            ayah >= 1
+                        ? AyahRef(
+                            editionId: MushafEdition.id,
+                            surah: surah,
+                            ayah: ayah,
+                          )
+                        : null,
+                  );
+                },
               ),
             ],
           ),

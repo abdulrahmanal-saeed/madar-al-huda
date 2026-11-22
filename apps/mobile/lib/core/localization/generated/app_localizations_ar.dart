@@ -414,4 +414,128 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get readerPreliveCoverage =>
       'التفسير والتلاوة متاحان حاليًا للفاتحة والبقرة في نسخة الاختبار.';
+
+  @override
+  String get readerIndex => 'فهرس المصحف';
+
+  @override
+  String get readerJuzs => 'الأجزاء';
+
+  @override
+  String get readerHizbs => 'الأحزاب';
+
+  @override
+  String get readerPages => 'الصفحات';
+
+  @override
+  String get readerBookmarks => 'العلامات المرجعية';
+
+  @override
+  String get readerSearch => 'بحث';
+
+  @override
+  String get readerSearchHint =>
+      'ابحث في النص أو باسم السورة أو برقم مثل ٢:٢٥٥';
+
+  @override
+  String get readerNoResults => 'مفيش آيات مطابقة';
+
+  @override
+  String get readerNoBookmarks => 'لا توجد علامات مرجعية';
+
+  @override
+  String get readerPageActions => 'اختر آية للتفسير أو لحفظ علامة';
+
+  @override
+  String get readerAddBookmark => 'أضف علامة مرجعية';
+
+  @override
+  String get readerRemoveBookmark => 'احذف العلامة المرجعية';
+
+  @override
+  String readerJuzLabel(String number) {
+    return 'الجزء $number';
+  }
+
+  @override
+  String readerHizbLabel(String number) {
+    return 'الحزب $number';
+  }
+
+  @override
+  String readerPageLabel(String number) {
+    return 'صفحة $number';
+  }
+
+  @override
+  String get duaTitle => 'أدعية من القرآن';
+
+  @override
+  String get duaOpenVerse => 'افتح في المصحف';
+
+  @override
+  String get duaTranslationUnavailable => 'المعنى الإنجليزي غير متاح مؤقتًا.';
+
+  @override
+  String get duaTopics => 'كل الموضوعات';
+
+  @override
+  String get duaTopicForgiveness => 'المغفرة والرحمة';
+
+  @override
+  String get duaTopicGuidance => 'الهداية والعلم';
+
+  @override
+  String get duaTopicFamily => 'الأهل والمجتمع';
+
+  @override
+  String get duaTopicHardship => 'الصبر والفرج';
+
+  @override
+  String get duaTopicGratitude => 'الشكر والرزق';
+
+  @override
+  String get duaTopicWorship => 'العبادة والعمل الصالح';
+
+  @override
+  String get duaTopicHereafter => 'الآخرة';
+
+  @override
+  String get duaTopicProtection => 'الاستعاذة والحفظ';
+
+  @override
+  String get duaTranslationSource =>
+      'المعنى بالإنجليزية · مركز روّاد الترجمة عبر QuranEnc';
+
+  @override
+  String get radioTitle => 'إذاعة القرآن الكريم من القاهرة';
+
+  @override
+  String get radioOpen => 'استمع على الموقع الرسمي';
+
+  @override
+  String get radioOpenFailed => 'تعذّر فتح موقع الإذاعة الرسمي.';
+
+  @override
+  String get readerEnglishMeaning => 'المعنى بالإنجليزية';
+
+  @override
+  String get hadithSearchTopics => 'ابحث في موضوعات الحديث';
+
+  @override
+  String get hadithNoTopics => 'لا توجد موضوعات مطابقة';
+
+  @override
+  String get hadithPrevious => 'الصفحة السابقة';
+
+  @override
+  String get hadithNext => 'الصفحة التالية';
+
+  @override
+  String hadithProviderGrade(String grade) {
+    return 'الدرجة من موسوعة الحديث · $grade';
+  }
+
+  @override
+  String get hadithUnavailable => 'محتوى الحديث غير متاح مؤقتًا.';
 }

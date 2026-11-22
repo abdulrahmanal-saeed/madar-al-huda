@@ -98,12 +98,21 @@ jobs:
       - name: Build signed dev APK
         env:
           MADAR_CHANNEL: dev
+          MADAR_QURAN_API_URL: ${{ vars.MADAR_QURAN_API_URL }}
+          MADAR_SUPABASE_ANON_KEY: ${{ vars.MADAR_SUPABASE_ANON_KEY }}
           MADAR_VERSION_SUFFIX: ${{ steps.version.outputs.suffix }}
           MADAR_SIGNING_STORE_FILE: ${{ runner.temp }}/madar-dev.p12
           MADAR_SIGNING_STORE_PASSWORD: ${{ secrets.MADAR_DEV_KEYSTORE_PASSWORD }}
           MADAR_SIGNING_KEY_ALIAS: ${{ secrets.MADAR_DEV_KEY_ALIAS }}
           MADAR_SIGNING_KEY_PASSWORD: ${{ secrets.MADAR_DEV_KEYSTORE_PASSWORD }}
-        run: flutter build apk --release --build-number=${{ steps.version.outputs.code }}
+        run: |
+          build_args=(--release "--build-number=${{ steps.version.outputs.code }}")
+          if [[ -n "$MADAR_QURAN_API_URL" || -n "$MADAR_SUPABASE_ANON_KEY" ]]; then
+            config="$RUNNER_TEMP/madar-public-config.json"
+            python3 tool/write_quran_config.py "$config"
+            build_args+=(--dart-define-from-file="$config")
+          fi
+          flutter build apk "${build_args[@]}"
 
       - name: Verify package, version and signature
         id: verify
