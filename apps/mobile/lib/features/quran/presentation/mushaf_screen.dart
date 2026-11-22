@@ -198,7 +198,7 @@ class _ReaderState extends ConsumerState<_Reader> {
     if (mounted && ayah != null) _navigate(_surah, ayah);
   }
 
-  void _openTafsir(int ayah, List<QuranResource> resources, String text) {
+  void _openTafsir(int ayah, List<QuranResource> resources) {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -212,7 +212,6 @@ class _ReaderState extends ConsumerState<_Reader> {
             ayah: ayah,
           ),
           resources: resources,
-          verseText: text,
         ),
       ),
     );
@@ -272,7 +271,7 @@ class _ReaderState extends ConsumerState<_Reader> {
                 itemBuilder: (context, index) {
                   final verse = _surah.verses[index];
                   final ayah = index + 1;
-                  void explain() => _openTafsir(ayah, tafsirs, verse);
+                  void explain() => _openTafsir(ayah, tafsirs);
                   return InkWell(
                     key: ValueKey('ayah-${_surah.id}-$ayah'),
                     onLongPress: explain,
@@ -405,14 +404,9 @@ class _VerseDialogState extends State<_VerseDialog> {
 }
 
 class _TafsirSheet extends ConsumerStatefulWidget {
-  const _TafsirSheet({
-    required this.verse,
-    required this.resources,
-    required this.verseText,
-  });
+  const _TafsirSheet({required this.verse, required this.resources});
   final AyahRef verse;
   final List<QuranResource> resources;
-  final String verseText;
 
   @override
   ConsumerState<_TafsirSheet> createState() => _TafsirSheetState();
@@ -461,15 +455,6 @@ class _TafsirSheetState extends ConsumerState<_TafsirSheet> {
           Expanded(
             child: ListView(
               children: [
-                Text(
-                  widget.verseText,
-                  textDirection: TextDirection.rtl,
-                  style: const TextStyle(
-                    fontFamily: 'AmiriQuran',
-                    fontSize: 24,
-                    height: 1.9,
-                  ),
-                ),
                 if (_text == null)
                   Text(l10n.readerTafsirUnavailable)
                 else
