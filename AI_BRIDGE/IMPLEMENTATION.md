@@ -1,5 +1,13 @@
 # Implementation log
 
+## 2026-11-22 — P00-10 official prayer-time references (partial)
+- **Source:** Egyptian General Survey Authority official table dated 2026-11-22, https://www.esa.gov.eg/praytimes.aspx; local times transcribed for Cairo and Alexandria, not calculated by the app.
+- **New:** docs/prayer/reference/official-2026-11-22.json, README.md and independent zero-dependency zoneinfo/format checker. Includes 2026 Egypt DST offset changes and UAE stable UTC+4.
+- **Explicitly pending:** Official city/date-specific Dubai and Abu Dhabi timetables from IACAD/Awqaf. Official source calculation parameters, prayer algorithm tolerance, Flutter implementation, UI availability and manual device QA. P00-10 is IN_PROGRESS, P01-07 remains gated.
+- **Test status:** GitHub CI required on PR, no claim of local Flutter execution.
+
+---
+
 ## 2026-11-22 — P00-03 approval and P00-04 bilingual UX source
 - **P00-03:** Owner approved the existing Arabic/English name and orbit/book logo; no assets, fonts, launcher icon or Flutter Home implementation were regenerated. Separate legal/store checks remain R-10 / Issue #19.
 - **P00-04:** Created 14 editable SVG wireframes for Home, Quran hub, reader, recitations, prayer, library and learning (each AR/EN) under `docs/ux/wireframes/`; added route, state, localization, offline/gating and accessibility contract in `docs/ux/README.md`. Source checker `docs/ux/check_wireframes.py` added to existing policy CI job. No genuine religious material or calculated prayer times.

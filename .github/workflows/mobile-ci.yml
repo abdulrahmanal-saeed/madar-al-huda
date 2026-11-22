@@ -54,6 +54,9 @@ jobs:
       - name: Validate AR/EN wireframe SVG sources
         run: python3 docs/ux/check_wireframes.py
 
+      - name: Validate prayer reference and timezone data
+        run: python3 docs/prayer/check_reference_fixtures.py
+
   analyze-test:
     name: Format, analyze & test
     runs-on: ubuntu-latest
