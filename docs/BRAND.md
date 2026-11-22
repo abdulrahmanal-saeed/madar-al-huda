@@ -1,6 +1,6 @@
 # Brand system — مدار الهدى | Madar Al-Huda
 
-**P00-03 selected creative direction, pending owner visual signoff and official trademark clearance.** See [source assets](../design/brand/README.md) and [clearance register](BRAND_CLEARANCE.md). No public trademark is claimed.
+**Current P00-03 name/logo approved by owner 2026-11-22. No redesign.** Legal trademark/store checks remain separate [R-10](../plan/RISKS_AND_BLOCKERS.md) before public release. See [source assets](../design/brand/README.md) and [clearance register](BRAND_CLEARANCE.md). No public trademark is claimed.
 
 - AR: **مدار الهدى** · EN: **Madar Al-Huda**
 - Tagline AR: **القرآن والعلم والعبادة في مكان واحد**

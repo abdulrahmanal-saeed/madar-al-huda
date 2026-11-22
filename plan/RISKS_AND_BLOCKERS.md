@@ -11,7 +11,7 @@
 | R-07 | HIGH | ترجمة تحرف معنى مادة دينية | مراجعة لغوية وشرعية لكل نص أصلي مترجم | OPEN |
 | R-08 | MEDIUM | اعتماد على API واحد | Provider adapters وOffline حيث يُسمح | OPEN |
 | R-09 | MEDIUM | تكلفة تشغيل بعد كبر جمهور التطبيق | قياس bandwidth/cache/storage قبل إطلاق واسع | OPEN |
-| R-10 | MEDIUM | تعارض اسم المتجر/معرف Android | تحقق قانوني/تقني قبل إطلاق Production | OPEN |
+| R-10 | MEDIUM | تعارض العلامة أو اسم المتجر/معرّف Android رغم اعتماد التصميم | [Issue #19](https://github.com/abdulrahmanal-saeed/madar-al-huda/issues/19): فحص قانوني/تقني رسمي قبل الإطلاق العام؛ لا يعطل UX أو APK تجريبي | OPEN |
 | R-11 | HIGH | إشعارات بمحتوى غير معتمد | scheduler لا يقبل إلا content approved | OPEN |
 | R-12 | MEDIUM | نقل ملفات أو كتب محمية داخل GitHub | تسجيل ترخيص وتحكم في نشر الأصول | OPEN |
 

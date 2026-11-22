@@ -1,5 +1,12 @@
 # Implementation log
 
+## 2026-11-22 — P00-03 approval and P00-04 bilingual UX source
+- **P00-03:** Owner approved the existing Arabic/English name and orbit/book logo; no assets, fonts, launcher icon or Flutter Home implementation were regenerated. Separate legal/store checks remain R-10 / Issue #19.
+- **P00-04:** Created 14 editable SVG wireframes for Home, Quran hub, reader, recitations, prayer, library and learning (each AR/EN) under `docs/ux/wireframes/`; added route, state, localization, offline/gating and accessibility contract in `docs/ux/README.md`. Source checker `docs/ux/check_wireframes.py` added to existing policy CI job. No genuine religious material or calculated prayer times.
+- **Testing evidence:** Pending the PR's GitHub Actions CI; do not claim locally executed Flutter tests. Manual AR/EN on-device and screen reader acceptance remains open under P00-06.
+
+---
+
 Implementation updates must include: task ID, branch, changed files, commands/tests actually run, known limitations and PR link.
 
 ---
