@@ -1,6 +1,6 @@
 # Madar Al-Huda brand source kit — P00-03
 
-**Creative direction: selected for implementation; formal owner visual signoff and trademark clearance remain open.**
+**Current creative direction and logo approved by owner 2026-11-22; no redesign.** Legal trademark/package checks remain separate [R-10 / Issue #19](https://github.com/abdulrahmanal-saeed/madar-al-huda/issues/19).
 
 Original icon: book and orbit, representing knowledge and guidance, without religious script. Files: [icon-master.svg](icon-master.svg), [icon-monochrome.svg](icon-monochrome.svg), [wordmark-ar.svg](wordmark-ar.svg), [wordmark-en.svg](wordmark-en.svg), [tokens.json](tokens.json). Source SVGs remain editable; wordmark exports require IBM Plex Sans Arabic.
 
@@ -16,6 +16,6 @@ Vector adaptive foreground and white monochrome themed icon in Android res/drawa
 Run: `python3 design/brand/check_assets.py` to validate shared palette, SVG/XML parsing, font license and native raster sizes.
 
 ## Open
-- Visual owner signoff and independent exact/similar name/trademark investigation in relevant jurisdictions O-01.
+- Owner visual signoff completed 2026-11-22; independent formal trademark investigation remains open under R-10/O-01.
 - Candidate Android package identifier ownership O-08.
 - iOS icon exports and store screenshots in future iOS phase.

@@ -1,6 +1,6 @@
 # P00-03 — Naming, store and trademark clearance
 
-**No legal or trademark clearance is claimed.** Search-engine results for `مدار الهدى` / `Madar Al-Huda` do not establish non-conflict or registrability.
+**Owner approved the existing logo and name as the product's identity on 2026-11-22. This is not a legal opinion.** Official clearance is still an independent pre-store gate [R-10 / Issue #19](https://github.com/abdulrahmanal-saeed/madar-al-huda/issues/19). **No legal or trademark clearance is claimed.** Search-engine results for `مدار الهدى` / `Madar Al-Huda` do not establish non-conflict or registrability.
 
 Before store publication, obtain dated documented official checks for: UAE and Egypt trademark registries (Arabic/English variants, exact and confusingly similar names, relevant software/education classes), WIPO global database with territorial review, Google Play and Apple App Store title conflicts, publisher/company ownership, domain and social handle choices, and namespace `com.abdulrahmanalsaeed.madaralhuda`.
 

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 390 844" width="390" height="844" lang="en" role="img" aria-label="Quran P00-04 wireframe">
+<title>Quran — EN P00-04</title>
+<rect x="0" y="0" width="390" height="844" rx="0" fill="#F8F5ED" stroke="none"/>
+<rect x="0" y="0" width="390" height="31" rx="0" fill="#173F39" stroke="none"/>
+<text x="42" y="20" font-family="'IBM Plex Sans Arabic','Noto Sans Arabic',sans-serif" direction="ltr" font-size="10" font-weight="500" text-anchor="start" fill="#F8F5ED">MADAR AL-HUDA · WIREFRAME</text>
+<rect x="0" y="32" width="390" height="70" rx="0" fill="#FFFDF8" stroke="none"/>
+<text x="42" y="76" font-family="'IBM Plex Sans Arabic','Noto Sans Arabic',sans-serif" direction="ltr" font-size="23" font-weight="700" text-anchor="start" fill="#173F39">Quran</text>
+<text x="42" y="137" font-family="'IBM Plex Sans Arabic','Noto Sans Arabic',sans-serif" direction="ltr" font-size="16" font-weight="600" text-anchor="start" fill="#263B38">Choose your experience</text>
+<rect x="20" y="165" width="350" height="69" rx="12" fill="#FFFDF8" stroke="#DDD9CD"/>
+<rect x="37" y="177" width="23" height="23" rx="8" fill="#E8EFEA" stroke="none"/>
+<text x="73" y="201" font-family="'IBM Plex Sans Arabic','Noto Sans Arabic',sans-serif" direction="ltr" font-size="14" font-weight="550" text-anchor="start" fill="#263B38">Read Quran</text>
+<rect x="20" y="244" width="350" height="69" rx="12" fill="#FFFDF8" stroke="#DDD9CD"/>
+<rect x="37" y="256" width="23" height="23" rx="8" fill="#E8EFEA" stroke="none"/>
+<text x="73" y="280" font-family="'IBM Plex Sans Arabic','Noto Sans Arabic',sans-serif" direction="ltr" font-size="14" font-weight="550" text-anchor="start" fill="#263B38">Recitations</text>
+<rect x="20" y="323" width="350" height="69" rx="12" fill="#FFFDF8" stroke="#DDD9CD"/>
+<rect x="37" y="335" width="23" height="23" rx="8" fill="#E8EFEA" stroke="none"/>
+<text x="73" y="359" font-family="'IBM Plex Sans Arabic','Noto Sans Arabic',sans-serif" direction="ltr" font-size="14" font-weight="550" text-anchor="start" fill="#263B38">Tafsir</text>
+<rect x="20" y="402" width="350" height="69" rx="12" fill="#FFFDF8" stroke="#DDD9CD"/>
+<rect x="37" y="414" width="23" height="23" rx="8" fill="#E8EFEA" stroke="none"/>
+<text x="73" y="438" font-family="'IBM Plex Sans Arabic','Noto Sans Arabic',sans-serif" direction="ltr" font-size="14" font-weight="550" text-anchor="start" fill="#263B38">Continue reading</text>
+<rect x="20" y="609" width="350" height="79" rx="14" fill="#E8EFEA" stroke="#DDD9CD"/>
+<rect x="36" y="627" width="17" height="17" rx="8" fill="#C7A86D" stroke="none"/>
+<text x="62" y="639" font-family="'IBM Plex Sans Arabic','Noto Sans Arabic',sans-serif" direction="ltr" font-size="11" font-weight="600" text-anchor="start" fill="#173F39">Verses and audio require verified sources</text>
+<text x="42" y="666" font-family="'IBM Plex Sans Arabic','Noto Sans Arabic',sans-serif" direction="ltr" font-size="10" font-weight="400" text-anchor="start" fill="#657D74">Concept only; no approved content</text>
+<rect x="0" y="769" width="390" height="75" rx="0" fill="#FFFDF8" stroke="none"/>
+<rect x="0" y="769" width="390" height="1" rx="0" fill="#DDD9CD" stroke="none"/>
+<rect x="27" y="788" width="24" height="22" rx="7" fill="#E8EFEA" stroke="none"/>
+<text x="39" y="828" font-family="'IBM Plex Sans Arabic','Noto Sans Arabic',sans-serif" direction="ltr" font-size="10" font-weight="550" text-anchor="middle" fill="#173F39">Home</text>
+<rect x="105" y="788" width="24" height="22" rx="7" fill="#E8EFEA" stroke="none"/>
+<text x="117" y="828" font-family="'IBM Plex Sans Arabic','Noto Sans Arabic',sans-serif" direction="ltr" font-size="10" font-weight="550" text-anchor="middle" fill="#173F39">Quran</text>
+<rect x="183" y="788" width="24" height="22" rx="7" fill="#E8EFEA" stroke="none"/>
+<text x="195" y="828" font-family="'IBM Plex Sans Arabic','Noto Sans Arabic',sans-serif" direction="ltr" font-size="10" font-weight="550" text-anchor="middle" fill="#173F39">Worship</text>
+<rect x="261" y="788" width="24" height="22" rx="7" fill="#E8EFEA" stroke="none"/>
+<text x="273" y="828" font-family="'IBM Plex Sans Arabic','Noto Sans Arabic',sans-serif" direction="ltr" font-size="10" font-weight="550" text-anchor="middle" fill="#173F39">Library</text>
+<rect x="339" y="788" width="24" height="22" rx="7" fill="#E8EFEA" stroke="none"/>
+<text x="351" y="828" font-family="'IBM Plex Sans Arabic','Noto Sans Arabic',sans-serif" direction="ltr" font-size="10" font-weight="550" text-anchor="middle" fill="#173F39">Learn</text>
+</svg>

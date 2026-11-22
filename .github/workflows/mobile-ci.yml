@@ -51,6 +51,9 @@ jobs:
       - name: Verify RLS architecture blueprint (static contract only)
         run: python3 docs/architecture/check_schema_contract.py
 
+      - name: Validate AR/EN wireframe SVG sources
+        run: python3 docs/ux/check_wireframes.py
+
   analyze-test:
     name: Format, analyze & test
     runs-on: ubuntu-latest
