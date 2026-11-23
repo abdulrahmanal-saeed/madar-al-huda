@@ -212,4 +212,15 @@ class L10nReminderTexts implements ReminderTexts {
   String get iftarTitle => l10n.reminderIftarTitle;
   @override
   String get iftarBody => l10n.reminderIftarBody;
+  @override
+  String fastingTitle(FastingDay day) => switch (day) {
+    FastingDay.arafah => l10n.reminderFastArafah,
+    FastingDay.tasua => l10n.reminderFastTasua,
+    FastingDay.ashura => l10n.reminderFastAshura,
+    FastingDay.whiteDay => l10n.reminderFastWhiteDay,
+    FastingDay.monday => l10n.reminderFastMonday,
+    FastingDay.thursday => l10n.reminderFastThursday,
+  };
+  @override
+  String get fastingBody => l10n.reminderFastBody;
 }

@@ -2653,6 +2653,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Free count'**
   String get tasbihFree;
+
+  /// Reminder section.
+  ///
+  /// In en, this message translates to:
+  /// **'Voluntary fasting'**
+  String get remindersFastingSection;
+
+  /// Reminder toggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Mondays and Thursdays'**
+  String get remindersFastMonThu;
+
+  /// Reminder toggle.
+  ///
+  /// In en, this message translates to:
+  /// **'The white days (13–15 of each month)'**
+  String get remindersFastWhiteDays;
+
+  /// Reminder toggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Arafah, Tasu’a and Ashura'**
+  String get remindersFastOccasions;
+
+  /// Reminder toggle subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The evening before, at {time}'**
+  String remindersFastingSubtitle(String time);
+
+  /// Fasting reminder title.
+  ///
+  /// In en, this message translates to:
+  /// **'Tomorrow is Monday'**
+  String get reminderFastMonday;
+
+  /// Fasting reminder title.
+  ///
+  /// In en, this message translates to:
+  /// **'Tomorrow is Thursday'**
+  String get reminderFastThursday;
+
+  /// Fasting reminder title.
+  ///
+  /// In en, this message translates to:
+  /// **'Tomorrow is one of the white days'**
+  String get reminderFastWhiteDay;
+
+  /// Fasting reminder title.
+  ///
+  /// In en, this message translates to:
+  /// **'Tomorrow is the Day of Arafah'**
+  String get reminderFastArafah;
+
+  /// Fasting reminder title.
+  ///
+  /// In en, this message translates to:
+  /// **'Tomorrow is Tasu’a'**
+  String get reminderFastTasua;
+
+  /// Fasting reminder title.
+  ///
+  /// In en, this message translates to:
+  /// **'Tomorrow is Ashura'**
+  String get reminderFastAshura;
+
+  /// Fasting reminder body.
+  ///
+  /// In en, this message translates to:
+  /// **'A reminder for anyone who wishes to fast.'**
+  String get reminderFastBody;
 }
 
 class _AppLocalizationsDelegate

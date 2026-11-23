@@ -19,6 +19,9 @@ class ReminderSettings {
     this.duaEveryHours = 0,
     this.suhoor = false,
     this.iftar = false,
+    this.fastMonThu = false,
+    this.fastWhiteDays = false,
+    this.fastOccasions = false,
     this.quietStartMinutes = 23 * 60,
     this.quietEndMinutes = 6 * 60,
   });
@@ -46,6 +49,9 @@ class ReminderSettings {
       duaEveryHours: every is int && duaIntervals.contains(every) ? every : 0,
       suhoor: flag('suhoor'),
       iftar: flag('iftar'),
+      fastMonThu: flag('fastMonThu'),
+      fastWhiteDays: flag('fastWhiteDays'),
+      fastOccasions: flag('fastOccasions'),
       quietStartMinutes: number('quietStartMinutes', 23 * 60, 0, day),
       quietEndMinutes: number('quietEndMinutes', 6 * 60, 0, day),
     );
@@ -83,6 +89,13 @@ class ReminderSettings {
   final bool suhoor;
   final bool iftar;
 
+  /// Voluntary fasting, reminded the evening before: Mondays and Thursdays,
+  /// the white days (13-15 of each Hijri month), and Arafah, Tasua and
+  /// Ashura.
+  final bool fastMonThu;
+  final bool fastWhiteDays;
+  final bool fastOccasions;
+
   /// No supplication reminders between these times (minutes after midnight).
   final int quietStartMinutes;
   final int quietEndMinutes;
@@ -98,7 +111,10 @@ class ReminderSettings {
       dailyDua ||
       duaEveryHours > 0 ||
       suhoor ||
-      iftar;
+      iftar ||
+      fastMonThu ||
+      fastWhiteDays ||
+      fastOccasions;
 
   Map<String, Object?> toJson() => {
     'adhan': adhan,
@@ -114,6 +130,9 @@ class ReminderSettings {
     'duaEveryHours': duaEveryHours,
     'suhoor': suhoor,
     'iftar': iftar,
+    'fastMonThu': fastMonThu,
+    'fastWhiteDays': fastWhiteDays,
+    'fastOccasions': fastOccasions,
     'quietStartMinutes': quietStartMinutes,
     'quietEndMinutes': quietEndMinutes,
   };
@@ -134,6 +153,9 @@ class ReminderSettings {
     int? duaEveryHours,
     bool? suhoor,
     bool? iftar,
+    bool? fastMonThu,
+    bool? fastWhiteDays,
+    bool? fastOccasions,
   }) => ReminderSettings(
     adhan: adhan ?? this.adhan,
     beforePrayer: beforePrayer ?? this.beforePrayer,
@@ -148,6 +170,9 @@ class ReminderSettings {
     duaEveryHours: duaEveryHours ?? this.duaEveryHours,
     suhoor: suhoor ?? this.suhoor,
     iftar: iftar ?? this.iftar,
+    fastMonThu: fastMonThu ?? this.fastMonThu,
+    fastWhiteDays: fastWhiteDays ?? this.fastWhiteDays,
+    fastOccasions: fastOccasions ?? this.fastOccasions,
     quietStartMinutes: quietStartMinutes,
     quietEndMinutes: quietEndMinutes,
   );

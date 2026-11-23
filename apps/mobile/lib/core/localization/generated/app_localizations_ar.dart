@@ -1429,4 +1429,42 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get tasbihFree => 'عدّ حر';
+
+  @override
+  String get remindersFastingSection => 'صيام التطوع';
+
+  @override
+  String get remindersFastMonThu => 'الإثنين والخميس';
+
+  @override
+  String get remindersFastWhiteDays => 'الأيام البيض (١٣–١٥ من كل شهر)';
+
+  @override
+  String get remindersFastOccasions => 'يوم عرفة وتاسوعاء وعاشوراء';
+
+  @override
+  String remindersFastingSubtitle(String time) {
+    return 'في الليلة السابقة الساعة $time';
+  }
+
+  @override
+  String get reminderFastMonday => 'غدًا الإثنين';
+
+  @override
+  String get reminderFastThursday => 'غدًا الخميس';
+
+  @override
+  String get reminderFastWhiteDay => 'غدًا من الأيام البيض';
+
+  @override
+  String get reminderFastArafah => 'غدًا يوم عرفة';
+
+  @override
+  String get reminderFastTasua => 'غدًا تاسوعاء';
+
+  @override
+  String get reminderFastAshura => 'غدًا عاشوراء';
+
+  @override
+  String get reminderFastBody => 'تذكير لمن أراد الصيام.';
 }

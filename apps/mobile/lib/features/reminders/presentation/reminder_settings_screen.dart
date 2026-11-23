@@ -241,6 +241,33 @@ class _ReminderSettingsScreenState
                     apply: (on) => settings.copyWith(iftar: on),
                   ),
                 ]),
+                section(l10n.remindersFastingSection, [
+                  toggle(
+                    key: const ValueKey('reminder-fast-monthu'),
+                    title: l10n.remindersFastMonThu,
+                    subtitle: l10n.remindersFastingSubtitle(
+                      _clock(context, 21 * 60),
+                    ),
+                    value: settings.fastMonThu,
+                    apply: (on) => settings.copyWith(fastMonThu: on),
+                  ),
+                  toggle(
+                    title: l10n.remindersFastWhiteDays,
+                    subtitle: l10n.remindersFastingSubtitle(
+                      _clock(context, 21 * 60),
+                    ),
+                    value: settings.fastWhiteDays,
+                    apply: (on) => settings.copyWith(fastWhiteDays: on),
+                  ),
+                  toggle(
+                    title: l10n.remindersFastOccasions,
+                    subtitle: l10n.remindersFastingSubtitle(
+                      _clock(context, 21 * 60),
+                    ),
+                    value: settings.fastOccasions,
+                    apply: (on) => settings.copyWith(fastOccasions: on),
+                  ),
+                ]),
                 section(l10n.remindersDuaSection, [
                   toggle(
                     title: l10n.remindersDailyDua,
