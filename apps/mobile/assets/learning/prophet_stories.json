@@ -1,0 +1,93 @@
+[
+  {
+    "id": "adam",
+    "ar": "سيدنا آدم عليه السلام",
+    "en": "Adam, peace be upon him",
+    "episodes": [
+      {
+        "number": 1,
+        "media": {
+          "audio": {
+            "file": "Madar-Adam-001.mp3",
+            "bytes": 2921908
+          },
+          "video": {
+            "file": "Madar-Adam-001.mp4",
+            "bytes": 6099986
+          }
+        }
+      },
+      {
+        "number": 2,
+        "media": {
+          "audio": {
+            "file": "Madar-Adam-002.mp3",
+            "bytes": 3349588
+          },
+          "video": {
+            "file": "Madar-Adam-002.mp4",
+            "bytes": 4384053
+          }
+        }
+      },
+      {
+        "number": 3,
+        "media": {
+          "audio": {
+            "file": "Madar-Adam-003.mp3",
+            "bytes": 3949108
+          },
+          "video": {
+            "file": "Madar-Adam-003.mp4",
+            "bytes": 5198949
+          }
+        }
+      },
+      {
+        "number": 4,
+        "media": {
+          "audio": {
+            "file": "Madar-Adam-004.mp3",
+            "bytes": 5534068
+          },
+          "video": {
+            "file": "Madar-Adam-004.mp4",
+            "bytes": 7341086
+          }
+        }
+      },
+      {
+        "number": 5,
+        "media": {
+          "audio": {
+            "file": "Madar-Adam-005.mp3",
+            "bytes": 5763508
+          },
+          "video": {
+            "file": "Madar-Adam-005.mp4",
+            "bytes": 6949286
+          }
+        }
+      },
+      {
+        "number": 6,
+        "media": {
+          "audio": {
+            "file": "Madar-Adam-006.mp3",
+            "bytes": 5697748
+          },
+          "video": {
+            "file": "Madar-Adam-006.mp4",
+            "bytes": 6810397
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": "idris",
+    "ar": "سيدنا إدريس عليه السلام",
+    "en": "Idris, peace be upon him",
+    "episodes": []
+  }
+]

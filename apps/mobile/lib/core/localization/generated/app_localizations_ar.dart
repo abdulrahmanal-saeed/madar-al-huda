@@ -260,6 +260,63 @@ class AppLocalizationsAr extends AppLocalizations {
   String get sectionStoriesSubtitle => 'من القرآن والسنة مع ذكر المصادر';
 
   @override
+  String learningEpisodeCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count حلقة',
+      few: '$count حلقات',
+      two: 'حلقتان',
+      one: 'حلقة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String learningEpisodeNumber(int number) {
+    return 'الحلقة $number';
+  }
+
+  @override
+  String get learningNoEpisodes => 'هتظهر الحلقات هنا عند إضافتها.';
+
+  @override
+  String get learningFormatAudio => 'صوت';
+
+  @override
+  String get learningFormatVideo => 'فيديو';
+
+  @override
+  String get learningPlaySeries => 'تشغيل القائمة';
+
+  @override
+  String get learningDownload => 'تنزيل الحلقة';
+
+  @override
+  String get learningDownloaded => 'متاحة دون إنترنت';
+
+  @override
+  String get learningRemoveDownload => 'حذف التنزيل';
+
+  @override
+  String get learningMediaUnavailable => 'وسائط الحلقات غير متاحة حاليًا.';
+
+  @override
+  String get learningPlaybackFailed => 'تعذّر تشغيل الحلقة.';
+
+  @override
+  String get learningDownloadFailed => 'تعذّر حفظ التنزيل أو حذفه.';
+
+  @override
+  String get learningRetry => 'أعد المحاولة';
+
+  @override
+  String get learningPreviousEpisode => 'الحلقة السابقة';
+
+  @override
+  String get learningNextEpisode => 'الحلقة التالية';
+
+  @override
   String get statusAwaitingSourceTitle => 'بانتظار التحقق من المصدر';
 
   @override

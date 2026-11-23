@@ -572,6 +572,96 @@ abstract class AppLocalizations {
   /// **'Told from the Quran and Sunnah, with sources'**
   String get sectionStoriesSubtitle;
 
+  /// Number of episodes in a learning series.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 episode} other{{count} episodes}}'**
+  String learningEpisodeCount(int count);
+
+  /// Title for a numbered episode.
+  ///
+  /// In en, this message translates to:
+  /// **'Episode {number}'**
+  String learningEpisodeNumber(int number);
+
+  /// Empty state for a series that has no episodes yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Episodes will appear here when they’re added.'**
+  String get learningNoEpisodes;
+
+  /// Select the audio editions of the episodes.
+  ///
+  /// In en, this message translates to:
+  /// **'Audio'**
+  String get learningFormatAudio;
+
+  /// Select the video editions of the episodes.
+  ///
+  /// In en, this message translates to:
+  /// **'Video'**
+  String get learningFormatVideo;
+
+  /// Play the numbered episodes in order.
+  ///
+  /// In en, this message translates to:
+  /// **'Play playlist'**
+  String get learningPlaySeries;
+
+  /// Save the episode in the selected format for offline use.
+  ///
+  /// In en, this message translates to:
+  /// **'Download episode'**
+  String get learningDownload;
+
+  /// Status of a saved episode in the selected format.
+  ///
+  /// In en, this message translates to:
+  /// **'Available offline'**
+  String get learningDownloaded;
+
+  /// Delete the selected format from app storage.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove download'**
+  String get learningRemoveDownload;
+
+  /// The learning media source has not been configured.
+  ///
+  /// In en, this message translates to:
+  /// **'Episode media is currently unavailable.'**
+  String get learningMediaUnavailable;
+
+  /// Shown when an episode cannot be played.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to play this episode.'**
+  String get learningPlaybackFailed;
+
+  /// Shown when saving or removing a media download fails.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to update the download.'**
+  String get learningDownloadFailed;
+
+  /// Retry loading the current episode.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get learningRetry;
+
+  /// Play the preceding video in the list.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous episode'**
+  String get learningPreviousEpisode;
+
+  /// Play the next video in the list.
+  ///
+  /// In en, this message translates to:
+  /// **'Next episode'**
+  String get learningNextEpisode;
+
   /// Content status: source/license not yet verified.
   ///
   /// In en, this message translates to:
