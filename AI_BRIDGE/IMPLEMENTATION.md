@@ -1,5 +1,10 @@
 # Implementation log
 
+## 2026-11-23 — P02-03 and P02-04 bilingual adhkar content
+- Branch `phase-02/adhkar-content` prepares the five owner-selected sections. The [catalog](../docs/content/adhkar/catalog.json) includes Arabic and English editorial labels, reference IDs, documented counts, and the local routine completion copy.
+- `python docs/content/adhkar/verify_catalog.py --sources` passed against the existing Tanzil asset, the QuranEnc 1.0.21 database, HadeethEnc Arabic 1.8.0 and English 1.25.0, and both Hisn indexes. The Arabic-only hadith on sleep and waking has a linked English source and separately marked draft meanings.
+- The design handoff, in-app flow validation and final content and language reviews remain open. There are no Flutter UI or runtime changes in this PR.
+
 ## 2026-11-23 — P02-05 daily Quran reading goal
 - Branch `phase-02/daily-reading-plan` stacks over PR #28 for access to the pinned 604-page Mushaf. D-21 allows preview implementation and technical checks while the parent reader is under review.
 - The worship screen opens a daily reading plan with an editable page target, an exact link to the next Mushaf page, and an explicit action to mark the session read. A versioned, edition-bound record keeps the current goal and progress on the device. The card is preview-gated.
