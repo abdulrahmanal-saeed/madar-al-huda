@@ -46,7 +46,6 @@ class LibraryHubScreen extends StatelessWidget {
                   title: l10n.duaTitle,
                   subtitle: l10n.sectionAdhkarTitle,
                 ),
-                if (managedReleaseEnabled) const _SaveLibrary(),
                 for (final section in sections)
                   _LibraryTile(
                     key: ValueKey('section-card-$section'),
@@ -65,6 +64,7 @@ class LibraryHubScreen extends StatelessWidget {
                   title: l10n.libraryAcademy,
                   section: AppSection.lessons,
                 ),
+                if (managedReleaseEnabled) const _SaveLibrary(),
                 const SizedBox(height: AppSpacing.xl),
               ],
             ),
