@@ -6,7 +6,7 @@ import 'package:madar_al_huda/features/reminders/domain/reminder_plan.dart';
 import 'package:madar_al_huda/features/reminders/domain/reminder_settings.dart';
 import 'package:madar_al_huda/features/worship/application/worship_location.dart';
 
-final class _Texts implements ReminderTexts {
+final class TestReminderTexts implements ReminderTexts {
   @override
   String prayerName(PrayerSlot slot) => slot.name;
   @override
@@ -33,6 +33,14 @@ final class _Texts implements ReminderTexts {
   String get kahfBody => 'kahf body';
   @override
   String get duaTitle => 'dua';
+  @override
+  String get suhoorTitle => 'suhoor';
+  @override
+  String get suhoorBody => 'suhoor body';
+  @override
+  String get iftarTitle => 'iftar';
+  @override
+  String get iftarBody => 'iftar body';
 }
 
 PrayerSchedule _dubai(DateTime day) => PrayerSchedule.calculate(
@@ -56,7 +64,7 @@ void main() {
         settings: settings,
         scheduleOn: _dubai,
         now: now,
-        texts: _Texts(),
+        texts: TestReminderTexts(),
         duas: duas,
         days: days,
       );

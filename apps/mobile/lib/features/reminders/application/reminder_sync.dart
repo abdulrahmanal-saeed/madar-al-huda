@@ -204,4 +204,12 @@ class L10nReminderTexts implements ReminderTexts {
   String get kahfBody => l10n.reminderKahfBody;
   @override
   String get duaTitle => l10n.reminderDuaTitle;
+  @override
+  String get suhoorTitle => l10n.reminderSuhoorTitle;
+  @override
+  String get suhoorBody => l10n.reminderSuhoorBody;
+  @override
+  String get iftarTitle => l10n.reminderIftarTitle;
+  @override
+  String get iftarBody => l10n.reminderIftarBody;
 }

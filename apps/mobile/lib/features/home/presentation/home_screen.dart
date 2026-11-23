@@ -22,6 +22,7 @@ import '../../prayer/presentation/next_prayer_card.dart';
 import '../../quran/data/mushaf_edition.dart';
 import '../../quran/data/quran_services.dart';
 import '../../quran/presentation/quran_meaning_view.dart';
+import '../../ramadan/presentation/ramadan_screen.dart';
 import '../../worship/application/worship_location.dart';
 import '../../worship/data/daily_reading_plan.dart';
 import 'worship_now_card.dart';
@@ -107,6 +108,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 if (schedule != null &&
                     (!AppSection.adhkar.status.isGated ||
                         managedReleaseEnabled)) ...[
+                  RamadanHomeCard(now: now),
                   WorshipNowCard(schedule: schedule, now: now),
                   const SizedBox(height: AppSpacing.md),
                 ],

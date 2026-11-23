@@ -1280,4 +1280,98 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get librarySectionOpenFailed => 'تعذّر فتح الرابط.';
+
+  @override
+  String get ramadanTitle => 'رمضان';
+
+  @override
+  String get ramadanGreeting => 'رمضان كريم';
+
+  @override
+  String ramadanDay(String day) {
+    return 'اليوم $day من رمضان';
+  }
+
+  @override
+  String get ramadanUntilIftar => 'باقي على الإفطار';
+
+  @override
+  String get ramadanUntilImsak => 'باقي على الإمساك';
+
+  @override
+  String ramadanMaghrib(String time) {
+    return 'المغرب الساعة $time';
+  }
+
+  @override
+  String ramadanImsak(String time) {
+    return 'الإمساك الساعة $time';
+  }
+
+  @override
+  String get ramadanImsakiya => 'الإمساكية';
+
+  @override
+  String get ramadanImsakNote =>
+      'الإمساك قبل الفجر بعشر دقائق. الأيام حسب التقويم الهجري المدني، وقد تختلف يومًا عن رؤية الهلال المحلية.';
+
+  @override
+  String get ramadanColumnDay => 'اليوم';
+
+  @override
+  String get ramadanColumnImsak => 'الإمساك';
+
+  @override
+  String get ramadanKhatma => 'ختمة رمضان';
+
+  @override
+  String ramadanKhatmaToday(String juz) {
+    return 'ورد اليوم: الجزء $juz';
+  }
+
+  @override
+  String get ramadanOpenJuz => 'افتح';
+
+  @override
+  String get ramadanLastTen => 'العشر الأواخر';
+
+  @override
+  String ramadanLastTenIn(String days) {
+    return 'تبدأ بعد $days أيام';
+  }
+
+  @override
+  String get ramadanLastTenNow => 'تحرَّ ليلة القدر في هذه الليالي';
+
+  @override
+  String ramadanNotNow(String date) {
+    return 'يُتوقع أن يبدأ رمضان في حدود $date.';
+  }
+
+  @override
+  String get remindersRamadanSection => 'رمضان';
+
+  @override
+  String get remindersSuhoor => 'السحور';
+
+  @override
+  String get remindersSuhoorSubtitle => 'قبل الإمساك بـ ٣٠ دقيقة، في رمضان';
+
+  @override
+  String get remindersIftar => 'الإفطار';
+
+  @override
+  String get remindersIftarSubtitle => 'عند المغرب، في رمضان';
+
+  @override
+  String get reminderSuhoorTitle => 'حان وقت السحور';
+
+  @override
+  String get reminderSuhoorBody => 'الإمساك بعد ٣٠ دقيقة.';
+
+  @override
+  String get reminderIftarTitle => 'حان وقت الإفطار';
+
+  @override
+  String get reminderIftarBody => 'تقبّل الله صيامك.';
 }

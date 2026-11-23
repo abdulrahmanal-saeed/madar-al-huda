@@ -2389,6 +2389,168 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn\'t open the link.'**
   String get librarySectionOpenFailed;
+
+  /// Ramadan page title.
+  ///
+  /// In en, this message translates to:
+  /// **'Ramadan'**
+  String get ramadanTitle;
+
+  /// Ramadan page greeting.
+  ///
+  /// In en, this message translates to:
+  /// **'Ramadan Kareem'**
+  String get ramadanGreeting;
+
+  /// Current day of Ramadan.
+  ///
+  /// In en, this message translates to:
+  /// **'Day {day} of Ramadan'**
+  String ramadanDay(String day);
+
+  /// Countdown label.
+  ///
+  /// In en, this message translates to:
+  /// **'Until iftar'**
+  String get ramadanUntilIftar;
+
+  /// Countdown label.
+  ///
+  /// In en, this message translates to:
+  /// **'Until imsak'**
+  String get ramadanUntilImsak;
+
+  /// Time of iftar.
+  ///
+  /// In en, this message translates to:
+  /// **'Maghrib at {time}'**
+  String ramadanMaghrib(String time);
+
+  /// Time of imsak.
+  ///
+  /// In en, this message translates to:
+  /// **'Imsak at {time}'**
+  String ramadanImsak(String time);
+
+  /// Ramadan timetable title.
+  ///
+  /// In en, this message translates to:
+  /// **'Imsakiya'**
+  String get ramadanImsakiya;
+
+  /// Imsakiya note.
+  ///
+  /// In en, this message translates to:
+  /// **'Imsak is 10 minutes before Fajr. Days follow the civil Hijri calendar and may differ by a day from local moon sighting.'**
+  String get ramadanImsakNote;
+
+  /// Table column.
+  ///
+  /// In en, this message translates to:
+  /// **'Day'**
+  String get ramadanColumnDay;
+
+  /// Table column.
+  ///
+  /// In en, this message translates to:
+  /// **'Imsak'**
+  String get ramadanColumnImsak;
+
+  /// A juz a day.
+  ///
+  /// In en, this message translates to:
+  /// **'Ramadan khatma'**
+  String get ramadanKhatma;
+
+  /// Daily juz.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s portion: juz {juz}'**
+  String ramadanKhatmaToday(String juz);
+
+  /// Opens the juz.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get ramadanOpenJuz;
+
+  /// Card title.
+  ///
+  /// In en, this message translates to:
+  /// **'The last ten nights'**
+  String get ramadanLastTen;
+
+  /// Days until the last ten nights.
+  ///
+  /// In en, this message translates to:
+  /// **'They begin in {days} days'**
+  String ramadanLastTenIn(String days);
+
+  /// During the last ten nights.
+  ///
+  /// In en, this message translates to:
+  /// **'Seek Laylat al-Qadr in these nights'**
+  String get ramadanLastTenNow;
+
+  /// Outside Ramadan.
+  ///
+  /// In en, this message translates to:
+  /// **'Ramadan is expected to begin around {date}.'**
+  String ramadanNotNow(String date);
+
+  /// Reminder section.
+  ///
+  /// In en, this message translates to:
+  /// **'Ramadan'**
+  String get remindersRamadanSection;
+
+  /// Reminder toggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Suhoor'**
+  String get remindersSuhoor;
+
+  /// Reminder toggle subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'30 minutes before imsak, during Ramadan'**
+  String get remindersSuhoorSubtitle;
+
+  /// Reminder toggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Iftar'**
+  String get remindersIftar;
+
+  /// Reminder toggle subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'At Maghrib, during Ramadan'**
+  String get remindersIftarSubtitle;
+
+  /// Notification title.
+  ///
+  /// In en, this message translates to:
+  /// **'Time for suhoor'**
+  String get reminderSuhoorTitle;
+
+  /// Notification body.
+  ///
+  /// In en, this message translates to:
+  /// **'Imsak is in 30 minutes.'**
+  String get reminderSuhoorBody;
+
+  /// Notification title.
+  ///
+  /// In en, this message translates to:
+  /// **'Time to break your fast'**
+  String get reminderIftarTitle;
+
+  /// Notification body.
+  ///
+  /// In en, this message translates to:
+  /// **'May Allah accept your fast.'**
+  String get reminderIftarBody;
 }
 
 class _AppLocalizationsDelegate
