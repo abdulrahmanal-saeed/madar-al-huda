@@ -19,6 +19,7 @@ enum ReminderKind {
   dua,
   suhoor,
   iftar,
+  fasting,
 }
 
 /// One notification to schedule.
@@ -62,6 +63,37 @@ abstract interface class ReminderTexts {
   String get suhoorBody;
   String get iftarTitle;
   String get iftarBody;
+  String fastingTitle(FastingDay day);
+  String get fastingBody;
+}
+
+/// Why a day is a recommended day to fast.
+enum FastingDay { arafah, tasua, ashura, whiteDay, monday, thursday }
+
+/// The voluntary fast that [day] offers, or null. Days on which fasting is
+/// not allowed (the two Eids and the days of tashreeq) and Ramadan never
+/// qualify. Uses the civil Hijri calendar.
+FastingDay? fastingDayOn(DateTime day, ReminderSettings settings) {
+  final hijri = civilHijri(DateTime.utc(day.year, day.month, day.day));
+  if (hijri == null || hijri.month == 9) return null;
+  final month = hijri.month;
+  final date = hijri.day;
+  final forbidden =
+      (month == 10 && date == 1) || (month == 12 && date >= 10 && date <= 13);
+  if (forbidden) return null;
+  if (settings.fastOccasions) {
+    if (month == 12 && date == 9) return FastingDay.arafah;
+    if (month == 1 && date == 9) return FastingDay.tasua;
+    if (month == 1 && date == 10) return FastingDay.ashura;
+  }
+  if (settings.fastWhiteDays && date >= 13 && date <= 15) {
+    return FastingDay.whiteDay;
+  }
+  if (settings.fastMonThu) {
+    if (day.weekday == DateTime.monday) return FastingDay.monday;
+    if (day.weekday == DateTime.thursday) return FastingDay.thursday;
+  }
+  return null;
 }
 
 /// A supplication used in reminders, already in its final wording.
@@ -233,6 +265,22 @@ List<PlannedReminder> planReminders({
           texts.iftarTitle,
           texts.iftarBody,
           AppRoutes.ramadan,
+        );
+      }
+    }
+    if (settings.fastMonThu ||
+        settings.fastWhiteDays ||
+        settings.fastOccasions) {
+      final tomorrow = DateTime.utc(date.year, date.month, date.day + 1);
+      final fast = fastingDayOn(tomorrow, settings);
+      if (fast != null) {
+        add(
+          37,
+          clock(21 * 60),
+          ReminderKind.fasting,
+          texts.fastingTitle(fast),
+          texts.fastingBody,
+          AppRoutes.home,
         );
       }
     }

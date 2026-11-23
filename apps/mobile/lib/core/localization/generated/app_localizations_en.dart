@@ -1446,4 +1446,42 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tasbihFree => 'Free count';
+
+  @override
+  String get remindersFastingSection => 'Voluntary fasting';
+
+  @override
+  String get remindersFastMonThu => 'Mondays and Thursdays';
+
+  @override
+  String get remindersFastWhiteDays => 'The white days (13–15 of each month)';
+
+  @override
+  String get remindersFastOccasions => 'Arafah, Tasu’a and Ashura';
+
+  @override
+  String remindersFastingSubtitle(String time) {
+    return 'The evening before, at $time';
+  }
+
+  @override
+  String get reminderFastMonday => 'Tomorrow is Monday';
+
+  @override
+  String get reminderFastThursday => 'Tomorrow is Thursday';
+
+  @override
+  String get reminderFastWhiteDay => 'Tomorrow is one of the white days';
+
+  @override
+  String get reminderFastArafah => 'Tomorrow is the Day of Arafah';
+
+  @override
+  String get reminderFastTasua => 'Tomorrow is Tasu’a';
+
+  @override
+  String get reminderFastAshura => 'Tomorrow is Ashura';
+
+  @override
+  String get reminderFastBody => 'A reminder for anyone who wishes to fast.';
 }

@@ -435,5 +435,17 @@
   "tasbihReset": "ابدأ من جديد",
   "tasbihToday": "اليوم: {count}",
   "tasbihDone": "اكتمل العدد",
-  "tasbihFree": "عدّ حر"
+  "tasbihFree": "عدّ حر",
+  "remindersFastingSection": "صيام التطوع",
+  "remindersFastMonThu": "الإثنين والخميس",
+  "remindersFastWhiteDays": "الأيام البيض (١٣–١٥ من كل شهر)",
+  "remindersFastOccasions": "يوم عرفة وتاسوعاء وعاشوراء",
+  "remindersFastingSubtitle": "في الليلة السابقة الساعة {time}",
+  "reminderFastMonday": "غدًا الإثنين",
+  "reminderFastThursday": "غدًا الخميس",
+  "reminderFastWhiteDay": "غدًا من الأيام البيض",
+  "reminderFastArafah": "غدًا يوم عرفة",
+  "reminderFastTasua": "غدًا تاسوعاء",
+  "reminderFastAshura": "غدًا عاشوراء",
+  "reminderFastBody": "تذكير لمن أراد الصيام."
 }

@@ -41,6 +41,10 @@ final class TestReminderTexts implements ReminderTexts {
   String get iftarTitle => 'iftar';
   @override
   String get iftarBody => 'iftar body';
+  @override
+  String fastingTitle(FastingDay day) => 'fast ${day.name}';
+  @override
+  String get fastingBody => 'fast body';
 }
 
 PrayerSchedule _dubai(DateTime day) => PrayerSchedule.calculate(
