@@ -62,7 +62,7 @@ class MadarApp extends ConsumerWidget {
   Future<void> _setUpLocation(BuildContext context, WidgetRef ref) async {
     if (kIsWeb ||
         defaultTargetPlatform != TargetPlatform.android ||
-        (!featurePreviewEnabled &&
+        (!managedReleaseEnabled &&
             AppSection.qibla.status.isGated &&
             AppSection.prayerTimes.status.isGated)) {
       return;

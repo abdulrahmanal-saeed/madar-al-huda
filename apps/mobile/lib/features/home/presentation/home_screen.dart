@@ -65,7 +65,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final point = location.point;
     final country = location.country;
     final showPrayer =
-        !AppSection.prayerTimes.status.isGated || featurePreviewEnabled;
+        !AppSection.prayerTimes.status.isGated || managedReleaseEnabled;
     final showMushaf =
         !AppSection.mushaf.status.isGated || managedReleaseEnabled;
     final schedule = showPrayer && point != null && country != null

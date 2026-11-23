@@ -20,7 +20,7 @@ class AdhkarScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (AppSection.adhkar.status.isGated && !featurePreviewEnabled) {
+    if (AppSection.adhkar.status.isGated && !managedReleaseEnabled) {
       return const SectionDetailScaffold(section: AppSection.adhkar);
     }
     if (destination == AdhkarDestination.quranDuas) return const QuranDuas();
