@@ -11,7 +11,7 @@ import '../../../core/widgets/section_detail_scaffold.dart';
 import '../data/hadeeth_enc.dart';
 import '../data/hadith_favorites.dart';
 
-/// Hadith library. Gated until a licensed corpus is selected (P03-01).
+/// Hadith library backed by the publisher's live HadeethEnc API.
 class HadithScreen extends ConsumerStatefulWidget {
   const HadithScreen({super.key});
 
@@ -24,7 +24,7 @@ class _HadithScreenState extends ConsumerState<HadithScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (AppSection.hadith.status.isGated && !featurePreviewEnabled) {
+    if (AppSection.hadith.status.isGated && !managedReleaseEnabled) {
       return const SectionDetailScaffold(section: AppSection.hadith);
     }
     final language = Localizations.localeOf(context).languageCode;

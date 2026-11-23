@@ -6,6 +6,10 @@ import 'package:just_audio_background/just_audio_background.dart';
 
 typedef PlaybackSource = ({Uri url, Duration? start});
 typedef QueuedAudio = ({MediaItem track, PlaybackSource source});
+typedef DeferredAudio = ({
+  MediaItem track,
+  Future<PlaybackSource> Function() resolve,
+});
 typedef Playback = ({MediaItem? track, MediaItem? pending, String? failedId});
 
 final audioPlayerProvider = Provider<AudioPlayer>((ref) {
@@ -23,12 +27,15 @@ class AudioPlayback extends Notifier<Playback> {
   int _request = 0;
   StreamSubscription<PlayerException>? _errors;
   StreamSubscription<int?>? _positions;
+  StreamSubscription<ProcessingState>? _completion;
   List<QueuedAudio> _queue = const [];
+  DeferredAudio? Function()? _nextDeferred;
 
   @override
   Playback build() {
     ref.onDispose(() => unawaited(_errors?.cancel()));
     ref.onDispose(() => unawaited(_positions?.cancel()));
+    ref.onDispose(() => unawaited(_completion?.cancel()));
     return (track: null, pending: null, failedId: null);
   }
 
@@ -42,10 +49,31 @@ class AudioPlayback extends Notifier<Playback> {
     Future<List<QueuedAudio>> Function() resolve,
   ) => _start(first, resolve);
 
+  /// For catalogues that must resolve each streaming URL on demand.
+  Future<void> startDeferredQueue(Iterable<DeferredAudio> queue) async {
+    final items = queue.iterator;
+    DeferredAudio? next() => items.moveNext() ? items.current : null;
+    final first = next();
+    if (first != null) await _startDeferred(first, next);
+  }
+
+  bool containsTrack(String id) =>
+      state.pending?.id == id || _queue.any((item) => item.track.id == id);
+
+  Future<void> _startDeferred(
+    DeferredAudio track,
+    DeferredAudio? Function() next,
+  ) => _start(
+    track.track,
+    () async => [(track: track.track, source: await track.resolve())],
+    nextDeferred: next,
+  );
+
   Future<void> _start(
     MediaItem track,
-    Future<List<QueuedAudio>> Function() resolve,
-  ) async {
+    Future<List<QueuedAudio>> Function() resolve, {
+    DeferredAudio? Function()? nextDeferred,
+  }) async {
     if (state.pending != null) return;
     final request = ++_request;
     state = (track: state.track, pending: track, failedId: null);
@@ -64,6 +92,27 @@ class AudioPlayback extends Notifier<Playback> {
       });
       if (queue.length > 1) {
         _positions ??= player.currentIndexStream.listen(_updateQueueTrack);
+      }
+      if (nextDeferred != null) {
+        _completion ??= player.processingStateStream.listen((processing) {
+          final next = _nextDeferred;
+          if (processing != ProcessingState.completed ||
+              next == null ||
+              !ref.mounted ||
+              !player.playing ||
+              state.pending != null ||
+              state.track == null ||
+              state.failedId != null) {
+            return;
+          }
+          _nextDeferred = null;
+          final following = next();
+          if (following != null) {
+            unawaited(
+              _startDeferred(following, next).catchError((Object _) {}),
+            );
+          }
+        });
       }
       await player.pause();
       if (!_isCurrent(request)) return;
@@ -90,6 +139,7 @@ class AudioPlayback extends Notifier<Playback> {
       }
       if (!_isCurrent(request)) return;
       _queue = queue;
+      _nextDeferred = nextDeferred;
       state = (track: track, pending: null, failedId: null);
       _play(track, player, request);
     } catch (_) {
@@ -170,6 +220,7 @@ class AudioPlayback extends Notifier<Playback> {
 
   Future<void> stop() async {
     final request = ++_request;
+    _nextDeferred = null;
     try {
       if (state.track != null || state.pending != null) {
         await ref.read(audioPlayerProvider).stop();

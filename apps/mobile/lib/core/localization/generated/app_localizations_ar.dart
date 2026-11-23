@@ -997,6 +997,21 @@ class AppLocalizationsAr extends AppLocalizations {
   String get recitationDownload => 'نزّل التلاوة';
 
   @override
+  String get recitationDownloadMushaf => 'تنزيل المصحف كاملًا';
+
+  @override
+  String get recitationDownloadAvailable => 'تنزيل كل السور المتاحة';
+
+  @override
+  String recitationDownloadSurahs(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return 'تنزيل السور ($countString)';
+  }
+
+  @override
   String get recitationDownloading => 'جاري تنزيل التلاوة';
 
   @override

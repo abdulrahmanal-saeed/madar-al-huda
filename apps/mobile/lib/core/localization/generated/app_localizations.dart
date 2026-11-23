@@ -1898,6 +1898,24 @@ abstract class AppLocalizations {
   /// **'Download recitation'**
   String get recitationDownload;
 
+  /// Opens the full-recitation download controls for a reader covering all 114 surahs.
+  ///
+  /// In en, this message translates to:
+  /// **'Download full Mushaf'**
+  String get recitationDownloadMushaf;
+
+  /// Opens the recitation download controls when a reader covers part of the Mushaf.
+  ///
+  /// In en, this message translates to:
+  /// **'Download all available surahs'**
+  String get recitationDownloadAvailable;
+
+  /// Download action with the total number of available recordings.
+  ///
+  /// In en, this message translates to:
+  /// **'Download surahs ({count})'**
+  String recitationDownloadSurahs(int count);
+
   /// Downloading recitation
   ///
   /// In en, this message translates to:
