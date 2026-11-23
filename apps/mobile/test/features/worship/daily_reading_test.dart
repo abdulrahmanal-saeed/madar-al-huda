@@ -16,13 +16,14 @@ void main() {
       (tester) async {
         final l10n = lookupAppLocalizations(locale);
         final numbers = NumberFormat.decimalPattern(locale.languageCode);
-        final card = find.text(l10n.dailyReadingTitle);
+        final card = find.text(l10n.dailyReadingTitle).hitTestable();
         final store = await pumpMadarApp(
           tester,
           deviceLocales: [locale],
           initialLocation: AppRoutes.worship,
         );
         await tester.scrollUntilVisible(card, 100);
+        await tester.pumpAndSettle();
         await tester.tap(card);
         await tester.pumpAndSettle();
 
@@ -45,6 +46,7 @@ void main() {
           store: store,
         );
         await tester.scrollUntilVisible(card, 100);
+        await tester.pumpAndSettle();
         await tester.tap(card);
         await tester.pumpAndSettle();
         expect(
