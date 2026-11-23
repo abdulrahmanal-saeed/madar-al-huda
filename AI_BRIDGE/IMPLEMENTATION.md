@@ -221,3 +221,9 @@ Visual check: screens were rendered through a temporary golden test with the rea
 - A private preview has 40 linked Quranic supplications in eight topics and a bilingual HadeethEnc browser. The Cairo radio card opens the broadcaster’s official site. The broadcaster’s permission for playback inside third-party apps is pending.
 - Prayer tests rerun the dated Egypt and UAE comparisons from the repository fixtures and verify Cairo DST and next-day rollover. Device-specific Qibla calibration and TalkBack checks are pending.
 - Analysis reported no issues and 112 Flutter tests passed locally after adding the preview. The dev workflow accepts the validated public Quran configuration. The .preview APK and public .dev release use separate distribution paths. D-21 reserves religious approval for the final whole-app review.
+
+### 2026-11-23 — Worship follow-up
+
+- P02-03 expands the Quranic supplications index to 75 entries and adds Arabic text, surah and verse-reference search. P02-04 adds the saved filter backed by the edition-specific Quran bookmark repository.
+- P02-09 opens the broadcaster’s official live page inside the app. The app pauses an active Quran recitation before opening the embedded player and offers an explicit browser retry if launch fails. The broadcaster’s public controls played and paused live media in Chrome. Android and native background playback are separate verification items under P02-09.
+- The staged Obtainium release follows D-21 and uses the existing signed development workflow once the eligible changes are reviewed and on main.

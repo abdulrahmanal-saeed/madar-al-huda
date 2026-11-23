@@ -5,95 +5,28 @@ import 'package:material_ui/material_ui.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/localization/app_locales.dart';
+import '../../quran/data/local_quran_bookmarks.dart';
+import '../../quran/domain/quran_storage_contracts.dart';
+import '../../quran/domain/quran_search_text.dart';
 import '../../../core/localization/l10n_extension.dart';
 import '../../../core/routing/app_routes.dart';
 import '../../../core/widgets/settings_button.dart';
 import '../../quran/data/mushaf_edition.dart';
 import '../../quran/presentation/quran_meaning_view.dart';
+import '../data/quran_dua_index.dart';
 
-enum DuaTopic {
-  forgiveness,
-  guidance,
-  family,
-  hardship,
-  gratitude,
-  worship,
-  hereafter,
-  protection;
-
+extension on DuaTopic {
   String title(AppLocalizations l10n) => switch (this) {
-    forgiveness => l10n.duaTopicForgiveness,
-    guidance => l10n.duaTopicGuidance,
-    family => l10n.duaTopicFamily,
-    hardship => l10n.duaTopicHardship,
-    gratitude => l10n.duaTopicGratitude,
-    worship => l10n.duaTopicWorship,
-    hereafter => l10n.duaTopicHereafter,
-    protection => l10n.duaTopicProtection,
+    DuaTopic.forgiveness => l10n.duaTopicForgiveness,
+    DuaTopic.guidance => l10n.duaTopicGuidance,
+    DuaTopic.family => l10n.duaTopicFamily,
+    DuaTopic.hardship => l10n.duaTopicHardship,
+    DuaTopic.gratitude => l10n.duaTopicGratitude,
+    DuaTopic.worship => l10n.duaTopicWorship,
+    DuaTopic.hereafter => l10n.duaTopicHereafter,
+    DuaTopic.protection => l10n.duaTopicProtection,
   };
 }
-
-typedef DuaRange = ({int surah, int first, int last});
-
-// Original thematic index. Display text is resolved by verse from Tanzil.
-const quranDuaIndex = <DuaTopic, List<DuaRange>>{
-  DuaTopic.forgiveness: [
-    (surah: 3, first: 147, last: 147),
-    (surah: 7, first: 23, last: 23),
-    (surah: 7, first: 151, last: 151),
-    (surah: 11, first: 47, last: 47),
-    (surah: 23, first: 109, last: 109),
-    (surah: 23, first: 118, last: 118),
-    (surah: 40, first: 7, last: 9),
-    (surah: 59, first: 10, last: 10),
-  ],
-  DuaTopic.guidance: [
-    (surah: 1, first: 6, last: 7),
-    (surah: 3, first: 8, last: 9),
-    (surah: 18, first: 10, last: 10),
-    (surah: 20, first: 25, last: 28),
-    (surah: 20, first: 114, last: 114),
-    (surah: 26, first: 83, last: 84),
-  ],
-  DuaTopic.family: [
-    (surah: 3, first: 38, last: 38),
-    (surah: 14, first: 40, last: 41),
-    (surah: 17, first: 24, last: 24),
-    (surah: 21, first: 89, last: 89),
-    (surah: 25, first: 74, last: 74),
-    (surah: 71, first: 28, last: 28),
-  ],
-  DuaTopic.hardship: [
-    (surah: 2, first: 250, last: 250),
-    (surah: 7, first: 126, last: 126),
-    (surah: 21, first: 83, last: 83),
-    (surah: 21, first: 87, last: 87),
-    (surah: 28, first: 21, last: 22),
-  ],
-  DuaTopic.gratitude: [
-    (surah: 5, first: 114, last: 114),
-    (surah: 27, first: 19, last: 19),
-    (surah: 28, first: 24, last: 24),
-    (surah: 46, first: 15, last: 15),
-  ],
-  DuaTopic.worship: [
-    (surah: 2, first: 127, last: 128),
-    (surah: 6, first: 162, last: 163),
-  ],
-  DuaTopic.hereafter: [
-    (surah: 2, first: 201, last: 201),
-    (surah: 3, first: 193, last: 194),
-    (surah: 12, first: 101, last: 101),
-    (surah: 25, first: 65, last: 66),
-    (surah: 26, first: 85, last: 85),
-  ],
-  DuaTopic.protection: [
-    (surah: 2, first: 286, last: 286),
-    (surah: 23, first: 97, last: 98),
-    (surah: 113, first: 1, last: 5),
-    (surah: 114, first: 1, last: 6),
-  ],
-};
 
 class QuranDuas extends ConsumerStatefulWidget {
   const QuranDuas({super.key});
@@ -104,6 +37,165 @@ class QuranDuas extends ConsumerStatefulWidget {
 
 class _QuranDuasState extends ConsumerState<QuranDuas> {
   DuaTopic? _topic;
+  var _query = '';
+  var _savedOnly = false;
+
+  AyahRef _reference(DuaRange range) => AyahRef(
+    editionId: MushafEdition.id,
+    surah: range.surah,
+    ayah: range.first,
+  );
+
+  Future<void> _save(DuaRange range, QuranBookmark? bookmark) async {
+    try {
+      final store = ref.read(quranBookmarksProvider);
+      if (bookmark == null) {
+        await store.add(_reference(range));
+      } else {
+        await store.remove(bookmark.id);
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(context.l10n.localSaveFailed)));
+      }
+    }
+  }
+
+  bool _matches(
+    MushafSurah surah,
+    DuaTopic topic,
+    DuaRange range,
+    AppLocalizations l10n,
+  ) {
+    if (_query.isEmpty) return true;
+    final reference = RegExp(r'^(\d+)\s*:\s*(\d+)$').firstMatch(_query);
+    if (reference != null) {
+      final ayah = int.tryParse(reference[2]!);
+      return int.tryParse(reference[1]!) == range.surah &&
+          ayah != null &&
+          ayah >= range.first &&
+          ayah <= range.last;
+    }
+    return quranSearchText(surah.arabicName).contains(_query) ||
+        quranSearchText(surah.englishName).contains(_query) ||
+        quranSearchText(topic.title(l10n)).contains(_query) ||
+        quranSearchText(
+          surah.verses.sublist(range.first - 1, range.last).join(' '),
+        ).contains(_query);
+  }
+
+  Widget _list(MushafEdition edition) {
+    final l10n = context.l10n;
+    final language = Localizations.localeOf(context).languageCode;
+    final bookmarks = {
+      for (final item
+          in ref.watch(quranBookmarkListProvider).asData?.value ??
+              const <QuranBookmark>[])
+        item.ref: item,
+    };
+    final rows = [
+      for (final entry in quranDuaIndex.entries)
+        if (_topic == null || _topic == entry.key)
+          for (final range in entry.value)
+            if ((!_savedOnly || bookmarks.containsKey(_reference(range))) &&
+                _matches(
+                  edition.surahs[range.surah - 1],
+                  entry.key,
+                  range,
+                  l10n,
+                ))
+              (topic: entry.key, range: range),
+    ];
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+          child: TextField(
+            decoration: InputDecoration(
+              labelText: l10n.duaSearch,
+              prefixIcon: const Icon(Icons.search),
+            ),
+            onChanged: (value) =>
+                setState(() => _query = quranSearchText(value)),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              Expanded(
+                child: DropdownButton<DuaTopic?>(
+                  isExpanded: true,
+                  value: _topic,
+                  items: [
+                    DropdownMenuItem(value: null, child: Text(l10n.duaTopics)),
+                    for (final topic in DuaTopic.values)
+                      DropdownMenuItem(
+                        value: topic,
+                        child: Text(topic.title(l10n)),
+                      ),
+                  ],
+                  onChanged: (topic) => setState(() => _topic = topic),
+                ),
+              ),
+              IconButton(
+                tooltip: _savedOnly ? l10n.duaShowAll : l10n.duaShowSaved,
+                isSelected: _savedOnly,
+                icon: const Icon(Icons.bookmarks_outlined),
+                selectedIcon: const Icon(Icons.bookmarks),
+                onPressed: () => setState(() => _savedOnly = !_savedOnly),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: ListView.builder(
+            padding: const EdgeInsets.fromLTRB(12, 8, 12, 20),
+            itemCount: rows.length + 1,
+            itemBuilder: (context, index) {
+              if (index == rows.length) {
+                return Column(
+                  children: [
+                    if (rows.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Text(l10n.duaNoResults),
+                      ),
+                    TextButton(
+                      onPressed: () => launchUrl(
+                        Uri.https(
+                          'quran.com',
+                          language == 'ar' ? '/ar/duas' : '/duas',
+                        ),
+                        mode: LaunchMode.inAppBrowserView,
+                      ),
+                      child: Text(l10n.duaQuranCom),
+                    ),
+                    TextButton(
+                      onPressed: () => launchUrl(Uri.https('tanzil.net')),
+                      child: Text(l10n.readerTanzil),
+                    ),
+                  ],
+                );
+              }
+              final row = rows[index];
+              final bookmark = bookmarks[_reference(row.range)];
+              return _DuaCard(
+                key: ValueKey(row.range),
+                edition: edition,
+                topic: row.topic,
+                range: row.range,
+                isSaved: bookmark != null,
+                onSave: () => _save(row.range, bookmark),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -122,46 +214,7 @@ class _QuranDuasState extends ConsumerState<QuranDuas> {
             child: Text(l10n.readerRetry),
           ),
         ),
-        data: (edition) => Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: DropdownButton<DuaTopic?>(
-                isExpanded: true,
-                value: _topic,
-                items: [
-                  DropdownMenuItem(value: null, child: Text(l10n.duaTopics)),
-                  for (final topic in DuaTopic.values)
-                    DropdownMenuItem(
-                      value: topic,
-                      child: Text(topic.title(l10n)),
-                    ),
-                ],
-                onChanged: (topic) => setState(() => _topic = topic),
-              ),
-            ),
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.fromLTRB(12, 8, 12, 20),
-                children: [
-                  for (final entry in quranDuaIndex.entries)
-                    if (_topic == null || _topic == entry.key)
-                      for (final range in entry.value)
-                        _DuaCard(
-                          key: ValueKey(range),
-                          edition: edition,
-                          topic: entry.key,
-                          range: range,
-                        ),
-                  TextButton(
-                    onPressed: () => launchUrl(Uri.https('tanzil.net')),
-                    child: Text(l10n.readerTanzil),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+        data: _list,
       ),
     );
   }
@@ -173,11 +226,15 @@ class _DuaCard extends StatefulWidget {
     required this.edition,
     required this.topic,
     required this.range,
+    required this.isSaved,
+    required this.onSave,
   });
 
   final MushafEdition edition;
   final DuaTopic topic;
   final DuaRange range;
+  final bool isSaved;
+  final VoidCallback onSave;
 
   @override
   State<_DuaCard> createState() => _DuaCardState();
@@ -221,18 +278,32 @@ class _DuaCardState extends State<_DuaCard> {
               last: range.last,
               count: surah.verses.length,
             ),
-          TextButton.icon(
-            onPressed: () => context.go(
-              Uri(
-                path: AppRoutes.quran,
-                queryParameters: {
-                  'surah': '${range.surah}',
-                  'ayah': '${range.first}',
-                },
-              ).toString(),
-            ),
-            icon: const Icon(Icons.menu_book_outlined),
-            label: Text(l10n.duaOpenVerse),
+          Wrap(
+            alignment: WrapAlignment.center,
+            children: [
+              TextButton.icon(
+                onPressed: () => context.go(
+                  Uri(
+                    path: AppRoutes.quran,
+                    queryParameters: {
+                      'surah': '${range.surah}',
+                      'ayah': '${range.first}',
+                    },
+                  ).toString(),
+                ),
+                icon: const Icon(Icons.menu_book_outlined),
+                label: Text(l10n.duaOpenVerse),
+              ),
+              IconButton(
+                tooltip: widget.isSaved
+                    ? l10n.readerRemoveBookmark
+                    : l10n.readerAddBookmark,
+                onPressed: widget.onSave,
+                icon: Icon(
+                  widget.isSaved ? Icons.bookmark : Icons.bookmark_border,
+                ),
+              ),
+            ],
           ),
         ],
       ),

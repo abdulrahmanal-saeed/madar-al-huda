@@ -522,7 +522,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get radioTitle => 'Cairo Quran Radio';
 
   @override
-  String get radioOpen => 'Listen on the official site';
+  String get radioOpen => 'Open the official live player in the app';
 
   @override
   String get radioOpenFailed => 'Could not open the official broadcast site.';
@@ -549,4 +549,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get hadithUnavailable => 'Hadith content is temporarily unavailable.';
+
+  @override
+  String get duaSearch => 'Search by verse text, surah or reference';
+
+  @override
+  String get duaShowSaved => 'Show saved supplications';
+
+  @override
+  String get duaShowAll => 'Show all supplications';
+
+  @override
+  String get duaNoResults => 'No matching supplications';
+
+  @override
+  String get duaQuranCom => 'More topics on Quran.com';
+
+  @override
+  String get radioOpenInBrowser => 'Open browser';
 }

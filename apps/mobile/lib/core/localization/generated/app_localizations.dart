@@ -1037,7 +1037,7 @@ abstract class AppLocalizations {
   /// Listen on the official site
   ///
   /// In en, this message translates to:
-  /// **'Listen on the official site'**
+  /// **'Open the official live player in the app'**
   String get radioOpen;
 
   /// Could not open the official broadcast site.
@@ -1087,6 +1087,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hadith content is temporarily unavailable.'**
   String get hadithUnavailable;
+
+  /// Search by verse text, surah or reference
+  ///
+  /// In en, this message translates to:
+  /// **'Search by verse text, surah or reference'**
+  String get duaSearch;
+
+  /// Show saved supplications
+  ///
+  /// In en, this message translates to:
+  /// **'Show saved supplications'**
+  String get duaShowSaved;
+
+  /// Show all supplications
+  ///
+  /// In en, this message translates to:
+  /// **'Show all supplications'**
+  String get duaShowAll;
+
+  /// No matching supplications
+  ///
+  /// In en, this message translates to:
+  /// **'No matching supplications'**
+  String get duaNoResults;
+
+  /// More topics on Quran.com
+  ///
+  /// In en, this message translates to:
+  /// **'More topics on Quran.com'**
+  String get duaQuranCom;
+
+  /// Open browser
+  ///
+  /// In en, this message translates to:
+  /// **'Open browser'**
+  String get radioOpenInBrowser;
 }
 
 class _AppLocalizationsDelegate

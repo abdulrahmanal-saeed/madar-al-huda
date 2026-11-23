@@ -165,7 +165,7 @@
   "duaTopicProtection": "الاستعاذة والحفظ",
   "duaTranslationSource": "المعنى بالإنجليزية · مركز روّاد الترجمة عبر QuranEnc",
   "radioTitle": "إذاعة القرآن الكريم من القاهرة",
-  "radioOpen": "استمع على الموقع الرسمي",
+  "radioOpen": "افتح مشغّل البث الرسمي داخل التطبيق",
   "radioOpenFailed": "تعذّر فتح موقع الإذاعة الرسمي.",
   "readerEnglishMeaning": "المعنى بالإنجليزية",
   "hadithSearchTopics": "ابحث في موضوعات الحديث",
@@ -173,5 +173,11 @@
   "hadithPrevious": "الصفحة السابقة",
   "hadithNext": "الصفحة التالية",
   "hadithProviderGrade": "الدرجة من موسوعة الحديث · {grade}",
-  "hadithUnavailable": "محتوى الحديث غير متاح مؤقتًا."
+  "hadithUnavailable": "محتوى الحديث غير متاح مؤقتًا.",
+  "duaSearch": "ابحث بنص الآية أو اسم السورة أو رقمها",
+  "duaShowSaved": "عرض الأدعية المحفوظة",
+  "duaShowAll": "عرض كل الأدعية",
+  "duaNoResults": "لا توجد أدعية مطابقة",
+  "duaQuranCom": "المزيد من الموضوعات على Quran.com",
+  "radioOpenInBrowser": "افتح المتصفح"
 }

@@ -511,7 +511,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get radioTitle => 'إذاعة القرآن الكريم من القاهرة';
 
   @override
-  String get radioOpen => 'استمع على الموقع الرسمي';
+  String get radioOpen => 'افتح مشغّل البث الرسمي داخل التطبيق';
 
   @override
   String get radioOpenFailed => 'تعذّر فتح موقع الإذاعة الرسمي.';
@@ -538,4 +538,22 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get hadithUnavailable => 'محتوى الحديث غير متاح مؤقتًا.';
+
+  @override
+  String get duaSearch => 'ابحث بنص الآية أو اسم السورة أو رقمها';
+
+  @override
+  String get duaShowSaved => 'عرض الأدعية المحفوظة';
+
+  @override
+  String get duaShowAll => 'عرض كل الأدعية';
+
+  @override
+  String get duaNoResults => 'لا توجد أدعية مطابقة';
+
+  @override
+  String get duaQuranCom => 'المزيد من الموضوعات على Quran.com';
+
+  @override
+  String get radioOpenInBrowser => 'افتح المتصفح';
 }

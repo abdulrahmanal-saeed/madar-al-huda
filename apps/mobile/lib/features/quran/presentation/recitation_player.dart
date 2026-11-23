@@ -22,6 +22,14 @@ final _currentTrackProvider = NotifierProvider<_CurrentTrack, _Track?>(
   _CurrentTrack.new,
 );
 
+final pauseQuranRecitationProvider = Provider<Future<void> Function()>((ref) {
+  return () async {
+    if (ref.read(_currentTrackProvider) != null) {
+      await ref.read(_playerProvider).pause();
+    }
+  };
+});
+
 class _CurrentTrack extends Notifier<_Track?> {
   @override
   _Track? build() => null;

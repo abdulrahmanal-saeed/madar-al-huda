@@ -3,6 +3,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../../core/localization/l10n_extension.dart';
 import '../data/mushaf_edition.dart';
+import '../domain/quran_search_text.dart';
 import '../domain/quran_storage_contracts.dart';
 
 enum _Index { surahs, juzs, hizbs, pages, bookmarks, search }
@@ -25,25 +26,8 @@ class _MushafIndexState extends State<MushafIndex> {
   _Index _index = _Index.surahs;
   String _query = '';
   List<MushafVerse> _results = [];
-  static final _diacritics = RegExp(
-    r'[\u0610-\u061a\u064b-\u065f\u0670\u06d6-\u06ed\u0640]',
-  );
-  static final _alef = RegExp('[أإآٱ]');
-
-  static String _searchKey(String text) => text
-      .toLowerCase()
-      .replaceAll(_diacritics, '')
-      .replaceAll(_alef, 'ا')
-      .trim();
-
-  static String asciiDigits(String text) =>
-      text.replaceAllMapped(RegExp('[٠-٩۰-۹]'), (match) {
-        final digit = match[0]!.codeUnitAt(0);
-        return (digit >= 0x6f0 ? digit - 0x6f0 : digit - 0x660).toString();
-      });
-
   void _search(String text) {
-    final query = _searchKey(asciiDigits(text));
+    final query = quranSearchText(text);
     final edition = widget.edition;
     final key = RegExp(r'^(\d+):(\d+)$').firstMatch(query);
     Iterable<MushafVerse> results = const [];
@@ -61,14 +45,14 @@ class _MushafIndexState extends State<MushafIndex> {
     } else if (query.isNotEmpty) {
       final matchingSurahs = {
         for (final surah in edition.surahs)
-          if (_searchKey(surah.arabicName).contains(query) ||
-              _searchKey(surah.englishName).contains(query))
+          if (quranSearchText(surah.arabicName).contains(query) ||
+              quranSearchText(surah.englishName).contains(query))
             surah.id,
       };
       results = edition.verses.where(
         (verse) =>
             (verse.ref.ayah == 1 && matchingSurahs.contains(verse.ref.surah)) ||
-            _searchKey(verse.text).contains(query),
+            quranSearchText(verse.text).contains(query),
       );
     }
     setState(() {

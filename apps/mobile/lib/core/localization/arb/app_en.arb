@@ -413,7 +413,7 @@
   "duaTopicProtection": "Protection",
   "duaTranslationSource": "English meaning · Rowwad Translation Center via QuranEnc",
   "radioTitle": "Cairo Quran Radio",
-  "radioOpen": "Listen on the official site",
+  "radioOpen": "Open the official live player in the app",
   "radioOpenFailed": "Could not open the official broadcast site.",
   "@readerJuzLabel": {
     "description": "Mushaf part label.",
@@ -555,5 +555,29 @@
   },
   "@hadithUnavailable": {
     "description": "Hadith content is temporarily unavailable."
+  },
+  "duaSearch": "Search by verse text, surah or reference",
+  "duaShowSaved": "Show saved supplications",
+  "duaShowAll": "Show all supplications",
+  "duaNoResults": "No matching supplications",
+  "duaQuranCom": "More topics on Quran.com",
+  "radioOpenInBrowser": "Open browser",
+  "@duaSearch": {
+    "description": "Search by verse text, surah or reference"
+  },
+  "@duaShowSaved": {
+    "description": "Show saved supplications"
+  },
+  "@duaShowAll": {
+    "description": "Show all supplications"
+  },
+  "@duaNoResults": {
+    "description": "No matching supplications"
+  },
+  "@duaQuranCom": {
+    "description": "More topics on Quran.com"
+  },
+  "@radioOpenInBrowser": {
+    "description": "Open browser"
   }
 }
