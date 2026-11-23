@@ -22,7 +22,7 @@ Future<void> main() async {
     try {
       await JustAudioBackground.init(
         androidNotificationChannelId: 'com.abdulrahmanalsaeed.madar.recitation',
-        androidNotificationChannelName: 'Quran recitation',
+        androidNotificationChannelName: 'Madar Al-Huda audio',
         androidNotificationOngoing: true,
       );
     } catch (error, stack) {

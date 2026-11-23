@@ -1723,6 +1723,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Approximate civil Hijri date'**
   String get homeApproximateHijriDate;
+
+  /// Play live radio
+  ///
+  /// In en, this message translates to:
+  /// **'Play live radio'**
+  String get radioPlay;
+
+  /// Stop live radio
+  ///
+  /// In en, this message translates to:
+  /// **'Stop live radio'**
+  String get radioStop;
+
+  /// Connecting to the live broadcast…
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting to the live broadcast…'**
+  String get radioConnecting;
+
+  /// The broadcast is unavailable. Try again or open the official player.
+  ///
+  /// In en, this message translates to:
+  /// **'The broadcast is unavailable. Try again or open the official player.'**
+  String get radioStreamFailed;
 }
 
 class _AppLocalizationsDelegate

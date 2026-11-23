@@ -280,5 +280,9 @@
   "dailyReadingTodaysWird": "ورد اليوم",
   "decreaseReadingPace": "تقليل عدد الصفحات",
   "increaseReadingPace": "زيادة عدد الصفحات",
-  "homeApproximateHijriDate": "التاريخ الهجري الحسابي التقريبي"
+  "homeApproximateHijriDate": "التاريخ الهجري الحسابي التقريبي",
+  "radioPlay": "شغّل البث المباشر",
+  "radioStop": "أوقف البث المباشر",
+  "radioConnecting": "جاري الاتصال بالبث المباشر…",
+  "radioStreamFailed": "تعذّر تشغيل البث. جرّب تاني أو افتح المشغّل الرسمي."
 }

@@ -903,4 +903,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeApproximateHijriDate => 'Approximate civil Hijri date';
+
+  @override
+  String get radioPlay => 'Play live radio';
+
+  @override
+  String get radioStop => 'Stop live radio';
+
+  @override
+  String get radioConnecting => 'Connecting to the live broadcast…';
+
+  @override
+  String get radioStreamFailed =>
+      'The broadcast is unavailable. Try again or open the official player.';
 }

@@ -993,5 +993,21 @@
   "homeApproximateHijriDate": "Approximate civil Hijri date",
   "@homeApproximateHijriDate": {
     "description": "Tooltip for the approximate civil Hijri date."
+  },
+  "radioPlay": "Play live radio",
+  "@radioPlay": {
+    "description": "Play live radio"
+  },
+  "radioStop": "Stop live radio",
+  "@radioStop": {
+    "description": "Stop live radio"
+  },
+  "radioConnecting": "Connecting to the live broadcast…",
+  "@radioConnecting": {
+    "description": "Connecting to the live broadcast…"
+  },
+  "radioStreamFailed": "The broadcast is unavailable. Try again or open the official player.",
+  "@radioStreamFailed": {
+    "description": "The broadcast is unavailable. Try again or open the official player."
   }
 }

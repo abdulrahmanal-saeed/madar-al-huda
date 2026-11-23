@@ -1,9 +1,9 @@
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../core/audio/audio_mini_player.dart';
 import '../core/localization/l10n_extension.dart';
 import '../core/theme/app_tokens.dart';
-import '../features/quran/presentation/recitation_player.dart';
 
 /// Tab destination metadata, in [AppRoutes.tabs] order.
 class _Destination {
@@ -84,7 +84,7 @@ class AppShell extends StatelessWidget {
               child: Column(
                 children: [
                   Expanded(child: navigationShell),
-                  const RecitationMiniPlayer(),
+                  const AudioMiniPlayer(),
                 ],
               ),
             ),
@@ -98,7 +98,7 @@ class AppShell extends StatelessWidget {
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const RecitationMiniPlayer(),
+          const AudioMiniPlayer(),
           NavigationBar(
             key: navigationBarKey,
             selectedIndex: index,
