@@ -1,7 +1,5 @@
 import 'dart:io';
-import 'dart:typed_data';
 
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
@@ -12,13 +10,18 @@ final learningFilesProvider = Provider<LearningFiles>((ref) {
   final client = http.Client();
   ref.onDispose(client.close);
   final configured = Uri.tryParse(
-    const String.fromEnvironment('MADAR_LEARNING_MEDIA_BASE_URL'),
+    const String.fromEnvironment(
+      'MADAR_LEARNING_MEDIA_BASE_URL',
+      defaultValue: 'https://quran.abdulrahmanalsaeed.com/Prophet%20Stories/',
+    ),
   );
   return LearningFiles(
     getApplicationSupportDirectory,
     client,
-    preview: const bool.fromEnvironment('MADAR_LEARNING_PREVIEW_MEDIA'),
-    base: configured?.scheme == 'https' && configured?.host.isNotEmpty == true
+    base:
+        configured?.scheme == 'https' &&
+            configured?.host.isNotEmpty == true &&
+            configured?.userInfo.isEmpty == true
         ? configured
         : null,
   );
@@ -30,27 +33,15 @@ final lessonSavedProvider = FutureProvider.family<bool, LessonMedia>(
 );
 
 class LearningFiles {
-  LearningFiles(
-    this._directory,
-    this._client, {
-    this.preview = false,
-    this.base,
-  });
+  LearningFiles(this._directory, this._client, {this.base});
 
   final Future<Directory> Function() _directory;
   final http.Client _client;
-  final bool preview;
   final Uri? base;
   final Map<String, Future<void>> _downloads = {};
   static const _timeout = Duration(seconds: 30);
 
   Uri? source(LessonMedia media) {
-    if (preview) {
-      return Uri(
-        scheme: 'asset',
-        path: '/assets/learning/preview/${media.fileName}',
-      );
-    }
     final root = base;
     if (root == null) return null;
     return root.replace(
@@ -132,10 +123,6 @@ class LearningFiles {
   }
 
   Future<Stream<List<int>>> _openMedia(Uri uri, LessonMedia media) async {
-    if (uri.scheme == 'asset') {
-      final bytes = await rootBundle.load(uri.path.substring(1));
-      return Stream.value(Uint8List.sublistView(bytes));
-    }
     final request = http.Request('GET', uri)
       ..followRedirects = false
       ..headers['Accept'] = media.format.mimeType;

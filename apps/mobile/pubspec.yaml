@@ -70,7 +70,6 @@ flutter:
 
   assets:
     - assets/adhkar/catalog.json
-    - assets/learning/preview/
     - assets/learning/prophet_stories.json
     - assets/fonts/amiri/OFL.txt
     - assets/fonts/amiri_quran/OFL.txt

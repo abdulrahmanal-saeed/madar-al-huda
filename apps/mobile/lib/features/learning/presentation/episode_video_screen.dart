@@ -61,11 +61,9 @@ class _EpisodeVideoScreenState extends State<EpisodeVideoScreen> {
       final media = widget.queue[index].media[LessonFormat.video]!;
       final uri = await widget.files.playable(media);
       if (!mounted) return;
-      final player = switch (uri.scheme) {
-        'asset' => VideoPlayerController.asset(uri.path.substring(1)),
-        'file' => VideoPlayerController.file(File.fromUri(uri)),
-        _ => VideoPlayerController.networkUrl(uri),
-      };
+      final player = uri.scheme == 'file'
+          ? VideoPlayerController.file(File.fromUri(uri))
+          : VideoPlayerController.networkUrl(uri);
       _controller = player;
       await player.initialize().timeout(const Duration(seconds: 25));
       if (!mounted) return;

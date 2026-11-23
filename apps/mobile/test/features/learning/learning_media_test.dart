@@ -39,6 +39,13 @@ void main() {
     }
     expect(catalog.last.id, 'idris');
     expect(catalog.last.episodes, isEmpty);
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    final first = adam.episodes.first.media[LessonFormat.audio]!;
+    expect(
+      container.read(learningFilesProvider).source(first).toString(),
+      'https://quran.abdulrahmanalsaeed.com/Prophet%20Stories/Madar-Adam-001.mp3',
+    );
   });
 
   test('only complete downloads play offline in the chosen format', () async {
