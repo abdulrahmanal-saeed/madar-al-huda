@@ -1,4 +1,8 @@
 <?php
+if (!defined('MADAR_ADMIN')) {
+    http_response_code(404);
+    exit;
+}
 releasesRequest();
 try {
     $channel = releaseChannel($_GET['updates']);

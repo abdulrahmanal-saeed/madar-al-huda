@@ -57,6 +57,13 @@ jobs:
       - name: Validate prayer reference and timezone data
         run: python3 docs/prayer/check_reference_fixtures.py
 
+      - name: Lint and test the hosted admin (PHP)
+        run: |
+          for file in hosting/admin/*.php hosting/prophet-stories/*.php hosting/tests/*.php; do
+            php -l "$file"
+          done
+          php hosting/tests/apk_signature_test.php
+
   quran-edge:
     name: Quran Edge Function
     runs-on: ubuntu-latest

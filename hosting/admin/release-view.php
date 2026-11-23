@@ -1,4 +1,9 @@
-<section class="panel">
+<?php
+if (!defined('MADAR_ADMIN')) {
+    http_response_code(404);
+    exit;
+}
+?><section class="panel">
   <h2>رفع APK</h2>
   <p>ارفع الإصدار الموقّع بنفس مفتاح القناة. يظهر للمستخدمين بعد النشر من هذه الصفحة.</p>
   <form method="post" enctype="multipart/form-data" class="editor">

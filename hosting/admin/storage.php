@@ -2,6 +2,18 @@
 declare(strict_types=1);
 
 const ROOT = __DIR__ . '/..';
+// The app refuses a library feed above this size (HostedFeed.maxBytes).
+const FEED_MAX_BYTES = 4 * 1024 * 1024;
+// App builds released before the limit was raised stop at 1 MB.
+const FEED_LEGACY_BYTES = 1024 * 1024;
+
+function feedSizeLabel(int $bytes): string
+{
+    $digits = static fn (string $text): string => strtr($text, ['0' => '٠', '1' => '١', '2' => '٢', '3' => '٣', '4' => '٤', '5' => '٥', '6' => '٦', '7' => '٧', '8' => '٨', '9' => '٩', '.' => '٫']);
+    return $bytes >= 1024 * 1024
+        ? $digits(number_format($bytes / 1048576, 1)) . ' ميغابايت'
+        : $digits((string) max(1, (int) round($bytes / 1024))) . ' كيلوبايت';
+}
 
 function encode(array $data): string
 {
@@ -89,6 +101,8 @@ function authorize(PDO $db, string $action, array $seed): bool
                     'INSERT INTO library (id, draft, revision, published) VALUES (1, ?, 1, NULL)',
                 );
                 $initialize->execute([encode($seed['library'])]);
+                // The one-time setup code is no longer needed once an owner exists.
+                @unlink($config);
                 $ok = true;
             }
         } elseif ($action === 'login' && $hash !== false) {
@@ -131,6 +145,10 @@ function updateLibrary(PDO $db, string $action, array $seed, string $section, st
         }
         $draft = $row['draft'];
         if ($action === 'publish') {
+            if (strlen($draft) > FEED_MAX_BYTES) {
+                throw new InvalidArgumentException('حجم المكتبة ' . feedSizeLabel(strlen($draft)) .
+                    ' ويتجاوز الحد الذي يقبله التطبيق (' . feedSizeLabel(FEED_MAX_BYTES) . '). احذف أو اختصر بعض المحتوى ثم انشر.');
+            }
             $current = $db->prepare('UPDATE library SET published = ? WHERE id = 1');
             $current->execute([$draft]);
             $history = $db->prepare('INSERT OR IGNORE INTO publications (revision, body) VALUES (?, ?)');

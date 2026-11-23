@@ -35,12 +35,29 @@ class ManagedContentScreen extends ConsumerWidget {
     if (section.status.isGated && !managedReleaseEnabled) {
       return SectionDetailScaffold(section: section);
     }
+    final l10n = context.l10n;
     final value = ref.watch(managedLibraryProvider);
-    final library = value.asData?.value?['library'];
+    final data = value.asData?.value;
+    if (data == null && value.isLoading) {
+      return Scaffold(
+        appBar: AppBar(title: Text(section.title(l10n))),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+    // Without a response or a saved copy the app cannot tell "not published
+    // yet" from "offline", so it keeps the status panel and offers a retry.
+    if (data == null) {
+      return SectionDetailScaffold(
+        section: section,
+        footer: _LoadFailed(
+          onRetry: () => ref.invalidate(managedLibraryProvider),
+        ),
+      );
+    }
+    final library = data['library'];
     final rows = _rows(library is Map ? library[section.name] : null);
     if (rows.isEmpty) return SectionDetailScaffold(section: section);
     final ar = Localizations.localeOf(context).languageCode == 'ar';
-    final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(title: Text(section.title(l10n))),
       body: RefreshIndicator(
@@ -71,6 +88,34 @@ class ManagedContentScreen extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _LoadFailed extends StatelessWidget {
+  const _LoadFailed({required this.onRetry});
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
+    return Row(
+      children: [
+        Icon(
+          Icons.cloud_off_outlined,
+          color: theme.colorScheme.onSurfaceVariant,
+        ),
+        const SizedBox(width: AppSpacing.md),
+        Expanded(
+          child: Text(
+            l10n.contentLoadFailed,
+            style: theme.textTheme.bodyMedium,
+          ),
+        ),
+        const SizedBox(width: AppSpacing.sm),
+        TextButton(onPressed: onRetry, child: Text(l10n.contentRetry)),
+      ],
     );
   }
 }

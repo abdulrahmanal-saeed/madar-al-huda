@@ -1041,4 +1041,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get recitationDownloadFailed =>
       'Could not save or access this download.';
+
+  @override
+  String get contentLoadFailed =>
+      'Couldn\'t check for new content. Check your connection and try again.';
+
+  @override
+  String get contentRetry => 'Retry';
 }

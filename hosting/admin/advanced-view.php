@@ -1,4 +1,9 @@
-<?php if ($section === 'reciters'): ?>
+<?php
+if (!defined('MADAR_ADMIN')) {
+    http_response_code(404);
+    exit;
+}
+?><?php if ($section === 'reciters'): ?>
   <section class="panel">
     <h2>اختيار قارئ من المصادر</h2>
     <form method="post" class="inline">

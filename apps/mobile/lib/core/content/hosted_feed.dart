@@ -18,7 +18,9 @@ class HostedFeed {
   final http.Client _client;
   final Future<Directory> Function() _directory;
   static const _timeout = Duration(seconds: 5);
-  static const _maxBytes = 1024 * 1024;
+  // The library feed holds every published article and lesson, so it gets
+  // room to grow; the admin warns before a publish approaches this limit.
+  static const maxBytes = 4 * 1024 * 1024;
 
   Future<T> load<T>({
     required Uri? url,
@@ -32,7 +34,7 @@ class HostedFeed {
     T? saved;
     try {
       file = File('${(await _directory()).path}/$cacheName.json');
-      if (await file.exists() && await file.length() < _maxBytes * 2) {
+      if (await file.exists() && await file.length() < maxBytes * 2) {
         final cache = jsonDecode(await file.readAsString()) as Map;
         if (cache['url'] == url.toString()) {
           saved = decode(jsonDecode(cache['body'] as String));
@@ -72,13 +74,13 @@ class HostedFeed {
     final type = response.headers['content-type']?.split(';').first.trim();
     if (response.statusCode != 200 ||
         type != 'application/json' ||
-        (response.contentLength ?? 0) > _maxBytes) {
+        (response.contentLength ?? 0) > maxBytes) {
       await response.stream.listen(null).cancel();
       throw const FormatException('Invalid catalog response');
     }
     final bytes = <int>[];
     await for (final chunk in response.stream.timeout(_timeout)) {
-      if (bytes.length + chunk.length > _maxBytes) {
+      if (bytes.length + chunk.length > maxBytes) {
         throw const FormatException('Catalog response is too large');
       }
       bytes.addAll(chunk);

@@ -89,15 +89,51 @@ final worshipLocationProvider =
 class WorshipLocationController extends Notifier<WorshipLocation> {
   static const cityKey = 'worship.manualCity';
   static const deviceLocationKey = 'worship.useDeviceLocation';
+
+  /// Last device position, kept so prayer times show immediately (and
+  /// offline) after a restart while a fresh reading is taken.
+  static const lastDevicePointKey = 'worship.lastDevicePoint';
   int _request = 0;
   Future<void> _save = Future.value();
 
   @override
   WorshipLocation build() {
-    final cityId = ref.watch(keyValueStoreProvider).getString(cityKey);
-    return WorshipLocation(
-      city: ManualCity.values.where((city) => city.id == cityId).firstOrNull,
-    );
+    final store = ref.watch(keyValueStoreProvider);
+    final cityId = store.getString(cityKey);
+    final city = ManualCity.values
+        .where((city) => city.id == cityId)
+        .firstOrNull;
+    if (store.getBool(deviceLocationKey) == true) {
+      final saved = _readSavedPoint(store.getString(lastDevicePointKey));
+      if (saved != null) {
+        return WorshipLocation(
+          city: city,
+          devicePoint: saved.point,
+          deviceCountry: saved.country,
+        );
+      }
+    }
+    return WorshipLocation(city: city);
+  }
+
+  static ({GeoCoordinate point, WorshipCountry country})? _readSavedPoint(
+    String? raw,
+  ) {
+    if (raw == null) return null;
+    try {
+      final data = jsonDecode(raw) as Map<String, dynamic>;
+      final latitude = (data['lat'] as num).toDouble();
+      final longitude = (data['lng'] as num).toDouble();
+      final country = WorshipCountry.values
+          .where((country) => country.name == data['country'])
+          .firstOrNull;
+      if (country == null || latitude.abs() > 90 || longitude.abs() > 180) {
+        return null;
+      }
+      return (point: GeoCoordinate(latitude, longitude), country: country);
+    } on Object {
+      return null;
+    }
   }
 
   Future<void> selectCity(ManualCity city) {
@@ -167,16 +203,35 @@ class WorshipLocationController extends Notifier<WorshipLocation> {
           devicePoint: point,
           deviceCountry: country,
         );
+        await _persist(
+          (store) => store.setString(
+            lastDevicePointKey,
+            // Rounded to about 1 km: enough for prayer times and Qibla,
+            // without keeping a precise position on the device.
+            jsonEncode({
+              'lat': (point.latitude * 100).round() / 100,
+              'lng': (point.longitude * 100).round() / 100,
+              'country': country.name,
+            }),
+          ),
+        ).then<void>((_) {}, onError: (Object _, StackTrace _) {});
       }
     } catch (error) {
-      if (ref.mounted && request == _request) {
+      if (!ref.mounted || request != _request) return;
+      // A silent refresh at start-up keeps the last saved position instead
+      // of leaving prayer times empty when GPS is off or slow.
+      if (!requestPermission && previous.devicePoint != null) {
         state = WorshipLocation(
           city: previous.city,
-          problem: error is LocationProblem
-              ? error
-              : LocationProblem.unavailable,
+          devicePoint: previous.devicePoint,
+          deviceCountry: previous.deviceCountry,
         );
+        return;
       }
+      state = WorshipLocation(
+        city: previous.city,
+        problem: error is LocationProblem ? error : LocationProblem.unavailable,
+      );
     }
   }
 }

@@ -16,7 +16,7 @@ import '../../../core/widgets/settings_button.dart';
 import '../../adhkar/data/adhkar_catalog.dart';
 import '../../worship/presentation/cairo_radio_card.dart';
 
-class LibraryHubScreen extends StatelessWidget {
+class LibraryHubScreen extends ConsumerWidget {
   const LibraryHubScreen({super.key});
 
   static const sections = [
@@ -25,9 +25,31 @@ class LibraryHubScreen extends StatelessWidget {
     AppSection.articles,
   ];
 
+  /// Sections whose content comes only from the published library feed.
+  static const _managed = {
+    AppSection.fiqh,
+    AppSection.articles,
+    AppSection.lessons,
+  };
+
+  /// Hides a managed section once the feed is known and has nothing
+  /// published for it, so the library never opens onto an empty screen.
+  /// Without a feed (offline, first launch) the entry stays and its screen
+  /// explains that the content could not be loaded.
+  static bool _published(AppSection section, Map<String, Object?>? feed) {
+    if (!managedReleaseEnabled || feed == null) return true;
+    if (!_managed.contains(section)) return true;
+    final library = feed['library'];
+    final rows = library is Map ? library[section.name] : null;
+    return rows is List && rows.isNotEmpty;
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
+    final feed = managedReleaseEnabled
+        ? ref.watch(managedLibraryProvider).asData?.value
+        : null;
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.navLibrary),
@@ -47,23 +69,26 @@ class LibraryHubScreen extends StatelessWidget {
                   subtitle: l10n.sectionAdhkarTitle,
                 ),
                 for (final section in sections)
-                  _LibraryTile(
-                    key: ValueKey('section-card-$section'),
-                    route: section.path,
-                    icon: section.icon,
-                    title: section.title(l10n),
-                    subtitle: section.subtitle(l10n),
-                  ),
+                  if (_published(section, feed))
+                    _LibraryTile(
+                      key: ValueKey('section-card-$section'),
+                      route: section.path,
+                      icon: section.icon,
+                      title: section.title(l10n),
+                      subtitle: section.subtitle(l10n),
+                    ),
                 const SizedBox(height: AppSpacing.lg),
                 _LibraryCollection(
                   title: l10n.libraryStories,
                   section: AppSection.stories,
                 ),
-                const SizedBox(height: AppSpacing.md),
-                _LibraryCollection(
-                  title: l10n.libraryAcademy,
-                  section: AppSection.lessons,
-                ),
+                if (_published(AppSection.lessons, feed)) ...[
+                  const SizedBox(height: AppSpacing.md),
+                  _LibraryCollection(
+                    title: l10n.libraryAcademy,
+                    section: AppSection.lessons,
+                  ),
+                ],
                 if (managedReleaseEnabled) const _SaveLibrary(),
                 const SizedBox(height: AppSpacing.xl),
               ],

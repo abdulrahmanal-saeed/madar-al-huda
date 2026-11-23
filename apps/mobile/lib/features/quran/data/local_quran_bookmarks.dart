@@ -21,6 +21,9 @@ class LocalQuranBookmarks implements BookmarkRepository {
   LocalQuranBookmarks(this._store);
 
   static const key = 'quran.bookmarks.v1';
+
+  /// Copy of stored bookmarks that could not be fully read.
+  static const backupKey = 'quran.bookmarks.v1.unreadable';
   final KeyValueStore _store;
   final _changes = StreamController<List<QuranBookmark>>.broadcast();
   Future<void> _pending = Future.value();
@@ -63,30 +66,55 @@ class LocalQuranBookmarks implements BookmarkRepository {
     return update;
   }
 
+  /// Holds the original stored text when part of it could not be read, so
+  /// the next write keeps a copy instead of silently replacing it.
+  String? _unreadable;
+
   List<QuranBookmark> _read() {
     final raw = _store.getString(key);
     if (raw == null) return const [];
+    final Object? decoded;
     try {
-      return [
-        for (final item
-            in (jsonDecode(raw) as List).cast<Map<String, dynamic>>())
-          QuranBookmark(
-            id: item['id'] as String,
-            ref: AyahRef(
-              editionId: item['edition'] as String,
-              surah: item['surah'] as int,
-              ayah: item['ayah'] as int,
-            ),
-            createdAt: DateTime.parse(item['created'] as String),
-            note: item['note'] as String?,
-          ),
-      ];
-    } on Object {
+      decoded = jsonDecode(raw);
+    } on FormatException {
+      _unreadable = raw;
       return const [];
     }
+    if (decoded is! List) {
+      _unreadable = raw;
+      return const [];
+    }
+    final bookmarks = <QuranBookmark>[];
+    for (final item in decoded) {
+      try {
+        final data = item as Map<String, dynamic>;
+        bookmarks.add(
+          QuranBookmark(
+            id: data['id'] as String,
+            ref: AyahRef(
+              editionId: data['edition'] as String,
+              surah: data['surah'] as int,
+              ayah: data['ayah'] as int,
+            ),
+            createdAt: DateTime.parse(data['created'] as String),
+            note: data['note'] as String?,
+          ),
+        );
+      } on Object {
+        // Keep every readable bookmark; the full original text is backed up
+        // before the next write.
+        _unreadable = raw;
+      }
+    }
+    return bookmarks;
   }
 
   Future<void> _write(List<QuranBookmark> bookmarks) async {
+    final unreadable = _unreadable;
+    if (unreadable != null && _store.getString(backupKey) == null) {
+      await _store.setString(backupKey, unreadable);
+    }
+    _unreadable = null;
     await _store.setString(
       key,
       jsonEncode([

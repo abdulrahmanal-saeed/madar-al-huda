@@ -318,5 +318,7 @@
   "recitationNoDownloads": "نزّل تلاوة سورة عشان تسمعها من غير نت.",
   "recitationPlayOffline": "شغّل التلاوة المحمّلة",
   "recitationRemoveDownload": "احذف التلاوة المحمّلة",
-  "recitationDownloadFailed": "تعذّر حفظ التلاوة أو الوصول للملف المحمّل."
+  "recitationDownloadFailed": "تعذّر حفظ التلاوة أو الوصول للملف المحمّل.",
+  "contentLoadFailed": "تعذّر التحقق من وجود محتوى جديد. تحقّق من اتصالك بالإنترنت ثم أعد المحاولة.",
+  "contentRetry": "إعادة المحاولة"
 }
