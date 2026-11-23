@@ -5,13 +5,13 @@ import 'package:material_ui/material_ui.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/localization/app_locales.dart';
-import '../../quran/data/local_quran_bookmarks.dart';
-import '../../quran/domain/quran_storage_contracts.dart';
-import '../../quran/domain/quran_search_text.dart';
 import '../../../core/localization/l10n_extension.dart';
 import '../../../core/routing/app_routes.dart';
 import '../../../core/widgets/settings_button.dart';
+import '../../quran/data/local_quran_bookmarks.dart';
 import '../../quran/data/mushaf_edition.dart';
+import '../../quran/domain/quran_search_text.dart';
+import '../../quran/domain/quran_storage_contracts.dart';
 import '../../quran/presentation/quran_meaning_view.dart';
 import '../data/quran_dua_index.dart';
 
