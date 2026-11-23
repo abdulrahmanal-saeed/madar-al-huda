@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:intl/intl.dart' show NumberFormat;
 import 'package:material_ui/material_ui.dart';
 
@@ -30,9 +32,25 @@ class _MushafIndexState extends State<MushafIndex> {
   String _page = '';
   bool _invalidPage = false;
   final _searchInput = TextEditingController();
+  Timer? _searchDelay;
+
+  /// Search text for every verse, normalized once instead of on every
+  /// keystroke (6,236 verses).
+  late final List<String> _verseSearchText = [
+    for (final verse in widget.edition.verses) quranSearchText(verse.text),
+  ];
+  late final List<(int, String, String)> _surahSearchText = [
+    for (final surah in widget.edition.surahs)
+      (
+        surah.id,
+        quranSearchText(surah.arabicName),
+        quranSearchText(surah.englishName),
+      ),
+  ];
 
   @override
   void dispose() {
+    _searchDelay?.cancel();
     _searchInput.dispose();
     super.dispose();
   }
@@ -48,6 +66,15 @@ class _MushafIndexState extends State<MushafIndex> {
   }
 
   List<MushafVerse> _results = [];
+
+  /// Waits for a short pause in typing before searching.
+  void _scheduleSearch(String text) {
+    _searchDelay?.cancel();
+    _searchDelay = Timer(const Duration(milliseconds: 200), () {
+      if (mounted) _search(text);
+    });
+  }
+
   void _search(String text) {
     final query = quranSearchText(text);
     final edition = widget.edition;
@@ -66,16 +93,17 @@ class _MushafIndexState extends State<MushafIndex> {
       }
     } else if (query.isNotEmpty) {
       final matchingSurahs = {
-        for (final surah in edition.surahs)
-          if (quranSearchText(surah.arabicName).contains(query) ||
-              quranSearchText(surah.englishName).contains(query))
-            surah.id,
+        for (final (id, arabic, english) in _surahSearchText)
+          if (arabic.contains(query) || english.contains(query)) id,
       };
-      results = edition.verses.where(
-        (verse) =>
-            (verse.ref.ayah == 1 && matchingSurahs.contains(verse.ref.surah)) ||
-            quranSearchText(verse.text).contains(query),
-      );
+      final texts = _verseSearchText;
+      results = [
+        for (var i = 0; i < edition.verses.length; i++)
+          if ((edition.verses[i].ref.ayah == 1 &&
+                  matchingSurahs.contains(edition.verses[i].ref.surah)) ||
+              texts[i].contains(query))
+            edition.verses[i],
+      ];
     }
     setState(() {
       _query = query;
@@ -125,7 +153,7 @@ class _MushafIndexState extends State<MushafIndex> {
               helperText: l10n.readerSearchHint,
               helperMaxLines: 2,
             ),
-            onChanged: _search,
+            onChanged: _scheduleSearch,
           ),
         ),
         Card(

@@ -318,7 +318,10 @@ class _ReaderState extends ConsumerState<_Reader> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final language = Localizations.localeOf(context).languageCode;
-    ref.watch(quranBookmarkListProvider);
+    // Keeps the bookmark list loaded for the index sheet without rebuilding
+    // the whole reader on every bookmark change; the page header that shows
+    // the bookmark state watches it itself.
+    ref.listen(quranBookmarkListProvider, (_, _) {});
     final catalog = ref.watch(quranCatalogProvider(language));
     final data = catalog.asData?.value;
     final surah = widget.edition.surahs[_current.surah - 1];
