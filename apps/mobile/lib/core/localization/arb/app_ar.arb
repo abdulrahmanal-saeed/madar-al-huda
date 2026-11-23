@@ -418,5 +418,14 @@
   "reminderSuhoorTitle": "حان وقت السحور",
   "reminderSuhoorBody": "الإمساك بعد ٣٠ دقيقة.",
   "reminderIftarTitle": "حان وقت الإفطار",
-  "reminderIftarBody": "تقبّل الله صيامك."
+  "reminderIftarBody": "تقبّل الله صيامك.",
+  "readerAppearance": "إعدادات القراءة",
+  "readerFontSize": "حجم الخط",
+  "readerSmaller": "تصغير الخط",
+  "readerLarger": "تكبير الخط",
+  "readerPaper": "الصفحة",
+  "readerPaperAuto": "تلقائي",
+  "readerPaperLight": "فاتح",
+  "readerPaperWarm": "دافئ",
+  "readerPaperNight": "ليلي"
 }

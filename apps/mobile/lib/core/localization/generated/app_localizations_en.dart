@@ -1391,4 +1391,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reminderIftarBody => 'May Allah accept your fast.';
+
+  @override
+  String get readerAppearance => 'Reading settings';
+
+  @override
+  String get readerFontSize => 'Text size';
+
+  @override
+  String get readerSmaller => 'Smaller text';
+
+  @override
+  String get readerLarger => 'Larger text';
+
+  @override
+  String get readerPaper => 'Page';
+
+  @override
+  String get readerPaperAuto => 'Auto';
+
+  @override
+  String get readerPaperLight => 'Light';
+
+  @override
+  String get readerPaperWarm => 'Warm';
+
+  @override
+  String get readerPaperNight => 'Night';
 }
