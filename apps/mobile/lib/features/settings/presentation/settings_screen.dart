@@ -6,6 +6,7 @@ import '../../../core/theme/app_tokens.dart';
 import '../../../core/widgets/responsive_content.dart';
 import '../application/settings_controller.dart';
 import '../domain/app_settings.dart';
+import 'settings_account.dart';
 
 /// Language, appearance, accessibility, guest-mode and about.
 class SettingsScreen extends ConsumerWidget {
@@ -99,11 +100,7 @@ class SettingsScreen extends ConsumerWidget {
                   ),
                   const _Divider(),
                   _GroupHeader(l10n.settingsAccount),
-                  ListTile(
-                    leading: const Icon(Icons.person_outline),
-                    title: Text(l10n.settingsGuestMode),
-                    subtitle: Text(l10n.settingsGuestModeBody),
-                  ),
+                  const SettingsAccount(),
                   const _Divider(),
                   _GroupHeader(l10n.settingsAbout),
                   ListTile(

@@ -5,6 +5,7 @@ import 'package:just_audio_background/just_audio_background.dart';
 import 'package:material_ui/material_ui.dart';
 
 import 'app/app.dart';
+import 'core/auth/google_account.dart';
 import 'core/storage/key_value_store.dart';
 import 'core/storage/storage_providers.dart';
 import 'features/adhkar/data/adhkar_progress.dart';
@@ -33,10 +34,14 @@ Future<void> main() async {
     }
   }
   final store = await _openPreferences();
+  final googleAuth = await initializeGoogleAccount();
 
   runApp(
     ProviderScope(
-      overrides: [keyValueStoreProvider.overrideWithValue(store)],
+      overrides: [
+        keyValueStoreProvider.overrideWithValue(store),
+        googleAuthProvider.overrideWithValue(googleAuth),
+      ],
       child: const MadarApp(),
     ),
   );

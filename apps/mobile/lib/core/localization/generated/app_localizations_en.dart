@@ -410,6 +410,22 @@ class AppLocalizationsEn extends AppLocalizations {
       'No account needed. Your preferences are stored only on this device.';
 
   @override
+  String get settingsGoogleSignIn => 'Sign in with Google';
+
+  @override
+  String get settingsGoogleAccount => 'Google account';
+
+  @override
+  String get settingsGoogleSignOut => 'Sign out';
+
+  @override
+  String get settingsGoogleSignInError =>
+      'Couldn’t sign in with Google. Try again.';
+
+  @override
+  String get settingsGoogleSignOutError => 'Couldn’t sign out. Try again.';
+
+  @override
   String get settingsAbout => 'About';
 
   @override

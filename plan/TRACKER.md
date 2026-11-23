@@ -107,6 +107,7 @@
 | `P05-06` | Privacy وStore Data Safety | `TODO` | P05-02 | — |
 | `P05-07` | Beta على أجهزة ومستخدمين حقيقيين | `TODO` | P05-01,P05-03,P05-04,P05-05,P05-06 | — |
 | `P05-08` | قرار Go/No-Go للإطلاق | `TODO` | P05-07 | — |
+| `P05-09` | تسجيل دخول Google اختياري على Android | `IN_PROGRESS` | P05-02 | إعدادات الحساب بالعربي والإنجليزي، وتسجيل الخروج من الجهاز. طلب PKCE الحي وصل إلى شاشة Google، وأعاد اختبار إلغاء التفويض رابط `madar-al-huda://auth/callback` من Supabase. نجحت اختبارات الإعدادات الـ23 و[Mobile CI](https://github.com/abdulrahmanal-saeed/madar-al-huda/actions/runs/45206728254)، وتحققنا من رابط الرجوع وتوقيع APK التجريبي 10. تسجيل الدخول بحساب حقيقي على هاتف Android ما زال ضمن الاختبار. [PR #38](https://github.com/abdulrahmanal-saeed/madar-al-huda/pull/38) |
 
 ## Phase 06 — Android Release & iOS — النشر والتشغيل والاستعداد لـ iOS
 
