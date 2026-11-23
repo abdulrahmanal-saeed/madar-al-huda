@@ -904,4 +904,31 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get radioStreamFailed =>
       'تعذّر تشغيل البث. جرّب تاني أو افتح المشغّل الرسمي.';
+
+  @override
+  String compassApproximateHeading(String angle) {
+    return 'اتجاه الهاتف التقريبي $angle°';
+  }
+
+  @override
+  String get recitationDownload => 'نزّل التلاوة';
+
+  @override
+  String get recitationDownloading => 'جاري تنزيل التلاوة';
+
+  @override
+  String get recitationDownloads => 'التلاوات المحمّلة';
+
+  @override
+  String get recitationNoDownloads => 'نزّل تلاوة سورة عشان تسمعها من غير نت.';
+
+  @override
+  String get recitationPlayOffline => 'شغّل التلاوة المحمّلة';
+
+  @override
+  String get recitationRemoveDownload => 'احذف التلاوة المحمّلة';
+
+  @override
+  String get recitationDownloadFailed =>
+      'تعذّر حفظ التلاوة أو الوصول للملف المحمّل.';
 }

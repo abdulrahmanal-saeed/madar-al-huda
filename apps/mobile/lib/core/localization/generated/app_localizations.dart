@@ -1747,6 +1747,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The broadcast is unavailable. Try again or open the official player.'**
   String get radioStreamFailed;
+
+  /// Approximate phone heading angle°
+  ///
+  /// In en, this message translates to:
+  /// **'Approximate phone heading {angle}°'**
+  String compassApproximateHeading(String angle);
+
+  /// Download recitation
+  ///
+  /// In en, this message translates to:
+  /// **'Download recitation'**
+  String get recitationDownload;
+
+  /// Downloading recitation
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading recitation'**
+  String get recitationDownloading;
+
+  /// Downloaded recitations
+  ///
+  /// In en, this message translates to:
+  /// **'Downloaded recitations'**
+  String get recitationDownloads;
+
+  /// Download a surah to listen offline.
+  ///
+  /// In en, this message translates to:
+  /// **'Download a surah to listen offline.'**
+  String get recitationNoDownloads;
+
+  /// Play downloaded recitation
+  ///
+  /// In en, this message translates to:
+  /// **'Play downloaded recitation'**
+  String get recitationPlayOffline;
+
+  /// Remove download
+  ///
+  /// In en, this message translates to:
+  /// **'Remove download'**
+  String get recitationRemoveDownload;
+
+  /// Could not save or access this download.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save or access this download.'**
+  String get recitationDownloadFailed;
 }
 
 class _AppLocalizationsDelegate

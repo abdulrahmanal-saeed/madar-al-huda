@@ -52,7 +52,7 @@ class QiblaScreen extends ConsumerWidget {
     final bearing = point == null ? null : QiblaBearing.calculate(point);
     final active =
         TickerMode.valuesOf(context).enabled &&
-        ModalRoute.isCurrentOf(context) == true;
+        ModalRoute.isCurrentOf(context) != false;
     final sensor = active && point != null
         ? ref.watch(magneticHeadingProvider)
         : null;
@@ -61,8 +61,7 @@ class QiblaScreen extends ConsumerWidget {
         : ref.watch(_declinationProvider(point));
     final heading = sensor?.asData?.value;
     final correction = declination?.asData?.value;
-    final trueHeading =
-        heading != null && heading.reliable && correction != null
+    final trueHeading = heading != null && correction != null
         ? (heading.degrees + correction) % 360
         : null;
     final l10n = context.l10n;
@@ -70,12 +69,13 @@ class QiblaScreen extends ConsumerWidget {
     final numbers = NumberFormat.decimalPattern(
       Localizations.localeOf(context).toLanguageTag(),
     );
-    final error = bearing != null && trueHeading != null
+    final rotation = bearing != null && trueHeading != null
         ? (bearing - trueHeading + 540) % 360 - 180
         : null;
+    final turn = heading?.reliable == true ? rotation : null;
     final message = switch (heading) {
       (reliable: false, degrees: _) => l10n.compassCalibrate,
-      _ when error != null => l10n.compassHoldFlat,
+      _ when turn != null => l10n.compassHoldFlat,
       _ when sensor?.isLoading == true || declination?.isLoading == true =>
         l10n.compassWaiting,
       _ => l10n.compassUnavailable,
@@ -91,25 +91,25 @@ class QiblaScreen extends ConsumerWidget {
                 const WorshipLocationPicker(),
                 const SizedBox(height: AppSpacing.lg),
                 if (bearing != null) ...[
-                  if (error != null)
+                  if (turn != null)
                     Center(
                       child: Chip(
                         avatar: Icon(
-                          error.abs() < 3
+                          turn.abs() < 3
                               ? Icons.check_circle_outline
-                              : error > 0
+                              : turn > 0
                               ? Icons.turn_right
                               : Icons.turn_left,
                         ),
                         label: Text(
-                          error.abs() < 3
+                          turn.abs() < 3
                               ? l10n.compassAligned
-                              : error > 0
+                              : turn > 0
                               ? l10n.compassTurnRight(
-                                  numbers.format(error.round()),
+                                  numbers.format(turn.round()),
                                 )
                               : l10n.compassTurnLeft(
-                                  numbers.format(error.abs().round()),
+                                  numbers.format(turn.abs().round()),
                                 ),
                         ),
                       ),
@@ -123,7 +123,7 @@ class QiblaScreen extends ConsumerWidget {
                           aspectRatio: 1,
                           child: CustomPaint(
                             painter: _CompassDial(
-                              angle: error ?? bearing,
+                              angle: rotation ?? bearing,
                               north: -(trueHeading ?? 0),
                               colors: theme.colorScheme,
                             ),
@@ -145,7 +145,9 @@ class QiblaScreen extends ConsumerWidget {
                   ),
                   if (trueHeading != null)
                     Text(
-                      l10n.compassPhoneHeading(
+                      (heading?.reliable == true
+                          ? l10n.compassPhoneHeading
+                          : l10n.compassApproximateHeading)(
                         numbers.format(trueHeading.round() % 360),
                       ),
                       textAlign: TextAlign.center,
@@ -159,7 +161,7 @@ class QiblaScreen extends ConsumerWidget {
                   Card(
                     child: ListTile(
                       leading: Icon(
-                        error == null ? Icons.info_outline : Icons.explore,
+                        turn == null ? Icons.info_outline : Icons.explore,
                       ),
                       title: Text(message),
                     ),
