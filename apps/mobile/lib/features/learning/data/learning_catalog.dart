@@ -1,14 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-final prophetStoriesProvider = FutureProvider<List<LearningSeries>>(
-  (_) async => parseLearningSeries(
-    await rootBundle.loadString('assets/learning/prophet_stories.json'),
-  ),
-);
-
 enum LessonFormat {
   audio('mp3', 'audio/mpeg'),
   video('mp4', 'video/mp4');
@@ -50,8 +41,11 @@ class LearningSeries {
   ];
 }
 
-List<LearningSeries> parseLearningSeries(String source) {
-  final data = jsonDecode(source) as List<Object?>;
+List<LearningSeries> parseLearningSeries(String source) =>
+    parseLearningCatalog(jsonDecode(source));
+
+List<LearningSeries> parseLearningCatalog(Object? source) {
+  final data = source as List<Object?>;
   final ids = <String>{};
   final fileNames = <String>{};
   return List.unmodifiable(

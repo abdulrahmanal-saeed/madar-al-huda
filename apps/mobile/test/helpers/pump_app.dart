@@ -11,6 +11,7 @@ import 'package:madar_al_huda/core/audio/audio_playback.dart';
 import 'package:madar_al_huda/core/storage/key_value_store.dart';
 import 'package:madar_al_huda/core/storage/storage_providers.dart';
 import 'package:madar_al_huda/features/adhkar/data/adhkar_catalog.dart';
+import 'package:madar_al_huda/features/adhkar/data/quran_dua_index.dart';
 import 'package:madar_al_huda/features/quran/data/mushaf_edition.dart';
 import 'package:madar_al_huda/features/quran/data/quran_services.dart';
 import 'package:madar_al_huda/features/worship/application/cairo_radio_stream.dart';
@@ -62,6 +63,7 @@ Future<InMemoryKeyValueStore> pumpMadarApp(
         keyValueStoreProvider.overrideWithValue(kv),
         mushafEditionProvider.overrideWith((_) => _testMushaf!),
         adhkarCatalogProvider.overrideWith((_) => _testAdhkar!),
+        quranDuaIndexProvider.overrideWith((_) => quranDuaIndex),
         if (quranApi != null) quranApiProvider.overrideWithValue(quranApi),
         if (audioPlayer != null)
           audioPlayerProvider.overrideWithValue(audioPlayer),
