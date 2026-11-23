@@ -127,6 +127,9 @@
   "cityCairo": "القاهرة",
   "cityAlexandria": "الإسكندرية",
   "chooseCity": "اختر مدينة",
+  "startupLocationTitle": "إعداد الموقع",
+  "startupLocationExplanation": "استخدم موقعك لحساب مواقيت الصلاة وتحديد القبلة. يمكنك أيضًا اختيار مدينة من شاشة الصلاة أو القبلة.",
+  "startupLocationLater": "لاحقًا",
   "useLocation": "استخدم موقعي",
   "deviceLocation": "موقع الجهاز",
   "locationDenied": "تم رفض إذن الموقع. يمكنك اختيار مدينة.",
@@ -284,5 +287,13 @@
   "radioPlay": "شغّل البث المباشر",
   "radioStop": "أوقف البث المباشر",
   "radioConnecting": "جاري الاتصال بالبث المباشر…",
-  "radioStreamFailed": "تعذّر تشغيل البث. جرّب تاني أو افتح المشغّل الرسمي."
+  "radioStreamFailed": "تعذّر تشغيل البث. جرّب تاني أو افتح المشغّل الرسمي.",
+  "compassApproximateHeading": "اتجاه الهاتف التقريبي {angle}°",
+  "recitationDownload": "نزّل التلاوة",
+  "recitationDownloading": "جاري تنزيل التلاوة",
+  "recitationDownloads": "التلاوات المحمّلة",
+  "recitationNoDownloads": "نزّل تلاوة سورة عشان تسمعها من غير نت.",
+  "recitationPlayOffline": "شغّل التلاوة المحمّلة",
+  "recitationRemoveDownload": "احذف التلاوة المحمّلة",
+  "recitationDownloadFailed": "تعذّر حفظ التلاوة أو الوصول للملف المحمّل."
 }

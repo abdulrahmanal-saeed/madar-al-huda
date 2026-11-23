@@ -12,6 +12,7 @@ import 'features/hadith/data/hadith_favorites.dart';
 import 'features/prayer/application/prayer_preferences.dart';
 import 'features/quran/data/local_quran_bookmarks.dart';
 import 'features/settings/data/settings_repository.dart';
+import 'features/worship/application/worship_location.dart';
 import 'features/worship/data/daily_reading_plan.dart';
 
 Future<void> main() async {
@@ -48,7 +49,8 @@ Future<KeyValueStore> _openPreferences() async {
     return await SharedPreferencesKeyValueStore.create(
       allowList: {
         ...SettingsRepository.keys,
-        'worship.manualCity',
+        WorshipLocationController.cityKey,
+        WorshipLocationController.deviceLocationKey,
         HanafiAsr.key,
         HadithFavorites.key,
         'quran.lastRead.v1',

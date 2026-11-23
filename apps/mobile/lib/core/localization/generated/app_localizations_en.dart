@@ -391,6 +391,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chooseCity => 'Choose a city';
 
   @override
+  String get startupLocationTitle => 'Set up your location';
+
+  @override
+  String get startupLocationExplanation =>
+      'Use your location for prayer times and Qibla. You can also choose a city in Prayer Times or Qibla.';
+
+  @override
+  String get startupLocationLater => 'Later';
+
+  @override
   String get useLocation => 'Use my location';
 
   @override
@@ -916,4 +926,31 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get radioStreamFailed =>
       'The broadcast is unavailable. Try again or open the official player.';
+
+  @override
+  String compassApproximateHeading(String angle) {
+    return 'Approximate phone heading $angle°';
+  }
+
+  @override
+  String get recitationDownload => 'Download recitation';
+
+  @override
+  String get recitationDownloading => 'Downloading recitation';
+
+  @override
+  String get recitationDownloads => 'Downloaded recitations';
+
+  @override
+  String get recitationNoDownloads => 'Download a surah to listen offline.';
+
+  @override
+  String get recitationPlayOffline => 'Play downloaded recitation';
+
+  @override
+  String get recitationRemoveDownload => 'Remove download';
+
+  @override
+  String get recitationDownloadFailed =>
+      'Could not save or access this download.';
 }

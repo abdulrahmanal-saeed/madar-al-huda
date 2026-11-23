@@ -34,3 +34,17 @@ A bearing is **not** a compass needle direction while the device rotates. A sens
 4. Update the existing `AppSection.qibla` publication gate only in a reviewed PR with full acceptance evidence. The Qibla screen currently remains a transparent development placeholder.
 
 No UI, logo, Quran text or prayer times changed in this contribution.
+
+
+## Android compass and reference check
+
+Android first listens to a North-referenced rotation vector, then falls back to the geomagnetic rotation vector or a compass computed with the accelerometer and magnetometer. A finite lower-confidence heading can move the dial with a calibration message. The turn and alignment instructions require a reliable reading. Android magnetic declination and display rotation are applied before presenting the live direction. [Android position sensors](https://developer.android.com/develop/sensors-and-location/sensors/sensors_position)
+
+| Manual preset | AlAdhan direction | Local direction |
+| --- | ---: | ---: |
+| Dubai | 258.2313° | 258.2312° |
+| Abu Dhabi | 260.1708° | 260.1707° |
+| Cairo | 136.1373° | 136.1373° |
+| Alexandria | 135.4370° | 135.4369° |
+
+The [AlAdhan Qibla API](https://aladhan.com/qibla-api) was used with the public city-centre coordinates. The runtime calculation and sensor input stay on the device. Physical hardware and calibration checks remain open.

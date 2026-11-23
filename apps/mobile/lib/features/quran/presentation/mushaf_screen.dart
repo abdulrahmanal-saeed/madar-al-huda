@@ -13,6 +13,7 @@ import '../../../core/routing/app_sections.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/section_detail_scaffold.dart';
 import '../../worship/data/daily_reading_plan.dart';
+import '../data/chapter_reciters.dart';
 import '../data/local_quran_bookmarks.dart';
 import '../data/mushaf_edition.dart';
 import '../data/quran_services.dart';
@@ -299,9 +300,10 @@ class _ReaderState extends ConsumerState<_Reader> {
           ),
           resources: resources,
           surah: widget.edition.surahs[verse.surah - 1],
-          reciters: _matches(catalog, verse.surah)
-              ? catalog!.reciters
-              : const <QuranResource>[],
+          reciters: chapterRecitersFor(
+            verse.surah,
+            _matches(catalog, verse.surah) ? catalog!.reciters : const [],
+          ),
           chapterCount: widget.edition.surahs[verse.surah - 1].verses.length,
         ),
       ),
@@ -317,7 +319,8 @@ class _ReaderState extends ConsumerState<_Reader> {
     final data = catalog.asData?.value;
     final surah = widget.edition.surahs[_current.surah - 1];
     final matched = _matches(data, surah.id);
-    final reciters = matched ? data!.reciters : const <QuranResource>[];
+    final verifiedReciters = matched ? data!.reciters : const <QuranResource>[];
+    final reciters = chapterRecitersFor(surah.id, verifiedReciters);
     final numbers = NumberFormat.decimalPattern(language);
     final edition = widget.edition;
     return Scaffold(
@@ -355,6 +358,11 @@ class _ReaderState extends ConsumerState<_Reader> {
             onPressed: _chooseIndex,
             icon: const Icon(Icons.list_alt),
           ),
+          IconButton(
+            tooltip: l10n.recitationDownloads,
+            onPressed: () => showRecitationDownloads(context, edition),
+            icon: const Icon(Icons.file_download_outlined),
+          ),
           PopupMenuButton<Uri>(
             tooltip: l10n.readerSources,
             onSelected: launchUrl,
@@ -363,7 +371,12 @@ class _ReaderState extends ConsumerState<_Reader> {
                 value: Uri.https('tanzil.net'),
                 child: Text(l10n.readerTanzil),
               ),
-              if (matched && (data!.tafsirs.isNotEmpty || reciters.isNotEmpty))
+              PopupMenuItem(
+                value: Uri.https('mp3quran.net', '/ar/privacy/'),
+                child: const Text('MP3Quran'),
+              ),
+              if (matched &&
+                  (data!.tafsirs.isNotEmpty || verifiedReciters.isNotEmpty))
                 PopupMenuItem(
                   value: Uri.https('quran.foundation'),
                   child: Text(l10n.readerQuranFoundation),
@@ -395,7 +408,7 @@ class _ReaderState extends ConsumerState<_Reader> {
               ),
             ),
             if (!catalog.isLoading &&
-                reciters.isEmpty &&
+                verifiedReciters.isEmpty &&
                 (!matched || data!.tafsirs.isEmpty))
               Row(
                 children: [
@@ -404,7 +417,7 @@ class _ReaderState extends ConsumerState<_Reader> {
                     child: Text(
                       data?.isPreview == true && !matched
                           ? l10n.readerPreliveCoverage
-                          : l10n.readerResourcesUnavailable,
+                          : l10n.readerTafsirUnavailable,
                     ),
                   ),
                   IconButton(
@@ -492,7 +505,7 @@ class _TafsirSheet extends ConsumerStatefulWidget {
   final String verseText;
   final String surahName;
   final MushafSurah surah;
-  final List<QuranResource> reciters;
+  final List<ChapterReciter> reciters;
   final List<QuranResource> resources;
   final int chapterCount;
 
@@ -680,14 +693,16 @@ class _TafsirSheetState extends ConsumerState<_TafsirSheet> {
               ),
               if (reciter != null)
                 IconButton(
-                  tooltip: l10n.readerListenFromVerse,
+                  tooltip: reciter.foundationId != null
+                      ? l10n.readerListenFromVerse
+                      : l10n.readerListenChapter,
                   icon: const Icon(Icons.play_circle_outline),
                   onPressed: () => playRecitation(
                     context,
                     ref,
                     surah: widget.surah,
-                    resource: reciter,
-                    verse: verse,
+                    reader: reciter,
+                    verse: reciter.foundationId == null ? null : verse,
                   ),
                 ),
               IconButton(

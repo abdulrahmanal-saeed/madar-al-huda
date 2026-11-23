@@ -31,7 +31,7 @@ final magneticHeadingProvider = StreamProvider.autoDispose<MagneticHeading>(
 );
 
 final _declinationProvider = FutureProvider.autoDispose
-    .family<double?, GeoCoordinate>(
+    .family<double?, ({double latitude, double longitude})>(
       (_, point) => const MethodChannel('madar/geomagnetic')
           .invokeMethod<double>('declination', {
             'latitude': point.latitude,
@@ -52,17 +52,23 @@ class QiblaScreen extends ConsumerWidget {
     final bearing = point == null ? null : QiblaBearing.calculate(point);
     final active =
         TickerMode.valuesOf(context).enabled &&
-        ModalRoute.isCurrentOf(context) == true;
+        ModalRoute.isCurrentOf(context) != false;
     final sensor = active && point != null
         ? ref.watch(magneticHeadingProvider)
         : null;
+    // City centers can be reconstructed on each build. Key by coordinates
+    // so a new sensor reading does not restart the declination request.
     final declination = point == null
         ? null
-        : ref.watch(_declinationProvider(point));
+        : ref.watch(
+            _declinationProvider((
+              latitude: point.latitude,
+              longitude: point.longitude,
+            )),
+          );
     final heading = sensor?.asData?.value;
     final correction = declination?.asData?.value;
-    final trueHeading =
-        heading != null && heading.reliable && correction != null
+    final trueHeading = heading != null && correction != null
         ? (heading.degrees + correction) % 360
         : null;
     final l10n = context.l10n;
@@ -70,12 +76,13 @@ class QiblaScreen extends ConsumerWidget {
     final numbers = NumberFormat.decimalPattern(
       Localizations.localeOf(context).toLanguageTag(),
     );
-    final error = bearing != null && trueHeading != null
+    final rotation = bearing != null && trueHeading != null
         ? (bearing - trueHeading + 540) % 360 - 180
         : null;
+    final turn = heading?.reliable == true ? rotation : null;
     final message = switch (heading) {
       (reliable: false, degrees: _) => l10n.compassCalibrate,
-      _ when error != null => l10n.compassHoldFlat,
+      _ when turn != null => l10n.compassHoldFlat,
       _ when sensor?.isLoading == true || declination?.isLoading == true =>
         l10n.compassWaiting,
       _ => l10n.compassUnavailable,
@@ -91,25 +98,25 @@ class QiblaScreen extends ConsumerWidget {
                 const WorshipLocationPicker(),
                 const SizedBox(height: AppSpacing.lg),
                 if (bearing != null) ...[
-                  if (error != null)
+                  if (turn != null)
                     Center(
                       child: Chip(
                         avatar: Icon(
-                          error.abs() < 3
+                          turn.abs() < 3
                               ? Icons.check_circle_outline
-                              : error > 0
+                              : turn > 0
                               ? Icons.turn_right
                               : Icons.turn_left,
                         ),
                         label: Text(
-                          error.abs() < 3
+                          turn.abs() < 3
                               ? l10n.compassAligned
-                              : error > 0
+                              : turn > 0
                               ? l10n.compassTurnRight(
-                                  numbers.format(error.round()),
+                                  numbers.format(turn.round()),
                                 )
                               : l10n.compassTurnLeft(
-                                  numbers.format(error.abs().round()),
+                                  numbers.format(turn.abs().round()),
                                 ),
                         ),
                       ),
@@ -123,7 +130,7 @@ class QiblaScreen extends ConsumerWidget {
                           aspectRatio: 1,
                           child: CustomPaint(
                             painter: _CompassDial(
-                              angle: error ?? bearing,
+                              angle: rotation ?? bearing,
                               north: -(trueHeading ?? 0),
                               colors: theme.colorScheme,
                             ),
@@ -145,7 +152,9 @@ class QiblaScreen extends ConsumerWidget {
                   ),
                   if (trueHeading != null)
                     Text(
-                      l10n.compassPhoneHeading(
+                      (heading?.reliable == true
+                          ? l10n.compassPhoneHeading
+                          : l10n.compassApproximateHeading)(
                         numbers.format(trueHeading.round() % 360),
                       ),
                       textAlign: TextAlign.center,
@@ -159,7 +168,7 @@ class QiblaScreen extends ConsumerWidget {
                   Card(
                     child: ListTile(
                       leading: Icon(
-                        error == null ? Icons.info_outline : Icons.explore,
+                        turn == null ? Icons.info_outline : Icons.explore,
                       ),
                       title: Text(message),
                     ),
@@ -223,14 +232,15 @@ class _CompassDial extends CustomPainter {
       center +
           Offset(math.sin(northRadians), -math.cos(northRadians)) *
               radius *
-              .68 -
+              .74 -
           Offset(label.width / 2, label.height / 2),
     );
     label.dispose();
+    final radians = angle * math.pi / 180;
     canvas
       ..save()
       ..translate(center.dx, center.dy)
-      ..rotate(angle * math.pi / 180);
+      ..rotate(radians);
     final needle = Path()
       ..moveTo(0, -radius * .62)
       ..lineTo(radius * .13, 0)
@@ -243,6 +253,64 @@ class _CompassDial extends CustomPainter {
     canvas.drawPath(needle, paint);
     paint.color = colors.onPrimary;
     canvas.drawCircle(Offset.zero, radius * .05, paint);
+    canvas.restore();
+
+    final marker =
+        center + Offset(math.sin(radians), -math.cos(radians)) * (radius * .54);
+    _paintKaaba(canvas, marker, radius * .13);
+  }
+
+  void _paintKaaba(Canvas canvas, Offset center, double radius) {
+    final paint = Paint()..color = colors.surface;
+    canvas.drawCircle(center, radius, paint);
+    canvas.drawCircle(
+      center,
+      radius,
+      paint
+        ..color = colors.primary
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.5,
+    );
+    canvas
+      ..save()
+      ..translate(center.dx, center.dy)
+      ..scale(radius / 12);
+    final front = Path()
+      ..moveTo(-7, -5)
+      ..lineTo(3, -5)
+      ..lineTo(3, 7)
+      ..lineTo(-7, 7)
+      ..close();
+    final side = Path()
+      ..moveTo(3, -5)
+      ..lineTo(7, -8)
+      ..lineTo(7, 4)
+      ..lineTo(3, 7)
+      ..close();
+    paint.style = PaintingStyle.fill;
+    canvas.drawPath(
+      Path()
+        ..moveTo(-7, -5)
+        ..lineTo(-3, -8)
+        ..lineTo(7, -8)
+        ..lineTo(3, -5)
+        ..close(),
+      paint..color = const Color(0xFF4B4035),
+    );
+    canvas.drawPath(side, paint..color = const Color(0xFF3A3430));
+    canvas.drawPath(front, paint..color = const Color(0xFF211E1B));
+    canvas.drawPath(
+      Path()
+        ..moveTo(-7, -2)
+        ..lineTo(3, -2)
+        ..lineTo(7, -5)
+        ..lineTo(7, -3)
+        ..lineTo(3, 0)
+        ..lineTo(-7, 0)
+        ..close(),
+      paint..color = const Color(0xFFE1BD70),
+    );
+    canvas.drawRect(const Rect.fromLTWH(-2, 2, 2, 4), paint);
     canvas.restore();
   }
 

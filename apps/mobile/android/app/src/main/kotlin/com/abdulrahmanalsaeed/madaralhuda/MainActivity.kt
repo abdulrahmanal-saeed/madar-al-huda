@@ -8,6 +8,8 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.view.Surface
 import com.ryanheise.audioservice.AudioServiceActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -57,11 +59,11 @@ class MainActivity : AudioServiceActivity() {
 
     override fun onResume() {
         super.onResume()
-        compass.start()
+        compass.resume()
     }
 
     override fun onPause() {
-        compass.stop()
+        compass.pause()
         super.onPause()
     }
 
@@ -84,17 +86,32 @@ class MainActivity : AudioServiceActivity() {
 
     private inner class CompassStream : EventChannel.StreamHandler, SensorEventListener {
         private val manager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
-        private val sensor = manager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
+        private val sources = listOf(
+            listOf(Sensor.TYPE_ROTATION_VECTOR),
+            listOf(Sensor.TYPE_GEOMAGNETIC_ROTATION_VECTOR),
+            listOf(Sensor.TYPE_ACCELEROMETER, Sensor.TYPE_MAGNETIC_FIELD),
+        )
+        private val handler = Handler(Looper.getMainLooper())
         private val matrix = FloatArray(9)
         private val remapped = FloatArray(9)
         private val angles = FloatArray(3)
+        private val gravity = FloatArray(3)
+        private val magnetic = FloatArray(3)
+        private var gravityTime = 0L
+        private var magneticTime = 0L
+        private var magneticAccuracy = SensorManager.SENSOR_STATUS_UNRELIABLE
         private var sink: EventChannel.EventSink? = null
         private var lastSample = 0L
-        private var registered = false
+        private var source = -1
+        private var resumed = false
+
+        // Some devices advertise a rotation vector but never deliver a sample.
+        private val tryNextSource = Runnable { startAt(source + 1) }
 
         override fun onListen(arguments: Any?, events: EventChannel.EventSink) {
+            stop()
             sink = events
-            start()
+            if (resumed) startAt(0)
         }
 
         override fun onCancel(arguments: Any?) {
@@ -102,27 +119,76 @@ class MainActivity : AudioServiceActivity() {
             sink = null
         }
 
-        fun start() {
-            if (sink == null || registered) return
-            registered = sensor != null &&
-                manager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_UI)
-            if (!registered) {
-                sink?.error("unsupported", "Compass sensor unavailable", null)
-            }
+        fun resume() {
+            resumed = true
+            if (sink != null) startAt(0)
         }
 
-        fun stop() {
+        fun pause() {
+            resumed = false
+            stop()
+        }
+
+        private fun startAt(index: Int) {
+            stop()
+            if (!resumed || sink == null) return
+            for (candidate in index until sources.size) {
+                val sensors = sources[candidate].map { manager.getDefaultSensor(it) }
+                if (sensors.any { it == null }) continue
+                if (sensors.filterNotNull().all {
+                    manager.registerListener(this, it, SensorManager.SENSOR_DELAY_UI)
+                }) {
+                    source = candidate
+                    handler.postDelayed(tryNextSource, 2500L)
+                    return
+                }
+                manager.unregisterListener(this)
+            }
+            sink?.error("unsupported", "No North-referenced heading is available", null)
+        }
+
+        private fun stop() {
+            handler.removeCallbacks(tryNextSource)
             manager.unregisterListener(this)
-            registered = false
-            lastSample = 0
+            source = -1
+            lastSample = 0L
+            gravityTime = 0L
+            magneticTime = 0L
         }
 
         override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) = Unit
 
         override fun onSensorChanged(event: SensorEvent) {
+            if (source < 0 || event.sensor.type !in sources[source]) return
+            val values = event.values
+            if (values.size < 3 || (0..2).any { !values[it].isFinite() }) return
+            val reliable = when (event.sensor.type) {
+                Sensor.TYPE_ACCELEROMETER, Sensor.TYPE_MAGNETIC_FIELD -> {
+                    if (event.sensor.type == Sensor.TYPE_ACCELEROMETER) {
+                        values.copyInto(gravity, endIndex = 3)
+                        gravityTime = event.timestamp
+                    } else {
+                        values.copyInto(magnetic, endIndex = 3)
+                        magneticTime = event.timestamp
+                        magneticAccuracy = event.accuracy
+                    }
+                    if (gravityTime == 0L || magneticTime == 0L ||
+                        kotlin.math.abs(gravityTime - magneticTime) > 350_000_000L ||
+                        !SensorManager.getRotationMatrix(matrix, null, gravity, magnetic)
+                    ) return
+                    magneticAccuracy >= SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM
+                }
+                else -> {
+                    SensorManager.getRotationMatrixFromVector(matrix, values)
+                    val estimated = values.getOrNull(4)?.toDouble()
+                    if (estimated != null && estimated.isFinite() && estimated >= 0) {
+                        Math.toDegrees(estimated) <= 25
+                    } else {
+                        event.accuracy >= SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM
+                    }
+                }
+            }
             if (lastSample != 0L && event.timestamp - lastSample < 80_000_000L) return
-            lastSample = event.timestamp
-            SensorManager.getRotationMatrixFromVector(matrix, event.values)
             val axes = when (screenRotation()) {
                 Surface.ROTATION_90 -> SensorManager.AXIS_Y to SensorManager.AXIS_MINUS_X
                 Surface.ROTATION_180 -> SensorManager.AXIS_MINUS_X to SensorManager.AXIS_MINUS_Y
@@ -131,11 +197,11 @@ class MainActivity : AudioServiceActivity() {
             }
             if (!SensorManager.remapCoordinateSystem(matrix, axes.first, axes.second, remapped)) return
             SensorManager.getOrientation(remapped, angles)
-            val degrees = (Math.toDegrees(angles[0].toDouble()) + 360) % 360
-            val estimatedError = event.values.getOrNull(4)?.toDouble()?.let(Math::toDegrees)
-            val reliable = event.accuracy >= SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM &&
-                (estimatedError == null || estimatedError < 0 || estimatedError <= 25)
-            sink?.success(mapOf("degrees" to degrees, "reliable" to reliable))
+            val azimuth = Math.toDegrees(angles[0].toDouble())
+            if (!azimuth.isFinite()) return
+            lastSample = event.timestamp
+            handler.removeCallbacks(tryNextSource)
+            sink?.success(mapOf("degrees" to (azimuth + 360) % 360, "reliable" to reliable))
         }
     }
 }

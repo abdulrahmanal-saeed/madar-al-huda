@@ -13,9 +13,14 @@ const _ivory = Color(0xFFF5F0E6);
 const _dedicationColor = Color(0xFFEADFC6);
 
 class StartupSplash extends StatefulWidget {
-  const StartupSplash({required this.child, super.key});
+  const StartupSplash({
+    required this.child,
+    required this.onDismissed,
+    super.key,
+  });
 
   final Widget child;
+  final VoidCallback onDismissed;
 
   @override
   State<StartupSplash> createState() => _StartupSplashState();
@@ -38,8 +43,10 @@ class _StartupSplashState extends State<StartupSplash> {
   }
 
   void _dismiss() {
+    if (!_visible) return;
     _timer.cancel();
     setState(() => _visible = false);
+    widget.onDismissed();
   }
 
   @override

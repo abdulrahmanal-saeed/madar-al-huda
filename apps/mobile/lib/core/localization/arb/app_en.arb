@@ -251,6 +251,18 @@
     "description": "Alexandria"
   },
   "chooseCity": "Choose a city",
+  "startupLocationTitle": "Set up your location",
+  "@startupLocationTitle": {
+    "description": "Title of the initial setup dialog for the shared worship location."
+  },
+  "startupLocationExplanation": "Use your location for prayer times and Qibla. You can also choose a city in Prayer Times or Qibla.",
+  "@startupLocationExplanation": {
+    "description": "Explains why the app asks for location access and where to set a manual city."
+  },
+  "startupLocationLater": "Later",
+  "@startupLocationLater": {
+    "description": "Dismisses location setup while leaving the rest of the app available."
+  },
   "@chooseCity": {
     "description": "Choose a city"
   },
@@ -1009,5 +1021,42 @@
   "radioStreamFailed": "The broadcast is unavailable. Try again or open the official player.",
   "@radioStreamFailed": {
     "description": "The broadcast is unavailable. Try again or open the official player."
+  },
+  "compassApproximateHeading": "Approximate phone heading {angle}°",
+  "@compassApproximateHeading": {
+    "description": "Approximate phone heading angle°",
+    "placeholders": {
+      "angle": {
+        "type": "String"
+      }
+    }
+  },
+  "recitationDownload": "Download recitation",
+  "@recitationDownload": {
+    "description": "Download recitation"
+  },
+  "recitationDownloading": "Downloading recitation",
+  "@recitationDownloading": {
+    "description": "Downloading recitation"
+  },
+  "recitationDownloads": "Downloaded recitations",
+  "@recitationDownloads": {
+    "description": "Downloaded recitations"
+  },
+  "recitationNoDownloads": "Download a surah to listen offline.",
+  "@recitationNoDownloads": {
+    "description": "Download a surah to listen offline."
+  },
+  "recitationPlayOffline": "Play downloaded recitation",
+  "@recitationPlayOffline": {
+    "description": "Play downloaded recitation"
+  },
+  "recitationRemoveDownload": "Remove download",
+  "@recitationRemoveDownload": {
+    "description": "Remove download"
+  },
+  "recitationDownloadFailed": "Could not save or access this download.",
+  "@recitationDownloadFailed": {
+    "description": "Could not save or access this download."
   }
 }

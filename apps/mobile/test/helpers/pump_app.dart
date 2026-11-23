@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:madar_al_huda/app/app.dart';
@@ -38,6 +39,7 @@ Future<InMemoryKeyValueStore> pumpMadarApp(
   QuranApi? quranApi,
   AudioPlayer? audioPlayer,
   Uri? cairoRadioStream,
+  List<Override> additionalOverrides = const [],
 }) async {
   final kv = store ?? InMemoryKeyValueStore();
   _testMushaf ??= await tester.runAsync(() => MushafEdition.load(rootBundle));
@@ -71,6 +73,7 @@ Future<InMemoryKeyValueStore> pumpMadarApp(
             ref.onDispose(router.dispose);
             return router;
           }),
+        ...additionalOverrides,
       ],
       child: MadarApp(showStartupSplash: showStartupSplash),
     ),
