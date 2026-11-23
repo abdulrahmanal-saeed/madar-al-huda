@@ -169,6 +169,7 @@ function updateLibrary(PDO $db, string $action, array $seed, string $section, st
             $draft = encode(match (true) {
                 $section === 'reciters' => changeReaders($content, $delete),
                 $section === 'appearance' => changeAppearance($content, $delete),
+                $section === 'library_sections' => changeSections($content, $delete),
                 in_array($section, BOOK_SECTIONS, true) => changeBook($content, $section, $delete),
                 default => changeContent($content, $seed['ayahCounts'], $section, $topic, $delete),
             });
