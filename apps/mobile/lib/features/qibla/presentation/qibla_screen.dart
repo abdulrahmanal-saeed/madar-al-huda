@@ -44,7 +44,7 @@ class QiblaScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (AppSection.qibla.status.isGated && !featurePreviewEnabled) {
+    if (AppSection.qibla.status.isGated && !managedReleaseEnabled) {
       return const SectionDetailScaffold(section: AppSection.qibla);
     }
     final location = ref.watch(worshipLocationProvider);

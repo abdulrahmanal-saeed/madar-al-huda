@@ -23,7 +23,7 @@ class PrayerTimesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (AppSection.prayerTimes.status.isGated && !featurePreviewEnabled) {
+    if (AppSection.prayerTimes.status.isGated && !managedReleaseEnabled) {
       return const SectionDetailScaffold(section: AppSection.prayerTimes);
     }
     return const _PrayerTimes();

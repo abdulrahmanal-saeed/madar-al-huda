@@ -1,8 +1,10 @@
 import 'package:flutter/foundation.dart';
 
-const featurePreviewEnabled =
-    kDebugMode || bool.fromEnvironment('MADAR_FEATURE_PREVIEW');
+const featurePreviewEnabled = bool.fromEnvironment(
+  'MADAR_FEATURE_PREVIEW',
+  defaultValue: kDebugMode,
+);
 
-// Dev installs can read the verified Mushaf and content published by the owner.
+// The signed Dev channel enables the reader, worship tools, and the published library.
 const managedReleaseEnabled =
     featurePreviewEnabled || bool.fromEnvironment('MADAR_MANAGED_RELEASE');

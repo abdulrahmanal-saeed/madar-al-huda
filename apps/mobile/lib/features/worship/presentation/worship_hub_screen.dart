@@ -27,7 +27,7 @@ class WorshipHubScreen extends StatelessWidget {
       child: Column(
         children: [
           CairoRadioCard(),
-          if (featurePreviewEnabled) DailyReadingCard(),
+          if (managedReleaseEnabled) DailyReadingCard(),
         ],
       ),
     ),

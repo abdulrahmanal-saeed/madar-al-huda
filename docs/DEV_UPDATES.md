@@ -2,7 +2,7 @@
 
 بدل ما تنزّل APK جديد كل مرة: كل تغيير يتدمج في `main` ويعدّي الـ CI بيتبني منه APK موقّع بمفتاح تطوير ثابت، وبيتنشر كـ **pre-release** على GitHub Releases. تطبيق **Obtainium** على موبايلك بيلاقي النسخة الجديدة ويثبّتها لوحده.
 
-> نسخ التطوير **مش** نسخة المتجر. معرّفها `com.abdulrahmanalsaeed.madaralhuda.dev`، فبتتثبّت جنب نسخة المتجر في المستقبل من غير ما تتعارض معاها. مفتاحها مخصص للتطوير بس (توقيع Google Play هو المهمة P06-01). كل المحتوى الديني لسه محجوب.
+> قناة التطوير مستقلة ومعرّفها `com.abdulrahmanalsaeed.madaralhuda.dev`، وتوقيع Google Play له المهمة P06-01. تفتح قناة Dev المصحف والورد والصلاة والقبلة والأذكار والمكتبة المنشورة. يختبر Mobile CI الشاشات بإعدادات Dev الموقّعة.
 
 ## 1. إعداد لمرة واحدة: secrets في GitHub (لصاحب الريبو)
 
@@ -42,5 +42,5 @@ GitHub ← الريبو ← **Settings ← Secrets and variables ← Actions ←
 - **Workflow:** `.github/workflows/dev-release.yml`. It runs only after `Mobile CI` succeeds for a push to `main` (or on manual dispatch), builds `flutter build apk --release` with `MADAR_CHANNEL=dev`, verifies the package ID, version and signature, and publishes the APK as a GitHub prerelease tagged `v<version>-dev.<run>`. It keeps the newest 10 dev releases. It repeats no CI checks.
 - **Gradle** (`android/app/build.gradle.kts`): channel, version suffix and signing all come from environment variables. A dev build without signing variables **fails** rather than shipping an unrecognisable signature. Local and CI debug builds are unchanged.
 - **Secrets:** `MADAR_DEV_KEYSTORE_BASE64`, `MADAR_DEV_KEYSTORE_PASSWORD`, `MADAR_DEV_KEY_ALIAS`. The keystore is decoded to `$RUNNER_TEMP` and deleted at the end of the job.
-- **Privacy:** the app itself has no update code and still requests **no permissions**. Obtainium, on the tester's phone, does the checking.
+- **Updates:** Obtainium checks GitHub Releases. Android users can also enable periodic update notices in the app or check for updates in Settings.
 - **Testers:** install Obtainium, add the repository URL, enable *Include prereleases*, and filter titles with `^Dev build`.

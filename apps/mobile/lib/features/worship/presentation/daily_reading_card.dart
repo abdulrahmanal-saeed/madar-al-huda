@@ -122,7 +122,7 @@ class _DailyReadingScreenState extends ConsumerState<DailyReadingScreen> {
       numbers.format(plan.pagesRead),
       numbers.format(total),
     );
-    if (AppSection.mushaf.status.isGated && !featurePreviewEnabled) {
+    if (AppSection.mushaf.status.isGated && !managedReleaseEnabled) {
       return const SectionDetailScaffold(section: AppSection.mushaf);
     }
 
