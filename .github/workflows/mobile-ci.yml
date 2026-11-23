@@ -101,13 +101,15 @@ jobs:
       - name: Test
         run: flutter test --coverage
 
-      - name: Test worship with signed Dev feature flags
+      - name: Test worship and the reader with signed Dev feature flags
         run: |
           flutter test --dart-define=MADAR_FEATURE_PREVIEW=false \
             --dart-define=MADAR_MANAGED_RELEASE=true \
             test/app/navigation_test.dart test/app/startup_splash_test.dart \
             test/features/worship/adhkar_screens_test.dart \
-            test/features/worship/daily_reading_test.dart
+            test/features/worship/daily_reading_test.dart \
+            test/features/hadith/hadith_screen_test.dart \
+            test/features/quran/offline_recitations_test.dart
 
       - name: Upload coverage
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

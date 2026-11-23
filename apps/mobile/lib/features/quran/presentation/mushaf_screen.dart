@@ -294,6 +294,7 @@ class _ReaderState extends ConsumerState<_Reader> {
       builder: (_) => FractionallySizedBox(
         heightFactor: .72,
         child: _TafsirSheet(
+          edition: widget.edition,
           verse: verse,
           verseText: widget.edition.verses[widget.edition.indexOf(verse)].text,
           surahName: widget.edition.surahs[verse.surah - 1].name(
@@ -437,7 +438,11 @@ class _ReaderState extends ConsumerState<_Reader> {
                   ),
                 ],
               ),
-            RecitationPlayer(surah: surah, reciters: reciters),
+            RecitationPlayer(
+              edition: edition,
+              surah: surah,
+              reciters: reciters,
+            ),
           ],
         ),
       ),
@@ -502,6 +507,7 @@ class _VerseDialogState extends State<_VerseDialog> {
 
 class _TafsirSheet extends ConsumerStatefulWidget {
   const _TafsirSheet({
+    required this.edition,
     required this.verse,
     required this.verseText,
     required this.surahName,
@@ -510,6 +516,7 @@ class _TafsirSheet extends ConsumerStatefulWidget {
     required this.resources,
     required this.chapterCount,
   });
+  final MushafEdition edition;
   final AyahRef verse;
   final String verseText;
   final String surahName;
@@ -709,6 +716,7 @@ class _TafsirSheetState extends ConsumerState<_TafsirSheet> {
                   onPressed: () => playRecitation(
                     context,
                     ref,
+                    edition: widget.edition,
                     surah: widget.surah,
                     reader: reciter,
                     verse: reciter.foundationId == null ? null : verse,

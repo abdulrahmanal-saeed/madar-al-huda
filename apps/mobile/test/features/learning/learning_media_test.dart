@@ -89,6 +89,7 @@ void main() {
       addTearDown(() async {
         container.dispose();
         await player.positions.close();
+        await player.processing.close();
       });
       final queue = [
         for (var number = 2; number <= 4; number++)
@@ -113,18 +114,73 @@ void main() {
       expect(container.read(audioPlaybackProvider).track, isNull);
     },
   );
+
+  test('a deferred queue resolves the next track only on completion', () async {
+    final player = _QueuePlayer();
+    final container = ProviderContainer(
+      overrides: [audioPlayerProvider.overrideWithValue(player)],
+    );
+    addTearDown(() async {
+      container.dispose();
+      await player.positions.close();
+      await player.processing.close();
+    });
+    final resolutions = <int>[];
+    final playback = container.read(audioPlaybackProvider.notifier);
+    await playback.startDeferredQueue([
+      for (final chapter in [112, 113, 114])
+        (
+          track: MediaItem(id: '$chapter', title: '$chapter'),
+          resolve: () async {
+            resolutions.add(chapter);
+            return (
+              url: Uri.https('media.example.test', '/$chapter.mp3'),
+              start: null,
+            );
+          },
+        ),
+    ]);
+    expect(resolutions, [112]);
+    player.processing.add(ProcessingState.completed);
+    await Future<void>.delayed(Duration.zero);
+    expect(resolutions, [112, 113]);
+    expect(container.read(audioPlaybackProvider).track?.id, '113');
+    await playback.stop();
+    player.processing.add(ProcessingState.completed);
+    expect(resolutions, [112, 113]);
+  });
 }
 
 class _QueuePlayer extends Fake implements AudioPlayer {
   final positions = StreamController<int?>.broadcast(sync: true);
+  final processing = StreamController<ProcessingState>.broadcast(sync: true);
   List<String> ids = [];
   int? startedAt;
+
+  @override
+  bool playing = false;
 
   @override
   Stream<PlayerException> get errorStream => const Stream.empty();
 
   @override
   Stream<int?> get currentIndexStream => positions.stream;
+
+  @override
+  Stream<ProcessingState> get processingStateStream => processing.stream;
+
+  @override
+  Future<Duration?> setAudioSource(
+    AudioSource audioSource, {
+    bool preload = true,
+    int? initialIndex,
+    Duration? initialPosition,
+  }) => setAudioSources(
+    [audioSource],
+    preload: preload,
+    initialIndex: initialIndex,
+    initialPosition: initialPosition,
+  );
 
   @override
   Future<Duration?> setAudioSources(
@@ -142,11 +198,11 @@ class _QueuePlayer extends Fake implements AudioPlayer {
   }
 
   @override
-  Future<void> play() async {}
+  Future<void> play() async => playing = true;
 
   @override
-  Future<void> pause() async {}
+  Future<void> pause() async => playing = false;
 
   @override
-  Future<void> stop() async {}
+  Future<void> stop() async => playing = false;
 }

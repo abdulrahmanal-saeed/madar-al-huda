@@ -1072,6 +1072,19 @@
     }
   },
   "recitationDownload": "Download recitation",
+  "recitationDownloadMushaf": "Download full Mushaf",
+  "@recitationDownloadMushaf": {
+    "description": "Opens the full-recitation download controls for a reader covering all 114 surahs."
+  },
+  "recitationDownloadAvailable": "Download all available surahs",
+  "@recitationDownloadAvailable": {
+    "description": "Opens the recitation download controls when a reader covers part of the Mushaf."
+  },
+  "recitationDownloadSurahs": "Download surahs ({count})",
+  "@recitationDownloadSurahs": {
+    "description": "Download action with the total number of available recordings.",
+    "placeholders": {"count": {"type": "int", "format": "decimalPattern"}}
+  },
   "@recitationDownload": {
     "description": "Download recitation"
   },

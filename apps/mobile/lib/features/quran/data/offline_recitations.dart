@@ -100,6 +100,22 @@ class OfflineAudioStore {
     return await file.exists() && await file.length() > 3 ? file : null;
   }
 
+  Future<Map<int, Uri>> filesFor(
+    ChapterReciter reader,
+    Iterable<int> chapters,
+  ) async {
+    final dir = await _directory();
+    final files = <int, Uri>{};
+    for (final chapter in chapters) {
+      if (reader.publisherAudio(chapter) == null) continue;
+      final file = _file(dir, reader, chapter);
+      if (await file.exists() && await file.length() > 3) {
+        files[chapter] = file.uri;
+      }
+    }
+    return files;
+  }
+
   Future<void> remove(ChapterReciter reader, int chapter) async {
     final file = await fileFor(reader, chapter);
     if (file != null) await file.delete();
