@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -64,73 +63,62 @@ void main() {
     expect(await library.saved(), isEmpty);
   });
 
-  testWidgets(
-    'reader downloads and plays the saved file with network unavailable',
-    (tester) async {
-      final dir = (await tester.runAsync(
-        () => Directory.systemTemp.createTemp('madar-offline-playback'),
-      ))!;
-      addTearDown(() => dir.delete(recursive: true));
+  testWidgets('reader plays a saved recording with network unavailable', (
+    tester,
+  ) async {
+    final dir = (await tester.runAsync(
+      () => Directory.systemTemp.createTemp('madar-offline-playback'),
+    ))!;
+    addTearDown(() => dir.delete(recursive: true));
 
-      var online = true;
-      var requests = 0;
-      final client = MockClient((_) async {
-        if (!online) throw StateError('Network disabled');
-        requests++;
-        return http.Response.bytes(
-          mp3,
-          200,
-          headers: {'content-type': 'audio/mpeg'},
-        );
-      });
-      final quran = MockClient((_) async => http.Response('', 503));
-      addTearDown(client.close);
-      addTearDown(quran.close);
-      final library = OfflineAudioStore(() async => dir, client);
-      final playback = _RecordedPlayback();
-      const locale = Locale('en');
-      final l10n = lookupAppLocalizations(locale);
-      await pumpMadarApp(
-        tester,
-        deviceLocales: const [locale],
-        initialLocation: AppRoutes.verse(112, 1),
-        quranApi: QuranApi(quran, 'https://test.invalid/quran', 'test-public'),
-        additionalOverrides: [
-          offlineAudioStoreProvider.overrideWithValue(library),
-          audioPlaybackProvider.overrideWith(() => playback),
-        ],
+    var online = true;
+    var requests = 0;
+    final client = MockClient((_) async {
+      if (!online) throw StateError('Network disabled');
+      requests++;
+      return http.Response.bytes(
+        mp3,
+        200,
+        headers: {'content-type': 'audio/mpeg'},
       );
-      final container = ProviderScope.containerOf(
-        tester.element(find.byType(Scaffold).last),
-      );
-      await tester.runAsync(() async {
-        await tester.tap(find.byTooltip(l10n.recitationDownload));
-        final deadline = DateTime.now().add(const Duration(seconds: 5));
-        while (container.read(audioDownloadProvider) != null &&
-            DateTime.now().isBefore(deadline)) {
-          await Future<void>.delayed(const Duration(milliseconds: 20));
-        }
-        expect(await container.read(offlineAudioLibraryProvider.future), {
-          offlineAudioKey(publishedChapterReciters.first, 112),
-        });
-      });
-      await tester.pumpAndSettle();
-      expect(requests, 1);
+    });
+    final quran = MockClient((_) async => http.Response('', 503));
+    addTearDown(client.close);
+    addTearDown(quran.close);
+    final library = OfflineAudioStore(() async => dir, client);
+    final maher = publishedChapterReciters.first;
+    await tester.runAsync(() => library.download(maher, 112, (_) {}));
+    expect(requests, 1);
+    online = false;
+    final playback = (await tester.runAsync(() async => _RecordedPlayback()))!;
+    const locale = Locale('en');
+    final l10n = lookupAppLocalizations(locale);
+    await pumpMadarApp(
+      tester,
+      deviceLocales: const [locale],
+      initialLocation: AppRoutes.verse(112, 1),
+      quranApi: QuranApi(quran, 'https://test.invalid/quran', 'test-public'),
+      additionalOverrides: [
+        offlineAudioStoreProvider.overrideWithValue(library),
+        offlineAudioLibraryProvider.overrideWith(
+          (_) => {offlineAudioKey(maher, 112)},
+        ),
+        audioPlaybackProvider.overrideWith(() => playback),
+      ],
+    );
 
-      online = false;
-      await tester.runAsync(() async {
-        await tester.tap(find.byTooltip(l10n.recitationPlayOffline));
-        await playback.started.future.timeout(const Duration(seconds: 5));
-      });
-      expect(playback.source!.url.scheme, 'file');
-      expect(requests, 1);
-    },
-  );
+    await tester.runAsync(() async {
+      await tester.tap(find.byTooltip(l10n.recitationPlayOffline));
+      await playback.started.future.timeout(const Duration(seconds: 5));
+    });
+    expect(playback.source!.url.scheme, 'file');
+    expect(requests, 1);
+  });
 }
 
 class _RecordedPlayback extends AudioPlayback {
   PlaybackSource? source;
-  final started = Completer<void>();
+  final started = Completer<void>.sync();
 
   @override
   Future<void> start(

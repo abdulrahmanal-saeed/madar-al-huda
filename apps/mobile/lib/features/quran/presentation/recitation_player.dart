@@ -298,8 +298,9 @@ class _RecitationDownloads extends ConsumerWidget {
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (_, _) => Center(child: Text(l10n.recitationDownloadFailed)),
             data: (saved) {
-              if (saved.isEmpty)
+              if (saved.isEmpty) {
                 return Center(child: Text(l10n.recitationNoDownloads));
+              }
               final entries = saved.toList()
                 ..sort((a, b) => a.chapter.compareTo(b.chapter));
               return ListView.builder(

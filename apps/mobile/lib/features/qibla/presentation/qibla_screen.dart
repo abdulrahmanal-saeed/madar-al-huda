@@ -31,7 +31,7 @@ final magneticHeadingProvider = StreamProvider.autoDispose<MagneticHeading>(
 );
 
 final _declinationProvider = FutureProvider.autoDispose
-    .family<double?, GeoCoordinate>(
+    .family<double?, ({double latitude, double longitude})>(
       (_, point) => const MethodChannel('madar/geomagnetic')
           .invokeMethod<double>('declination', {
             'latitude': point.latitude,
@@ -56,9 +56,16 @@ class QiblaScreen extends ConsumerWidget {
     final sensor = active && point != null
         ? ref.watch(magneticHeadingProvider)
         : null;
+    // City centers can be reconstructed on each build. Key by coordinates
+    // so a new sensor reading does not restart the declination request.
     final declination = point == null
         ? null
-        : ref.watch(_declinationProvider(point));
+        : ref.watch(
+            _declinationProvider((
+              latitude: point.latitude,
+              longitude: point.longitude,
+            )),
+          );
     final heading = sensor?.asData?.value;
     final correction = declination?.asData?.value;
     final trueHeading = heading != null && correction != null
