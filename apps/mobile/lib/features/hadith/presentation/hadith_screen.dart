@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../core/content/feature_preview.dart';
 import '../../../core/localization/l10n_extension.dart';
 import '../../../core/routing/app_sections.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/section_detail_scaffold.dart';
 import '../data/hadeeth_enc.dart';
 
@@ -181,7 +182,15 @@ class _HadithEntry extends ConsumerWidget {
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 const SizedBox(height: 12),
-                Text(hadith.text),
+                Text(
+                  hadith.text,
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    fontFamily: AppTheme.readingFontFamily,
+                    fontFamilyFallback: const [AppTheme.fontFamily],
+                    fontSize: 21,
+                    height: 1.75,
+                  ),
+                ),
                 const SizedBox(height: 12),
                 if (hadith.attribution.isNotEmpty) Text(hadith.attribution),
                 if (hadith.grade.isNotEmpty)

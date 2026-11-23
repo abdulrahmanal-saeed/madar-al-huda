@@ -5,6 +5,10 @@
   "@appTitle": {"description": "Brand name, transliterated. Not a literal translation."},
   "appTagline": "Quran, Knowledge & Worship in One Place",
   "@appTagline": {"description": "Product tagline from docs/BRAND.md."},
+  "appDedication": "An ongoing charity in memory of my father",
+  "@appDedication": {"description": "Dedication shown on the startup screen."},
+  "splashContinue": "Enter the app",
+  "@splashContinue": {"description": "Accessibility label for leaving the startup screen."},
 
   "navHome": "Home",
   "@navHome": {"description": "Bottom navigation: home tab."},

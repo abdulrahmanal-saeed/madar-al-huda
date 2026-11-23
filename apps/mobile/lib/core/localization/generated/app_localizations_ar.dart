@@ -16,6 +16,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get appTagline => 'القرآن والعلم والعبادة في مكان واحد';
 
   @override
+  String get appDedication => 'صدقة جارية على روح أبي';
+
+  @override
+  String get splashContinue => 'الدخول إلى التطبيق';
+
+  @override
   String get navHome => 'الرئيسية';
 
   @override

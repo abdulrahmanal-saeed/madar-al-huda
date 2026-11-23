@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../core/localization/app_locales.dart';
 import '../../../core/localization/l10n_extension.dart';
 import '../../../core/routing/app_routes.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/settings_button.dart';
 import '../../quran/data/local_quran_bookmarks.dart';
 import '../../quran/data/mushaf_edition.dart';
@@ -266,7 +267,7 @@ class _DuaCardState extends State<_DuaCard> {
               surah.verses[index],
               textDirection: TextDirection.rtl,
               style: const TextStyle(
-                fontFamily: 'AmiriQuran',
+                fontFamily: AppTheme.quranFontFamily,
                 fontSize: 24,
                 height: 1.85,
               ),

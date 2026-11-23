@@ -26,6 +26,7 @@ Future<InMemoryKeyValueStore> pumpMadarApp(
   InMemoryKeyValueStore? store,
   List<Locale> deviceLocales = const [Locale('en', 'US')],
   Size size = phoneSize,
+  bool showStartupSplash = false,
   String? initialLocation,
   QuranApi? quranApi,
 }) async {
@@ -53,7 +54,7 @@ Future<InMemoryKeyValueStore> pumpMadarApp(
             return router;
           }),
       ],
-      child: const MadarApp(),
+      child: MadarApp(showStartupSplash: showStartupSplash),
     ),
   );
   await tester.pumpAndSettle();

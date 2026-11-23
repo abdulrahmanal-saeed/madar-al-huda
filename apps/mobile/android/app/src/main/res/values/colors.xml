@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
  <!-- Selected P00-03 creative direction; legal/name clearance still pending. -->
- <color name="splash_background">#F8F5ED</color>
+ <color name="splash_background">#0C2B27</color>
  <color name="ic_launcher_background">#173F39</color>
 </resources>

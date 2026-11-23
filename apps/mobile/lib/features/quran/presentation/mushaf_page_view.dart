@@ -4,6 +4,7 @@ import 'package:intl/intl.dart' show NumberFormat;
 import 'package:material_ui/material_ui.dart';
 
 import '../../../core/localization/l10n_extension.dart';
+import '../../../core/theme/app_theme.dart';
 import '../data/mushaf_edition.dart';
 import '../domain/quran_storage_contracts.dart';
 
@@ -132,7 +133,7 @@ class MushafPageViewState extends State<MushafPageView> {
     final border = dark ? colors.outline : const Color(0xff806647);
     final paper = dark ? colors.surfaceContainerLow : const Color(0xfffffaf0);
     final quranStyle = TextStyle(
-      fontFamily: 'AmiriQuran',
+      fontFamily: AppTheme.quranFontFamily,
       fontSize: 27,
       height: 1.9,
       color: ink,

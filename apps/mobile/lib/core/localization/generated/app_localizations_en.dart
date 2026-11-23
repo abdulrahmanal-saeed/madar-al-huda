@@ -16,6 +16,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTagline => 'Quran, Knowledge & Worship in One Place';
 
   @override
+  String get appDedication => 'An ongoing charity in memory of my father';
+
+  @override
+  String get splashContinue => 'Enter the app';
+
+  @override
   String get navHome => 'Home';
 
   @override
