@@ -35,12 +35,25 @@ class ManagedContentScreen extends ConsumerWidget {
     if (section.status.isGated && !managedReleaseEnabled) {
       return SectionDetailScaffold(section: section);
     }
+    final l10n = context.l10n;
     final value = ref.watch(managedLibraryProvider);
-    final library = value.asData?.value?['library'];
+    final data = value.asData?.value;
+    // Without a response or a saved copy, the screen must say that the
+    // content could not be reached instead of presenting it as unpublished.
+    if (data == null) {
+      return Scaffold(
+        appBar: AppBar(title: Text(section.title(l10n))),
+        body: value.isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : _LoadFailed(
+                onRetry: () => ref.invalidate(managedLibraryProvider),
+              ),
+      );
+    }
+    final library = data['library'];
     final rows = _rows(library is Map ? library[section.name] : null);
     if (rows.isEmpty) return SectionDetailScaffold(section: section);
     final ar = Localizations.localeOf(context).languageCode == 'ar';
-    final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(title: Text(section.title(l10n))),
       body: RefreshIndicator(
@@ -67,6 +80,39 @@ class ManagedContentScreen extends ConsumerWidget {
                     ),
                 ],
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _LoadFailed extends StatelessWidget {
+  const _LoadFailed({required this.onRetry});
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.xl),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.cloud_off_outlined,
+              size: 48,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            Text(l10n.contentLoadFailed, textAlign: TextAlign.center),
+            const SizedBox(height: AppSpacing.lg),
+            FilledButton.icon(
+              icon: const Icon(Icons.refresh),
+              label: Text(l10n.contentRetry),
+              onPressed: onRetry,
             ),
           ],
         ),

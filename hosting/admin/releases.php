@@ -64,25 +64,10 @@ function verifiedApkFile(string $file, int $size): bool
         return false;
     }
     try {
-        $length = min($size, 65557);
-        fseek($handle, $size - $length);
-        $tail = fread($handle, $length);
-        if ($tail === false) {
-            return false;
-        }
-        for ($offset = strlen($tail) - 22; $offset >= 0; $offset--) {
-            if (substr($tail, $offset, 4) !== "PK\x05\x06") {
-                continue;
-            }
-            $end = unpack('Vdirectory/vcomment', substr($tail, $offset + 16, 6));
-            $directory = $end['directory'];
-            if ($offset + 22 + $end['comment'] === strlen($tail) &&
-                $directory >= 24 && $directory < $size - $length + $offset) {
-                return fseek($handle, $directory - 16) === 0 &&
-                    fread($handle, 16) === 'APK Sig Block 42';
-            }
-        }
-        return false;
+        $directory = apkCentralDirectory($handle, $size);
+        return $directory !== null &&
+            fseek($handle, $directory - 16) === 0 &&
+            fread($handle, 16) === 'APK Sig Block 42';
     } finally {
         fclose($handle);
     }
@@ -106,6 +91,9 @@ function stageRelease(PDO $db, string $channel, int $code): void
     if ($size === false || $size < 1024 || $size > MAX_APK_BYTES ||
         !verifiedApkFile($temporary, $size)) {
         throw new InvalidArgumentException('ارفع APK موقّعًا بحجم أقصاه ٢٠٠ ميغابايت.');
+    }
+    if (!apkMatchesChannelSigner($temporary, $channel)) {
+        throw new InvalidArgumentException('الـAPK موقّع بمفتاح مختلف عن مفتاح القناة، فلن يُحدِّث التطبيق المثبّت.');
     }
     $sha = hash_file('sha256', $temporary);
     if ($sha === false) {

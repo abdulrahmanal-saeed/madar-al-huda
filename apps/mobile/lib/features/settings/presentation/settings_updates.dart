@@ -8,6 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 const _updates = MethodChannel('madar/updates');
 const _host = 'quran.abdulrahmanalsaeed.com';
+const _maxUpdateFeedBytes = 64 * 1024;
 
 class SettingsUpdates extends StatefulWidget {
   const SettingsUpdates({super.key});
@@ -63,6 +64,11 @@ class _SettingsUpdatesState extends State<SettingsUpdates> {
             }),
           )
           .timeout(const Duration(seconds: 8));
+      // The update notice is a few hundred bytes; anything far larger is not
+      // a genuine response and is treated like an unreachable server.
+      if (response.bodyBytes.length > _maxUpdateFeedBytes) {
+        return _UpdateStatus(channel, notifications, null, true);
+      }
       final update = response.statusCode == 200
           ? _PublishedUpdate.parse(
               jsonDecode(utf8.decode(response.bodyBytes)),

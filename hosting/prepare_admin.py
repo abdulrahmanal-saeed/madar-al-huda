@@ -39,7 +39,7 @@ def main() -> None:
         parser.error("use --update for a deployed dashboard, or provide private_code for initial setup")
     args.destination.mkdir(parents=True, exist_ok=False)
     for source in (ROOT / "hosting/admin").iterdir():
-        if source.suffix in {".php", ".css"} and source.name not in {"seed.php", "setup-config.php"}:
+        if (source.suffix in {".php", ".css"} or source.name == ".htaccess") and source.name not in {"seed.php", "setup-config.php"}:
             shutil.copyfile(source, args.destination / source.name)
     if args.update:
         return

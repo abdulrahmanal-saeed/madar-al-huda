@@ -28,6 +28,11 @@ button { border: 1px solid transparent; }
 .quiet { background: var(--paper); border: 1px solid var(--line); color: var(--ink); }
 .quiet:hover { background: var(--green-soft); }
 .danger { color: var(--red); }
+.primary.danger { color: #fff; background: var(--red); }
+.primary.danger:hover { background: #6d2d23; }
+.confirm { border-color: var(--gold); border-width: 2px; }
+.confirm .row { justify-content: flex-start; border-bottom: 0; padding-top: .8rem; }
+.alert.warn { background: #f7eed6; color: #5c4513; }
 .top { min-height: 5.5rem; background: var(--green-dark); color: #fff; padding: 1rem clamp(1.15rem, 4vw, 4rem); display: flex; align-items: center; justify-content: space-between; }
 .top p { color: #d6e3db; }
 .brand, .top .brand { color: var(--gold); font-weight: 750; font-size: 1.25rem; }
@@ -75,5 +80,7 @@ summary { cursor: pointer; }
   .layout, .editor-grid { grid-template-columns: 1fr; }
   .layout > nav { flex-direction: row; overflow-x: auto; }
   .layout > nav a { white-space: nowrap; }
+  /* On a phone the open editor comes before the long list of items. */
+  .editor-grid > section:nth-child(2) { order: -1; }
 }
 @media (max-width: 450px) { .inline { display: grid; } }

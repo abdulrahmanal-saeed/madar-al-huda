@@ -1029,4 +1029,11 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get recitationDownloadFailed =>
       'تعذّر حفظ التلاوة أو الوصول للملف المحمّل.';
+
+  @override
+  String get contentLoadFailed =>
+      'تعذّر تحميل المحتوى. تحقّق من اتصالك بالإنترنت ثم أعد المحاولة.';
+
+  @override
+  String get contentRetry => 'إعادة المحاولة';
 }

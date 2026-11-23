@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+const MADAR_ADMIN = true;
+
 ini_set('display_errors', '0');
 header('X-Content-Type-Options: nosniff');
 header('Referrer-Policy: no-referrer');
@@ -8,6 +10,7 @@ require __DIR__ . '/content.php';
 require __DIR__ . '/advanced.php';
 require __DIR__ . '/storage.php';
 require __DIR__ . '/stories.php';
+require __DIR__ . '/apk-signature.php';
 require __DIR__ . '/releases.php';
 
 try {
@@ -35,6 +38,24 @@ try {
 
 header('Cache-Control: no-store');
 header("Content-Security-Policy: default-src 'none'; style-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'");
+header('Strict-Transport-Security: max-age=31536000');
+// Sessions live in the private storage folder with the same lifetime as a
+// sign-in, so shared-hosting cleanup cannot end them early and an open login
+// page does not go stale after the host's default 24 minutes.
+const SESSION_LIFETIME = 28800;
+const SESSION_IDLE = 7200;
+try {
+    $sessionDir = storage() . '/sessions';
+    if (!is_dir($sessionDir)) {
+        @mkdir($sessionDir, 0700);
+    }
+    if (is_dir($sessionDir) && !is_link($sessionDir) && is_writable($sessionDir)) {
+        session_save_path($sessionDir);
+    }
+} catch (Throwable) {
+    // Fall back to the host's session folder.
+}
+ini_set('session.gc_maxlifetime', (string) SESSION_LIFETIME);
 session_name('MADARADMIN');
 session_start([
     'use_strict_mode' => true,
@@ -52,6 +73,10 @@ function e(string|int $value): string
 
 function route(string $section, string $topic = '', string $item = ''): string
 {
+    // Only the Quranic duas section is split by topic.
+    if ($section !== 'duas') {
+        $topic = '';
+    }
     return './?' . http_build_query(array_filter([
         'section' => $section, 'topic' => $topic, 'edit' => $item,
     ], fn ($value) => $value !== ''));
@@ -88,19 +113,41 @@ if (!is_string($topic) || !isset(topics()[$topic])) {
     $topic = 'forgiveness';
 }
 $_SESSION['csrf'] ??= bin2hex(random_bytes(32));
-$active = isset($_SESSION['signed_at']) && $_SESSION['signed_at'] >= time() - 28800;
+$active = isset($_SESSION['signed_at'], $_SESSION['seen_at']) &&
+    $_SESSION['signed_at'] >= time() - SESSION_LIFETIME &&
+    $_SESSION['seen_at'] >= time() - SESSION_IDLE;
+if ($active) {
+    $_SESSION['seen_at'] = time();
+}
 $setup = accountPassword($db) === false;
 $error = null;
+$confirming = null;
+const CONFIRMATIONS = [
+    'publish' => 'ستُنشر المسودة لكل مستخدمي التطبيق. هل تريد المتابعة؟',
+    'delete' => 'سيُحذف هذا العنصر من المسودة. هل تريد المتابعة؟',
+    'restore' => 'ستُستبدل المسودة الحالية بالإصدار المختار، وتضيع أي تغييرات لم تُنشر. هل تريد المتابعة؟',
+    'archive_story' => 'سيُخفى هذا التسجيل من التطبيق وينتقل إلى الأرشيف. هل تريد المتابعة؟',
+    'release_publish' => 'سيصبح هذا الإصدار متاحًا للتنزيل لكل مستخدمي القناة. هل تريد المتابعة؟',
+    'release_notify' => 'سيظهر إشعار التحديث على أجهزة المستخدمين. هل تريد المتابعة؟',
+];
 $notice = $_SESSION['notice'] ?? null;
 unset($_SESSION['notice']);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
-        if (!hash_equals($_SESSION['csrf'], field('csrf'))) {
-            http_response_code(403);
-            throw new InvalidArgumentException('انتهت الجلسة. أعد فتح اللوحة.');
-        }
         $action = field('action');
+        if (!hash_equals($_SESSION['csrf'], field('csrf'))) {
+            // A second click on «دخول», or a login page left open in another
+            // tab, arrives after the token was renewed: the user is already in.
+            if ($active && in_array($action, ['login', 'setup'], true)) {
+                header('Location: ' . route($section, $topic), true, 303);
+                exit;
+            }
+            http_response_code(403);
+            throw new InvalidArgumentException($active
+                ? 'انتهت صلاحية هذه الصفحة. حدّث الصفحة ثم أعد المحاولة.'
+                : 'انتهت صلاحية صفحة الدخول. أدخل كلمة المرور مرة أخرى.');
+        }
         if ($action === 'setup' || $action === 'login') {
             $seed = $action === 'setup' ? require __DIR__ . '/seed.php' : [];
             if (!authorize($db, $action, $seed)) {
@@ -108,10 +155,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             session_regenerate_id(true);
             $_SESSION['signed_at'] = time();
+            $_SESSION['seen_at'] = time();
             $_SESSION['csrf'] = bin2hex(random_bytes(32));
         } elseif (!$active) {
             http_response_code(403);
             throw new InvalidArgumentException('سجّل الدخول لإدارة المكتبة.');
+        } elseif (isset(CONFIRMATIONS[$action]) && field('confirmed') !== 'yes') {
+            // Irreversible actions show a confirmation page first; the CSP
+            // blocks scripts, so the check happens on the server.
+            $confirming = ['action' => $action, 'message' => CONFIRMATIONS[$action]];
         } elseif ($action === 'logout') {
             $_SESSION = [];
             session_destroy();
@@ -137,8 +189,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             throw new InvalidArgumentException('الإجراء غير متاح.');
         }
-        header('Location: ' . route($section, $topic), true, 303);
-        exit;
+        if ($confirming === null) {
+            header('Location: ' . route($section, $topic), true, 303);
+            exit;
+        }
     } catch (InvalidArgumentException $failure) {
         $error = $failure->getMessage();
     } catch (JsonException) {
@@ -214,14 +268,39 @@ if ($active) {
   <main>
     <header class="section-head">
       <div><h1><?= e($sections[$section]) ?></h1>
-        <?php if (!in_array($section, ['stories', 'releases'], true)): ?><p><?= $dirty ? 'تغييرات في المسودة' : 'المكتبة محدثة' ?></p><?php endif; ?>
+        <?php if (!in_array($section, ['stories', 'releases'], true)): ?><p><?= $dirty ? 'تغييرات في المسودة' : 'المكتبة محدثة' ?> · الحجم <?= e(feedSizeLabel(strlen($state['draft']))) ?></p><?php endif; ?>
       </div>
       <?php if ($dirty && !in_array($section, ['stories', 'releases'], true)): ?>
         <form method="post"><?php controls('publish', $revision); ?><button class="primary">نشر المسودة للتطبيق</button></form>
       <?php endif; ?>
     </header>
     <?php if ($notice): ?><p class="alert" role="status"><?= e($notice) ?></p><?php endif; ?>
+    <?php if (!in_array($section, ['stories', 'releases'], true) && strlen($state['draft']) > FEED_LEGACY_BYTES): ?>
+      <p class="alert warn" role="status"><?= strlen($state['draft']) > FEED_MAX_BYTES
+          ? 'حجم المسودة تجاوز الحد الذي يقبله التطبيق، فلن يمكن نشرها قبل تقليل المحتوى.'
+          : 'حجم المكتبة تجاوز ١ ميغابايت: نسخ التطبيق القديمة لن تستقبل هذا التحديث حتى يحدّثها المستخدم.' ?></p>
+    <?php endif; ?>
     <?php if ($error): ?><p class="alert error" role="alert"><?= e($error) ?></p><?php endif; ?>
+
+    <?php if ($confirming !== null): ?>
+      <section class="panel confirm" aria-labelledby="confirm-title">
+        <h2 id="confirm-title">تأكيد الإجراء</h2>
+        <p><?= e($confirming['message']) ?></p>
+        <div class="row">
+          <form method="post">
+            <?php foreach ($_POST as $name => $value): ?>
+              <?php if (is_string($name) && is_string($value) && !in_array($name, ['csrf', 'confirmed'], true)): ?>
+                <input type="hidden" name="<?= e($name) ?>" value="<?= e($value) ?>">
+              <?php endif; ?>
+            <?php endforeach; ?>
+            <input type="hidden" name="csrf" value="<?= e($_SESSION['csrf']) ?>">
+            <input type="hidden" name="confirmed" value="yes">
+            <button class="primary<?= in_array($confirming['action'], ['delete', 'archive_story'], true) ? ' danger' : '' ?>">نعم، تابع</button>
+          </form>
+          <a class="button quiet" href="<?= e(route($section, $topic, is_string($_GET['edit'] ?? null) ? $_GET['edit'] : '')) ?>">إلغاء</a>
+        </div>
+      </section>
+    <?php endif; ?>
 
     <?php if ($section === 'stories'): ?>
       <section class="panel">

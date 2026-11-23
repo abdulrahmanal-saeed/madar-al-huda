@@ -1,0 +1,10 @@
+# Madar Al-Huda admin: only index.php is a public entry point.
+Options -Indexes
+
+<FilesMatch "^(?!index\.php$).+\.php$">
+    Require all denied
+</FilesMatch>
+
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+</IfModule>

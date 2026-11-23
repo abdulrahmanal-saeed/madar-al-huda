@@ -1,10 +1,9 @@
-import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/content/hosted_feed.dart';
+import '../../../core/content/managed_library.dart';
 import '../../quran/data/mushaf_edition.dart';
 import 'quran_dua_index.dart';
 
@@ -25,26 +24,22 @@ typedef _LibraryContent = ({
 final _libraryProvider = FutureProvider.autoDispose<_LibraryContent>((
   ref,
 ) async {
-  final feed = ref.watch(hostedFeedProvider);
+  // Shares the single library download with the other library screens.
+  final feedFuture = ref.watch(managedLibraryProvider.future);
   final editionFuture = ref.watch(mushafEditionProvider.future);
-  final timer = Timer(const Duration(minutes: 2), ref.invalidateSelf);
-  ref.onDispose(timer.cancel);
   final edition = await editionFuture;
-  return feed.load(
-    url: Uri.https('quran.abdulrahmanalsaeed.com', '/admin/', {
-      'feed': 'library',
-    }),
-    cacheName: 'madar-library-v1',
-    decode: (data) => _decodeLibrary(data, edition),
-    fallback: () async {
-      final text = await rootBundle.loadString('assets/adhkar/catalog.json');
-      return (
-        adhkar: AdhkarCatalog.fromJson(
-          jsonDecode(text) as Map<String, Object?>,
-        ),
-        duas: quranDuaIndex,
-      );
-    },
+  final feed = await feedFuture;
+  if (feed != null) {
+    try {
+      return _decodeLibrary(feed, edition);
+    } on Object {
+      // A feed this version cannot read falls back to the bundled catalog.
+    }
+  }
+  final text = await rootBundle.loadString('assets/adhkar/catalog.json');
+  return (
+    adhkar: AdhkarCatalog.fromJson(jsonDecode(text) as Map<String, Object?>),
+    duas: quranDuaIndex,
   );
 });
 

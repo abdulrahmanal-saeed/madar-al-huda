@@ -1951,6 +1951,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not save or access this download.'**
   String get recitationDownloadFailed;
+
+  /// Shown when hosted library content has no response and no saved copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load this content. Check your connection and try again.'**
+  String get contentLoadFailed;
+
+  /// Button that loads hosted library content again.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get contentRetry;
 }
 
 class _AppLocalizationsDelegate
