@@ -2,8 +2,14 @@
 
 **A free, bilingual Islamic companion for Quran, knowledge, and worship.**
 
-> Status: Phase 0 — product foundation and source verification. Not yet a released app.
-> A Flutter app shell (Arabic/English, five tabs, light/dark) exists in [`apps/mobile`](apps/mobile/README.md); it intentionally contains **no religious content** until sources and reviews are verified.
+> **Status:** development builds only, not a store release. The signed Dev channel (Obtainium) carries the working app; release builds keep every section behind its content gate until sources and reviews are signed off (see [plan/TRACKER.md](plan/TRACKER.md)).
+>
+> **In the Dev channel today:**
+> - **Quran:** the verified Tanzil Mushaf (index, search, bookmarks), with reading settings, tafsir and recitations, and offline downloads.
+> - **Daily worship:** prayer times for the UAE and Egypt, Qibla, adhkar and Quranic duas, a time-aware home card, opt-in reminders, and Ramadan mode.
+> - **Library:** hadith, prophet stories, and the Cairo Quran radio.
+> - **Download center** for offline use.
+> - **Hosted admin:** a PHP dashboard at `quran.abdulrahmanalsaeed.com/admin` that publishes the library, theme and sections the app reads.
 
 ## Product commitments
 
@@ -24,7 +30,11 @@
 
 ## Stack
 
-**Implemented:** Flutter 3.50 mobile shell in `apps/mobile` with GitHub Actions CI (`.github/workflows/mobile-ci.yml`).
+**Implemented:**
+- **App:** Flutter 3.50 (`apps/mobile`, Riverpod, go_router, flutter_local_notifications).
+- **Admin:** a PHP 8 + SQLite dashboard (`hosting/admin`, deployed to Hostinger; see [hosting/README.md](hosting/README.md)).
+- **Supabase:** an edge function for tafsir and recitation metadata.
+- **CI:** GitHub Actions (`.github/workflows/mobile-ci.yml`) runs Flutter checks, PHP lint and tests, and the Android build.
 
 **Planned:**
 
