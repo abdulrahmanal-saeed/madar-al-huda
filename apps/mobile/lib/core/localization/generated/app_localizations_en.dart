@@ -1048,4 +1048,246 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get contentRetry => 'Retry';
+
+  @override
+  String get homeNowLabel => 'Now';
+
+  @override
+  String get homeNowMorning => 'After Fajr · time for the morning remembrance';
+
+  @override
+  String get homeNowAfterPrayer => 'Right after the prayer';
+
+  @override
+  String get homeNowEvening => 'After Asr · time for the evening remembrance';
+
+  @override
+  String get homeNowBedtime => 'Before you sleep';
+
+  @override
+  String get homeNowStart => 'Start';
+
+  @override
+  String get homeNowContinue => 'Continue';
+
+  @override
+  String get remindersTitle => 'Reminders';
+
+  @override
+  String get remindersSettingsSubtitle =>
+      'Prayer, remembrance and supplications';
+
+  @override
+  String get remindersIntro =>
+      'Reminders are calculated on your device from your prayer times and keep working offline.';
+
+  @override
+  String get remindersPrayerSection => 'Prayer';
+
+  @override
+  String get remindersAdhan => 'At prayer time';
+
+  @override
+  String get remindersAdhanSubtitle => 'The five daily prayers';
+
+  @override
+  String get remindersBeforePrayer => 'Before the prayer';
+
+  @override
+  String remindersBeforePrayerSubtitle(String minutes) {
+    return '$minutes minutes before';
+  }
+
+  @override
+  String get remindersAdhkarSection => 'Remembrance';
+
+  @override
+  String get remindersMorning => 'Morning remembrance';
+
+  @override
+  String get remindersMorningSubtitle => '30 minutes after Fajr';
+
+  @override
+  String get remindersEvening => 'Evening remembrance';
+
+  @override
+  String get remindersEveningSubtitle => '15 minutes after Asr';
+
+  @override
+  String get remindersAfterPrayer => 'Remembrance after prayer';
+
+  @override
+  String get remindersAfterPrayerSubtitle => '10 minutes after each prayer';
+
+  @override
+  String get remindersBedtime => 'Bedtime remembrance';
+
+  @override
+  String remindersBedtimeSubtitle(String time) {
+    return 'At $time';
+  }
+
+  @override
+  String get remindersBedtimeChange => 'Change bedtime';
+
+  @override
+  String get remindersKahf => 'Surat Al-Kahf';
+
+  @override
+  String remindersKahfSubtitle(String time) {
+    return 'Fridays at $time';
+  }
+
+  @override
+  String get remindersDuaSection => 'Supplication';
+
+  @override
+  String get remindersDailyDua => 'Supplication of the day';
+
+  @override
+  String remindersDailyDuaSubtitle(String time) {
+    return 'Every day at $time';
+  }
+
+  @override
+  String get remindersDuaEvery => 'A supplication every';
+
+  @override
+  String get remindersDuaOff => 'Off';
+
+  @override
+  String remindersDuaHours(String hours) {
+    return '$hours hours';
+  }
+
+  @override
+  String remindersQuietHours(String start, String end) {
+    return 'No supplication reminders from $start to $end.';
+  }
+
+  @override
+  String get remindersPermissionDenied =>
+      'Notifications are off for Madar Al-Huda. Allow them in Android settings.';
+
+  @override
+  String get remindersExactAlarm =>
+      'For reminders on time, allow “Alarms & reminders”.';
+
+  @override
+  String get remindersExactAlarmAllow => 'Allow';
+
+  @override
+  String get remindersNeedsLocation =>
+      'Choose your location first so prayer times can be calculated.';
+
+  @override
+  String reminderAdhanTitle(String prayer) {
+    return 'It\'s time for $prayer';
+  }
+
+  @override
+  String get reminderPrayerBody => 'Tap to see today\'s prayer times.';
+
+  @override
+  String reminderBeforeTitle(String prayer, String minutes) {
+    return '$prayer in $minutes minutes';
+  }
+
+  @override
+  String reminderAfterTitle(String prayer) {
+    return 'Remembrance after $prayer';
+  }
+
+  @override
+  String get reminderAfterBody =>
+      'Take a minute for the remembrance after prayer.';
+
+  @override
+  String get reminderAdhkarBody => 'Tap to open the remembrance.';
+
+  @override
+  String get reminderKahfTitle => 'Friday: Surat Al-Kahf';
+
+  @override
+  String get reminderKahfBody => 'A reminder to read Surat Al-Kahf today.';
+
+  @override
+  String get reminderDuaTitle => 'A supplication';
+
+  @override
+  String get downloadsTitle => 'Download center';
+
+  @override
+  String get downloadsSettingsSubtitle => 'Use the app without internet';
+
+  @override
+  String get downloadsOnDevice => 'On your device';
+
+  @override
+  String downloadsUsed(String size) {
+    return '$size used by downloads';
+  }
+
+  @override
+  String get downloadsAlwaysOffline => 'Always available offline';
+
+  @override
+  String get downloadsRecitations => 'Recitations';
+
+  @override
+  String get downloadsNoReciters =>
+      'No recitation is available for download yet.';
+
+  @override
+  String downloadsReciterProgress(String saved, String total) {
+    return '$saved of $total surahs saved';
+  }
+
+  @override
+  String get downloadsAll => 'Download all';
+
+  @override
+  String get downloadsRemoveAll => 'Remove downloads';
+
+  @override
+  String downloadsRemoveConfirm(String name) {
+    return 'Remove the downloaded files of $name? You can download them again later.';
+  }
+
+  @override
+  String get downloadsCancel => 'Cancel';
+
+  @override
+  String get downloadsConfirmRemove => 'Remove';
+
+  @override
+  String get downloadsStories => 'Stories and lessons';
+
+  @override
+  String downloadsEpisodeProgress(String saved, String total) {
+    return '$saved of $total audio episodes saved';
+  }
+
+  @override
+  String get downloadsLibrary => 'Library texts';
+
+  @override
+  String get downloadsLibraryBody =>
+      'Remembrance, supplications, articles and lessons';
+
+  @override
+  String get downloadsLibrarySaved => 'Saved on this device';
+
+  @override
+  String get downloadsLibraryMissing => 'Not saved yet';
+
+  @override
+  String get downloadsUpdate => 'Update';
+
+  @override
+  String get downloadsOnlineOnly => 'Online only';
+
+  @override
+  String get downloadsOnlineOnlyBody =>
+      'Offered for download once its publishing rights allow it.';
 }

@@ -5,6 +5,7 @@ import 'package:material_ui/material_ui.dart';
 import '../core/routing/app_routes.dart';
 import '../features/adhkar/presentation/adhkar_screen.dart';
 import '../features/articles/presentation/articles_screen.dart';
+import '../features/downloads/presentation/download_center_screen.dart';
 import '../features/fiqh/presentation/fiqh_screen.dart';
 import '../features/hadith/presentation/hadith_screen.dart';
 import '../features/home/presentation/home_screen.dart';
@@ -17,6 +18,7 @@ import '../features/qibla/presentation/qibla_screen.dart';
 import '../features/quran/data/mushaf_edition.dart';
 import '../features/quran/domain/quran_storage_contracts.dart';
 import '../features/quran/presentation/mushaf_screen.dart';
+import '../features/reminders/presentation/reminder_settings_screen.dart';
 import '../features/settings/presentation/settings_screen.dart';
 import '../features/worship/presentation/cairo_radio_card.dart';
 import '../features/worship/presentation/daily_reading_card.dart';
@@ -103,6 +105,13 @@ GoRouter buildAppRouter({String initialLocation = AppRoutes.home}) {
                       destination: AdhkarDestination.quranDuas,
                     ),
                   ),
+                  GoRoute(
+                    path: 'group/:id',
+                    builder: (_, state) => AdhkarScreen(
+                      destination: AdhkarDestination.group,
+                      groupId: state.pathParameters['id'],
+                    ),
+                  ),
                 ],
               ),
             ],
@@ -181,6 +190,18 @@ GoRouter buildAppRouter({String initialLocation = AppRoutes.home}) {
         path: AppRoutes.settings,
         parentNavigatorKey: rootNavigatorKey,
         builder: (_, _) => const SettingsScreen(),
+        routes: [
+          GoRoute(
+            path: 'reminders',
+            parentNavigatorKey: rootNavigatorKey,
+            builder: (_, _) => const ReminderSettingsScreen(),
+          ),
+          GoRoute(
+            path: 'downloads',
+            parentNavigatorKey: rootNavigatorKey,
+            builder: (_, _) => const DownloadCenterScreen(),
+          ),
+        ],
       ),
     ],
   );

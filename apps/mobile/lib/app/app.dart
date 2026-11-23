@@ -9,6 +9,7 @@ import '../core/localization/app_locales.dart';
 import '../core/localization/l10n_extension.dart';
 import '../core/routing/app_sections.dart';
 import '../core/theme/app_theme.dart';
+import '../features/reminders/application/reminder_sync.dart';
 import '../features/settings/application/settings_controller.dart';
 import '../features/worship/application/worship_location.dart';
 import 'app_router.dart';
@@ -49,12 +50,13 @@ class MadarApp extends ConsumerWidget {
                 child: child!,
               )
             : child!;
+        final synced = ReminderSync(child: content);
         return showStartupSplash
             ? StartupSplash(
                 onDismissed: () => unawaited(_setUpLocation(context, ref)),
-                child: content,
+                child: synced,
               )
-            : content;
+            : synced;
       },
     );
   }

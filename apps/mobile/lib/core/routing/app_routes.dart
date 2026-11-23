@@ -18,6 +18,9 @@ abstract final class AppRoutes {
   static const String adhkar = '$worship/adhkar';
   static const String morningAdhkar = '$adhkar/morning';
   static const String quranDuas = '$adhkar/quran-duas';
+
+  /// One remembrance group by its catalog id, e.g. `evening`.
+  static String adhkarGroup(String id) => '$adhkar/group/$id';
   static const String dailyReading = '$worship/daily-reading';
   static const String cairoRadio = '$worship/cairo-radio';
 
@@ -32,6 +35,8 @@ abstract final class AppRoutes {
 
   // Full-screen (outside the tab shell)
   static const String settings = '/settings';
+  static const String reminders = '$settings/reminders';
+  static const String downloads = '$settings/downloads';
 
   /// Tab roots in navigation order.
   static const List<String> tabs = [home, quran, adhkar, prayerTimes, library];

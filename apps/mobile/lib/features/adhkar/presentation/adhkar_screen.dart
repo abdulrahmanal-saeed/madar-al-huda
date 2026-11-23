@@ -7,16 +7,22 @@ import '../../../core/routing/app_sections.dart';
 import '../../../core/widgets/section_detail_scaffold.dart';
 import '../data/adhkar_catalog.dart';
 import 'adhkar_hub.dart';
-import 'dhikr_reader.dart';
 import 'quran_duas.dart';
 
-enum AdhkarDestination { hub, morning, quranDuas }
+enum AdhkarDestination { hub, morning, group, quranDuas }
 
 /// Adhkar & dua. Gated until sources and review are complete (P02-03).
 class AdhkarScreen extends ConsumerWidget {
-  const AdhkarScreen({this.destination = AdhkarDestination.hub, super.key});
+  const AdhkarScreen({
+    this.destination = AdhkarDestination.hub,
+    this.groupId,
+    super.key,
+  });
 
   final AdhkarDestination destination;
+
+  /// Catalog group opened by [AdhkarDestination.group], such as `evening`.
+  final String? groupId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -37,13 +43,19 @@ class AdhkarScreen extends ConsumerWidget {
               ),
             ),
           ),
-          data: (catalog) => destination == AdhkarDestination.morning
-              ? DhikrReader(
-                  group: catalog.groups.firstWhere(
-                    (group) => group.id == 'morning',
-                  ),
-                )
-              : AdhkarHub(catalog: catalog),
+          data: (catalog) {
+            final id = switch (destination) {
+              AdhkarDestination.morning => 'morning',
+              AdhkarDestination.group => groupId,
+              _ => null,
+            };
+            final group = catalog.groups
+                .where((group) => group.id == id)
+                .firstOrNull;
+            return group == null
+                ? AdhkarHub(catalog: catalog)
+                : adhkarGroupPage(group);
+          },
         );
   }
 }
