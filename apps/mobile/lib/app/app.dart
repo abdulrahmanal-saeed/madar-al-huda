@@ -9,6 +9,7 @@ import '../core/localization/app_locales.dart';
 import '../core/localization/l10n_extension.dart';
 import '../core/routing/app_sections.dart';
 import '../core/theme/app_theme.dart';
+import '../core/theme/remote_theme.dart';
 import '../features/reminders/application/reminder_sync.dart';
 import '../features/settings/application/settings_controller.dart';
 import '../features/worship/application/worship_location.dart';
@@ -25,6 +26,7 @@ class MadarApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsControllerProvider);
     final router = ref.watch(appRouterProvider);
+    final remote = ref.watch(remoteThemeProvider);
 
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
@@ -41,12 +43,30 @@ class MadarApp extends ConsumerWidget {
       localeListResolutionCallback: (deviceLocales, _) =>
           AppLocales.resolveDeviceLocale(deviceLocales),
       themeMode: settings.theme.themeMode,
-      theme: AppTheme.light(reduceMotion: settings.reduceMotion),
-      darkTheme: AppTheme.dark(reduceMotion: settings.reduceMotion),
+      theme: AppTheme.light(
+        reduceMotion: settings.reduceMotion,
+        remote: remote,
+      ),
+      darkTheme: AppTheme.dark(
+        reduceMotion: settings.reduceMotion,
+        remote: remote,
+      ),
       builder: (context, child) {
-        final content = settings.reduceMotion
+        final media = MediaQuery.of(context);
+        final scale = remote?.textScale ?? 1;
+        final content = settings.reduceMotion || scale != 1
             ? MediaQuery(
-                data: MediaQuery.of(context).copyWith(disableAnimations: true),
+                data: media.copyWith(
+                  disableAnimations:
+                      settings.reduceMotion || media.disableAnimations,
+                  // The dashboard's base text size multiplies the user's own
+                  // system setting rather than replacing it.
+                  textScaler: scale == 1
+                      ? media.textScaler
+                      : TextScaler.linear(
+                          media.textScaler.scale(14) / 14 * scale,
+                        ),
+                ),
                 child: child!,
               )
             : child!;
