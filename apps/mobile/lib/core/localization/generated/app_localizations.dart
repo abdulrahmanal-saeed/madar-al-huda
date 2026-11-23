@@ -2551,6 +2551,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'May Allah accept your fast.'**
   String get reminderIftarBody;
+
+  /// Reader action and sheet title.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading settings'**
+  String get readerAppearance;
+
+  /// Reading setting.
+  ///
+  /// In en, this message translates to:
+  /// **'Text size'**
+  String get readerFontSize;
+
+  /// Button tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Smaller text'**
+  String get readerSmaller;
+
+  /// Button tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Larger text'**
+  String get readerLarger;
+
+  /// Reading setting.
+  ///
+  /// In en, this message translates to:
+  /// **'Page'**
+  String get readerPaper;
+
+  /// Follows the app theme.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto'**
+  String get readerPaperAuto;
+
+  /// Page background.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get readerPaperLight;
+
+  /// Page background.
+  ///
+  /// In en, this message translates to:
+  /// **'Warm'**
+  String get readerPaperWarm;
+
+  /// Page background.
+  ///
+  /// In en, this message translates to:
+  /// **'Night'**
+  String get readerPaperNight;
 }
 
 class _AppLocalizationsDelegate

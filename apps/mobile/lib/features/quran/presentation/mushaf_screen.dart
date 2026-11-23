@@ -13,6 +13,7 @@ import '../../../core/routing/app_sections.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/section_detail_scaffold.dart';
 import '../../worship/data/daily_reading_plan.dart';
+import '../application/reading_preferences.dart';
 import '../data/chapter_reciters.dart';
 import '../data/local_quran_bookmarks.dart';
 import '../data/mushaf_edition.dart';
@@ -21,6 +22,7 @@ import '../domain/quran_storage_contracts.dart';
 import 'mushaf_index.dart';
 import 'mushaf_page_view.dart';
 import 'quran_meaning_view.dart';
+import 'reading_settings_sheet.dart';
 import 'recitation_player.dart';
 
 class MushafScreen extends ConsumerWidget {
@@ -336,6 +338,7 @@ class _ReaderState extends ConsumerState<_Reader> {
     );
     final numbers = NumberFormat.decimalPattern(language);
     final edition = widget.edition;
+    final reading = ref.watch(readingPreferencesProvider);
     return Scaffold(
       appBar: AppBar(
         title: Column(
@@ -361,6 +364,12 @@ class _ReaderState extends ConsumerState<_Reader> {
           ],
         ),
         actions: [
+          IconButton(
+            key: const ValueKey('reader-appearance'),
+            tooltip: l10n.readerAppearance,
+            onPressed: () => showReadingSettings(context),
+            icon: const Icon(Icons.text_fields),
+          ),
           IconButton(
             tooltip: l10n.readerGoToVerse,
             onPressed: _chooseAyah,
@@ -417,6 +426,7 @@ class _ReaderState extends ConsumerState<_Reader> {
                   selected: _selected,
                   onVerse: (verse) => _openTafsir(verse, data),
                   onChooseVerse: () => _choosePageVerse(index, data),
+                  preferences: reading,
                 ),
               ),
             ),

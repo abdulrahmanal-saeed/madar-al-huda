@@ -5,6 +5,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../../core/localization/l10n_extension.dart';
 import '../../../core/theme/app_theme.dart';
+import '../application/reading_preferences.dart';
 import '../data/mushaf_edition.dart';
 import '../domain/quran_storage_contracts.dart';
 
@@ -16,6 +17,10 @@ class MushafPageView extends StatefulWidget {
     required this.onVerse,
     required this.onChooseVerse,
     this.selected,
+    this.preferences = (
+      fontSize: defaultReadingFontSize,
+      paper: ReadingPaper.auto,
+    ),
   });
 
   final MushafEdition edition;
@@ -23,6 +28,9 @@ class MushafPageView extends StatefulWidget {
   final AyahRef? selected;
   final ValueChanged<AyahRef> onVerse;
   final VoidCallback onChooseVerse;
+
+  /// The reader's text size and page background.
+  final ReadingPreferences preferences;
 
   @override
   State<MushafPageView> createState() => MushafPageViewState();
@@ -139,14 +147,13 @@ class MushafPageViewState extends State<MushafPageView> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
-    final dark = theme.brightness == Brightness.dark;
-    final ink = dark ? colors.onSurface : const Color(0xff12332f);
-    final border = dark ? colors.outline : const Color(0xffe2d4b2);
-    final paper = dark ? colors.surfaceContainerLow : const Color(0xfffcf8ee);
-    final banner = dark ? colors.secondaryContainer : const Color(0xfff3e9cf);
+    final (:paper, :ink, :border, :banner) = paperColors(
+      widget.preferences.paper,
+      theme,
+    );
     final quranStyle = TextStyle(
       fontFamily: AppTheme.quranFontFamily,
-      fontSize: 27,
+      fontSize: widget.preferences.fontSize,
       height: 1.9,
       color: ink,
     );
@@ -215,7 +222,9 @@ class MushafPageViewState extends State<MushafPageView> {
                         '❖  ${widget.edition.surahs[entry.key - 1].arabicName}  ❖',
                         textAlign: TextAlign.center,
                         textDirection: TextDirection.rtl,
-                        style: quranStyle.copyWith(fontSize: 22),
+                        style: quranStyle.copyWith(
+                          fontSize: widget.preferences.fontSize * 0.82,
+                        ),
                       ),
                     ),
                     if (entry.key > 1 &&
@@ -224,7 +233,9 @@ class MushafPageViewState extends State<MushafPageView> {
                         basmala,
                         textAlign: TextAlign.center,
                         textDirection: TextDirection.rtl,
-                        style: quranStyle.copyWith(fontSize: 22),
+                        style: quranStyle.copyWith(
+                          fontSize: widget.preferences.fontSize * 0.82,
+                        ),
                       ),
                   ],
                   Padding(

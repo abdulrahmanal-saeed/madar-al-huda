@@ -1374,4 +1374,31 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get reminderIftarBody => 'تقبّل الله صيامك.';
+
+  @override
+  String get readerAppearance => 'إعدادات القراءة';
+
+  @override
+  String get readerFontSize => 'حجم الخط';
+
+  @override
+  String get readerSmaller => 'تصغير الخط';
+
+  @override
+  String get readerLarger => 'تكبير الخط';
+
+  @override
+  String get readerPaper => 'الصفحة';
+
+  @override
+  String get readerPaperAuto => 'تلقائي';
+
+  @override
+  String get readerPaperLight => 'فاتح';
+
+  @override
+  String get readerPaperWarm => 'دافئ';
+
+  @override
+  String get readerPaperNight => 'ليلي';
 }
