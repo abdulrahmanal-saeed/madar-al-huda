@@ -1,9 +1,9 @@
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../core/audio/audio_mini_player.dart';
 import '../core/localization/l10n_extension.dart';
 import '../core/theme/app_tokens.dart';
-import '../core/audio/audio_mini_player.dart';
 
 /// Tab destination metadata, in [AppRoutes.tabs] order.
 class _Destination {
