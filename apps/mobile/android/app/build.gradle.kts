@@ -20,7 +20,9 @@ val madarSigningStore: String? = System.getenv("MADAR_SIGNING_STORE_FILE")
 
 android {
     namespace = "com.abdulrahmanalsaeed.madaralhuda"
-    compileSdk = flutter.compileSdkVersion
+    // flutter_local_notifications 23 and androidx.core 1.19 compile against
+    // API 37. Only the compile SDK moves; targetSdk and minSdk are unchanged.
+    compileSdk = maxOf(flutter.compileSdkVersion, 37)
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
