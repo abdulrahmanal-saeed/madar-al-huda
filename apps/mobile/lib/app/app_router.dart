@@ -13,6 +13,7 @@ import '../features/learning/presentation/learning_hub_screen.dart';
 import '../features/learning/presentation/lessons_screen.dart';
 import '../features/learning/presentation/prophet_stories_screen.dart';
 import '../features/library/presentation/library_hub_screen.dart';
+import '../features/library/presentation/links_section_screen.dart';
 import '../features/prayer/presentation/prayer_times_screen.dart';
 import '../features/qibla/presentation/qibla_screen.dart';
 import '../features/quran/data/mushaf_edition.dart';
@@ -153,6 +154,11 @@ GoRouter buildAppRouter({String initialLocation = AppRoutes.home}) {
                     AppRoutes.articles,
                     AppRoutes.library,
                     const ArticlesScreen(),
+                  ),
+                  GoRoute(
+                    path: 's/:id',
+                    builder: (_, state) =>
+                        LinksSectionScreen(id: state.pathParameters['id']!),
                   ),
                 ],
               ),

@@ -1290,4 +1290,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get downloadsOnlineOnlyBody =>
       'Offered for download once its publishing rights allow it.';
+
+  @override
+  String get librarySectionEmpty => 'Nothing has been added here yet.';
+
+  @override
+  String get librarySectionOpenFailed => 'Couldn\'t open the link.';
 }

@@ -389,5 +389,7 @@
   "downloadsLibraryMissing": "لم تُحفظ بعد",
   "downloadsUpdate": "تحديث",
   "downloadsOnlineOnly": "عبر الإنترنت فقط",
-  "downloadsOnlineOnlyBody": "سيُتاح للتحميل عندما تسمح حقوق نشره بذلك."
+  "downloadsOnlineOnlyBody": "سيُتاح للتحميل عندما تسمح حقوق نشره بذلك.",
+  "librarySectionEmpty": "لم يُضف محتوى هنا بعد.",
+  "librarySectionOpenFailed": "تعذّر فتح الرابط."
 }
