@@ -12,6 +12,8 @@ import 'features/adhkar/data/adhkar_progress.dart';
 import 'features/hadith/data/hadith_favorites.dart';
 import 'features/prayer/application/prayer_preferences.dart';
 import 'features/quran/data/local_quran_bookmarks.dart';
+import 'features/reminders/application/reminder_settings_controller.dart';
+import 'features/reminders/data/reminder_scheduler.dart';
 import 'features/settings/data/settings_repository.dart';
 import 'features/worship/application/worship_location.dart';
 import 'features/worship/data/daily_reading_plan.dart';
@@ -41,6 +43,8 @@ Future<void> main() async {
       overrides: [
         keyValueStoreProvider.overrideWithValue(store),
         googleAuthProvider.overrideWithValue(googleAuth),
+        if (defaultTargetPlatform == TargetPlatform.android)
+          reminderSchedulerProvider.overrideWithValue(LocalReminderScheduler()),
       ],
       child: const MadarApp(),
     ),
@@ -57,6 +61,7 @@ Future<KeyValueStore> _openPreferences() async {
         WorshipLocationController.cityKey,
         WorshipLocationController.deviceLocationKey,
         WorshipLocationController.lastDevicePointKey,
+        ReminderSettingsController.key,
         HanafiAsr.key,
         HadithFavorites.key,
         'quran.lastRead.v1',

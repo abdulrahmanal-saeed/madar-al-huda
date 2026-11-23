@@ -25,6 +25,7 @@ fi
 # --- 2. Android permissions --------------------------------------------------
 # P01-06 media playback, P01-07/P01-08 optional foreground location.
 # P00-11 opt-in update notifications and scheduled checks after a reboot.
+# P02-06 opt-in prayer and remembrance reminders at exact times.
 allowed_permissions=(
   android.permission.ACCESS_COARSE_LOCATION
   android.permission.ACCESS_FINE_LOCATION
@@ -34,6 +35,7 @@ allowed_permissions=(
   android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK
   android.permission.POST_NOTIFICATIONS
   android.permission.RECEIVE_BOOT_COMPLETED
+  android.permission.SCHEDULE_EXACT_ALARM
 )
 manifest=android/app/src/main/AndroidManifest.xml
 while IFS= read -r perm; do

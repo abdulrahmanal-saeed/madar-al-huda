@@ -1963,6 +1963,288 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Retry'**
   String get contentRetry;
+
+  /// Badge on the home card that suggests the remembrance for the current time.
+  ///
+  /// In en, this message translates to:
+  /// **'Now'**
+  String get homeNowLabel;
+
+  /// Home now card, morning.
+  ///
+  /// In en, this message translates to:
+  /// **'After Fajr · time for the morning remembrance'**
+  String get homeNowMorning;
+
+  /// Home now card, after a prayer.
+  ///
+  /// In en, this message translates to:
+  /// **'Right after the prayer'**
+  String get homeNowAfterPrayer;
+
+  /// Home now card, evening.
+  ///
+  /// In en, this message translates to:
+  /// **'After Asr · time for the evening remembrance'**
+  String get homeNowEvening;
+
+  /// Home now card, bedtime.
+  ///
+  /// In en, this message translates to:
+  /// **'Before you sleep'**
+  String get homeNowBedtime;
+
+  /// Opens the suggested remembrance.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get homeNowStart;
+
+  /// Continues the suggested remembrance.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get homeNowContinue;
+
+  /// Reminder settings screen title.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders'**
+  String get remindersTitle;
+
+  /// Settings entry for reminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Prayer, remembrance and supplications'**
+  String get remindersSettingsSubtitle;
+
+  /// Reminder settings intro.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders are calculated on your device from your prayer times and keep working offline.'**
+  String get remindersIntro;
+
+  /// Reminder section.
+  ///
+  /// In en, this message translates to:
+  /// **'Prayer'**
+  String get remindersPrayerSection;
+
+  /// Reminder toggle.
+  ///
+  /// In en, this message translates to:
+  /// **'At prayer time'**
+  String get remindersAdhan;
+
+  /// Reminder toggle subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The five daily prayers'**
+  String get remindersAdhanSubtitle;
+
+  /// Reminder toggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Before the prayer'**
+  String get remindersBeforePrayer;
+
+  /// Reminder toggle subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} minutes before'**
+  String remindersBeforePrayerSubtitle(String minutes);
+
+  /// Reminder section.
+  ///
+  /// In en, this message translates to:
+  /// **'Remembrance'**
+  String get remindersAdhkarSection;
+
+  /// Reminder toggle and notification title.
+  ///
+  /// In en, this message translates to:
+  /// **'Morning remembrance'**
+  String get remindersMorning;
+
+  /// Reminder toggle subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'30 minutes after Fajr'**
+  String get remindersMorningSubtitle;
+
+  /// Reminder toggle and notification title.
+  ///
+  /// In en, this message translates to:
+  /// **'Evening remembrance'**
+  String get remindersEvening;
+
+  /// Reminder toggle subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'15 minutes after Asr'**
+  String get remindersEveningSubtitle;
+
+  /// Reminder toggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remembrance after prayer'**
+  String get remindersAfterPrayer;
+
+  /// Reminder toggle subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'10 minutes after each prayer'**
+  String get remindersAfterPrayerSubtitle;
+
+  /// Reminder toggle and notification title.
+  ///
+  /// In en, this message translates to:
+  /// **'Bedtime remembrance'**
+  String get remindersBedtime;
+
+  /// Reminder toggle subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'At {time}'**
+  String remindersBedtimeSubtitle(String time);
+
+  /// Button that opens the time picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Change bedtime'**
+  String get remindersBedtimeChange;
+
+  /// Reminder toggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Surat Al-Kahf'**
+  String get remindersKahf;
+
+  /// Reminder toggle subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fridays at {time}'**
+  String remindersKahfSubtitle(String time);
+
+  /// Reminder section.
+  ///
+  /// In en, this message translates to:
+  /// **'Supplication'**
+  String get remindersDuaSection;
+
+  /// Reminder toggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Supplication of the day'**
+  String get remindersDailyDua;
+
+  /// Reminder toggle subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Every day at {time}'**
+  String remindersDailyDuaSubtitle(String time);
+
+  /// Label before the interval choices.
+  ///
+  /// In en, this message translates to:
+  /// **'A supplication every'**
+  String get remindersDuaEvery;
+
+  /// Interval choice that turns it off.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get remindersDuaOff;
+
+  /// Interval choice.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} hours'**
+  String remindersDuaHours(String hours);
+
+  /// Quiet hours note.
+  ///
+  /// In en, this message translates to:
+  /// **'No supplication reminders from {start} to {end}.'**
+  String remindersQuietHours(String start, String end);
+
+  /// Shown when notification permission is refused.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are off for Madar Al-Huda. Allow them in Android settings.'**
+  String get remindersPermissionDenied;
+
+  /// Exact alarm permission note.
+  ///
+  /// In en, this message translates to:
+  /// **'For reminders on time, allow “Alarms & reminders”.'**
+  String get remindersExactAlarm;
+
+  /// Button that requests exact alarms.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow'**
+  String get remindersExactAlarmAllow;
+
+  /// Shown when no location is set.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your location first so prayer times can be calculated.'**
+  String get remindersNeedsLocation;
+
+  /// Notification title at prayer time.
+  ///
+  /// In en, this message translates to:
+  /// **'It\'s time for {prayer}'**
+  String reminderAdhanTitle(String prayer);
+
+  /// Notification body for prayer reminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to see today\'s prayer times.'**
+  String get reminderPrayerBody;
+
+  /// Notification title before a prayer.
+  ///
+  /// In en, this message translates to:
+  /// **'{prayer} in {minutes} minutes'**
+  String reminderBeforeTitle(String prayer, String minutes);
+
+  /// Notification title after a prayer.
+  ///
+  /// In en, this message translates to:
+  /// **'Remembrance after {prayer}'**
+  String reminderAfterTitle(String prayer);
+
+  /// Notification body after a prayer.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a minute for the remembrance after prayer.'**
+  String get reminderAfterBody;
+
+  /// Notification body for remembrance reminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to open the remembrance.'**
+  String get reminderAdhkarBody;
+
+  /// Friday notification title.
+  ///
+  /// In en, this message translates to:
+  /// **'Friday: Surat Al-Kahf'**
+  String get reminderKahfTitle;
+
+  /// Friday notification body.
+  ///
+  /// In en, this message translates to:
+  /// **'A reminder to read Surat Al-Kahf today.'**
+  String get reminderKahfBody;
+
+  /// Supplication notification title.
+  ///
+  /// In en, this message translates to:
+  /// **'A supplication'**
+  String get reminderDuaTitle;
 }
 
 class _AppLocalizationsDelegate

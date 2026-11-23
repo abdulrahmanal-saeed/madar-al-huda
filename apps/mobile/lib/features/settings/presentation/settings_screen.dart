@@ -1,7 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../core/localization/l10n_extension.dart';
+import '../../../core/routing/app_routes.dart';
 import '../../../core/theme/app_tokens.dart';
 import '../../../core/widgets/responsive_content.dart';
 import '../application/settings_controller.dart';
@@ -98,6 +100,14 @@ class SettingsScreen extends ConsumerWidget {
                     value: settings.reduceMotion,
                     onChanged: (enabled) =>
                         run(() => controller.setReduceMotion(enabled: enabled)),
+                  ),
+                  ListTile(
+                    key: const ValueKey('settings-reminders'),
+                    leading: const Icon(Icons.notifications_active_outlined),
+                    title: Text(l10n.remindersTitle),
+                    subtitle: Text(l10n.remindersSettingsSubtitle),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => context.push(AppRoutes.reminders),
                   ),
                   const _Divider(),
                   _GroupHeader(l10n.settingsAccount),

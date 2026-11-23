@@ -1036,4 +1036,167 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get contentRetry => 'إعادة المحاولة';
+
+  @override
+  String get homeNowLabel => 'الآن';
+
+  @override
+  String get homeNowMorning => 'بعد الفجر · وقت أذكار الصباح';
+
+  @override
+  String get homeNowAfterPrayer => 'بعد الصلاة مباشرة';
+
+  @override
+  String get homeNowEvening => 'بعد العصر · وقت أذكار المساء';
+
+  @override
+  String get homeNowBedtime => 'قبل النوم';
+
+  @override
+  String get homeNowStart => 'ابدأ';
+
+  @override
+  String get homeNowContinue => 'أكمل';
+
+  @override
+  String get remindersTitle => 'التذكيرات';
+
+  @override
+  String get remindersSettingsSubtitle => 'الصلاة والأذكار والأدعية';
+
+  @override
+  String get remindersIntro =>
+      'تُحسب التذكيرات على جهازك من مواقيت صلاتك، وتعمل دون اتصال بالإنترنت.';
+
+  @override
+  String get remindersPrayerSection => 'الصلاة';
+
+  @override
+  String get remindersAdhan => 'عند دخول وقت الصلاة';
+
+  @override
+  String get remindersAdhanSubtitle => 'الصلوات الخمس';
+
+  @override
+  String get remindersBeforePrayer => 'قبل الصلاة';
+
+  @override
+  String remindersBeforePrayerSubtitle(String minutes) {
+    return 'قبلها بـ $minutes دقيقة';
+  }
+
+  @override
+  String get remindersAdhkarSection => 'الأذكار';
+
+  @override
+  String get remindersMorning => 'أذكار الصباح';
+
+  @override
+  String get remindersMorningSubtitle => 'بعد الفجر بـ ٣٠ دقيقة';
+
+  @override
+  String get remindersEvening => 'أذكار المساء';
+
+  @override
+  String get remindersEveningSubtitle => 'بعد العصر بـ ١٥ دقيقة';
+
+  @override
+  String get remindersAfterPrayer => 'أذكار بعد الصلاة';
+
+  @override
+  String get remindersAfterPrayerSubtitle => 'بعد كل صلاة بـ ١٠ دقائق';
+
+  @override
+  String get remindersBedtime => 'أذكار النوم';
+
+  @override
+  String remindersBedtimeSubtitle(String time) {
+    return 'الساعة $time';
+  }
+
+  @override
+  String get remindersBedtimeChange => 'غيّر موعد النوم';
+
+  @override
+  String get remindersKahf => 'سورة الكهف';
+
+  @override
+  String remindersKahfSubtitle(String time) {
+    return 'يوم الجمعة الساعة $time';
+  }
+
+  @override
+  String get remindersDuaSection => 'الدعاء';
+
+  @override
+  String get remindersDailyDua => 'دعاء اليوم';
+
+  @override
+  String remindersDailyDuaSubtitle(String time) {
+    return 'كل يوم الساعة $time';
+  }
+
+  @override
+  String get remindersDuaEvery => 'دعاء كل';
+
+  @override
+  String get remindersDuaOff => 'إيقاف';
+
+  @override
+  String remindersDuaHours(String hours) {
+    return '$hours ساعات';
+  }
+
+  @override
+  String remindersQuietHours(String start, String end) {
+    return 'لا تذكير بالدعاء من $start إلى $end.';
+  }
+
+  @override
+  String get remindersPermissionDenied =>
+      'الإشعارات متوقفة لتطبيق مدار الهدى. فعّلها من إعدادات Android.';
+
+  @override
+  String get remindersExactAlarm =>
+      'لتصل التذكيرات في موعدها، اسمح بـ «المنبّهات والتذكيرات».';
+
+  @override
+  String get remindersExactAlarmAllow => 'السماح';
+
+  @override
+  String get remindersNeedsLocation =>
+      'اختر موقعك أولًا حتى تُحسب مواقيت الصلاة.';
+
+  @override
+  String reminderAdhanTitle(String prayer) {
+    return 'حان الآن وقت صلاة $prayer';
+  }
+
+  @override
+  String get reminderPrayerBody => 'اضغط لعرض مواقيت اليوم.';
+
+  @override
+  String reminderBeforeTitle(String prayer, String minutes) {
+    return 'باقي $minutes دقيقة على صلاة $prayer';
+  }
+
+  @override
+  String reminderAfterTitle(String prayer) {
+    return 'أذكار بعد صلاة $prayer';
+  }
+
+  @override
+  String get reminderAfterBody => 'خذ دقيقة لأذكار ما بعد الصلاة.';
+
+  @override
+  String get reminderAdhkarBody => 'اضغط لفتح الأذكار.';
+
+  @override
+  String get reminderKahfTitle => 'الجمعة: سورة الكهف';
+
+  @override
+  String get reminderKahfBody => 'تذكير بقراءة سورة الكهف اليوم.';
+
+  @override
+  String get reminderDuaTitle => 'دعاء';
 }

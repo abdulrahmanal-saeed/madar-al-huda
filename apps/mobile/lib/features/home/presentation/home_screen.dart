@@ -24,6 +24,7 @@ import '../../quran/data/quran_services.dart';
 import '../../quran/presentation/quran_meaning_view.dart';
 import '../../worship/application/worship_location.dart';
 import '../../worship/data/daily_reading_plan.dart';
+import 'worship_now_card.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key, this.clock = DateTime.now});
@@ -103,6 +104,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     child: Text(hijri, style: theme.textTheme.bodySmall),
                   ),
                 const SizedBox(height: AppSpacing.md),
+                if (schedule != null &&
+                    (!AppSection.adhkar.status.isGated ||
+                        managedReleaseEnabled)) ...[
+                  WorshipNowCard(schedule: schedule, now: now),
+                  const SizedBox(height: AppSpacing.md),
+                ],
                 if (schedule != null)
                   NextPrayerCard(
                     schedule: schedule,

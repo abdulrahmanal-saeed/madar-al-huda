@@ -293,12 +293,13 @@ DhikrGroup meritGroup(DhikrEntry entry) =>
     DhikrGroup('merit-${entry.id}', entry.title, [entry]);
 
 Future<void> _openGroup(BuildContext context, DhikrGroup group) =>
-    openAdhkarPage(
-      context,
-      group.isAfterPrayer
-          ? _PrayerSessions(group: group)
-          : DhikrReader(group: group),
-    );
+    openAdhkarPage(context, adhkarGroupPage(group));
+
+/// The page that opens a remembrance group: after-prayer groups first ask
+/// which prayer, the others open the reader directly.
+Widget adhkarGroupPage(DhikrGroup group) => group.isAfterPrayer
+    ? _PrayerSessions(group: group)
+    : DhikrReader(group: group);
 
 class _PrayerSessions extends ConsumerWidget {
   const _PrayerSessions({required this.group});
