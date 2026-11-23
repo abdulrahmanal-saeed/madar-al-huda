@@ -3,7 +3,18 @@
 **Reviewed architecture pack:** [docs/architecture/README.md](architecture/README.md). This design establishes the trust boundaries, ERD, role matrix, and versioned data invariants, but has not been deployed to any Supabase project.
 
 ## Monorepo
-`apps/mobile` Flutter + Dart; `apps/admin` Next.js CMS; `backend` protected provider API; `supabase` schema/migrations; `docs` and `AI_BRIDGE`.
+- **`apps/mobile`:** Flutter + Dart.
+- **`hosting/`:** the PHP + SQLite admin that is actually deployed. Its feeds and deploy steps are in [hosting/README.md](../hosting/README.md).
+- **`supabase`:** the edge function and planned schema.
+- **`docs`** and **`AI_BRIDGE`**.
+
+The Next.js CMS (`apps/admin`) and the Supabase CMS schema below are the long-term design. Today the hosted PHP admin fills that role: a single owner account, draft and publish with history, and confirmation steps.
+
+## Implemented beyond the P00-06 shell (November 2026)
+- **Hosted library feed:** the app reads one feed (`managedLibraryProvider`) for adhkar, duas, reciters, fiqh, articles, lessons, the theme (`appearance.theme`) and the Library sections (`appearance.sections`). It is cached on the device, refreshed on resume and every 15 minutes, and capped at 4 MB.
+- **Reminders** (`features/reminders`) are planned on the device a week ahead from the prayer schedule and scheduled with `flutter_local_notifications`. They use exact alarms when the user allows them, and everything is opt-in.
+- **Time-aware home** (`features/worship/domain/worship_moment.dart`) and **Ramadan mode** (`features/ramadan`) are derived from the same prayer schedule and the civil Hijri calendar.
+- **Download center** (`features/downloads`) groups recitation, story and library downloads. Tafsir and hadith remain online only until their rights allow storage.
 
 ## Mobile module boundaries
 - `core`: localization, typography, routing, persistence, logging, dependency injection.
