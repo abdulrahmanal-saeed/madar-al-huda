@@ -2,7 +2,7 @@
 
 **Launcher icon approved by owner 2026-11-22.** The typography and Flutter startup screen follow the updated design. Legal trademark/package checks remain separate [R-10 / Issue #19](https://github.com/abdulrahmanal-saeed/madar-al-huda/issues/19).
 
-Original launcher icon: book and orbit, representing knowledge and guidance. Files: [icon-master.svg](icon-master.svg), [icon-monochrome.svg](icon-monochrome.svg), [wordmark-ar.svg](wordmark-ar.svg), [wordmark-en.svg](wordmark-en.svg), [tokens.json](tokens.json). The editable wordmarks use Reem Kufi for the name and IBM Plex Sans Arabic for the tagline.
+Launcher and splash mark: an eight-point star and open orbit from the updated design. Files: [icon-master.svg](icon-master.svg), [icon-monochrome.svg](icon-monochrome.svg), [wordmark-ar.svg](wordmark-ar.svg), [wordmark-en.svg](wordmark-en.svg), [tokens.json](tokens.json). The editable wordmarks use Reem Kufi for the name and IBM Plex Sans Arabic for the tagline.
 
 ## Color and readability
 Deep green `#173F39`, muted gold `#C7A86D`, ivory `#F8F5ED`, dark ink `#263B38`. Muted gold is decorative only on ivory; use `#6E5420` for gold-like readable text there. Existing Flutter tests enforce AA contrast on text pairs.

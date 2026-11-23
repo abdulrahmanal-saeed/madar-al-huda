@@ -9,76 +9,163 @@ import '../../../core/localization/l10n_extension.dart';
 import '../../../core/storage/storage_providers.dart';
 import '../data/mushaf_edition.dart';
 import '../data/quran_services.dart';
-
-final _playerProvider = Provider<AudioPlayer>((ref) {
-  final player = AudioPlayer();
-  ref.onDispose(() => unawaited(player.dispose()));
-  return player;
-});
+import '../domain/quran_storage_contracts.dart';
 
 typedef _Track = ({int surah, int resource, String title, String reciter});
 
-final _currentTrackProvider = NotifierProvider<_CurrentTrack, _Track?>(
-  _CurrentTrack.new,
-);
-
-final pauseQuranRecitationProvider = Provider<Future<void> Function()>((ref) {
-  return () async {
-    if (ref.read(_currentTrackProvider) != null) {
-      await ref.read(_playerProvider).pause();
-    }
-  };
+final _playerProvider = Provider<AudioPlayer>((ref) {
+  final player = AudioPlayer();
+  final errors = player.errorStream.listen((_) => unawaited(player.pause()));
+  ref.onDispose(() {
+    unawaited(errors.cancel());
+    unawaited(player.dispose());
+  });
+  return player;
 });
 
-class _CurrentTrack extends Notifier<_Track?> {
-  @override
-  _Track? build() => null;
+final _playbackProvider =
+    NotifierProvider<_RecitationController, ({_Track? track, bool loading})>(
+      _RecitationController.new,
+    );
 
-  void show(_Track? track) => state = track;
+final pauseQuranRecitationProvider = Provider<Future<void> Function()>(
+  (ref) => ref.read(_playbackProvider.notifier).pause,
+);
+
+class _RecitationController extends Notifier<({_Track? track, bool loading})> {
+  int _request = 0;
+
+  @override
+  ({_Track? track, bool loading}) build() => (track: null, loading: false);
+
+  Future<void> start(
+    MushafSurah surah,
+    QuranResource reciter,
+    String language, {
+    AyahRef? verse,
+  }) async {
+    if (state.loading) return;
+    final request = ++_request;
+    state = (track: state.track, loading: true);
+    try {
+      final api = ref.read(quranApiProvider);
+      final recording = verse == null
+          ? (url: await api.audio(surah.id, reciter.id), start: Duration.zero)
+          : await api.audioAtVerse(verse, reciter.id);
+      if (request != _request || !ref.mounted) return;
+      final player = ref.read(_playerProvider);
+      await player.pause();
+      if (request != _request || !ref.mounted) return;
+      state = (track: null, loading: true);
+      final track = (
+        surah: surah.id,
+        resource: reciter.id,
+        title: surah.name(language),
+        reciter: reciter.name,
+      );
+      await player.setAudioSource(
+        AudioSource.uri(
+          recording.url,
+          tag: MediaItem(
+            id: '${track.surah}:${track.resource}',
+            title: track.title,
+            artist: track.reciter,
+            album: 'Quran Foundation',
+          ),
+        ),
+        initialPosition: recording.start,
+      );
+      if (request != _request || !ref.mounted) return;
+      state = (track: track, loading: false);
+      unawaited(player.play().catchError((Object _) {}));
+    } finally {
+      if (ref.mounted && request == _request) {
+        state = (track: state.track, loading: false);
+      }
+    }
+  }
+
+  Future<void> pause() async {
+    ++_request;
+    try {
+      if (state.track != null) await ref.read(_playerProvider).pause();
+    } finally {
+      if (ref.mounted) state = (track: state.track, loading: false);
+    }
+  }
+
+  Future<void> stop() async {
+    ++_request;
+    await ref.read(_playerProvider).stop();
+    if (ref.mounted) state = (track: null, loading: false);
+  }
+}
+
+const reciterPreferenceKey = 'quran.reciter.v1';
+
+QuranResource? selectedReciter(WidgetRef ref, List<QuranResource> reciters) {
+  final id = int.tryParse(
+    ref.read(keyValueStoreProvider).getString(reciterPreferenceKey) ?? '',
+  );
+  return reciters.where((resource) => resource.id == id).firstOrNull ??
+      reciters.firstOrNull;
+}
+
+Future<void> playRecitation(
+  BuildContext context,
+  WidgetRef ref, {
+  required MushafSurah surah,
+  required QuranResource resource,
+  AyahRef? verse,
+}) async {
+  try {
+    await ref
+        .read(_playbackProvider.notifier)
+        .start(
+          surah,
+          resource,
+          Localizations.localeOf(context).languageCode,
+          verse: verse,
+        );
+  } catch (error) {
+    if (context.mounted) {
+      final l10n = context.l10n;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            error is VerseTimingUnavailable
+                ? l10n.readerVerseAudioUnavailable
+                : l10n.readerAudioUnavailable,
+          ),
+        ),
+      );
+    }
+  }
 }
 
 class RecitationPlayer extends ConsumerStatefulWidget {
   const RecitationPlayer({
     required this.surah,
     required this.reciters,
-    required this.language,
     super.key,
   });
 
   final MushafSurah surah;
   final List<QuranResource> reciters;
-  final String language;
 
   @override
   ConsumerState<RecitationPlayer> createState() => _RecitationPlayerState();
 }
 
 class _RecitationPlayerState extends ConsumerState<RecitationPlayer> {
-  static const reciterKey = 'quran.reciter.v1';
   int? _reciterId;
-  bool _loading = false;
-  StreamSubscription<PlayerException>? _errors;
-
-  @override
-  void initState() {
-    super.initState();
-    _reciterId = int.tryParse(
-      ref.read(keyValueStoreProvider).getString(reciterKey) ?? '',
-    );
-  }
-
-  @override
-  void dispose() {
-    unawaited(_errors?.cancel());
-    super.dispose();
-  }
 
   Future<void> _select(QuranResource resource) async {
     setState(() => _reciterId = resource.id);
     try {
       await ref
           .read(keyValueStoreProvider)
-          .setString(reciterKey, '${resource.id}');
+          .setString(reciterPreferenceKey, '${resource.id}');
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(
@@ -88,175 +175,145 @@ class _RecitationPlayerState extends ConsumerState<RecitationPlayer> {
     }
   }
 
-  void _audioError() {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(context.l10n.readerAudioUnavailable)),
-    );
-  }
-
-  Future<void> _play(AudioPlayer player, QuranResource resource) async {
-    final track = (
-      surah: widget.surah.id,
-      resource: resource.id,
-      title: widget.surah.name(widget.language),
-      reciter: resource.name,
-    );
-    setState(() => _loading = true);
-    try {
-      _errors ??= player.errorStream.listen((_) {
-        unawaited(player.pause());
-        _audioError();
-      });
-      final url = await ref
-          .read(quranApiProvider)
-          .audio(track.surah, track.resource);
-      if (!mounted) return;
-      await player.pause();
-      if (!mounted) return;
-      ref.read(_currentTrackProvider.notifier).show(null);
-      await player.setAudioSource(
-        AudioSource.uri(
-          url,
-          tag: MediaItem(
-            id: '${track.surah}:${track.resource}',
-            title: track.title,
-            artist: track.reciter,
-            album: 'Quran Foundation',
-          ),
-        ),
-      );
-      if (!mounted) return;
-      ref.read(_currentTrackProvider.notifier).show(track);
-      unawaited(player.play().catchError((Object _) => _audioError()));
-    } catch (_) {
-      _audioError();
-    } finally {
-      if (mounted) setState(() => _loading = false);
-    }
-  }
-
-  Future<void> _toggle(AudioPlayer player, PlayerState? status) async {
-    try {
-      if (status?.processingState == ProcessingState.completed) {
-        await player.seek(Duration.zero);
-        unawaited(player.play().catchError((Object _) => _audioError()));
-      } else if (status?.playing == true) {
-        await player.pause();
-      } else {
-        unawaited(player.play().catchError((Object _) => _audioError()));
-      }
-    } catch (_) {
-      _audioError();
-    }
-  }
-
-  Future<void> _stop(AudioPlayer player) async {
-    try {
-      await player.stop();
-      if (mounted) ref.read(_currentTrackProvider.notifier).show(null);
-    } catch (_) {
-      _audioError();
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final track = ref.watch(_currentTrackProvider);
     final selected =
         widget.reciters.where((value) => value.id == _reciterId).firstOrNull ??
-        widget.reciters.firstOrNull;
-    if (selected == null && track == null) return const SizedBox.shrink();
+        selectedReciter(ref, widget.reciters);
+    if (selected == null) return const SizedBox.shrink();
     final l10n = context.l10n;
-    final player = ref.watch(_playerProvider);
+    final playback = ref.watch(_playbackProvider);
+    final track = playback.track;
     final matching =
-        track != null &&
-        track.surah == widget.surah.id &&
-        track.resource == selected?.id;
+        track?.surah == widget.surah.id && track?.resource == selected.id;
     return Material(
       color: Theme.of(context).colorScheme.surfaceContainer,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-        child: Column(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
           children: [
-            if (selected != null)
-              Row(
-                children: [
-                  Expanded(
-                    child: DropdownButton<QuranResource>(
-                      isExpanded: true,
-                      value: selected,
-                      items: [
-                        for (final resource in widget.reciters)
-                          DropdownMenuItem(
-                            value: resource,
-                            child: Text(
-                              resource.name,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                      ],
-                      onChanged: _loading
-                          ? null
-                          : (resource) {
-                              if (resource != null) {
-                                unawaited(_select(resource));
-                              }
-                            },
-                    ),
-                  ),
-                  if (!matching)
-                    IconButton(
-                      tooltip: l10n.readerPlay,
-                      onPressed: _loading
-                          ? null
-                          : () => _play(player, selected),
-                      icon: const Icon(Icons.play_arrow),
-                    ),
-                  if (_loading)
-                    const SizedBox.square(
-                      dimension: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
+            Expanded(
+              child: DropdownButton<QuranResource>(
+                isExpanded: true,
+                value: selected,
+                items: [
+                  for (final resource in widget.reciters)
+                    DropdownMenuItem(
+                      value: resource,
+                      child: Text(
+                        resource.name,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                 ],
+                onChanged: playback.loading
+                    ? null
+                    : (resource) {
+                        if (resource != null) unawaited(_select(resource));
+                      },
               ),
-            if (track != null)
-              StreamBuilder<PlayerState>(
-                stream: player.playerStateStream,
-                initialData: player.playerState,
-                builder: (context, snapshot) {
-                  final state = snapshot.data;
-                  final playing =
-                      state?.playing == true &&
-                      state?.processingState != ProcessingState.completed;
-                  return Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          '${track.title} · ${track.reciter}',
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
+            ),
+            if (!matching || playback.loading)
+              IconButton(
+                tooltip: l10n.readerListenChapter,
+                onPressed: playback.loading
+                    ? null
+                    : () => playRecitation(
+                        context,
+                        ref,
+                        surah: widget.surah,
+                        resource: selected,
                       ),
-                      IconButton(
-                        tooltip: playing ? l10n.readerPause : l10n.readerResume,
-                        onPressed: _loading
-                            ? null
-                            : () => _toggle(player, state),
-                        icon: Icon(playing ? Icons.pause : Icons.play_arrow),
-                      ),
-                      IconButton(
-                        tooltip: l10n.readerStop,
-                        onPressed: _loading ? null : () => _stop(player),
-                        icon: const Icon(Icons.stop),
-                      ),
-                    ],
-                  );
-                },
+                icon: playback.loading
+                    ? const SizedBox.square(
+                        dimension: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.play_arrow),
               ),
           ],
         ),
       ),
+    );
+  }
+}
+
+class RecitationMiniPlayer extends ConsumerWidget {
+  const RecitationMiniPlayer({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final playback = ref.watch(_playbackProvider);
+    final track = playback.track;
+    if (track == null) return const SizedBox.shrink();
+    final controller = ref.read(_playbackProvider.notifier);
+    final player = ref.watch(_playerProvider);
+    final l10n = context.l10n;
+    final colors = Theme.of(context).colorScheme;
+
+    Future<void> transport(Future<void> Function() action) async {
+      try {
+        await action();
+      } catch (_) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(l10n.readerAudioUnavailable)));
+        }
+      }
+    }
+
+    return StreamBuilder<PlayerState>(
+      stream: player.playerStateStream,
+      initialData: player.playerState,
+      builder: (context, snapshot) {
+        final state = snapshot.data;
+        final completed = state?.processingState == ProcessingState.completed;
+        final playing = state?.playing == true && !completed;
+        return Material(
+          color: colors.primaryContainer,
+          child: ListTile(
+            dense: true,
+            leading: const Icon(Icons.headphones_outlined),
+            title: Text(
+              track.title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            subtitle: Text(
+              track.reciter,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  tooltip: playing ? l10n.readerPause : l10n.readerResume,
+                  onPressed: playback.loading
+                      ? null
+                      : () => transport(() async {
+                          if (playing) {
+                            await controller.pause();
+                          } else {
+                            if (completed) await player.seek(Duration.zero);
+                            unawaited(player.play().catchError((Object _) {}));
+                          }
+                        }),
+                  icon: Icon(playing ? Icons.pause : Icons.play_arrow),
+                ),
+                IconButton(
+                  tooltip: l10n.readerStop,
+                  onPressed: playback.loading
+                      ? null
+                      : () => transport(controller.stop),
+                  icon: const Icon(Icons.stop),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

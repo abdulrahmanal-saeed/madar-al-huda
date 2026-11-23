@@ -22,21 +22,15 @@ void main() {
     testWidgets('English device → English UI, left-to-right', (tester) async {
       await pumpMadarApp(tester, deviceLocales: const [Locale('en', 'US')]);
       expect(appDirection(tester), TextDirection.ltr);
-      expect(find.text('Madar Al-Huda'), findsOneWidget);
-      expect(find.text('Quick access'), findsOneWidget);
+      expect(find.text('Assalamu alaikum'), findsOneWidget);
+      expect(find.text('Continue reading'), findsOneWidget);
     });
 
     testWidgets('Arabic device → Arabic UI, right-to-left', (tester) async {
       await pumpMadarApp(tester, deviceLocales: const [Locale('ar', 'AE')]);
       expect(appDirection(tester), TextDirection.rtl);
-      expect(find.text('مدار الهدى'), findsOneWidget);
-      for (final label in [
-        'الرئيسية',
-        'القرآن',
-        'العبادات',
-        'المكتبة',
-        'التعلّم',
-      ]) {
+      expect(find.text('السلام عليكم'), findsOneWidget);
+      for (final label in ['اليوم', 'المصحف', 'الأذكار', 'المكتبة', 'الصلاة']) {
         expect(
           find.descendant(
             of: find.byKey(AppShell.navigationBarKey),
@@ -53,22 +47,22 @@ void main() {
     ) async {
       await pumpMadarApp(tester, deviceLocales: const [Locale('fr', 'FR')]);
       expect(appDirection(tester), TextDirection.ltr);
-      expect(find.text('Home'), findsWidgets);
+      expect(find.text('Today'), findsWidgets);
     });
 
     testWidgets('RTL mirrors layout: first tab sits on the right', (
       tester,
     ) async {
       await pumpMadarApp(tester, deviceLocales: const [Locale('ar')]);
-      final home = tester.getCenter(find.text('الرئيسية'));
-      final learning = tester.getCenter(find.text('التعلّم'));
+      final home = tester.getCenter(find.text('اليوم'));
+      final learning = tester.getCenter(find.text('الصلاة'));
       expect(home.dx, greaterThan(learning.dx));
     });
 
     testWidgets('LTR keeps the first tab on the left', (tester) async {
       await pumpMadarApp(tester);
-      final home = tester.getCenter(find.text('Home').last);
-      final learning = tester.getCenter(find.text('Learning'));
+      final home = tester.getCenter(find.text('Today').last);
+      final learning = tester.getCenter(find.text('Library'));
       expect(home.dx, lessThan(learning.dx));
     });
 
@@ -109,7 +103,7 @@ void main() {
         deviceLocales: const [Locale('en', 'US')],
       );
       expect(appDirection(tester), TextDirection.rtl);
-      expect(find.text('مدار الهدى'), findsOneWidget);
+      expect(find.text('السلام عليكم'), findsOneWidget);
     });
 
     testWidgets('large text scale renders without layout errors', (

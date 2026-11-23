@@ -26,6 +26,10 @@ final quranPositionProvider = Provider<ReadingPositionRepository>(
   (ref) => LocalReadingPosition(ref.watch(keyValueStoreProvider)),
 );
 
+final lastReadingPositionProvider = FutureProvider<ReadingPosition?>(
+  (ref) => ref.watch(quranPositionProvider).lastRead(),
+);
+
 class QuranResource {
   const QuranResource(this.id, this.name, {this.language});
   final int id;
@@ -50,6 +54,10 @@ class QuranCatalog {
   final List<QuranResource> tafsirs;
   final List<QuranResource> reciters;
   final bool isPreview;
+}
+
+class VerseTimingUnavailable implements Exception {
+  const VerseTimingUnavailable();
 }
 
 class QuranApi {
@@ -92,10 +100,36 @@ class QuranApi {
   }
 
   Future<Uri> audio(int surah, int resource) async {
-    final json = await _get('recitation', {
-      'surah': '$surah',
-      'resource': '$resource',
-    });
+    final json = await _recitation(surah, resource);
+    return _audioUri(json, surah, resource);
+  }
+
+  Future<({Uri url, Duration start})> audioAtVerse(
+    AyahRef verse,
+    int resource,
+  ) async {
+    final json = await _recitation(verse.surah, resource, ayah: verse.ayah);
+    final url = _audioUri(json, verse.surah, resource);
+    final start = json['start_ms'];
+    if (json['verse'] != '${verse.surah}:${verse.ayah}' ||
+        start is! int ||
+        start < 0) {
+      throw const VerseTimingUnavailable();
+    }
+    return (url: url, start: Duration(milliseconds: start));
+  }
+
+  Future<Map<String, dynamic>> _recitation(
+    int surah,
+    int resource, {
+    int? ayah,
+  }) => _get('recitation', {
+    'surah': '$surah',
+    'resource': '$resource',
+    if (ayah != null) 'ayah': '$ayah',
+  });
+
+  Uri _audioUri(Map<String, dynamic> json, int surah, int resource) {
     final uri = Uri.parse(json['url'] as String);
     if (json['surah'] != surah ||
         json['resource'] != resource ||
@@ -129,6 +163,11 @@ class QuranApi {
     final response = await _client
         .get(uri, headers: {'Authorization': 'Bearer $_key', 'apikey': _key})
         .timeout(const Duration(seconds: 12));
+    if (response.statusCode == 404 &&
+        route == 'recitation' &&
+        parameters.containsKey('ayah')) {
+      throw const VerseTimingUnavailable();
+    }
     if (response.statusCode != 200) {
       throw StateError('Quran service unavailable');
     }

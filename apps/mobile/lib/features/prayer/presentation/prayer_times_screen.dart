@@ -1,18 +1,22 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../core/content/feature_preview.dart';
-import '../../../core/localization/app_locales.dart';
 import '../../../core/localization/l10n_extension.dart';
+import '../../../core/routing/app_routes.dart';
 import '../../../core/routing/app_sections.dart';
-import '../../../core/storage/storage_providers.dart';
+import '../../../core/theme/app_tokens.dart';
+import '../../../core/widgets/responsive_content.dart';
 import '../../../core/widgets/section_detail_scaffold.dart';
 import '../../worship/application/worship_location.dart';
 import '../../worship/presentation/worship_location_picker.dart';
+import '../application/prayer_preferences.dart';
 import '../domain/prayer_schedule.dart';
+import 'next_prayer_card.dart';
 
 class PrayerTimesScreen extends StatelessWidget {
   const PrayerTimesScreen({super.key});
@@ -35,14 +39,11 @@ class _PrayerTimes extends ConsumerStatefulWidget {
 
 class _PrayerTimesState extends ConsumerState<_PrayerTimes> {
   late final Timer _timer;
-  late bool _hanafi;
   bool _saving = false;
-  static const hanafiKey = 'worship.hanafiAsr';
 
   @override
   void initState() {
     super.initState();
-    _hanafi = ref.read(keyValueStoreProvider).getBool(hanafiKey) ?? false;
     _timer = Timer.periodic(const Duration(seconds: 15), (_) {
       if (TickerMode.valuesOf(context).enabled) setState(() {});
     });
@@ -57,8 +58,7 @@ class _PrayerTimesState extends ConsumerState<_PrayerTimes> {
   Future<void> _setHanafi(bool value) async {
     setState(() => _saving = true);
     try {
-      await ref.read(keyValueStoreProvider).setBool(hanafiKey, value: value);
-      if (mounted) setState(() => _hanafi = value);
+      await ref.read(hanafiAsrProvider.notifier).select(value);
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(
@@ -73,70 +73,130 @@ class _PrayerTimesState extends ConsumerState<_PrayerTimes> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final theme = Theme.of(context);
     final location = ref.watch(worshipLocationProvider);
     final country = location.country;
     final point = location.point;
     final now = DateTime.now();
+    final hanafi = ref.watch(hanafiAsrProvider);
     final schedule = point == null || country == null
         ? null
         : PrayerSchedule.calculate(
             location: point,
             country: country,
             now: now,
-            hanafi: _hanafi,
+            hanafi: hanafi,
           );
     final locale = Localizations.localeOf(context).toLanguageTag();
-    final format = DateFormat.Hm(locale);
+    final clock = DateFormat.jm(locale);
+
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.sectionPrayerTimesTitle)),
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            const WorshipLocationPicker(),
-            if (AppSection.prayerTimes.status.isGated) Text(l10n.prayerPreview),
-            if (schedule != null) ...[
-              const SizedBox(height: 16),
-              Text(
-                DateFormat.yMMMMEEEEd(locale).format(schedule.today.first.time),
-              ),
-              Text(
-                country == WorshipCountry.egypt
-                    ? l10n.prayerEgyptMethod
-                    : l10n.prayerDubaiMethod,
-              ),
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text(l10n.hanafiAsr),
-                subtitle: Text(_hanafi ? l10n.asrHanafi : l10n.asrStandard),
-                value: _hanafi,
-                onChanged: _saving ? null : _setHanafi,
-              ),
-              Card(
-                child: ListTile(
-                  title: Text(l10n.nextPrayer),
-                  subtitle: Text(_name(schedule.next.slot, l10n)),
-                  trailing: Text(format.format(schedule.next.time)),
-                ),
-              ),
-              for (final entry in schedule.today)
-                ListTile(
-                  title: Text(_name(entry.slot, l10n)),
-                  trailing: Text(format.format(entry.time)),
-                ),
-            ],
-          ],
-        ),
+      appBar: AppBar(
+        title: Text(l10n.sectionPrayerTimesTitle),
+        actions: [
+          TextButton.icon(
+            onPressed: () => context.push(AppRoutes.qibla),
+            icon: const Icon(Icons.explore_outlined),
+            label: Text(l10n.sectionQiblaTitle),
+          ),
+        ],
+      ),
+      body: CustomScrollView(
+        slivers: [
+          SliverResponsiveContent(
+            sliver: SliverList.list(
+              children: [
+                const WorshipLocationPicker(),
+                const SizedBox(height: AppSpacing.md),
+                if (AppSection.prayerTimes.status.isGated)
+                  Text(l10n.prayerPreview, style: theme.textTheme.bodySmall),
+                if (schedule != null) ...[
+                  const SizedBox(height: AppSpacing.md),
+                  NextPrayerCard(
+                    schedule: schedule,
+                    now: now,
+                    location: location.devicePoint == null
+                        ? location.city!.label(l10n)
+                        : l10n.deviceLocation,
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  Card(
+                    child: Column(
+                      children: [
+                        ListTile(
+                          title: Text(
+                            DateFormat.yMMMMEEEEd(locale)
+                                .format(schedule.today.first.time),
+                          ),
+                        ),
+                        for (final entry in schedule.today)
+                          ListTile(
+                            selected: entry == schedule.next,
+                            selectedTileColor:
+                                theme.colorScheme.primaryContainer,
+                            leading: Icon(
+                              entry.slot == PrayerSlot.sunrise
+                                  ? Icons.wb_sunny_outlined
+                                  : Icons.circle,
+                              size: entry.slot == PrayerSlot.sunrise ? 19 : 8,
+                            ),
+                            title: Text(prayerName(entry.slot, l10n)),
+                            trailing: Text(clock.format(entry.time)),
+                          ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(AppSpacing.lg),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            l10n.prayerCalculationMethod,
+                            style: theme.textTheme.titleSmall,
+                          ),
+                          Text(
+                            country == WorshipCountry.egypt
+                                ? l10n.prayerEgyptMethod
+                                : l10n.prayerDubaiMethod,
+                          ),
+                          const Divider(),
+                          Text(
+                            l10n.prayerAsrCalculation,
+                            style: theme.textTheme.titleSmall,
+                          ),
+                          Wrap(
+                            spacing: AppSpacing.sm,
+                            children: [
+                              ChoiceChip(
+                                label: Text(l10n.asrStandard),
+                                selected: !hanafi,
+                                onSelected: _saving
+                                    ? null
+                                    : (_) => _setHanafi(false),
+                              ),
+                              ChoiceChip(
+                                label: Text(l10n.asrHanafi),
+                                selected: hanafi,
+                                onSelected: _saving
+                                    ? null
+                                    : (_) => _setHanafi(true),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+                const SizedBox(height: AppSpacing.xl),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 }
-
-String _name(PrayerSlot slot, AppLocalizations l10n) => switch (slot) {
-  PrayerSlot.fajr => l10n.prayerFajr,
-  PrayerSlot.sunrise => l10n.prayerSunrise,
-  PrayerSlot.dhuhr => l10n.prayerDhuhr,
-  PrayerSlot.asr => l10n.prayerAsr,
-  PrayerSlot.maghrib => l10n.prayerMaghrib,
-  PrayerSlot.isha => l10n.prayerIsha,
-};

@@ -36,6 +36,7 @@ Deno.test("route and input validation precede upstream calls", async () => {
       ["catalog?lang=ar&lang=en", "GET", 400],
       ["tafsir?surah=2&ayah=287&resource=1", "GET", 400],
       ["recitation?surah=115&resource=1", "GET", 400],
+      ["recitation?surah=2&ayah=0&resource=1", "GET", 400],
     ] as const
   ) {
     const response = await handleRequest(new Request(base + path, { method }));
@@ -110,6 +111,15 @@ Deno.test("guest reader gets only approved resources, matched tafsir and audio",
         audio_file: {
           chapter_id: 2,
           audio_url: "https://audio.qurancdn.com/sample.mp3",
+          duration: 120000,
+          ...(url.searchParams.get("segments") === "true"
+            ? {
+              timestamps: [
+                { verse_key: "2:1", timestamp_from: 0 },
+                { verse_key: "2:4", timestamp_from: 18000 },
+              ],
+            }
+            : {}),
         },
       }));
     }
@@ -141,6 +151,20 @@ Deno.test("guest reader gets only approved resources, matched tafsir and audio",
       resource: 200,
       url: "https://audio.qurancdn.com/sample.mp3",
     });
+    equal(
+      await (await request("recitation?surah=2&resource=200&ayah=4")).json(),
+      {
+        surah: 2,
+        resource: 200,
+        url: "https://audio.qurancdn.com/sample.mp3",
+        verse: "2:4",
+        start_ms: 18000,
+      },
+    );
+    equal(
+      (await request("recitation?surah=2&resource=200&ayah=5")).status,
+      404,
+    );
     equal((await request("tafsir?surah=1&ayah=4&resource=101")).status, 404);
     equal((await request("recitation?surah=114&resource=200")).status, 404);
     equal(tokenRequests, 3);

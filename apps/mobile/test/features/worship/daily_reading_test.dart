@@ -29,7 +29,7 @@ void main() {
 
         await tester.tap(find.text(l10n.dailyReadingMarkRead));
         await tester.pumpAndSettle();
-        await tester.tap(find.text(l10n.dailyReadingEdit));
+        await tester.tap(find.widgetWithText(TextButton, numbers.format(20)));
         await tester.pumpAndSettle();
         await tester.enterText(find.byType(TextFormField), numbers.format(7));
         await tester.tap(find.text(l10n.dailyReadingSave));
@@ -55,7 +55,9 @@ void main() {
           ),
           findsOneWidget,
         );
-        await tester.tap(find.text(l10n.dailyReadingOpen));
+        await tester.tap(
+          find.text(l10n.dailyReadingNextPage(numbers.format(21))),
+        );
         await tester.pumpAndSettle();
         expect(find.byType(MushafScreen), findsOneWidget);
       },

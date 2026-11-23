@@ -94,11 +94,15 @@ void main() {
       await tester.scrollUntilVisible(radio, 160);
       await tester.tap(radio);
       await tester.pumpAndSettle();
+      await tester.tap(find.text(l10n.radioOpen));
+      await tester.pumpAndSettle();
       expect(launches.single['url'], 'https://misrquran.gov.eg/home');
       expect(launches.single['useWebView'], isTrue);
       expect(launches.single['enableJavaScript'], isTrue);
 
-      await tester.tap(find.text(l10n.radioOpenInBrowser));
+      await tester.tap(
+        find.widgetWithText(TextButton, l10n.radioOpenInBrowser),
+      );
       await tester.pumpAndSettle();
       expect(launches.last['url'], launches.first['url']);
       expect(launches.last['useWebView'], isFalse);

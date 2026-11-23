@@ -1,76 +1,164 @@
+import 'dart:async';
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' show DateFormat, NumberFormat;
 import 'package:material_ui/material_ui.dart';
 
+import '../../../core/content/feature_preview.dart';
+import '../../../core/localization/civil_hijri_date.dart';
 import '../../../core/localization/l10n_extension.dart';
+import '../../../core/routing/app_routes.dart';
 import '../../../core/routing/app_sections.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_tokens.dart';
-import '../../../core/theme/brand_colors.dart';
-import '../../../core/widgets/icon_badge.dart';
-import '../../../core/widgets/orbit_motif.dart';
 import '../../../core/widgets/responsive_content.dart';
 import '../../../core/widgets/settings_button.dart';
+import '../../adhkar/data/quran_dua_index.dart';
+import '../../prayer/application/prayer_preferences.dart';
+import '../../prayer/domain/prayer_schedule.dart';
+import '../../prayer/presentation/next_prayer_card.dart';
+import '../../quran/data/mushaf_edition.dart';
+import '../../quran/data/quran_services.dart';
+import '../../quran/presentation/quran_meaning_view.dart';
+import '../../worship/application/worship_location.dart';
+import '../../worship/data/daily_reading_plan.dart';
 
-/// Home tab: greeting, today's date, shortcuts and honest status notices.
-///
-/// Shows no prayer times, verses or hadith until those features are
-/// verified; the shortcuts lead to the (gated) section screens.
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key, this.clock = DateTime.now});
 
-  /// Injected for deterministic tests.
   final DateTime Function() clock;
 
-  static const List<AppSection> quickAccess = [
-    AppSection.prayerTimes,
-    AppSection.qibla,
-    AppSection.mushaf,
-    AppSection.adhkar,
-    AppSection.hadith,
-    AppSection.lessons,
-  ];
+  @override
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  late final Timer _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(const Duration(seconds: 30), (_) {
+      if (TickerMode.valuesOf(context).enabled) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final theme = Theme.of(context);
-
+    final locale = Localizations.localeOf(context);
+    final now = widget.clock();
+    final location = ref.watch(worshipLocationProvider);
+    final hanafi = ref.watch(hanafiAsrProvider);
+    final point = location.point;
+    final country = location.country;
+    final showPrayer =
+        !AppSection.prayerTimes.status.isGated || featurePreviewEnabled;
+    final showMushaf =
+        !AppSection.mushaf.status.isGated || featurePreviewEnabled;
+    final schedule = showPrayer && point != null && country != null
+        ? PrayerSchedule.calculate(
+            location: point,
+            country: country,
+            now: now,
+            hanafi: hanafi,
+          )
+        : null;
+    final date = schedule?.today.first.time ?? now;
+    final hijri = civilHijriDate(date, locale.languageCode);
+    final edition = showMushaf
+        ? ref.watch(mushafEditionProvider).asData?.value
+        : null;
     return Scaffold(
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
             pinned: true,
-            title: Text(l10n.appTitle),
+            title: Text(l10n.homeGreeting),
             actions: const [SettingsButton()],
           ),
           SliverResponsiveContent(
             sliver: SliverList.list(
               children: [
-                const SizedBox(height: AppSpacing.sm),
-                _HeroCard(today: clock()),
-                const SizedBox(height: AppSpacing.xl),
-                Semantics(
-                  header: true,
-                  child: Text(
-                    l10n.homeQuickAccess,
-                    style: theme.textTheme.titleMedium,
+                Text(
+                  DateFormat.yMMMMEEEEd(locale.toLanguageTag()).format(date),
+                  key: const ValueKey('home-today-date'),
+                  style: theme.textTheme.bodyMedium,
+                ),
+                if (hijri != null)
+                  Tooltip(
+                    message: l10n.homeApproximateHijriDate,
+                    child: Text(hijri, style: theme.textTheme.bodySmall),
                   ),
-                ),
                 const SizedBox(height: AppSpacing.md),
-                const _QuickAccessGrid(sections: quickAccess),
+                if (schedule != null)
+                  NextPrayerCard(
+                    schedule: schedule,
+                    now: now,
+                    showOverview: true,
+                    location: location.devicePoint == null
+                        ? location.city!.label(l10n)
+                        : l10n.deviceLocation,
+                  )
+                else
+                  Card(
+                    child: ListTile(
+                      leading: const Icon(Icons.mosque_outlined),
+                      title: Text(l10n.sectionPrayerTimesTitle),
+                      subtitle: Text(l10n.homeOpenPrayer),
+                      onTap: () => context.go(AppRoutes.prayerTimes),
+                    ),
+                  ),
+                const SizedBox(height: AppSpacing.md),
+                _ContinueReading(edition: edition),
+                const SizedBox(height: AppSpacing.lg),
+                Wrap(
+                  spacing: AppSpacing.sm,
+                  runSpacing: AppSpacing.sm,
+                  children: [
+                    _HomeShortcut(
+                      Icons.menu_book_outlined,
+                      l10n.homeWird,
+                      AppRoutes.dailyReading,
+                    ),
+                    _HomeShortcut(
+                      Icons.explore_outlined,
+                      l10n.sectionQiblaTitle,
+                      AppRoutes.qibla,
+                      key: const ValueKey('quick-access-AppSection.qibla'),
+                    ),
+                    _HomeShortcut(
+                      Icons.radio,
+                      l10n.radioTitle,
+                      AppRoutes.cairoRadio,
+                    ),
+                    _HomeShortcut(
+                      Icons.wb_twilight,
+                      l10n.homeMorning,
+                      AppRoutes.morningAdhkar,
+                    ),
+                    _HomeShortcut(
+                      Icons.format_quote_outlined,
+                      l10n.sectionHadithTitle,
+                      AppRoutes.hadith,
+                    ),
+                  ],
+                ),
+                if (edition != null &&
+                    (!AppSection.adhkar.status.isGated ||
+                        featurePreviewEnabled)) ...[
+                  const SizedBox(height: AppSpacing.lg),
+                  _DuaOfDay(edition: edition, day: date),
+                ],
                 const SizedBox(height: AppSpacing.xl),
-                _NoticeCard(
-                  icon: Icons.verified_user_outlined,
-                  title: l10n.homePreviewTitle,
-                  body: l10n.homePreviewBody,
-                ),
-                const SizedBox(height: AppSpacing.md),
-                _NoticeCard(
-                  icon: Icons.favorite_outline,
-                  title: l10n.homePromiseTitle,
-                  body: l10n.homePromiseBody,
-                ),
-                const SizedBox(height: AppSpacing.xxl),
               ],
             ),
           ),
@@ -80,198 +168,150 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-class _HeroCard extends StatelessWidget {
-  const _HeroCard({required this.today});
+class _HomeShortcut extends StatelessWidget {
+  const _HomeShortcut(this.icon, this.label, this.route, {super.key});
 
-  final DateTime today;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final locale = Localizations.localeOf(context).toLanguageTag();
-    final date = DateFormat.yMMMMEEEEd(locale).format(today);
-
-    const onHero = BrandColors.ivory;
-    final gradient = isDark
-        ? const [Color(0xFF173F39), Color(0xFF0F2A25)]
-        : const [BrandColors.primaryGreen, BrandColors.heroGreenEnd];
-
-    return ClipRRect(
-      borderRadius: AppRadii.xlAll,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: AlignmentDirectional.topStart,
-            end: AlignmentDirectional.bottomEnd,
-            colors: gradient,
-          ),
-        ),
-        child: Stack(
-          children: [
-            const Positioned.fill(
-              child: OrbitMotif(color: BrandColors.mutedGold),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(AppSpacing.xl),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    l10n.homeGreeting,
-                    style: theme.textTheme.headlineSmall?.copyWith(
-                      color: onHero,
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.xs),
-                  Text(
-                    l10n.appTagline,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: onHero.withValues(alpha: 0.85),
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.xl),
-                  Container(height: 1, width: 48, color: BrandColors.mutedGold),
-                  const SizedBox(height: AppSpacing.md),
-                  Text(
-                    l10n.homeTodayLabel,
-                    style: theme.textTheme.labelMedium?.copyWith(
-                      color: BrandColors.goldBright,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  Text(
-                    date,
-                    key: const ValueKey('home-today-date'),
-                    style: theme.textTheme.titleMedium?.copyWith(color: onHero),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _QuickAccessGrid extends StatelessWidget {
-  const _QuickAccessGrid({required this.sections});
-
-  final List<AppSection> sections;
+  final IconData icon;
+  final String label;
+  final String route;
 
   @override
-  Widget build(BuildContext context) => LayoutBuilder(
-    builder: (context, constraints) {
-      final columns = constraints.maxWidth >= AppBreakpoints.medium - 40
-          ? 3
-          : 2;
-      final rows = <Widget>[];
-      for (var i = 0; i < sections.length; i += columns) {
-        final rowItems = sections.skip(i).take(columns).toList();
-        rows.add(
-          IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                for (var j = 0; j < columns; j++) ...[
-                  if (j > 0) const SizedBox(width: AppSpacing.md),
-                  Expanded(
-                    child: j < rowItems.length
-                        ? _QuickAccessTile(section: rowItems[j])
-                        : const SizedBox.shrink(),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        );
+  Widget build(BuildContext context) => ActionChip(
+    avatar: Icon(icon, size: 18),
+    label: Text(label),
+    onPressed: () {
+      if (route == AppRoutes.dailyReading || route == AppRoutes.cairoRadio) {
+        context.push(route);
+      } else {
+        context.go(route);
       }
-      return Column(
-        children: [
-          for (var r = 0; r < rows.length; r++) ...[
-            if (r > 0) const SizedBox(height: AppSpacing.md),
-            rows[r],
-          ],
-        ],
-      );
     },
   );
 }
 
-class _QuickAccessTile extends StatelessWidget {
-  const _QuickAccessTile({required this.section});
+class _ContinueReading extends ConsumerWidget {
+  const _ContinueReading({required this.edition});
 
-  final AppSection section;
-
-  static Key keyFor(AppSection s) => ValueKey('quick-access-$s');
+  final MushafEdition? edition;
 
   @override
-  Widget build(BuildContext context) {
-    final title = section.title(context.l10n);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final locale = Localizations.localeOf(context).languageCode;
+    final number = NumberFormat.decimalPattern(locale).format;
+    final book = edition;
+    final position = book == null
+        ? null
+        : ref.watch(lastReadingPositionProvider).asData?.value?.ref;
+    final verse = position != null && book!.contains(position)
+        ? position
+        : null;
+    final page = verse == null ? null : book!.pageOf(verse) + 1;
+    final plan = ref.watch(dailyReadingPlanProvider);
+    final theme = Theme.of(context);
     return Card(
-      key: keyFor(section),
-      child: Semantics(
-        button: true,
-        label: title,
-        excludeSemantics: true,
-        child: InkWell(
-          onTap: () => context.go(section.path),
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.lg),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                IconBadge(icon: section.icon, size: 40),
-                const SizedBox(height: AppSpacing.md),
-                Text(title, style: Theme.of(context).textTheme.titleSmall),
-              ],
+      color: theme.colorScheme.primaryContainer,
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(l10n.homeContinueReading, style: theme.textTheme.titleMedium),
+            if (verse != null) ...[
+              const SizedBox(height: AppSpacing.xs),
+              Text(
+                l10n.readerPosition(
+                  book!.surahs[verse.surah - 1].name(locale),
+                  number(verse.ayah),
+                  number(page),
+                ),
+              ),
+              Text(l10n.readerJuzLabel(number(book.juzOf(verse) + 1))),
+            ],
+            if (book != null)
+              Text(
+                l10n.dailyReadingProgress(
+                  number(plan.pagesRead),
+                  number(DailyReadingPlanController.totalPages),
+                ),
+              ),
+            const SizedBox(height: AppSpacing.sm),
+            FilledButton(
+              onPressed: () => context.go(
+                verse == null
+                    ? AppRoutes.quran
+                    : AppRoutes.verse(verse.surah, verse.ayah),
+              ),
+              child: Text(
+                page == null
+                    ? l10n.homeReadQuran
+                    : l10n.homeOpenPage(number(page)),
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
   }
 }
 
-class _NoticeCard extends StatelessWidget {
-  const _NoticeCard({
-    required this.icon,
-    required this.title,
-    required this.body,
-  });
+final _dailyDuas = [
+  for (final ranges in quranDuaIndex.values)
+    for (final range in ranges)
+      if (range.first == range.last) range,
+];
 
-  final IconData icon;
-  final String title;
-  final String body;
+class _DuaOfDay extends StatelessWidget {
+  const _DuaOfDay({required this.edition, required this.day});
+
+  final MushafEdition edition;
+  final DateTime day;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
+    final offset = DateTime.utc(
+      day.year,
+      day.month,
+      day.day,
+    ).difference(DateTime.utc(2026, 1, 1)).inDays;
+    final range = _dailyDuas[offset % _dailyDuas.length];
+    final locale = Localizations.localeOf(context).languageCode;
+    final numbers = NumberFormat.decimalPattern(locale);
+    final surah = edition.surahs[range.surah - 1];
+    final l10n = context.l10n;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.lg),
-        child: Row(
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, color: scheme.secondary),
-            const SizedBox(width: AppSpacing.md),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: theme.textTheme.titleSmall),
-                  const SizedBox(height: AppSpacing.xs),
-                  Text(
-                    body,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: scheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
+            Text(
+              l10n.homeDuaOfDay,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              surah.verses[range.first - 1],
+              textDirection: TextDirection.rtl,
+              style: const TextStyle(
+                fontFamily: AppTheme.quranFontFamily,
+                fontSize: 22,
+                height: 1.65,
               ),
+            ),
+            if (locale == 'en')
+              QuranMeaningView(
+                surah: range.surah,
+                first: range.first,
+                last: range.last,
+                count: surah.verses.length,
+              ),
+            Text('${surah.name(locale)} · ${numbers.format(range.first)}'),
+            TextButton.icon(
+              onPressed: () =>
+                  context.go(AppRoutes.verse(range.surah, range.first)),
+              icon: const Icon(Icons.menu_book_outlined),
+              label: Text(l10n.dailyReadingOpen),
             ),
           ],
         ),

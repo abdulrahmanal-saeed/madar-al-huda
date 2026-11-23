@@ -341,7 +341,7 @@ abstract class AppLocalizations {
   /// Bottom navigation: home tab.
   ///
   /// In en, this message translates to:
-  /// **'Home'**
+  /// **'Today'**
   String get navHome;
 
   /// Bottom navigation: Quran tab.
@@ -1423,6 +1423,306 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Mark this session read'**
   String get dailyReadingMarkRead;
+
+  /// Adhkar
+  ///
+  /// In en, this message translates to:
+  /// **'Adhkar'**
+  String get navAdhkar;
+
+  /// Prayer
+  ///
+  /// In en, this message translates to:
+  /// **'Prayer'**
+  String get navPrayer;
+
+  /// Calculation method
+  ///
+  /// In en, this message translates to:
+  /// **'Calculation method'**
+  String get prayerCalculationMethod;
+
+  /// Asr calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Asr calculation'**
+  String get prayerAsrCalculation;
+
+  /// In minutes min
+  ///
+  /// In en, this message translates to:
+  /// **'In {minutes} min'**
+  String prayerMinutesLeft(String minutes);
+
+  /// In hours h minutes min
+  ///
+  /// In en, this message translates to:
+  /// **'In {hours} h {minutes} min'**
+  String prayerHoursLeft(String hours, String minutes);
+
+  /// Facing the Qibla
+  ///
+  /// In en, this message translates to:
+  /// **'Facing the Qibla'**
+  String get compassAligned;
+
+  /// Turn right · angle°
+  ///
+  /// In en, this message translates to:
+  /// **'Turn right · {angle}°'**
+  String compassTurnRight(String angle);
+
+  /// Turn left · angle°
+  ///
+  /// In en, this message translates to:
+  /// **'Turn left · {angle}°'**
+  String compassTurnLeft(String angle);
+
+  /// Phone heading angle°
+  ///
+  /// In en, this message translates to:
+  /// **'Phone heading {angle}°'**
+  String compassPhoneHeading(String angle);
+
+  /// Last reading position
+  ///
+  /// In en, this message translates to:
+  /// **'Last reading position'**
+  String get readerLastPosition;
+
+  /// surah · verse verse · p. page
+  ///
+  /// In en, this message translates to:
+  /// **'{surah} · verse {verse} · p. {page}'**
+  String readerPosition(String surah, String verse, String page);
+
+  /// juz · hizb · page of total
+  ///
+  /// In en, this message translates to:
+  /// **'{juz} · {hizb} · {page} of {total}'**
+  String readerPageMeta(String juz, String hizb, String page, String total);
+
+  /// Page number (1–604)
+  ///
+  /// In en, this message translates to:
+  /// **'Page number (1–604)'**
+  String get readerPageInput;
+
+  /// Enter a page from 1 to 604.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a page from 1 to 604.'**
+  String get readerPageInvalid;
+
+  /// Scroll vertically between pages.
+  ///
+  /// In en, this message translates to:
+  /// **'Scroll vertically between pages.'**
+  String get readerIndexScroll;
+
+  /// count verses
+  ///
+  /// In en, this message translates to:
+  /// **'{count} verses'**
+  String readerIndexVerseCount(String count);
+
+  /// Copy verse
+  ///
+  /// In en, this message translates to:
+  /// **'Copy verse'**
+  String get readerCopy;
+
+  /// Verse copied
+  ///
+  /// In en, this message translates to:
+  /// **'Verse copied'**
+  String get readerCopied;
+
+  /// Share verse
+  ///
+  /// In en, this message translates to:
+  /// **'Share verse'**
+  String get readerShare;
+
+  /// Could not share the verse.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not share the verse.'**
+  String get readerShareFailed;
+
+  /// Listen to the surah
+  ///
+  /// In en, this message translates to:
+  /// **'Listen to the surah'**
+  String get readerListenChapter;
+
+  /// Listen from this verse
+  ///
+  /// In en, this message translates to:
+  /// **'Listen from this verse'**
+  String get readerListenFromVerse;
+
+  /// This recording has no timing for the selected verse.
+  ///
+  /// In en, this message translates to:
+  /// **'This recording has no timing for the selected verse.'**
+  String get readerVerseAudioUnavailable;
+
+  /// Reading sources
+  ///
+  /// In en, this message translates to:
+  /// **'Reading sources'**
+  String get readerSources;
+
+  /// Continue reading
+  ///
+  /// In en, this message translates to:
+  /// **'Continue reading'**
+  String get homeContinueReading;
+
+  /// Open page number
+  ///
+  /// In en, this message translates to:
+  /// **'Open page {number}'**
+  String homeOpenPage(String number);
+
+  /// Open the Mushaf
+  ///
+  /// In en, this message translates to:
+  /// **'Open the Mushaf'**
+  String get homeReadQuran;
+
+  /// Dua of the day
+  ///
+  /// In en, this message translates to:
+  /// **'Dua of the day'**
+  String get homeDuaOfDay;
+
+  /// Morning adhkar
+  ///
+  /// In en, this message translates to:
+  /// **'Morning adhkar'**
+  String get homeMorning;
+
+  /// Reading plan
+  ///
+  /// In en, this message translates to:
+  /// **'Reading plan'**
+  String get homeWird;
+
+  /// Set your prayer location
+  ///
+  /// In en, this message translates to:
+  /// **'Set your prayer location'**
+  String get homeOpenPrayer;
+
+  /// Live
+  ///
+  /// In en, this message translates to:
+  /// **'Live'**
+  String get radioLive;
+
+  /// Live from Cairo
+  ///
+  /// In en, this message translates to:
+  /// **'Live from Cairo'**
+  String get radioCairo;
+
+  /// Grade
+  ///
+  /// In en, this message translates to:
+  /// **'Grade'**
+  String get hadithGradeTitle;
+
+  /// Source
+  ///
+  /// In en, this message translates to:
+  /// **'Source'**
+  String get hadithSourceTitle;
+
+  /// Explanation
+  ///
+  /// In en, this message translates to:
+  /// **'Explanation'**
+  String get hadithExplanationTitle;
+
+  /// Add to favorites
+  ///
+  /// In en, this message translates to:
+  /// **'Add to favorites'**
+  String get hadithAddFavorite;
+
+  /// Remove from favorites
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from favorites'**
+  String get hadithRemoveFavorite;
+
+  /// Favorite hadiths
+  ///
+  /// In en, this message translates to:
+  /// **'Favorite hadiths'**
+  String get hadithFavoritesTitle;
+
+  /// You have no favorite hadiths yet.
+  ///
+  /// In en, this message translates to:
+  /// **'You have no favorite hadiths yet.'**
+  String get hadithNoFavorites;
+
+  /// Academy
+  ///
+  /// In en, this message translates to:
+  /// **'Academy'**
+  String get libraryAcademy;
+
+  /// Stories of the prophets
+  ///
+  /// In en, this message translates to:
+  /// **'Stories of the prophets'**
+  String get libraryStories;
+
+  /// View all
+  ///
+  /// In en, this message translates to:
+  /// **'View all'**
+  String get libraryMore;
+
+  /// Current reading plan
+  ///
+  /// In en, this message translates to:
+  /// **'Current reading plan'**
+  String get dailyReadingCurrentPlan;
+
+  /// Open next page · page
+  ///
+  /// In en, this message translates to:
+  /// **'Open next page · {page}'**
+  String dailyReadingNextPage(String page);
+
+  /// Today’s reading
+  ///
+  /// In en, this message translates to:
+  /// **'Today’s reading'**
+  String get dailyReadingTodaysWird;
+
+  /// Fewer pages per session
+  ///
+  /// In en, this message translates to:
+  /// **'Fewer pages per session'**
+  String get decreaseReadingPace;
+
+  /// More pages per session
+  ///
+  /// In en, this message translates to:
+  /// **'More pages per session'**
+  String get increaseReadingPace;
+
+  /// Tooltip for the approximate civil Hijri date.
+  ///
+  /// In en, this message translates to:
+  /// **'Approximate civil Hijri date'**
+  String get homeApproximateHijriDate;
 }
 
 class _AppLocalizationsDelegate

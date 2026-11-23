@@ -6,7 +6,10 @@ import 'package:madar_al_huda/core/routing/app_sections.dart';
 import 'package:madar_al_huda/core/widgets/content_status_panel.dart';
 import 'package:madar_al_huda/core/widgets/section_card.dart';
 import 'package:madar_al_huda/core/widgets/settings_button.dart';
+import 'package:madar_al_huda/features/prayer/presentation/prayer_times_screen.dart';
+import 'package:madar_al_huda/features/qibla/presentation/qibla_screen.dart';
 import 'package:madar_al_huda/features/quran/presentation/mushaf_screen.dart';
+import 'package:madar_al_huda/features/worship/application/worship_location.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../helpers/pump_app.dart';
@@ -25,36 +28,28 @@ void main() {
       find.descendant(of: bar, matching: find.byType(NavigationDestination)),
       findsNWidgets(5),
     );
-    for (final label in ['Home', 'Quran', 'Worship', 'Library', 'Learning']) {
+    for (final label in ['Today', 'Quran', 'Adhkar', 'Prayer', 'Library']) {
       expect(navTab(label), findsOneWidget, reason: label);
     }
   });
 
-  testWidgets('each tab opens its hub with the expected sections', (
-    tester,
-  ) async {
+  testWidgets('library links to the existing content sections', (tester) async {
     await pumpMadarApp(tester);
-    final expected = {
-      'Worship': [AppSection.prayerTimes, AppSection.qibla, AppSection.adhkar],
-      'Library': [AppSection.hadith, AppSection.fiqh, AppSection.articles],
-      'Learning': [AppSection.lessons, AppSection.stories],
-    };
-    for (final MapEntry(key: tab, value: sections) in expected.entries) {
-      await tester.tap(navTab(tab));
-      await tester.pumpAndSettle();
-      for (final section in sections) {
-        await tester.scrollUntilVisible(
-          find.byKey(SectionCard.keyFor(section)),
-          200,
-          scrollable: find.byType(Scrollable).hitTestable().first,
-        );
-        expect(
-          find.byKey(SectionCard.keyFor(section)),
-          findsOneWidget,
-          reason: '$tab → $section',
-        );
-      }
+    await tester.tap(navTab('Library'));
+    await tester.pumpAndSettle();
+    for (final section in [
+      AppSection.hadith,
+      AppSection.fiqh,
+      AppSection.articles,
+    ]) {
+      await tester.scrollUntilVisible(
+        find.byKey(SectionCard.keyFor(section)),
+        160,
+      );
+      expect(find.byKey(SectionCard.keyFor(section)), findsOneWidget);
     }
+    expect(find.text('Stories of the prophets'), findsWidgets);
+    expect(find.text('Academy'), findsOneWidget);
   });
 
   for (final locale in const [Locale('en'), Locale('ar')]) {
@@ -129,30 +124,47 @@ void main() {
   testWidgets('tabs keep their own navigation stack', (tester) async {
     await pumpMadarApp(tester);
 
-    // Open Worship → Prayer Times.
-    await tester.tap(navTab('Worship'));
+    await tester.tap(navTab('Prayer'));
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(SectionCard.keyFor(AppSection.prayerTimes)));
+    await tester.tap(find.widgetWithText(TextButton, 'Qibla'));
     await tester.pumpAndSettle();
-    expect(find.text('Choose a city'), findsOneWidget);
+    expect(find.byType(QiblaScreen), findsOneWidget);
 
-    // Switch to Quran and back: Prayer Times is still open.
     await tester.tap(navTab('Quran'));
     await tester.pumpAndSettle();
     expect(find.byType(MushafScreen), findsOneWidget);
-    await tester.tap(navTab('Worship'));
+    await tester.tap(navTab('Prayer'));
     await tester.pumpAndSettle();
-    expect(find.text('Choose a city'), findsOneWidget);
-    expect(find.text('Prayer Times'), findsWidgets);
+    expect(find.byType(QiblaScreen), findsOneWidget);
 
-    // Re-selecting the active tab pops to its root.
-    await tester.tap(navTab('Worship'));
+    await tester.tap(navTab('Prayer'));
     await tester.pumpAndSettle();
-    expect(find.byType(ContentStatusPanel), findsNothing);
-    expect(
-      find.byKey(SectionCard.keyFor(AppSection.prayerTimes)),
-      findsOneWidget,
+    expect(find.byType(PrayerTimesScreen), findsOneWidget);
+    expect(find.byType(QiblaScreen), findsNothing);
+  });
+
+  testWidgets('the selected city feeds Prayer and the north-up Qibla', (
+    tester,
+  ) async {
+    final l10n = lookupAppLocalizations(const Locale('en'));
+    final store = await pumpMadarApp(
+      tester,
+      initialLocation: AppRoutes.prayerTimes,
     );
+    await tester.tap(find.widgetWithText(ChoiceChip, l10n.cityDubai));
+    await tester.pumpAndSettle();
+    expect(find.textContaining(l10n.nextPrayer), findsOneWidget);
+    expect(store.getString(WorshipLocationController.cityKey), 'dubai-ae');
+    await tester.tap(find.widgetWithText(TextButton, l10n.sectionQiblaTitle));
+    await tester.pumpAndSettle();
+    expect(
+      tester
+          .widget<ChoiceChip>(find.widgetWithText(ChoiceChip, l10n.cityDubai))
+          .selected,
+      isTrue,
+    );
+    expect(find.text(l10n.cityBearingApproximate), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('back button returns from a section to its hub', (tester) async {
@@ -175,11 +187,11 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Choose a city'), findsOneWidget);
+    expect(find.byType(QiblaScreen), findsOneWidget);
     final bar = tester.widget<NavigationBar>(
       find.byKey(AppShell.navigationBarKey),
     );
-    expect(bar.selectedIndex, 2, reason: 'Worship tab selected');
+    expect(bar.selectedIndex, 3, reason: 'Prayer tab selected');
   });
 
   testWidgets('settings opens above the shell and closes', (tester) async {

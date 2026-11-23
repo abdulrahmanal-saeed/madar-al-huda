@@ -83,7 +83,7 @@
   "splashContinue": "Enter the app",
   "@splashContinue": {"description": "Accessibility label for leaving the startup screen."},
 
-  "navHome": "Home",
+  "navHome": "Today",
   "@navHome": {"description": "Bottom navigation: home tab."},
   "navQuran": "Quran",
   "@navQuran": {"description": "Bottom navigation: Quran tab."},
@@ -725,5 +725,273 @@
   "dailyReadingMarkRead": "Mark this session read",
   "@dailyReadingMarkRead": {
     "description": "Mark this session read"
+  },
+  "navAdhkar": "Adhkar",
+  "@navAdhkar": {
+    "description": "Adhkar"
+  },
+  "navPrayer": "Prayer",
+  "@navPrayer": {
+    "description": "Prayer"
+  },
+  "prayerCalculationMethod": "Calculation method",
+  "@prayerCalculationMethod": {
+    "description": "Calculation method"
+  },
+  "prayerAsrCalculation": "Asr calculation",
+  "@prayerAsrCalculation": {
+    "description": "Asr calculation"
+  },
+  "prayerMinutesLeft": "In {minutes} min",
+  "@prayerMinutesLeft": {
+    "description": "In minutes min",
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "prayerHoursLeft": "In {hours} h {minutes} min",
+  "@prayerHoursLeft": {
+    "description": "In hours h minutes min",
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "compassAligned": "Facing the Qibla",
+  "@compassAligned": {
+    "description": "Facing the Qibla"
+  },
+  "compassTurnRight": "Turn right · {angle}°",
+  "@compassTurnRight": {
+    "description": "Turn right · angle°",
+    "placeholders": {
+      "angle": {
+        "type": "String"
+      }
+    }
+  },
+  "compassTurnLeft": "Turn left · {angle}°",
+  "@compassTurnLeft": {
+    "description": "Turn left · angle°",
+    "placeholders": {
+      "angle": {
+        "type": "String"
+      }
+    }
+  },
+  "compassPhoneHeading": "Phone heading {angle}°",
+  "@compassPhoneHeading": {
+    "description": "Phone heading angle°",
+    "placeholders": {
+      "angle": {
+        "type": "String"
+      }
+    }
+  },
+  "readerLastPosition": "Last reading position",
+  "@readerLastPosition": {
+    "description": "Last reading position"
+  },
+  "readerPosition": "{surah} · verse {verse} · p. {page}",
+  "@readerPosition": {
+    "description": "surah · verse verse · p. page",
+    "placeholders": {
+      "surah": {
+        "type": "String"
+      },
+      "verse": {
+        "type": "String"
+      },
+      "page": {
+        "type": "String"
+      }
+    }
+  },
+  "readerPageMeta": "{juz} · {hizb} · {page} of {total}",
+  "@readerPageMeta": {
+    "description": "juz · hizb · page of total",
+    "placeholders": {
+      "juz": {
+        "type": "String"
+      },
+      "hizb": {
+        "type": "String"
+      },
+      "page": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "readerPageInput": "Page number (1–604)",
+  "@readerPageInput": {
+    "description": "Page number (1–604)"
+  },
+  "readerPageInvalid": "Enter a page from 1 to 604.",
+  "@readerPageInvalid": {
+    "description": "Enter a page from 1 to 604."
+  },
+  "readerIndexScroll": "Scroll vertically between pages.",
+  "@readerIndexScroll": {
+    "description": "Scroll vertically between pages."
+  },
+  "readerIndexVerseCount": "{count} verses",
+  "@readerIndexVerseCount": {
+    "description": "count verses",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "readerCopy": "Copy verse",
+  "@readerCopy": {
+    "description": "Copy verse"
+  },
+  "readerCopied": "Verse copied",
+  "@readerCopied": {
+    "description": "Verse copied"
+  },
+  "readerShare": "Share verse",
+  "@readerShare": {
+    "description": "Share verse"
+  },
+  "readerShareFailed": "Could not share the verse.",
+  "@readerShareFailed": {
+    "description": "Could not share the verse."
+  },
+  "readerListenChapter": "Listen to the surah",
+  "@readerListenChapter": {
+    "description": "Listen to the surah"
+  },
+  "readerListenFromVerse": "Listen from this verse",
+  "@readerListenFromVerse": {
+    "description": "Listen from this verse"
+  },
+  "readerVerseAudioUnavailable": "This recording has no timing for the selected verse.",
+  "@readerVerseAudioUnavailable": {
+    "description": "This recording has no timing for the selected verse."
+  },
+  "readerSources": "Reading sources",
+  "@readerSources": {
+    "description": "Reading sources"
+  },
+  "homeContinueReading": "Continue reading",
+  "@homeContinueReading": {
+    "description": "Continue reading"
+  },
+  "homeOpenPage": "Open page {number}",
+  "@homeOpenPage": {
+    "description": "Open page number",
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "homeReadQuran": "Open the Mushaf",
+  "@homeReadQuran": {
+    "description": "Open the Mushaf"
+  },
+  "homeDuaOfDay": "Dua of the day",
+  "@homeDuaOfDay": {
+    "description": "Dua of the day"
+  },
+  "homeMorning": "Morning adhkar",
+  "@homeMorning": {
+    "description": "Morning adhkar"
+  },
+  "homeWird": "Reading plan",
+  "@homeWird": {
+    "description": "Reading plan"
+  },
+  "homeOpenPrayer": "Set your prayer location",
+  "@homeOpenPrayer": {
+    "description": "Set your prayer location"
+  },
+  "radioLive": "Live",
+  "@radioLive": {
+    "description": "Live"
+  },
+  "radioCairo": "Live from Cairo",
+  "@radioCairo": {
+    "description": "Live from Cairo"
+  },
+  "hadithGradeTitle": "Grade",
+  "@hadithGradeTitle": {
+    "description": "Grade"
+  },
+  "hadithSourceTitle": "Source",
+  "@hadithSourceTitle": {
+    "description": "Source"
+  },
+  "hadithExplanationTitle": "Explanation",
+  "@hadithExplanationTitle": {
+    "description": "Explanation"
+  },
+  "hadithAddFavorite": "Add to favorites",
+  "@hadithAddFavorite": {
+    "description": "Add to favorites"
+  },
+  "hadithRemoveFavorite": "Remove from favorites",
+  "@hadithRemoveFavorite": {
+    "description": "Remove from favorites"
+  },
+  "hadithFavoritesTitle": "Favorite hadiths",
+  "@hadithFavoritesTitle": {
+    "description": "Favorite hadiths"
+  },
+  "hadithNoFavorites": "You have no favorite hadiths yet.",
+  "@hadithNoFavorites": {
+    "description": "You have no favorite hadiths yet."
+  },
+  "libraryAcademy": "Academy",
+  "@libraryAcademy": {
+    "description": "Academy"
+  },
+  "libraryStories": "Stories of the prophets",
+  "@libraryStories": {
+    "description": "Stories of the prophets"
+  },
+  "libraryMore": "View all",
+  "@libraryMore": {
+    "description": "View all"
+  },
+  "dailyReadingCurrentPlan": "Current reading plan",
+  "@dailyReadingCurrentPlan": {
+    "description": "Current reading plan"
+  },
+  "dailyReadingNextPage": "Open next page · {page}",
+  "@dailyReadingNextPage": {
+    "description": "Open next page · page",
+    "placeholders": {
+      "page": {
+        "type": "String"
+      }
+    }
+  },
+  "dailyReadingTodaysWird": "Today’s reading",
+  "@dailyReadingTodaysWird": {
+    "description": "Today’s reading"
+  },
+  "decreaseReadingPace": "Fewer pages per session",
+  "@decreaseReadingPace": {
+    "description": "Fewer pages per session"
+  },
+  "increaseReadingPace": "More pages per session",
+  "@increaseReadingPace": {
+    "description": "More pages per session"
+  },
+  "homeApproximateHijriDate": "Approximate civil Hijri date",
+  "@homeApproximateHijriDate": {
+    "description": "Tooltip for the approximate civil Hijri date."
   }
 }

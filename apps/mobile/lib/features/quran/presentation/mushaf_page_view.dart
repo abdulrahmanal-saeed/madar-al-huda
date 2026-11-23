@@ -86,7 +86,11 @@ class MushafPageViewState extends State<MushafPageView> {
     );
   }
 
-  List<InlineSpan> _verseSpans(List<MushafVerse> verses, Color highlight) {
+  List<InlineSpan> _verseSpans(
+    List<MushafVerse> verses,
+    Color highlight,
+    Color numberColor,
+  ) {
     final numbers = NumberFormat.decimalPattern('ar');
     final spans = <InlineSpan>[];
     final basmala = widget.edition.surahs.first.verses.first;
@@ -97,7 +101,8 @@ class MushafPageViewState extends State<MushafPageView> {
           ref.surah > 1 && ref.ayah == 1 && verse.text.startsWith('$basmala ')
           ? verse.text.substring(basmala.length + 1)
           : verse.text;
-      final display = '$text \u06dd${numbers.format(ref.ayah)}';
+      final marker = '\u06dd${numbers.format(ref.ayah)}';
+      final display = '$text $marker';
       final recognizer = _recognizers.putIfAbsent(
         ref,
         LongPressGestureRecognizer.new,
@@ -111,11 +116,17 @@ class MushafPageViewState extends State<MushafPageView> {
       spans
         ..add(
           TextSpan(
-            text: display,
             style: ref == widget.selected
                 ? TextStyle(backgroundColor: highlight)
                 : null,
-            recognizer: recognizer,
+            children: [
+              TextSpan(text: '$text ', recognizer: recognizer),
+              TextSpan(
+                text: marker,
+                style: TextStyle(color: numberColor),
+                recognizer: recognizer,
+              ),
+            ],
           ),
         )
         ..add(const TextSpan(text: ' '));
@@ -129,9 +140,10 @@ class MushafPageViewState extends State<MushafPageView> {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final dark = theme.brightness == Brightness.dark;
-    final ink = dark ? colors.onSurface : const Color(0xff282117);
-    final border = dark ? colors.outline : const Color(0xff806647);
-    final paper = dark ? colors.surfaceContainerLow : const Color(0xfffffaf0);
+    final ink = dark ? colors.onSurface : const Color(0xff12332f);
+    final border = dark ? colors.outline : const Color(0xffe2d4b2);
+    final paper = dark ? colors.surfaceContainerLow : const Color(0xfffcf8ee);
+    final banner = dark ? colors.secondaryContainer : const Color(0xfff3e9cf);
     final quranStyle = TextStyle(
       fontFamily: AppTheme.quranFontFamily,
       fontSize: 27,
@@ -160,11 +172,15 @@ class MushafPageViewState extends State<MushafPageView> {
           padding: const EdgeInsets.all(4),
           decoration: BoxDecoration(
             color: paper,
-            border: Border.all(color: border, width: 2),
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(color: border),
           ),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
-            decoration: BoxDecoration(border: Border.all(color: border)),
+            decoration: BoxDecoration(
+              border: Border.all(color: border),
+              borderRadius: BorderRadius.circular(4),
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -174,7 +190,7 @@ class MushafPageViewState extends State<MushafPageView> {
                       child: Text(
                         '$pageSurah · ${context.l10n.readerJuzLabel(juz == lastJuz ? juz : '$juz–$lastJuz')}',
                         style: theme.textTheme.labelMedium?.copyWith(
-                          color: border,
+                          color: colors.onSurfaceVariant,
                         ),
                       ),
                     ),
@@ -190,10 +206,9 @@ class MushafPageViewState extends State<MushafPageView> {
                   if (entry.value.first.ref.ayah == 1) ...[
                     Container(
                       decoration: BoxDecoration(
-                        color: colors.tertiaryContainer.withValues(alpha: .35),
-                        border: Border.symmetric(
-                          horizontal: BorderSide(color: border),
-                        ),
+                        color: banner,
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(color: border),
                       ),
                       padding: const EdgeInsets.symmetric(vertical: 4),
                       child: Text(
@@ -225,7 +240,8 @@ class MushafPageViewState extends State<MushafPageView> {
                         style: quranStyle,
                         children: _verseSpans(
                           entry.value,
-                          colors.tertiaryContainer,
+                          colors.secondaryContainer,
+                          colors.secondary,
                         ),
                       ),
                     ),

@@ -139,7 +139,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get splashContinue => 'Enter the app';
 
   @override
-  String get navHome => 'Home';
+  String get navHome => 'Today';
 
   @override
   String get navQuran => 'Quran';
@@ -732,4 +732,175 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dailyReadingMarkRead => 'Mark this session read';
+
+  @override
+  String get navAdhkar => 'Adhkar';
+
+  @override
+  String get navPrayer => 'Prayer';
+
+  @override
+  String get prayerCalculationMethod => 'Calculation method';
+
+  @override
+  String get prayerAsrCalculation => 'Asr calculation';
+
+  @override
+  String prayerMinutesLeft(String minutes) {
+    return 'In $minutes min';
+  }
+
+  @override
+  String prayerHoursLeft(String hours, String minutes) {
+    return 'In $hours h $minutes min';
+  }
+
+  @override
+  String get compassAligned => 'Facing the Qibla';
+
+  @override
+  String compassTurnRight(String angle) {
+    return 'Turn right · $angle°';
+  }
+
+  @override
+  String compassTurnLeft(String angle) {
+    return 'Turn left · $angle°';
+  }
+
+  @override
+  String compassPhoneHeading(String angle) {
+    return 'Phone heading $angle°';
+  }
+
+  @override
+  String get readerLastPosition => 'Last reading position';
+
+  @override
+  String readerPosition(String surah, String verse, String page) {
+    return '$surah · verse $verse · p. $page';
+  }
+
+  @override
+  String readerPageMeta(String juz, String hizb, String page, String total) {
+    return '$juz · $hizb · $page of $total';
+  }
+
+  @override
+  String get readerPageInput => 'Page number (1–604)';
+
+  @override
+  String get readerPageInvalid => 'Enter a page from 1 to 604.';
+
+  @override
+  String get readerIndexScroll => 'Scroll vertically between pages.';
+
+  @override
+  String readerIndexVerseCount(String count) {
+    return '$count verses';
+  }
+
+  @override
+  String get readerCopy => 'Copy verse';
+
+  @override
+  String get readerCopied => 'Verse copied';
+
+  @override
+  String get readerShare => 'Share verse';
+
+  @override
+  String get readerShareFailed => 'Could not share the verse.';
+
+  @override
+  String get readerListenChapter => 'Listen to the surah';
+
+  @override
+  String get readerListenFromVerse => 'Listen from this verse';
+
+  @override
+  String get readerVerseAudioUnavailable =>
+      'This recording has no timing for the selected verse.';
+
+  @override
+  String get readerSources => 'Reading sources';
+
+  @override
+  String get homeContinueReading => 'Continue reading';
+
+  @override
+  String homeOpenPage(String number) {
+    return 'Open page $number';
+  }
+
+  @override
+  String get homeReadQuran => 'Open the Mushaf';
+
+  @override
+  String get homeDuaOfDay => 'Dua of the day';
+
+  @override
+  String get homeMorning => 'Morning adhkar';
+
+  @override
+  String get homeWird => 'Reading plan';
+
+  @override
+  String get homeOpenPrayer => 'Set your prayer location';
+
+  @override
+  String get radioLive => 'Live';
+
+  @override
+  String get radioCairo => 'Live from Cairo';
+
+  @override
+  String get hadithGradeTitle => 'Grade';
+
+  @override
+  String get hadithSourceTitle => 'Source';
+
+  @override
+  String get hadithExplanationTitle => 'Explanation';
+
+  @override
+  String get hadithAddFavorite => 'Add to favorites';
+
+  @override
+  String get hadithRemoveFavorite => 'Remove from favorites';
+
+  @override
+  String get hadithFavoritesTitle => 'Favorite hadiths';
+
+  @override
+  String get hadithNoFavorites => 'You have no favorite hadiths yet.';
+
+  @override
+  String get libraryAcademy => 'Academy';
+
+  @override
+  String get libraryStories => 'Stories of the prophets';
+
+  @override
+  String get libraryMore => 'View all';
+
+  @override
+  String get dailyReadingCurrentPlan => 'Current reading plan';
+
+  @override
+  String dailyReadingNextPage(String page) {
+    return 'Open next page · $page';
+  }
+
+  @override
+  String get dailyReadingTodaysWird => 'Today’s reading';
+
+  @override
+  String get decreaseReadingPace => 'Fewer pages per session';
+
+  @override
+  String get increaseReadingPace => 'More pages per session';
+
+  @override
+  String get homeApproximateHijriDate => 'Approximate civil Hijri date';
 }

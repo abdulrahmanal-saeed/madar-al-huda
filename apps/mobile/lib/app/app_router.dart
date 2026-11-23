@@ -18,6 +18,8 @@ import '../features/quran/data/mushaf_edition.dart';
 import '../features/quran/domain/quran_storage_contracts.dart';
 import '../features/quran/presentation/mushaf_screen.dart';
 import '../features/settings/presentation/settings_screen.dart';
+import '../features/worship/presentation/cairo_radio_card.dart';
+import '../features/worship/presentation/daily_reading_card.dart';
 import '../features/worship/presentation/worship_hub_screen.dart';
 import 'app_shell.dart';
 import 'not_found_screen.dart';
@@ -86,6 +88,29 @@ GoRouter buildAppRouter({String initialLocation = AppRoutes.home}) {
           StatefulShellBranch(
             routes: [
               GoRoute(
+                path: AppRoutes.adhkar,
+                builder: (_, _) => const AdhkarScreen(),
+                routes: [
+                  _child(
+                    AppRoutes.morningAdhkar,
+                    AppRoutes.adhkar,
+                    const AdhkarScreen(destination: AdhkarDestination.morning),
+                  ),
+                  _child(
+                    AppRoutes.quranDuas,
+                    AppRoutes.adhkar,
+                    const AdhkarScreen(
+                      destination: AdhkarDestination.quranDuas,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            initialLocation: AppRoutes.prayerTimes,
+            routes: [
+              GoRoute(
                 path: AppRoutes.worship,
                 builder: (_, _) => const WorshipHubScreen(),
                 routes: [
@@ -98,11 +123,6 @@ GoRouter buildAppRouter({String initialLocation = AppRoutes.home}) {
                     AppRoutes.qibla,
                     AppRoutes.worship,
                     const QiblaScreen(),
-                  ),
-                  _child(
-                    AppRoutes.adhkar,
-                    AppRoutes.worship,
-                    const AdhkarScreen(),
                   ),
                 ],
               ),
@@ -127,10 +147,6 @@ GoRouter buildAppRouter({String initialLocation = AppRoutes.home}) {
                   ),
                 ],
               ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
               GoRoute(
                 path: AppRoutes.learning,
                 builder: (_, _) => const LearningHubScreen(),
@@ -150,6 +166,16 @@ GoRouter buildAppRouter({String initialLocation = AppRoutes.home}) {
             ],
           ),
         ],
+      ),
+      GoRoute(
+        path: AppRoutes.dailyReading,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (_, _) => const DailyReadingScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.cairoRadio,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (_, _) => const CairoRadioScreen(),
       ),
       GoRoute(
         path: AppRoutes.settings,
