@@ -127,6 +127,11 @@ def main():
     index = (root / spec["appIndex"]).read_text(encoding="utf-8")
     index_topics = set(re.findall(r"DuaTopic\.(\w+):", index))
     assert index_topics == {topic["id"] for topic in spec["topics"]}
+    for locale in ("ar", "en"):
+        arb = root / f"apps/mobile/lib/core/localization/arb/app_{locale}.arb"
+        messages = json.loads(arb.read_text(encoding="utf-8"))
+        for topic in spec["topics"]:
+            assert topic["title"][locale] == messages[f"duaTopic{topic['id'].capitalize()}"]
     for item in [*groups, *source_rows, *topics, *spec["topics"]]:
         translated_text(item["title"])
     ranges = [
