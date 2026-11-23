@@ -1,6 +1,6 @@
 # Tracker — مصدر الحقيقة لحالة العمل
 
-**Snapshot بتاريخ 2026-11-19:** Phase 00 IN_PROGRESS. عدد المهام 59، منها 6 DONE (P00-01 وP00-02 وP00-03 وP00-04 وP00-05 وP00-09)، و2 REVIEW (`P00-06`، `P00-11`)؛ P00-10 IN_PROGRESS، و13 BLOCKED بسبب متطلبات لم تتحقق بعد. الحالة تتغير عبر PRs وليست متابعة تلقائية.
+**Snapshot بتاريخ 2026-11-23:** 60 مهمة، 6 DONE، 3 REVIEW، 15 IN_PROGRESS، 6 BLOCKED، 29 TODO، 1 DEFERRED.
 
 **Status:** `TODO` · `IN_PROGRESS` · `BLOCKED` · `REVIEW` · `DONE` · `DEFERRED` · `CANCELLED`.
 
@@ -8,9 +8,9 @@
 
 ## Summary
 - [Phase 00 — Foundation](PHASE_00_FOUNDATION.md): **IN_PROGRESS**, 11 tasks
-- [Phase 01 — Quran & Prayer MVP](PHASE_01_QURAN_MVP.md): **TODO**, 9 tasks
-- [Phase 02 — Worship & Daily Journey](PHASE_02_WORSHIP.md): **TODO**, 8 tasks
-- [Phase 03 — Hadith & Fiqh](PHASE_03_HADITH_FIQH.md): **TODO**, 8 tasks
+- [Phase 01 — Quran & Prayer MVP](PHASE_01_QURAN_MVP.md): **IN_PROGRESS**, 9 tasks
+- [Phase 02 — Worship & Daily Journey](PHASE_02_WORSHIP.md): **IN_PROGRESS**, 9 tasks
+- [Phase 03 — Hadith & Fiqh](PHASE_03_HADITH_FIQH.md): **IN_PROGRESS**, 8 tasks
 - [Phase 04 — Academy & CMS](PHASE_04_ACADEMY.md): **TODO**, 8 tasks
 - [Phase 05 — Beta & QA](PHASE_05_BETA.md): **TODO**, 8 tasks
 - [Phase 06 — Android Release & iOS](PHASE_06_RELEASE.md): **TODO**, 7 tasks
@@ -25,45 +25,56 @@
 | `P00-04` | Wireframes عربية وإنجليزية | `DONE` | P00-03 | [Issue #18](https://github.com/abdulrahmanal-saeed/madar-al-huda/issues/18) · [14 AR/EN SVG wireframes](../docs/ux/README.md), mapped to existing routes, without duplicate logo or Home; [PR #20](https://github.com/abdulrahmanal-saeed/madar-al-huda/pull/20) **merged**, 3 green CI jobs on head ffd2071, including XML/source validation. This is a design handoff, not implemented future P01 UI. |
 | `P00-05` | اعتماد ERD والمعمارية وRLS | `DONE` | P00-01 | [Issue #13](https://github.com/abdulrahmanal-saeed/madar-al-huda/issues/13) · architecture ADR, ERD, RLS matrix, SQL reference blueprint, threat model in `docs/architecture/`; [PR #14](https://github.com/abdulrahmanal-saeed/madar-al-huda/pull/14) **merged** with three green CI jobs. Engineering architecture baseline delegated for completion by owner; database design only, not deployed; later SQL migrations and role tests remain separate implementation gates |
 | `P00-06` | Flutter skeleton + Android CI | `REVIEW` | P00-03,P00-05 | Issue #2 / MHD-001 · branch `claude/serene-galileo-f2ia01` · [PR #4](https://github.com/abdulrahmanal-saeed/madar-al-huda/pull/4) **merged**. الاختبارات الآلية ناجحة؛ اختبار Android على جهاز/محاكي بالعربية والإنجليزية، ومراجعة TalkBack والنص العربي لا تزال مطلوبة قبل إغلاق المهمة. بُني على Tokens وهوية **مؤقتة** ومعمارية **مقترحة** بقرار المالك حتى لا تتعطل الهندسة؛ لا يثبّت شيئًا من P00-03/P00-05 (D-16). |
-| `P00-07` | تحقيق حقوق مصادر المصحف والتفسير والصوت | `BLOCKED` | P00-01 | [Issue #26](https://github.com/abdulrahmanal-saeed/madar-al-huda/issues/26): [source rights audit](../docs/CONTENT_SOURCES.md) confirms Tanzil's verbatim-use terms but not an exact import manifest/hash; tafsir, translation, reciter rights still unverified. **R-01 OPEN, no religious text imported.** |
-| `P00-08` | تعيين مراجع شرعي مؤهل للفقه | `BLOCKED` | P00-01 | — |
+| `P00-07` | تحقيق حقوق مصادر المصحف والتفسير والصوت | `BLOCKED` | P00-01 | [Issue #26](https://github.com/abdulrahmanal-saeed/madar-al-huda/issues/26) · [سجل المصادر](../docs/CONTENT_SOURCES.md). R-01: Tanzil مثبت في فرع [PR #28](https://github.com/abdulrahmanal-saeed/madar-al-huda/pull/28) ببصمة و114 سورة و6236 آية. Quran Foundation Production يعمل للتفسير 14 و15 والتلاوة 159. مراجعة الإصدارات وحقوق العرض النهائية مفتوحة. |
+| `P00-08` | تعيين مراجع شرعي مؤهل للفقه | `BLOCKED` | P00-01 | R-02 / D-21: المالك اختار مراجعة التطبيق كاملًا في النهاية. اسم المراجع والاعتماد مطلوبان في مرحلة الإطلاق، والتنفيذ والاختبار التقني يبدأان بالتوازي. |
 | `P00-09` | قواعد QA وDefinition of Done | `DONE` | P00-05 | branch `phase-00/p00-09-qa-dod` · [PR #5](https://github.com/abdulrahmanal-saeed/madar-al-huda/pull/5) **merged**; وثائق DoD وQA وقالب PR دُمجت بعد مراجعة الكود ونجاح CI — [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md)، [QA_CHECKLIST](../docs/QA_CHECKLIST.md)، PR template. بُني مؤقتًا قبل اعتماد P00-05 بموافقة المالك. |
-| `P00-10` | Prayer fixtures للإمارات ومصر | `IN_PROGRESS` | P00-05 | [Issue #21](https://github.com/abdulrahmanal-saeed/madar-al-huda/issues/21) · [official reference & timezone pack](../docs/prayer/README.md): Cairo and Alexandria 2026-11-22 ESA source rows plus 2026 DST tests; Dubai and Abu Dhabi authoritative dated values **pending**. No numerical prayer calculator yet; cannot close or ungate. |
+| `P00-10` | Prayer fixtures للإمارات ومصر | `IN_PROGRESS` | P00-05 | [Issue #21](https://github.com/abdulrahmanal-saeed/madar-al-huda/issues/21) · [official reference & timezone pack](../docs/prayer/README.md): Cairo and Alexandria 2026-11-22 ESA source rows plus 2026 DST tests; P01 preview compares Cairo and Alexandria, plus dated federal UAE rows for Dubai and Abu Dhabi and five dates from the IACAD-sponsored calendar. Broader verification and release review remain pending. |
 | `P00-11` | قناة تحديث نسخ التطوير (APK موقّع + Obtainium) | `REVIEW` | P00-06 | طلب المالك 2026-11-19 · branch `phase-00/p00-11-dev-updates` · [PR #6](https://github.com/abdulrahmanal-saeed/madar-al-huda/pull/6) **merged** · [DEV_UPDATES.md](../docs/DEV_UPDATES.md) · D-17. تم بنجاح نشر أول APK تطوير موقّع في [v0.1.0-dev.2](https://github.com/abdulrahmanal-saeed/madar-al-huda/releases/tag/v0.1.0-dev.2)، وأكد المالك تثبيته واستلامه عبر Obtainium بتاريخ 2026-11-19 ([دليل](https://github.com/abdulrahmanal-saeed/madar-al-huda/pull/6#issuecomment-7012989410)). **المتبقي:** إثبات تحديث تلقائي على الجهاز فوق النسخة الحالية؛ الحالة REVIEW وليست DONE. |
+
+## تنفيذ التصميم المحدّث
+
+| الشاشات | التنفيذ | دليل التحقق المتبقي |
+|---|---|---|
+| الهوية والبداية | ألوان التصميم وخطوطه وشعار المدار لأيقونة Android وشاشة الإهداء. | تثبيت النسخة على هاتف ومراجعة العرض. |
+| اليوم والمصحف | بطاقة الصلاة حسب الموقع، استكمال القراءة، دعاء اليوم، والفهرس والصفحات المتصلة والتفسير والتلاوة. | اختبار التلاوة مع قفل الشاشة وTalkBack. |
+| الصلاة والقبلة | اختيار مشترك للموقع، وحساب العصر، والعدّ التنازلي، وقرص البوصلة مع حالة غياب الحساس. | التدوير والمعايرة على هاتف، ومراجعة عينات المواقيت وفق P00-10. |
+| الورد والأذكار | الورد اليومي للقرآن والأقسام الخمسة للأذكار والأدعية بالعربية والإنجليزية. | تدقيق المحتوى واختبار التقدم على هاتف وفق D-21. |
+| المكتبة والحديث والإذاعة | المكتبة تفتح المصادر الفعلية، وشاشة الحديث والمفضلة، وتشغيل إذاعة القاهرة من المشغّل الأصلي في نسخة التجربة المهيأة. | مراجعة المحتوى غير المنشور، وتجربة الإذاعة مع قفل الشاشة وتوثيق الإتاحة للنشر. |
 
 ## Phase 01 — Quran & Prayer MVP — المصحف والصلاة والقبلة
 
 | ID | المهمة | Status | Dependencies | Evidence / Issue |
 |---|---|---|---|---|
-| `P01-01` | نص المصحف والآيات immutable | `BLOCKED` | P00-07,P00-06 | — |
-| `P01-02` | القارئ والفهرسة والتنقل | `TODO` | P01-01 | — |
-| `P01-03` | بحث وعلامات وآخر موضع | `TODO` | P01-01 | — |
-| `P01-04` | ترجمة معاني القرآن للإنجليزية | `BLOCKED` | P00-07,P01-01 | — |
-| `P01-05` | تفسير الطبري وابن كثير | `BLOCKED` | P00-07,P01-01 | — |
-| `P01-06` | مشغل صوت وتلاوة أولى | `BLOCKED` | P00-07,P00-06 | — |
-| `P01-07` | صلاة حسب المدينة والموقع | `TODO` | P00-10,P00-06 | [Issue #24](https://github.com/abdulrahmanal-saeed/madar-al-huda/issues/24); depends on official 4-city fixtures P00-10 and validated calculation. Do not display invented times. |
-| `P01-08` | القبلة ومعايرة المستشعر | `IN_PROGRESS` | P00-06 | [Issue #23](https://github.com/abdulrahmanal-saeed/madar-al-huda/issues/23) · [Qibla geometry](../docs/qibla/README.md): pure offline great-circle true-north bearing, coordinate validation and 4 city-centre presets with tests. Sensor/declination/calibration, app UI and device QA pending; **no availability claim**. Provisionally started while P00-06 manual QA remains REVIEW, reusing existing app shell. |
+| `P01-01` | نص المصحف والآيات immutable | `REVIEW` | P00-07,P00-06 | [PR #28](https://github.com/abdulrahmanal-saeed/madar-al-huda/pull/28) · نص Tanzil Uthmani 1.1 وبياناته مثبتان بالبصمة، والمراجعة النهائية مفتوحة. [CI على كود المصحف](https://github.com/abdulrahmanal-saeed/madar-al-huda/actions/runs/45081381574). |
+| `P01-02` | القارئ والفهرسة والتنقل | `IN_PROGRESS` | P01-01 | [PR #28](https://github.com/abdulrahmanal-saeed/madar-al-huda/pull/28): 604 صفحات مصحف متصلة وفهارس السور والأجزاء والأحزاب والصفحات وتحويل المسارات القديمة. المراجعة البصرية على جهاز مفتوحة. التصميم: فهرس مستقل داخل القارئ، وبحث ظاهر، وبيانات الجزء والحزب والصفحة. |
+| `P01-03` | بحث وعلامات وآخر موضع | `IN_PROGRESS` | P01-01 | [PR #28](https://github.com/abdulrahmanal-saeed/madar-al-huda/pull/28): بحث محلي بالنص واسم السورة ورقم الآية، علامات مرجعية، واستعادة المؤشر القديم بالإصدار والسورة والآية. التصميم: استكمال القراءة من «اليوم»، وقائمة العلامات، ورقم الصفحة المباشر. |
+| `P01-04` | ترجمة معاني القرآن للإنجليزية | `IN_PROGRESS` | P00-07,P01-01 | QuranEnc Rowwad `english_rwwad`: الإصدار المتاح وقت التحقق 1.0.21؛ معنى الآية يظهر عند الطلب في القارئ الإنجليزي مع المصدر والإصدار، والمراجعة النهائية مفتوحة. |
+| `P01-05` | تفسير الطبري وابن كثير | `IN_PROGRESS` | P00-07,P01-01 | [PR #28](https://github.com/abdulrahmanal-saeed/madar-al-huda/pull/28) · Production أعاد تفسير 112:1 بالعربية من ابن كثير 14 والطبري 15؛ اعتماد العرض واختبار الجهاز مطلوبان. التصميم: لوحة للآية ومصادر التفسير والعلامة والنسخ والمشاركة. |
+| `P01-06` | مشغل صوت وتلاوة أولى | `IN_PROGRESS` | P00-07,P00-06 | [PR #28](https://github.com/abdulrahmanal-saeed/madar-al-huda/pull/28) · Production أعاد تلاوة الإخلاص لماهر المعيقلي 159 واستجاب مصدر الصوت 206 audio/mpeg. اختبار الخلفية على جهاز ومراجعة المصدر مفتوحان. التصميم: مشغّل تلاوة مصغّر في التبويبات واستماع من الآية عند توافر توقيتها. |
+| `P01-07` | صلاة حسب المدينة والموقع | `IN_PROGRESS` | P00-10,P00-06 | [Issue #24](https://github.com/abdulrahmanal-saeed/madar-al-huda/issues/24). تشمل النسخة التجريبية الحساب دون اتصال، وخيار العصر، ومواقيت اليوم، والصلاة القادمة في «اليوم». يبدأ إعداد الموقع بعد شاشة البداية على Android ويغذّي «اليوم» والصلاة والقبلة. يبقى اختيار المدينة متاحًا، ويُحفظ تفضيل المصدر محليًا. أدلة المواقيت في [تقرير المقارنة](../docs/prayer/README.md). |
+| `P01-08` | القبلة ومعايرة المستشعر | `IN_PROGRESS` | P00-06 | مؤشر البوصلة يحمل علامة الكعبة ويتبع اتجاه القبلة. أضفنا مسارَي احتياط لحساس الدوران على Android. اختبار Flutter يحاكي تغيير الدقة ويؤكد أن التصحيح المغناطيسي يُطلب مرة واحدة للموقع. زاوية المدن الأربع طابقت AlAdhan بفارق أقل من ٠٫٠٠١°. اختبار الحساس وإذن الموقع عند بدء التطبيق على هاتف فعلي مفتوح. [أدلة القبلة](../docs/qibla/README.md) |
 | `P01-09` | قبول MVP End-to-End | `TODO` | P01-02,P01-03,P01-04,P01-05,P01-06,P01-07,P01-08 | — |
 
 ## Phase 02 — Worship & Daily Journey — الأذكار والدعاء والورد والتلاوات
 
 | ID | المهمة | Status | Dependencies | Evidence / Issue |
 |---|---|---|---|---|
-| `P02-01` | الحقوق والتوافر للقراء الثلاثة | `BLOCKED` | P00-07,P01-06 | — |
+| `P02-01` | الحقوق والتوافر للقراء الثلاثة | `REVIEW` | P00-07,P01-06 | فهرس Yousef Heiba وفهرس الناشر تقاطعا على ١١٤ سورة للبنا و٩٣ لإسلام صبحي. تحقّقنا من تطابق ملفات العينة وإذن MP3Quran للنسخ والاستخدام. ماهر المعيقلي متاح أيضًا من Quran Foundation ومصدر التحميل MP3Quran. [سجل المصادر](../docs/CONTENT_SOURCES.md) |
 | `P02-02` | خيارات الصوت المتقدمة | `TODO` | P02-01 | — |
-| `P02-03` | مصادر ومراجعة الأذكار والأدعية | `BLOCKED` | P00-07 | — |
-| `P02-04` | العداد والمفضلة | `TODO` | P02-03 | — |
-| `P02-05` | خطة الختم والورد | `TODO` | P01-03 | — |
+| `P02-03` | مصادر ومراجعة الأذكار والأدعية | `IN_PROGRESS` | P00-07 | [حزمة الأقسام الخمسة بالعربي والإنجليزي](../docs/content/adhkar/README.md): الشاشات التجريبية مرتبطة بـ١٦ ذكرًا يوميًا فريدًا، و١٣٢ فصلًا في فهرس حصن المسلم، و٧ فضائل، و٧٥ دعاءً قرآنيًا. المراجعة النهائية واختبار الهاتف مفتوحان وفق D-21. |
+| `P02-04` | العداد والمفضلة وورد الأذكار | `IN_PROGRESS` | P02-03 | الفرع التجريبي يحفظ العداد لكل رواية واختيار مجموعات الورد والمفضلة على الجهاز. [بيانات ورد الأذكار](../apps/mobile/assets/adhkar/catalog.json) تربط الأعداد بمصادرها. اختبار الهاتف مفتوح. شاشات الأذكار الخمس ضمن تبويب مستقل، مع اختصار لأذكار الصباح. |
+| `P02-05` | خطة الختم والورد | `IN_PROGRESS` | P01-03 | [PR #29](https://github.com/abdulrahmanal-saeed/madar-al-huda/pull/29) مبني على قارئ PR #28. يضبط الورد بالصفحات ويحفظ التقدم محليًا ويفتح الصفحة التالية؛ اختبار الهاتف مفتوح. التصميم: شاشة الورد والهدف والتقدّم والصفحة التالية، وتسجيل الصفحات المتتالية أثناء التمرير. |
 | `P02-06` | التنبيهات الاختيارية | `TODO` | P01-07,P02-03 | — |
-| `P02-07` | Download/cache policy للصوت | `BLOCKED` | P02-01 | — |
+| `P02-07` | تحميل التلاوات والاستماع دون اتصال | `REVIEW` | P02-01 | زر تنزيل لكل سورة من إصدار MP3Quran المطابق، وحفظ خاص وتشغيل من الملف وإدارة المحمّلات داخل المصحف. اختبارات Flutter تؤكد استبعاد التحميل الناقص واختيار الملف المحلي عند انقطاع الشبكة. اختبار وضع الطيران على هاتف فعلي مفتوح. [سجل الحقوق](../docs/CONTENT_SOURCES.md) |
 | `P02-08` | QA العبادة اليومية | `TODO` | P02-04,P02-05,P02-06 | — |
+| `P02-09` | إذاعة القرآن الكريم من القاهرة | `IN_PROGRESS` | P01-06 | المصدر: HLS من مشغّل المحطة الرسمي. التشغيل المباشر في نسخة التجربة المهيأة من «اليوم» والمكتبة، بمشغّل خلفية واحد مع التلاوة. اختبارات التطبيق تغطي التشغيل والإيقاف والتبديل والاستعادة بعد فشل الطلب. قفل الشاشة على هاتف وتوثيق الإتاحة للنشر ما زالا مطلوبين. [سجل المصدر](../docs/CONTENT_SOURCES.md) |
 
 ## Phase 03 — Hadith & Fiqh — الحديث والفقه للمذاهب الأربعة
 
 | ID | المهمة | Status | Dependencies | Evidence / Issue |
 |---|---|---|---|---|
-| `P03-01` | اختيار مصدر الحديث وترخيصه | `BLOCKED` | P00-07 | — |
-| `P03-02` | Data model للأحاديث والدرجات | `TODO` | P03-01,P00-05 | — |
+| `P03-01` | اختيار مصدر الحديث وترخيصه | `IN_PROGRESS` | P00-07 | HadeethEnc أرجع التصنيفات وحديثًا بالعربي والإنجليزي. قارئ خاص تجريبي يتصفح المصدر ويعرض المتن والشرح والعزو والدرجة كما وردت. Sunnah.com إضافي ومعلّق على المفتاح وشروط الاستخدام؛ R-01 وR-12. |
+| `P03-02` | Data model للأحاديث والدرجات | `IN_PROGRESS` | P03-01,P00-05 | واجهة HadeethEnc التجريبية تعرض الهوية والدرجة والعزو والمرجع حيث يوفره المصدر. توحيد أرقام الكتب ومَن حكم على الدرجة وربط Sunnah.com ومراجعة المحتوى ما زالت مفتوحة. التصميم: شاشة المتن العربي والشرح والترجمة والمصدر والدرجة، ومفضلة محلية لمرجع الحديث. |
 | `P03-03` | بحث وتصنيف الحديث | `TODO` | P03-02 | — |
 | `P03-04` | بناء مسائل الفقه وتغطية المذاهب | `TODO` | P00-05 | — |
 | `P03-05` | إدخال أقوال فقهية مراجعة | `BLOCKED` | P00-08,P03-04 | — |
@@ -75,14 +86,14 @@
 
 | ID | المهمة | Status | Dependencies | Evidence / Issue |
 |---|---|---|---|---|
-| `P04-01` | CMS وأدوار التحرير والمراجعة | `TODO` | P03-07 | — |
-| `P04-02` | مسارات ودروس الفقه والعقيدة والشريعة | `TODO` | P04-01 | — |
-| `P04-03` | اختبارات وتقدم المتعلم | `TODO` | P04-02 | — |
-| `P04-04` | قصص الأنبياء الموثقة | `BLOCKED` | P00-08,P04-01 | — |
-| `P04-05` | مقالات موثقة ثنائية اللغة | `TODO` | P04-01 | — |
+| `P04-01` | CMS وأدوار التحرير والمراجعة | `IN_PROGRESS` | P03-07 | تحقّق محليًا من صلاحيات المالك والتحرير والنشر للإدخالات ثنائية اللغة، وقائمة القرّاء المقيدة بالمصادر. [لوحة الإدارة](../docs/learning/ADMIN.md) |
+| `P04-02` | مسارات ودروس الفقه والعقيدة والشريعة | `IN_PROGRESS` | P04-01 | إدارة الدرس ومصدره وأقوال الفقه المقارن من لوحة المالك، وعرض المحتوى المنشور في التطبيق. |
+| `P04-03` | اختبارات وتقدم المتعلم | `IN_PROGRESS` | P04-02 | إضافة أسئلة اختيار من متعدد باللغتين، والتحقق من حفظ الإجابات الصحيحة في إصدار المكتبة المنشور. |
+| `P04-04` | قصص الأنبياء الموثقة | `IN_PROGRESS` | P00-08,P04-01 | فهرس الاستضافة الحي يعرض آدم ١–٦ وإدريس ٠٠٧ بالصوت والفيديو. يلتقط الملفات الجديدة بأسمائها ويدعم التنزيل والقوائم المتتابعة. المراجعة والنشر العام ما زالا مفتوحين. [إضافة السلاسل](../docs/learning/MEDIA.md) |
+| `P04-05` | مقالات موثقة ثنائية اللغة | `IN_PROGRESS` | P04-01 | أضيف تحرير المقال والمصدر باللغتين، واختُبر حفظ المسودة ونشرها وحذف المقال. |
 | `P04-06` | مقتبسات مجدولة بعد الاعتماد | `TODO` | P02-06,P04-05 | — |
-| `P04-07` | مزامنة وتراجع المحتوى | `TODO` | P04-01 | — |
-| `P04-08` | QA رحلة التعلم والنشر | `TODO` | P04-02,P04-03,P04-04,P04-05,P04-07 | — |
+| `P04-07` | مزامنة وتراجع المحتوى | `IN_PROGRESS` | P04-01 | مزامنة فهرس القصص ونسخة الأدعية والأذكار المنشورة مع حفظ آخر نسخة سليمة. تدعم لوحة الإدارة المسودات والنشر واستعادة نسخة سابقة إلى المسودة. [لوحة الإدارة](../docs/learning/ADMIN.md) |
+| `P04-08` | QA رحلة التعلم والنشر | `IN_PROGRESS` | P04-02,P04-03,P04-04,P04-05,P04-07 | نجح اختبار PHP المحلي للوحة القائمة وتوسعة المكتبة، ورفع APK موقّع إلى مسودة وعزله حتى النشر، والتحقق من البصمة وملف التنزيل وعزل قنوات الإشعار. |
 
 ## Phase 05 — Beta & QA — الأمان والاختبارات والتجربة المغلقة
 
@@ -92,10 +103,11 @@
 | `P05-02` | تدقيق Security وRLS | `TODO` | P04-07 | — |
 | `P05-03` | Android Device Matrix | `TODO` | P02-08 | — |
 | `P05-04` | Accessibility وRTL/LTR QA | `TODO` | P04-08 | — |
-| `P05-05` | أداء وOffline والاتصال | `TODO` | P01-09 | — |
+| `P05-05` | أداء وOffline والاتصال | `IN_PROGRESS` | P01-09 | تنزيل ملفات القصص دفعة واحدة، والسور المتاحة لقارئ محدد، وحفظ المحتوى النصي المنشور. تبقى الملفات المكتملة متاحة بعد الانقطاع. |
 | `P05-06` | Privacy وStore Data Safety | `TODO` | P05-02 | — |
 | `P05-07` | Beta على أجهزة ومستخدمين حقيقيين | `TODO` | P05-01,P05-03,P05-04,P05-05,P05-06 | — |
 | `P05-08` | قرار Go/No-Go للإطلاق | `TODO` | P05-07 | — |
+| `P05-09` | تسجيل دخول Google اختياري على Android | `IN_PROGRESS` | P05-02 | إعدادات الحساب بالعربي والإنجليزي، وتسجيل الخروج من الجهاز. طلب PKCE الحي وصل إلى شاشة Google، وأعاد اختبار إلغاء التفويض رابط `madar-al-huda://auth/callback` من Supabase. نجحت اختبارات الإعدادات الـ23 و[Mobile CI](https://github.com/abdulrahmanal-saeed/madar-al-huda/actions/runs/45206728254)، وتحققنا من رابط الرجوع وتوقيع APK التجريبي 10. تسجيل الدخول بحساب حقيقي على هاتف Android ما زال ضمن الاختبار. [PR #38](https://github.com/abdulrahmanal-saeed/madar-al-huda/pull/38) |
 
 ## Phase 06 — Android Release & iOS — النشر والتشغيل والاستعداد لـ iOS
 

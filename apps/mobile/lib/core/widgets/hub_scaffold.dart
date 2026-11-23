@@ -12,12 +12,14 @@ class HubScaffold extends StatelessWidget {
     required this.title,
     required this.intro,
     required this.sections,
+    this.footer,
     super.key,
   });
 
   final String title;
   final String intro;
   final List<AppSection> sections;
+  final Widget? footer;
 
   @override
   Widget build(BuildContext context) {
@@ -49,6 +51,8 @@ class HubScaffold extends StatelessWidget {
               separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
             ),
           ),
+          if (footer != null)
+            SliverResponsiveContent(sliver: SliverToBoxAdapter(child: footer)),
           const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xxl)),
         ],
       ),

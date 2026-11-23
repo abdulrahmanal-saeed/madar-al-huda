@@ -2,4 +2,7 @@
 <resources>
     <!-- Launcher label. Provisional brand name (plan/DECISIONS.md D-01, O-01). -->
     <string name="app_name">Madar Al-Huda</string>
+    <string name="update_notifications_channel">App updates</string>
+    <string name="update_notification_title">Madar Al-Huda update</string>
+    <string name="update_notification_body">Version %1$s is ready to download.</string>
 </resources>

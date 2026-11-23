@@ -31,6 +31,33 @@ Run `python3 docs/prayer/check_reference_fixtures.py`, which verifies format, ci
 
 **Still open before P00-10 DONE:** (1) official date-stamped Dubai and Abu Dhabi expected timetable values with authority/parameter evidence, (2) calculation engine with method/Asr/rounding rules, (3) justified minute tolerance and independent numerical comparisons for all four cities, including DST, (4) device/manual fallback and error checks. The code checker is not a prayer calculation and does not certify actual religious times.
 
-## 2026-11-22 official UAE source inspection
+## Initial UAE source inspection on 2026-11-22
 
 [Dubai IACAD Dulook DXB](https://ipt.iacad.gov.ae/) confirms an official prayer-time application, and [UAE Awqaf](https://www.awqaf.gov.ae/) is an official authority, but their publicly indexed pages did **not** expose a reliably captured **2026-11-22 dated six-time schedule** for both Dubai and Abu Dhabi during this review. It would be unsafe to infer official expected times from third-party calculations or the app under test. The UAE fields remain `null`, and P00-10 is still **IN_PROGRESS**. [P01-07 Issue #24](https://github.com/abdulrahmanal-saeed/madar-al-huda/issues/24) tracks the eventual method-aware calculation engine; P01-08 Qibla geometry is unrelated to this prayer-time validation gate.
+
+## P01 preview comparison
+
+The Android preview runs Adhan Dart 2.0.1 with the Egyptian and Dubai parameter sets. These comparisons use standard Asr, the four preset city centres, and the selected city's local date. Signed differences below are calculated minutes minus reference minutes.
+
+| City | Reference date | Fajr | Sunrise | Dhuhr | Asr | Maghrib | Isha |
+|---|---|---:|---:|---:|---:|---:|---:|
+| Cairo | 2026-11-22 | 0 | 0 | +1 | 0 | 0 | 0 |
+| Alexandria | 2026-11-22 | +1 | 0 | +1 | 0 | 0 | 0 |
+| Abu Dhabi | 2026-02-18 | 0 | — | 0 | +3 | 0 | 0 |
+
+The Abu Dhabi comparison uses the [Sheikh Zayed Grand Mosque Centre Ramadan 1447 calendar](https://www.szgmc.gov.ae/en/worshippers/ramadan-kareem), which lists five prayers. The original fixture records the sources available at that time. The follow-up below adds dated UAE rows and a separate comparison against the federal authority.
+
+## UAE follow-up on 2026-11-23
+
+[Comparison data](reference/uae-2026-11-comparison.json) records five November dates for each city, in local time, from the official-calendar mode of [Salat Calendar for Dubai](https://www.salatcalendar.com/index.php/offical/city/69) and [Salat Calendar for Abu Dhabi](https://www.salatcalendar.com/index.php/offical/city/36). The [International Astronomical Center](https://astronomycenter.net/?l=ar) runs Salat Calendar with sponsorship from Dubai IACAD. The publisher describes this mode as near-matching the official timetables. Select the monthly view to reproduce the sample.
+
+| City | Largest absolute difference across five dates | Standard Asr |
+|---|---:|---|
+| Dubai | 2 minutes | App 2 minutes later on each sampled date |
+| Abu Dhabi | 3 minutes | App 2–3 minutes later on the sampled dates |
+
+The [UAE Awqaf prayer service](https://www.awqaf.gov.ae/prayer-times) published dated rows for Al Rashidiya (Dubai) and Al Mushrif (Abu Dhabi) on November 23. Against Al Rashidiya, the app's sunrise was one minute later and Asr two minutes later. Against Al Mushrif, sunrise and Dhuhr were one minute later and Asr three minutes later. The app uses city-centre coordinates, and the authority service uses the selected districts. The calculated UAE profile in the preview remains subject to broader seasonal and regional verification before release.
+
+## Automated comparison evidence
+
+The Flutter prayer test reruns the calculation for the dated Egypt samples and all November UAE rows, including the Awqaf district entries. It verifies the saved per-prayer deltas and covers Egypt’s DST transitions, Dubai’s fixed offset, standard versus Hanafi Asr, and the rollover to the next local day. The maximum difference observed in the compared UAE rows remains 3 minutes. Authority rows are kept alongside the calculation method and the reason a district timetable can differ from the city-centre calculation.

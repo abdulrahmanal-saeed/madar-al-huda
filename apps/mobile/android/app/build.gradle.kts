@@ -7,6 +7,7 @@ plugins {
 // Distribution channel and signing come from environment variables so no
 // key material or passwords ever live in the repository (P00-11).
 //   MADAR_CHANNEL=dev            → dev build: app id suffix ".dev"
+//   MADAR_CHANNEL=preview        → side-by-side test build: app id suffix ".preview"
 //   MADAR_VERSION_SUFFIX         → e.g. "-dev.42" (shown in Settings/Obtainium)
 //   MADAR_SIGNING_STORE_FILE     → path to the keystore (decoded in CI)
 //   MADAR_SIGNING_STORE_PASSWORD, MADAR_SIGNING_KEY_ALIAS,
@@ -14,6 +15,7 @@ plugins {
 // Without them, release builds fall back to debug keys for local runs only.
 val madarChannel: String = System.getenv("MADAR_CHANNEL") ?: "local"
 val isDevChannel = madarChannel == "dev"
+val isPreviewChannel = madarChannel == "preview"
 val madarSigningStore: String? = System.getenv("MADAR_SIGNING_STORE_FILE")
 
 android {
@@ -56,6 +58,9 @@ android {
             // Installs beside (never over) a future store build.
             applicationIdSuffix = ".dev"
             versionNameSuffix = System.getenv("MADAR_VERSION_SUFFIX") ?: "-dev"
+        } else if (isPreviewChannel) {
+            applicationIdSuffix = ".preview"
+            versionNameSuffix = "-preview"
         }
     }
 

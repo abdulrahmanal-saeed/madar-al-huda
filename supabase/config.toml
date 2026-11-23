@@ -1,0 +1,4 @@
+project_id = "madar-al-huda"
+
+[functions.quran]
+verify_jwt = true

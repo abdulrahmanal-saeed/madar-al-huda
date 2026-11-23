@@ -4,9 +4,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 ///
 /// Storage boundaries (see docs/ARCHITECTURE.md → "Local storage"):
 /// * **Preferences** (language, theme, toggles) → this interface.
-/// * **Structured user data** (bookmarks, last-read position, khatmah plans)
-///   → repository interfaces in each feature's `domain/` folder, to be backed
-///   by Drift/SQLite (P01-03). Never stored here.
+/// * **Single reading cursor** → the versioned edition reference managed by
+///   the Quran reading-position repository.
+/// * **Structured collections** (bookmarks and khatmah plans) → their feature
+///   repositories and offline database (P01-03).
 /// * **Licensed offline content** (Quran edition, tafsir, audio cache) →
 ///   versioned, checksummed datasets behind provider adapters (P01-01).
 ///   Never stored here.

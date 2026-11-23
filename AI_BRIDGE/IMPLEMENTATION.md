@@ -1,5 +1,25 @@
 # Implementation log
 
+## 2026-11-23 — P02-03 and P02-04 adhkar screens
+- The five screens follow the supplied RTL and LTR designs. The catalog is now an application asset with bilingual Hisn chapter labels. Hadith text is fetched from HadeethEnc. The Hisn book chapters open on the official site inside the app.
+- Daily progress, narrated count variants, the selected wird, and favorites are persisted on device. Quranic supplications reuse the existing Mushaf, meanings and bookmarks.
+- The content preview is gated under D-21. The tracker keeps the tasks open for device QA and final content review.
+
+## 2026-11-23 — Typography and startup screen
+- Branch `phase-02/design-typography` uses the owner-specified font roles from the design handoff. Reem Kufi 3.0 styles headings and both wordmarks. Amiri 1.003 styles hadith text and the dedication. Amiri Quran and IBM Plex Sans Arabic continue as the Quran and UI fonts.
+- The Flutter startup screen uses the supplied orbit motif and bilingual wordmark. It displays the Arabic dedication in either locale, with an English meaning in the English locale. The screen is dismissible by tapping and automatically closes after 1.8 seconds. The current route builds below the splash so links resume where requested.
+- Publisher binaries and OFL notices are bundled. Physical-device startup and the remaining screen designs are separate from this typography change.
+
+## 2026-11-23 — P02-03 and P02-04 bilingual adhkar content
+- Branch `phase-02/adhkar-content` prepares the five owner-selected sections. The [catalog](../apps/mobile/assets/adhkar/catalog.json) includes Arabic and English editorial labels, reference IDs, documented counts, and the local routine completion copy.
+- `python docs/content/adhkar/verify_catalog.py --sources` passed against the existing Tanzil asset, the QuranEnc 1.0.21 database, HadeethEnc Arabic 1.8.0 and English 1.25.0, and both Hisn indexes. The Arabic-only hadith on sleep and waking has a linked English source and separately marked draft meanings.
+- The design handoff, in-app flow validation and final content and language reviews remain open. There are no Flutter UI or runtime changes in this PR.
+
+## 2026-11-23 — P02-05 daily Quran reading goal
+- Branch `phase-02/daily-reading-plan` stacks over PR #28 for access to the pinned 604-page Mushaf. D-21 allows preview implementation and technical checks while the parent reader is under review.
+- The worship screen opens a daily reading plan with an editable page target, an exact link to the next Mushaf page, and an explicit action to mark the session read. A versioned, edition-bound record keeps the current goal and progress on the device. The card is preview-gated.
+- The widget suite covers editing and reopening progress in Arabic and English. Android device QA remains open.
+
 ## 2026-11-22 — P00-07 Tanzil licence evidence only
 - Verified [official Tanzil text license](https://tanzil.net/docs/Text_License) and [download description](https://tanzil.net/pub/download/index.php); recorded conditions in `docs/CONTENT_SOURCES.md` and Issue #26.
 - No source Quran dataset was downloaded or imported, no SHA-256 or edition-specific totals asserted, and no recitation, translation or tafsir rights assumed. P00-07 remains BLOCKED and no content gate was opened.
@@ -208,3 +228,22 @@ Visual check: screens were rendered through a temporary golden test with the rea
 
 ## 2026-11-19 — Foundation
 - Established initial repository documentation and Phase 0 planning branch.
+
+## P01 prayer, Qibla and unified Quran preview
+
+- Branch `phase-01/prayer-qibla-quran` implements one location selection, offline prayer calculation, Android Qibla heading, and one verse reader with sourced audio and tafsir integration.
+- Published source status is still gated by the [prayer references](../docs/prayer/README.md), [source register](../docs/CONTENT_SOURCES.md), and device acceptance. Debug builds exercise the complete UI; reviewed preview distribution can opt in via a dart-define.
+- Supabase preview function and rate-limit migration were deployed. Verified gateway authentication, input rejection, two prelive chapters, and service-role-only execution of the rate-limit RPC.
+
+### 2026-11-23 — Paginated reader and Android preview
+
+- PR #28 adds continuous 604-page reading from the pinned Tanzil metadata, verse-key navigation, local search, bookmarks and cursor restoration. Both language variants exercise long-press on 2:255 and bookmarking in a widget test. QuranEnc English meaning and version are queried when needed.
+- A private preview has 40 linked Quranic supplications in eight topics and a bilingual HadeethEnc browser. The Cairo radio card opens the broadcaster’s official site. The broadcaster’s permission for playback inside third-party apps is pending.
+- Prayer tests rerun the dated Egypt and UAE comparisons from the repository fixtures and verify Cairo DST and next-day rollover. Device-specific Qibla calibration and TalkBack checks are pending.
+- Analysis reported no issues and 112 Flutter tests passed locally after adding the preview. The dev workflow accepts the validated public Quran configuration. The .preview APK and public .dev release use separate distribution paths. D-21 reserves religious approval for the final whole-app review.
+
+### 2026-11-23 — Worship follow-up
+
+- P02-03 expands the Quranic supplications index to 75 entries and adds Arabic text, surah and verse-reference search. P02-04 adds the saved filter backed by the edition-specific Quran bookmark repository.
+- P02-09 opens the broadcaster’s official live page inside the app. The app pauses an active Quran recitation before opening the embedded player and offers an explicit browser retry if launch fails. The broadcaster’s public controls played and paused live media in Chrome. Android and native background playback are separate verification items under P02-09.
+- The staged Obtainium release follows D-21 and uses the existing signed development workflow once the eligible changes are reviewed and on main.

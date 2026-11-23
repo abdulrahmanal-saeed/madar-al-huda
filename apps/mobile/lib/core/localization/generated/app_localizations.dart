@@ -98,6 +98,222 @@ abstract class AppLocalizations {
     Locale('en'),
   ];
 
+  /// adhkar Hub Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Adhkar & Duas'**
+  String get adhkarHubTitle;
+
+  /// adhkar Today.
+  ///
+  /// In en, this message translates to:
+  /// **'Today’s adhkar'**
+  String get adhkarToday;
+
+  /// adhkar Resume.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue where you left off'**
+  String get adhkarResume;
+
+  /// adhkar Find.
+  ///
+  /// In en, this message translates to:
+  /// **'Search adhkar and duas'**
+  String get adhkarFind;
+
+  /// adhkar Position.
+  ///
+  /// In en, this message translates to:
+  /// **'{current} of {total}'**
+  String adhkarPosition(String current, String total);
+
+  /// adhkar Variant.
+  ///
+  /// In en, this message translates to:
+  /// **'Narration · {counts}'**
+  String adhkarVariant(String counts);
+
+  /// adhkar Previous.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous'**
+  String get adhkarPrevious;
+
+  /// adhkar Next.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get adhkarNext;
+
+  /// adhkar Completed.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get adhkarCompleted;
+
+  /// adhkar Mark Read.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as read'**
+  String get adhkarMarkRead;
+
+  /// adhkar Reset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset counter'**
+  String get adhkarReset;
+
+  /// adhkar Return To Today.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to adhkar'**
+  String get adhkarReturnToToday;
+
+  /// adhkar Count Once.
+  ///
+  /// In en, this message translates to:
+  /// **'Count one repetition'**
+  String get adhkarCountOnce;
+
+  /// adhkar Three Surah Cycle.
+  ///
+  /// In en, this message translates to:
+  /// **'Count one recitation of each surah'**
+  String get adhkarThreeSurahCycle;
+
+  /// adhkar Bedtime Cycle.
+  ///
+  /// In en, this message translates to:
+  /// **'Count one recitation and wiping cycle'**
+  String get adhkarBedtimeCycle;
+
+  /// adhkar Tasbih.
+  ///
+  /// In en, this message translates to:
+  /// **'Count one tasbih'**
+  String get adhkarTasbih;
+
+  /// adhkar Tahmid.
+  ///
+  /// In en, this message translates to:
+  /// **'Count one tahmid'**
+  String get adhkarTahmid;
+
+  /// adhkar Takbir.
+  ///
+  /// In en, this message translates to:
+  /// **'Count one takbir'**
+  String get adhkarTakbir;
+
+  /// adhkar Tahlil.
+  ///
+  /// In en, this message translates to:
+  /// **'Count the closing tahlil'**
+  String get adhkarTahlil;
+
+  /// adhkar Istighfar.
+  ///
+  /// In en, this message translates to:
+  /// **'Count one istighfar'**
+  String get adhkarIstighfar;
+
+  /// adhkar Saved Progress.
+  ///
+  /// In en, this message translates to:
+  /// **'Your progress is saved on this device'**
+  String get adhkarSavedProgress;
+
+  /// adhkar Wird Today.
+  ///
+  /// In en, this message translates to:
+  /// **'Today’s wird · {day}'**
+  String adhkarWirdToday(String day);
+
+  /// adhkar Wird Groups.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your sets'**
+  String get adhkarWirdGroups;
+
+  /// adhkar Add To Wird.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to my wird'**
+  String get adhkarAddToWird;
+
+  /// adhkar Remove From Wird.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from my wird'**
+  String get adhkarRemoveFromWird;
+
+  /// adhkar Hisn Subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Adhkar and duas for everyday situations'**
+  String get adhkarHisnSubtitle;
+
+  /// adhkar Nothing Found.
+  ///
+  /// In en, this message translates to:
+  /// **'No matching entries'**
+  String get adhkarNothingFound;
+
+  /// adhkar Add Favorite.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to favorites'**
+  String get adhkarAddFavorite;
+
+  /// adhkar Remove Favorite.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from favorites'**
+  String get adhkarRemoveFavorite;
+
+  /// adhkar Hadith Number.
+  ///
+  /// In en, this message translates to:
+  /// **'Hadith {number}'**
+  String adhkarHadithNumber(String number);
+
+  /// adhkar Merit.
+  ///
+  /// In en, this message translates to:
+  /// **'Reported virtue'**
+  String get adhkarMerit;
+
+  /// adhkar Draft Meaning.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft English meaning'**
+  String get adhkarDraftMeaning;
+
+  /// adhkar Hadith Source.
+  ///
+  /// In en, this message translates to:
+  /// **'Read the source hadith'**
+  String get adhkarHadithSource;
+
+  /// adhkar Retry Source.
+  ///
+  /// In en, this message translates to:
+  /// **'Try loading the source again'**
+  String get adhkarRetrySource;
+
+  /// adhkar Bukhari6324.
+  ///
+  /// In en, this message translates to:
+  /// **'Sahih al-Bukhari 6324'**
+  String get adhkarBukhari6324;
+
+  /// adhkar Use Period Wording.
+  ///
+  /// In en, this message translates to:
+  /// **'Read the wording for this time in the narration below.'**
+  String get adhkarUsePeriodWording;
+
   /// Brand name, transliterated. Not a literal translation.
   ///
   /// In en, this message translates to:
@@ -110,10 +326,22 @@ abstract class AppLocalizations {
   /// **'Quran, Knowledge & Worship in One Place'**
   String get appTagline;
 
+  /// Dedication shown on the startup screen.
+  ///
+  /// In en, this message translates to:
+  /// **'An ongoing charity in memory of my father'**
+  String get appDedication;
+
+  /// Accessibility label for leaving the startup screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the app'**
+  String get splashContinue;
+
   /// Bottom navigation: home tab.
   ///
   /// In en, this message translates to:
-  /// **'Home'**
+  /// **'Today'**
   String get navHome;
 
   /// Bottom navigation: Quran tab.
@@ -344,6 +572,96 @@ abstract class AppLocalizations {
   /// **'Told from the Quran and Sunnah, with sources'**
   String get sectionStoriesSubtitle;
 
+  /// Number of episodes in a learning series.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 episode} other{{count} episodes}}'**
+  String learningEpisodeCount(int count);
+
+  /// Title for a numbered episode.
+  ///
+  /// In en, this message translates to:
+  /// **'Episode {number}'**
+  String learningEpisodeNumber(int number);
+
+  /// Empty state for a series that has no episodes yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Episodes will appear here when they’re added.'**
+  String get learningNoEpisodes;
+
+  /// Select the audio editions of the episodes.
+  ///
+  /// In en, this message translates to:
+  /// **'Audio'**
+  String get learningFormatAudio;
+
+  /// Select the video editions of the episodes.
+  ///
+  /// In en, this message translates to:
+  /// **'Video'**
+  String get learningFormatVideo;
+
+  /// Play the numbered episodes in order.
+  ///
+  /// In en, this message translates to:
+  /// **'Play playlist'**
+  String get learningPlaySeries;
+
+  /// Save the episode in the selected format for offline use.
+  ///
+  /// In en, this message translates to:
+  /// **'Download episode'**
+  String get learningDownload;
+
+  /// Status of a saved episode in the selected format.
+  ///
+  /// In en, this message translates to:
+  /// **'Available offline'**
+  String get learningDownloaded;
+
+  /// Delete the selected format from app storage.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove download'**
+  String get learningRemoveDownload;
+
+  /// The learning media source has not been configured.
+  ///
+  /// In en, this message translates to:
+  /// **'Episode media is currently unavailable.'**
+  String get learningMediaUnavailable;
+
+  /// Shown when an episode cannot be played.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to play this episode.'**
+  String get learningPlaybackFailed;
+
+  /// Shown when saving or removing a media download fails.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to update the download.'**
+  String get learningDownloadFailed;
+
+  /// Retry loading the current episode.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get learningRetry;
+
+  /// Play the preceding video in the list.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous episode'**
+  String get learningPreviousEpisode;
+
+  /// Play the next video in the list.
+  ///
+  /// In en, this message translates to:
+  /// **'Next episode'**
+  String get learningNextEpisode;
+
   /// Content status: source/license not yet verified.
   ///
   /// In en, this message translates to:
@@ -500,6 +818,36 @@ abstract class AppLocalizations {
   /// **'No account needed. Your preferences are stored only on this device.'**
   String get settingsGuestModeBody;
 
+  /// Action that opens Google sign-in in the browser.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with Google'**
+  String get settingsGoogleSignIn;
+
+  /// Label for the signed-in Google account.
+  ///
+  /// In en, this message translates to:
+  /// **'Google account'**
+  String get settingsGoogleAccount;
+
+  /// Action that signs out on this device.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out'**
+  String get settingsGoogleSignOut;
+
+  /// Shown when Google sign-in fails.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t sign in with Google. Try again.'**
+  String get settingsGoogleSignInError;
+
+  /// Shown when sign-out fails.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t sign out. Try again.'**
+  String get settingsGoogleSignOutError;
+
   /// Settings group: about the app.
   ///
   /// In en, this message translates to:
@@ -541,6 +889,1050 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Back to home'**
   String get notFoundAction;
+
+  /// Dubai
+  ///
+  /// In en, this message translates to:
+  /// **'Dubai'**
+  String get cityDubai;
+
+  /// Abu Dhabi
+  ///
+  /// In en, this message translates to:
+  /// **'Abu Dhabi'**
+  String get cityAbuDhabi;
+
+  /// Cairo
+  ///
+  /// In en, this message translates to:
+  /// **'Cairo'**
+  String get cityCairo;
+
+  /// Alexandria
+  ///
+  /// In en, this message translates to:
+  /// **'Alexandria'**
+  String get cityAlexandria;
+
+  /// Choose a city
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a city'**
+  String get chooseCity;
+
+  /// Title of the initial setup dialog for the shared worship location.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up your location'**
+  String get startupLocationTitle;
+
+  /// Explains why the app asks for location access and where to set a manual city.
+  ///
+  /// In en, this message translates to:
+  /// **'Use your location for prayer times and Qibla. You can also choose a city in Prayer Times or Qibla.'**
+  String get startupLocationExplanation;
+
+  /// Dismisses location setup while leaving the rest of the app available.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get startupLocationLater;
+
+  /// Use my location
+  ///
+  /// In en, this message translates to:
+  /// **'Use my location'**
+  String get useLocation;
+
+  /// Device location
+  ///
+  /// In en, this message translates to:
+  /// **'Device location'**
+  String get deviceLocation;
+
+  /// Location permission was declined. You can choose a city.
+  ///
+  /// In en, this message translates to:
+  /// **'Location permission was declined. You can choose a city.'**
+  String get locationDenied;
+
+  /// Location is unavailable. Check location services or choose a city.
+  ///
+  /// In en, this message translates to:
+  /// **'Location is unavailable. Check location services or choose a city.'**
+  String get locationUnavailable;
+
+  /// Device location is supported in Egypt and the UAE. Choose a city to continue.
+  ///
+  /// In en, this message translates to:
+  /// **'Device location is supported in Egypt and the UAE. Choose a city to continue.'**
+  String get locationOutside;
+
+  /// Finding your location…
+  ///
+  /// In en, this message translates to:
+  /// **'Finding your location…'**
+  String get locationLoading;
+
+  /// Could not save on this device.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save on this device.'**
+  String get localSaveFailed;
+
+  /// Calculated times for testing while local references are being verified.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculated times for testing while local references are being verified.'**
+  String get prayerPreview;
+
+  /// Calculation method · Egypt
+  ///
+  /// In en, this message translates to:
+  /// **'Calculation method · Egypt'**
+  String get prayerEgyptMethod;
+
+  /// Calculation method · Dubai
+  ///
+  /// In en, this message translates to:
+  /// **'Calculation method · Dubai'**
+  String get prayerDubaiMethod;
+
+  /// Asr calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Asr calculation'**
+  String get hanafiAsr;
+
+  /// Hanafi
+  ///
+  /// In en, this message translates to:
+  /// **'Hanafi'**
+  String get asrHanafi;
+
+  /// Standard
+  ///
+  /// In en, this message translates to:
+  /// **'Standard'**
+  String get asrStandard;
+
+  /// Next prayer
+  ///
+  /// In en, this message translates to:
+  /// **'Next prayer'**
+  String get nextPrayer;
+
+  /// Fajr
+  ///
+  /// In en, this message translates to:
+  /// **'Fajr'**
+  String get prayerFajr;
+
+  /// Sunrise
+  ///
+  /// In en, this message translates to:
+  /// **'Sunrise'**
+  String get prayerSunrise;
+
+  /// Dhuhr
+  ///
+  /// In en, this message translates to:
+  /// **'Dhuhr'**
+  String get prayerDhuhr;
+
+  /// Asr
+  ///
+  /// In en, this message translates to:
+  /// **'Asr'**
+  String get prayerAsr;
+
+  /// Maghrib
+  ///
+  /// In en, this message translates to:
+  /// **'Maghrib'**
+  String get prayerMaghrib;
+
+  /// Isha
+  ///
+  /// In en, this message translates to:
+  /// **'Isha'**
+  String get prayerIsha;
+
+  /// {degrees}° from true north
+  ///
+  /// In en, this message translates to:
+  /// **'{degrees}° from true north'**
+  String trueBearing(String degrees);
+
+  /// Approximate direction from the selected city centre.
+  ///
+  /// In en, this message translates to:
+  /// **'Approximate direction from the selected city centre.'**
+  String get cityBearingApproximate;
+
+  /// Hold your phone flat and away from metal.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold your phone flat and away from metal.'**
+  String get compassHoldFlat;
+
+  /// Compass signal is weak. Move your phone in a figure eight away from metal.
+  ///
+  /// In en, this message translates to:
+  /// **'Compass signal is weak. Move your phone in a figure eight away from metal.'**
+  String get compassCalibrate;
+
+  /// Waiting for the compass…
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the compass…'**
+  String get compassWaiting;
+
+  /// A live compass reading is unavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'A live compass reading is unavailable.'**
+  String get compassUnavailable;
+
+  /// Surahs
+  ///
+  /// In en, this message translates to:
+  /// **'Surahs'**
+  String get readerSurahs;
+
+  /// Go to verse
+  ///
+  /// In en, this message translates to:
+  /// **'Go to verse'**
+  String get readerGoToVerse;
+
+  /// Verse number
+  ///
+  /// In en, this message translates to:
+  /// **'Verse number'**
+  String get readerVerseNumber;
+
+  /// Enter a verse number from 1 to {count}.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a verse number from 1 to {count}.'**
+  String readerVerseInvalid(int count);
+
+  /// Go
+  ///
+  /// In en, this message translates to:
+  /// **'Go'**
+  String get readerGo;
+
+  /// Cancel
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get readerCancel;
+
+  /// Tafsir
+  ///
+  /// In en, this message translates to:
+  /// **'Tafsir'**
+  String get readerTafsir;
+
+  /// Tafsir · verse {verse}
+  ///
+  /// In en, this message translates to:
+  /// **'Tafsir · verse {verse}'**
+  String readerTafsirFor(int verse);
+
+  /// Reciter
+  ///
+  /// In en, this message translates to:
+  /// **'Reciter'**
+  String get readerReciter;
+
+  /// Quran text by Tanzil Project
+  ///
+  /// In en, this message translates to:
+  /// **'Quran text by Tanzil Project'**
+  String get readerTanzil;
+
+  /// Quran Foundation
+  ///
+  /// In en, this message translates to:
+  /// **'Quran Foundation'**
+  String get readerQuranFoundation;
+
+  /// Retry
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get readerRetry;
+
+  /// Could not load the Quran text.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load the Quran text.'**
+  String get readerLoadFailed;
+
+  /// Tafsir and recitations are currently unavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Tafsir and recitations are currently unavailable.'**
+  String get readerResourcesUnavailable;
+
+  /// Tafsir is unavailable for this verse.
+  ///
+  /// In en, this message translates to:
+  /// **'Tafsir is unavailable for this verse.'**
+  String get readerTafsirUnavailable;
+
+  /// Could not load this recitation.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load this recitation.'**
+  String get readerAudioUnavailable;
+
+  /// Play surah
+  ///
+  /// In en, this message translates to:
+  /// **'Play surah'**
+  String get readerPlay;
+
+  /// Pause recitation
+  ///
+  /// In en, this message translates to:
+  /// **'Pause recitation'**
+  String get readerPause;
+
+  /// Resume recitation
+  ///
+  /// In en, this message translates to:
+  /// **'Resume recitation'**
+  String get readerResume;
+
+  /// Stop recitation
+  ///
+  /// In en, this message translates to:
+  /// **'Stop recitation'**
+  String get readerStop;
+
+  /// Loading tafsir…
+  ///
+  /// In en, this message translates to:
+  /// **'Loading tafsir…'**
+  String get readerTafsirLoading;
+
+  /// Explains the limited Quran Foundation test content on other chapters.
+  ///
+  /// In en, this message translates to:
+  /// **'Tafsir and recitation are available for Al-Fatihah and Al-Baqarah in this preview.'**
+  String get readerPreliveCoverage;
+
+  /// Quran index
+  ///
+  /// In en, this message translates to:
+  /// **'Quran index'**
+  String get readerIndex;
+
+  /// Parts
+  ///
+  /// In en, this message translates to:
+  /// **'Parts'**
+  String get readerJuzs;
+
+  /// Hizbs
+  ///
+  /// In en, this message translates to:
+  /// **'Hizbs'**
+  String get readerHizbs;
+
+  /// Pages
+  ///
+  /// In en, this message translates to:
+  /// **'Pages'**
+  String get readerPages;
+
+  /// Bookmarks
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmarks'**
+  String get readerBookmarks;
+
+  /// Search
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get readerSearch;
+
+  /// Search Arabic text, a surah, or a verse like 2:255
+  ///
+  /// In en, this message translates to:
+  /// **'Search Arabic text, a surah, or a verse like 2:255'**
+  String get readerSearchHint;
+
+  /// No verses found
+  ///
+  /// In en, this message translates to:
+  /// **'No verses found'**
+  String get readerNoResults;
+
+  /// No bookmarks yet
+  ///
+  /// In en, this message translates to:
+  /// **'No bookmarks yet'**
+  String get readerNoBookmarks;
+
+  /// Choose a verse for tafsir or bookmarking
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a verse for tafsir or bookmarking'**
+  String get readerPageActions;
+
+  /// Add bookmark
+  ///
+  /// In en, this message translates to:
+  /// **'Add bookmark'**
+  String get readerAddBookmark;
+
+  /// Remove bookmark
+  ///
+  /// In en, this message translates to:
+  /// **'Remove bookmark'**
+  String get readerRemoveBookmark;
+
+  /// Mushaf part label.
+  ///
+  /// In en, this message translates to:
+  /// **'Juz {number}'**
+  String readerJuzLabel(String number);
+
+  /// Mushaf hizb label.
+  ///
+  /// In en, this message translates to:
+  /// **'Hizb {number}'**
+  String readerHizbLabel(String number);
+
+  /// Mushaf or list page label.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {number}'**
+  String readerPageLabel(String number);
+
+  /// Quranic supplications
+  ///
+  /// In en, this message translates to:
+  /// **'Quranic supplications'**
+  String get duaTitle;
+
+  /// Open in the Quran
+  ///
+  /// In en, this message translates to:
+  /// **'Open in the Quran'**
+  String get duaOpenVerse;
+
+  /// English meaning is temporarily unavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'English meaning is temporarily unavailable.'**
+  String get duaTranslationUnavailable;
+
+  /// All topics
+  ///
+  /// In en, this message translates to:
+  /// **'All topics'**
+  String get duaTopics;
+
+  /// Forgiveness and mercy
+  ///
+  /// In en, this message translates to:
+  /// **'Forgiveness and mercy'**
+  String get duaTopicForgiveness;
+
+  /// Guidance and knowledge
+  ///
+  /// In en, this message translates to:
+  /// **'Guidance and knowledge'**
+  String get duaTopicGuidance;
+
+  /// Family and community
+  ///
+  /// In en, this message translates to:
+  /// **'Family and community'**
+  String get duaTopicFamily;
+
+  /// Patience and relief
+  ///
+  /// In en, this message translates to:
+  /// **'Patience and relief'**
+  String get duaTopicHardship;
+
+  /// Gratitude and provision
+  ///
+  /// In en, this message translates to:
+  /// **'Gratitude and provision'**
+  String get duaTopicGratitude;
+
+  /// Worship and good deeds
+  ///
+  /// In en, this message translates to:
+  /// **'Worship and good deeds'**
+  String get duaTopicWorship;
+
+  /// The Hereafter
+  ///
+  /// In en, this message translates to:
+  /// **'The Hereafter'**
+  String get duaTopicHereafter;
+
+  /// Protection
+  ///
+  /// In en, this message translates to:
+  /// **'Protection'**
+  String get duaTopicProtection;
+
+  /// English meaning · Rowwad Translation Center via QuranEnc
+  ///
+  /// In en, this message translates to:
+  /// **'English meaning · Rowwad Translation Center via QuranEnc'**
+  String get duaTranslationSource;
+
+  /// Cairo Quran Radio
+  ///
+  /// In en, this message translates to:
+  /// **'Cairo Quran Radio'**
+  String get radioTitle;
+
+  /// Listen on the official site
+  ///
+  /// In en, this message translates to:
+  /// **'Open the official live player in the app'**
+  String get radioOpen;
+
+  /// Could not open the official broadcast site.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open the official broadcast site.'**
+  String get radioOpenFailed;
+
+  /// Action to show the English meaning of an ayah.
+  ///
+  /// In en, this message translates to:
+  /// **'English meaning'**
+  String get readerEnglishMeaning;
+
+  /// Search hadith topics
+  ///
+  /// In en, this message translates to:
+  /// **'Search hadith topics'**
+  String get hadithSearchTopics;
+
+  /// No matching topics
+  ///
+  /// In en, this message translates to:
+  /// **'No matching topics'**
+  String get hadithNoTopics;
+
+  /// Previous page
+  ///
+  /// In en, this message translates to:
+  /// **'Previous page'**
+  String get hadithPrevious;
+
+  /// Next page
+  ///
+  /// In en, this message translates to:
+  /// **'Next page'**
+  String get hadithNext;
+
+  /// Grade from HadeethEnc · {grade}
+  ///
+  /// In en, this message translates to:
+  /// **'Grade from HadeethEnc · {grade}'**
+  String hadithProviderGrade(String grade);
+
+  /// Hadith content is temporarily unavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Hadith content is temporarily unavailable.'**
+  String get hadithUnavailable;
+
+  /// Search by verse text, surah or reference
+  ///
+  /// In en, this message translates to:
+  /// **'Search by verse text, surah or reference'**
+  String get duaSearch;
+
+  /// Show saved supplications
+  ///
+  /// In en, this message translates to:
+  /// **'Show saved supplications'**
+  String get duaShowSaved;
+
+  /// Show all supplications
+  ///
+  /// In en, this message translates to:
+  /// **'Show all supplications'**
+  String get duaShowAll;
+
+  /// No matching supplications
+  ///
+  /// In en, this message translates to:
+  /// **'No matching supplications'**
+  String get duaNoResults;
+
+  /// More topics on Quran.com
+  ///
+  /// In en, this message translates to:
+  /// **'More topics on Quran.com'**
+  String get duaQuranCom;
+
+  /// Open browser
+  ///
+  /// In en, this message translates to:
+  /// **'Open browser'**
+  String get radioOpenInBrowser;
+
+  /// Daily Quran reading
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Quran reading'**
+  String get dailyReadingTitle;
+
+  /// Change daily goal
+  ///
+  /// In en, this message translates to:
+  /// **'Change daily goal'**
+  String get dailyReadingEdit;
+
+  /// Pages per session
+  ///
+  /// In en, this message translates to:
+  /// **'Pages per session'**
+  String get dailyReadingPaceLabel;
+
+  /// Enter a number between 1 and 604.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a number between 1 and 604.'**
+  String get dailyReadingPaceRange;
+
+  /// Save goal
+  ///
+  /// In en, this message translates to:
+  /// **'Save goal'**
+  String get dailyReadingSave;
+
+  /// Pages read: of
+  ///
+  /// In en, this message translates to:
+  /// **'Pages read: {read} of {total}'**
+  String dailyReadingProgress(String read, String total);
+
+  /// Read pages–
+  ///
+  /// In en, this message translates to:
+  /// **'Read pages {start}–{end}'**
+  String dailyReadingRange(String start, String end);
+
+  /// Sessions remaining:
+  ///
+  /// In en, this message translates to:
+  /// **'Sessions remaining: {count}'**
+  String dailyReadingRemaining(String count);
+
+  /// You’ve finished this reading plan.
+  ///
+  /// In en, this message translates to:
+  /// **'You’ve finished this reading plan.'**
+  String get dailyReadingCompleted;
+
+  /// Start a new plan
+  ///
+  /// In en, this message translates to:
+  /// **'Start a new plan'**
+  String get dailyReadingRestart;
+
+  /// Open in Mushaf
+  ///
+  /// In en, this message translates to:
+  /// **'Open in Mushaf'**
+  String get dailyReadingOpen;
+
+  /// Mark this session read
+  ///
+  /// In en, this message translates to:
+  /// **'Mark this session read'**
+  String get dailyReadingMarkRead;
+
+  /// Adhkar
+  ///
+  /// In en, this message translates to:
+  /// **'Adhkar'**
+  String get navAdhkar;
+
+  /// Prayer
+  ///
+  /// In en, this message translates to:
+  /// **'Prayer'**
+  String get navPrayer;
+
+  /// Calculation method
+  ///
+  /// In en, this message translates to:
+  /// **'Calculation method'**
+  String get prayerCalculationMethod;
+
+  /// Asr calculation
+  ///
+  /// In en, this message translates to:
+  /// **'Asr calculation'**
+  String get prayerAsrCalculation;
+
+  /// In minutes min
+  ///
+  /// In en, this message translates to:
+  /// **'In {minutes} min'**
+  String prayerMinutesLeft(String minutes);
+
+  /// In hours h minutes min
+  ///
+  /// In en, this message translates to:
+  /// **'In {hours} h {minutes} min'**
+  String prayerHoursLeft(String hours, String minutes);
+
+  /// Facing the Qibla
+  ///
+  /// In en, this message translates to:
+  /// **'Facing the Qibla'**
+  String get compassAligned;
+
+  /// Turn right · angle°
+  ///
+  /// In en, this message translates to:
+  /// **'Turn right · {angle}°'**
+  String compassTurnRight(String angle);
+
+  /// Turn left · angle°
+  ///
+  /// In en, this message translates to:
+  /// **'Turn left · {angle}°'**
+  String compassTurnLeft(String angle);
+
+  /// Phone heading angle°
+  ///
+  /// In en, this message translates to:
+  /// **'Phone heading {angle}°'**
+  String compassPhoneHeading(String angle);
+
+  /// Last reading position
+  ///
+  /// In en, this message translates to:
+  /// **'Last reading position'**
+  String get readerLastPosition;
+
+  /// surah · verse verse · p. page
+  ///
+  /// In en, this message translates to:
+  /// **'{surah} · verse {verse} · p. {page}'**
+  String readerPosition(String surah, String verse, String page);
+
+  /// juz · hizb · page of total
+  ///
+  /// In en, this message translates to:
+  /// **'{juz} · {hizb} · {page} of {total}'**
+  String readerPageMeta(String juz, String hizb, String page, String total);
+
+  /// Page number (1–604)
+  ///
+  /// In en, this message translates to:
+  /// **'Page number (1–604)'**
+  String get readerPageInput;
+
+  /// Enter a page from 1 to 604.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a page from 1 to 604.'**
+  String get readerPageInvalid;
+
+  /// Scroll vertically between pages.
+  ///
+  /// In en, this message translates to:
+  /// **'Scroll vertically between pages.'**
+  String get readerIndexScroll;
+
+  /// count verses
+  ///
+  /// In en, this message translates to:
+  /// **'{count} verses'**
+  String readerIndexVerseCount(String count);
+
+  /// Copy verse
+  ///
+  /// In en, this message translates to:
+  /// **'Copy verse'**
+  String get readerCopy;
+
+  /// Verse copied
+  ///
+  /// In en, this message translates to:
+  /// **'Verse copied'**
+  String get readerCopied;
+
+  /// Share verse
+  ///
+  /// In en, this message translates to:
+  /// **'Share verse'**
+  String get readerShare;
+
+  /// Could not share the verse.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not share the verse.'**
+  String get readerShareFailed;
+
+  /// Listen to the surah
+  ///
+  /// In en, this message translates to:
+  /// **'Listen to the surah'**
+  String get readerListenChapter;
+
+  /// Listen from this verse
+  ///
+  /// In en, this message translates to:
+  /// **'Listen from this verse'**
+  String get readerListenFromVerse;
+
+  /// This recording has no timing for the selected verse.
+  ///
+  /// In en, this message translates to:
+  /// **'This recording has no timing for the selected verse.'**
+  String get readerVerseAudioUnavailable;
+
+  /// Reading sources
+  ///
+  /// In en, this message translates to:
+  /// **'Reading sources'**
+  String get readerSources;
+
+  /// Continue reading
+  ///
+  /// In en, this message translates to:
+  /// **'Continue reading'**
+  String get homeContinueReading;
+
+  /// Open page number
+  ///
+  /// In en, this message translates to:
+  /// **'Open page {number}'**
+  String homeOpenPage(String number);
+
+  /// Open the Mushaf
+  ///
+  /// In en, this message translates to:
+  /// **'Open the Mushaf'**
+  String get homeReadQuran;
+
+  /// Dua of the day
+  ///
+  /// In en, this message translates to:
+  /// **'Dua of the day'**
+  String get homeDuaOfDay;
+
+  /// Morning adhkar
+  ///
+  /// In en, this message translates to:
+  /// **'Morning adhkar'**
+  String get homeMorning;
+
+  /// Reading plan
+  ///
+  /// In en, this message translates to:
+  /// **'Reading plan'**
+  String get homeWird;
+
+  /// Set your prayer location
+  ///
+  /// In en, this message translates to:
+  /// **'Set your prayer location'**
+  String get homeOpenPrayer;
+
+  /// Live
+  ///
+  /// In en, this message translates to:
+  /// **'Live'**
+  String get radioLive;
+
+  /// Live from Cairo
+  ///
+  /// In en, this message translates to:
+  /// **'Live from Cairo'**
+  String get radioCairo;
+
+  /// Grade
+  ///
+  /// In en, this message translates to:
+  /// **'Grade'**
+  String get hadithGradeTitle;
+
+  /// Source
+  ///
+  /// In en, this message translates to:
+  /// **'Source'**
+  String get hadithSourceTitle;
+
+  /// Explanation
+  ///
+  /// In en, this message translates to:
+  /// **'Explanation'**
+  String get hadithExplanationTitle;
+
+  /// Add to favorites
+  ///
+  /// In en, this message translates to:
+  /// **'Add to favorites'**
+  String get hadithAddFavorite;
+
+  /// Remove from favorites
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from favorites'**
+  String get hadithRemoveFavorite;
+
+  /// Favorite hadiths
+  ///
+  /// In en, this message translates to:
+  /// **'Favorite hadiths'**
+  String get hadithFavoritesTitle;
+
+  /// You have no favorite hadiths yet.
+  ///
+  /// In en, this message translates to:
+  /// **'You have no favorite hadiths yet.'**
+  String get hadithNoFavorites;
+
+  /// Academy
+  ///
+  /// In en, this message translates to:
+  /// **'Academy'**
+  String get libraryAcademy;
+
+  /// Stories of the prophets
+  ///
+  /// In en, this message translates to:
+  /// **'Stories of the prophets'**
+  String get libraryStories;
+
+  /// View all
+  ///
+  /// In en, this message translates to:
+  /// **'View all'**
+  String get libraryMore;
+
+  /// Current reading plan
+  ///
+  /// In en, this message translates to:
+  /// **'Current reading plan'**
+  String get dailyReadingCurrentPlan;
+
+  /// Open next page · page
+  ///
+  /// In en, this message translates to:
+  /// **'Open next page · {page}'**
+  String dailyReadingNextPage(String page);
+
+  /// Today’s reading
+  ///
+  /// In en, this message translates to:
+  /// **'Today’s reading'**
+  String get dailyReadingTodaysWird;
+
+  /// Fewer pages per session
+  ///
+  /// In en, this message translates to:
+  /// **'Fewer pages per session'**
+  String get decreaseReadingPace;
+
+  /// More pages per session
+  ///
+  /// In en, this message translates to:
+  /// **'More pages per session'**
+  String get increaseReadingPace;
+
+  /// Tooltip for the approximate civil Hijri date.
+  ///
+  /// In en, this message translates to:
+  /// **'Approximate civil Hijri date'**
+  String get homeApproximateHijriDate;
+
+  /// Play live radio
+  ///
+  /// In en, this message translates to:
+  /// **'Play live radio'**
+  String get radioPlay;
+
+  /// Stop live radio
+  ///
+  /// In en, this message translates to:
+  /// **'Stop live radio'**
+  String get radioStop;
+
+  /// Connecting to the live broadcast…
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting to the live broadcast…'**
+  String get radioConnecting;
+
+  /// The broadcast is unavailable. Try again or open the official player.
+  ///
+  /// In en, this message translates to:
+  /// **'The broadcast is unavailable. Try again or open the official player.'**
+  String get radioStreamFailed;
+
+  /// Approximate phone heading angle°
+  ///
+  /// In en, this message translates to:
+  /// **'Approximate phone heading {angle}°'**
+  String compassApproximateHeading(String angle);
+
+  /// Download recitation
+  ///
+  /// In en, this message translates to:
+  /// **'Download recitation'**
+  String get recitationDownload;
+
+  /// Downloading recitation
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading recitation'**
+  String get recitationDownloading;
+
+  /// Downloaded recitations
+  ///
+  /// In en, this message translates to:
+  /// **'Downloaded recitations'**
+  String get recitationDownloads;
+
+  /// Download a surah to listen offline.
+  ///
+  /// In en, this message translates to:
+  /// **'Download a surah to listen offline.'**
+  String get recitationNoDownloads;
+
+  /// Play downloaded recitation
+  ///
+  /// In en, this message translates to:
+  /// **'Play downloaded recitation'**
+  String get recitationPlayOffline;
+
+  /// Remove download
+  ///
+  /// In en, this message translates to:
+  /// **'Remove download'**
+  String get recitationRemoveDownload;
+
+  /// Could not save or access this download.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save or access this download.'**
+  String get recitationDownloadFailed;
 }
 
 class _AppLocalizationsDelegate

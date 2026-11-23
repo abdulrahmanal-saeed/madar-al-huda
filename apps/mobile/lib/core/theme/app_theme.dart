@@ -7,6 +7,16 @@ import 'brand_colors.dart';
 abstract final class AppTheme {
   /// Bundled UI font (Arabic + Latin). See pubspec.yaml for licensing.
   static const String fontFamily = 'IBMPlexSansArabic';
+  static const String headingFontFamily = 'ReemKufi';
+  static const String quranFontFamily = 'AmiriQuran';
+  static const String readingFontFamily = 'Amiri';
+
+  static TextStyle headingStyle(FontWeight weight) => TextStyle(
+    fontFamily: headingFontFamily,
+    fontFamilyFallback: const [fontFamily],
+    fontWeight: weight,
+    fontVariations: [FontVariation.weight(weight.value.toDouble())],
+  );
 
   static const ColorScheme lightScheme = ColorScheme(
     brightness: Brightness.light,
@@ -226,35 +236,22 @@ abstract final class AppTheme {
           color: scheme.onSurface,
           fontFamily: fontFamily,
         );
+    TextStyle? heading(
+      TextStyle? style,
+      double height, [
+      FontWeight weight = FontWeight.w600,
+    ]) => tune(style, height: height)?.merge(headingStyle(weight));
 
     return base.copyWith(
-      displaySmall: tune(
-        base.displaySmall,
-        height: 1.3,
-        weight: FontWeight.w600,
-      ),
-      headlineLarge: tune(
-        base.headlineLarge,
-        height: 1.3,
-        weight: FontWeight.w600,
-      ),
-      headlineMedium: tune(
-        base.headlineMedium,
-        height: 1.35,
-        weight: FontWeight.w600,
-      ),
-      headlineSmall: tune(
-        base.headlineSmall,
-        height: 1.4,
-        weight: FontWeight.w600,
-      ),
-      titleLarge: tune(base.titleLarge, height: 1.4, weight: FontWeight.w600),
-      titleMedium: tune(
-        base.titleMedium,
-        height: 1.45,
-        weight: FontWeight.w600,
-      ),
-      titleSmall: tune(base.titleSmall, height: 1.45, weight: FontWeight.w500),
+      displayLarge: heading(base.displayLarge, 1.25),
+      displayMedium: heading(base.displayMedium, 1.25),
+      displaySmall: heading(base.displaySmall, 1.3),
+      headlineLarge: heading(base.headlineLarge, 1.3),
+      headlineMedium: heading(base.headlineMedium, 1.35),
+      headlineSmall: heading(base.headlineSmall, 1.4),
+      titleLarge: heading(base.titleLarge, 1.4),
+      titleMedium: heading(base.titleMedium, 1.45),
+      titleSmall: heading(base.titleSmall, 1.45, FontWeight.w500),
       bodyLarge: tune(base.bodyLarge, height: 1.6),
       bodyMedium: tune(base.bodyMedium, height: 1.6),
       bodySmall: tune(base.bodySmall, height: 1.55),

@@ -16,6 +16,10 @@ abstract final class AppRoutes {
   static const String prayerTimes = '$worship/prayer-times';
   static const String qibla = '$worship/qibla';
   static const String adhkar = '$worship/adhkar';
+  static const String morningAdhkar = '$adhkar/morning';
+  static const String quranDuas = '$adhkar/quran-duas';
+  static const String dailyReading = '$worship/daily-reading';
+  static const String cairoRadio = '$worship/cairo-radio';
 
   // Library
   static const String hadith = '$library/hadith';
@@ -30,5 +34,10 @@ abstract final class AppRoutes {
   static const String settings = '/settings';
 
   /// Tab roots in navigation order.
-  static const List<String> tabs = [home, quran, worship, library, learning];
+  static const List<String> tabs = [home, quran, adhkar, prayerTimes, library];
+
+  static String verse(int surah, int ayah) => Uri(
+    path: quran,
+    queryParameters: {'surah': '$surah', 'ayah': '$ayah'},
+  ).toString();
 }

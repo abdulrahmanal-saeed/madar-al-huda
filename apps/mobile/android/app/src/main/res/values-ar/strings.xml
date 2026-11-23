@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">مدار الهدى</string>
+    <string name="update_notifications_channel">تحديثات التطبيق</string>
+    <string name="update_notification_title">تحديث مدار الهدى</string>
+    <string name="update_notification_body">الإصدار %1$s متاح للتنزيل.</string>
 </resources>

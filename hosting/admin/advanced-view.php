@@ -1,0 +1,97 @@
+<?php if ($section === 'reciters'): ?>
+  <section class="panel">
+    <h2>اختيار قارئ من المصادر</h2>
+    <form method="post" class="inline">
+      <?php controls('save', $revision); ?>
+      <label>القارئ
+        <select name="reader" required>
+          <?php foreach (availableReaders() as $choice): ?>
+            <option value="<?= e($choice['id']) ?>"><?= e($choice['ar']) ?> · <?= e($choice['source']) ?><?= isset($choice['chapters']) ? ' · ' . count($choice['chapters']) . ' سورة' : '' ?></option>
+          <?php endforeach; ?>
+        </select>
+      </label>
+      <button class="primary">إضافة للقائمة</button>
+    </form>
+  </section>
+  <section class="panel">
+    <h2>القراء المختارون</h2>
+    <?php foreach (($draft['reciters'] ?? defaultReaders()) as $reader): ?>
+      <?php if ($reader['enabled']): ?>
+        <div class="row">
+          <span><?= e($reader['ar']) ?></span>
+          <form method="post">
+            <?php controls('delete', $revision); ?>
+            <input type="hidden" name="reader" value="<?= e($reader['id']) ?>">
+            <button class="quiet danger">إزالة من القائمة</button>
+          </form>
+        </div>
+      <?php endif; ?>
+    <?php endforeach; ?>
+  </section>
+<?php else: ?>
+<div class="editor-grid">
+  <section class="panel">
+    <div class="row head"><h2>العناصر</h2><a class="button quiet" href="<?= e(route($section, '', 'new')) ?>">إضافة</a></div>
+    <?php if ($rows === []): ?><p>لا توجد عناصر في هذا القسم.</p><?php endif; ?>
+    <?php foreach ($rows as $row): ?>
+      <a class="entry" href="<?= e(route($section, '', $row['id'])) ?>">
+        <strong><?= e($row['title']['ar']) ?></strong>
+        <span dir="ltr"><?= e($row['title']['en']) ?></span>
+      </a>
+    <?php endforeach; ?>
+  </section>
+  <?php if ($current !== null || $edit === 'new'): ?>
+  <section class="panel">
+    <h2><?= $current !== null ? 'تعديل العنصر' : 'إضافة عنصر' ?></h2>
+    <form method="post">
+      <?php controls('save', $revision); ?>
+      <input type="hidden" name="original" value="<?= e($current['id'] ?? '') ?>">
+      <label>العنوان بالعربية<input name="ar" value="<?= e($current['title']['ar'] ?? '') ?>" required></label>
+      <label>العنوان بالإنجليزية<input name="en" dir="ltr" value="<?= e($current['title']['en'] ?? '') ?>" required></label>
+      <?php if ($section === 'fiqh'): ?>
+        <?php $positions = array_column($current['positions'] ?? [], null, 'school'); ?>
+        <?php foreach (SCHOOLS as $key => $name): ?>
+          <?php $position = $positions[$key] ?? []; ?>
+          <details <?= $position !== [] ? 'open' : '' ?>>
+            <summary>المذهب <?= e($name) ?></summary>
+            <label>القول بالعربية<textarea name="ar_<?= e($key) ?>"><?= e($position['body']['ar'] ?? '') ?></textarea></label>
+            <label>القول بالإنجليزية<textarea dir="ltr" name="en_<?= e($key) ?>"><?= e($position['body']['en'] ?? '') ?></textarea></label>
+            <label>رابط المصدر<input dir="ltr" type="url" name="source_<?= e($key) ?>" value="<?= e($position['source'] ?? '') ?>"></label>
+          </details>
+        <?php endforeach; ?>
+      <?php else: ?>
+        <label>النص بالعربية<textarea name="body_ar" required><?= e($current['body']['ar'] ?? '') ?></textarea></label>
+        <label>النص بالإنجليزية<textarea name="body_en" dir="ltr" required><?= e($current['body']['en'] ?? '') ?></textarea></label>
+        <label>رابط المصدر<input name="source" type="url" dir="ltr" value="<?= e($current['source'] ?? '') ?>" required></label>
+        <?php if ($section === 'lessons'): ?>
+          <?php $questions = $current['questions'] ?? []; $questions[] = []; ?>
+          <input type="hidden" name="questions_count" value="<?= count($questions) ?>">
+          <?php foreach ($questions as $i => $question): ?>
+            <details <?= $question !== [] ? 'open' : '' ?>>
+              <summary><?= $question === [] ? 'إضافة سؤال اختياري' : 'سؤال ' . ($i + 1) ?></summary>
+              <label>السؤال بالعربية<input name="question_ar_<?= $i ?>" value="<?= e($question['prompt']['ar'] ?? '') ?>"></label>
+              <label>السؤال بالإنجليزية<input dir="ltr" name="question_en_<?= $i ?>" value="<?= e($question['prompt']['en'] ?? '') ?>"></label>
+              <?php for ($choice = 0; $choice < 4; $choice++): ?>
+                <label>الاختيار <?= $choice + 1 ?> بالعربية<input name="choice_ar_<?= $i ?>_<?= $choice ?>" value="<?= e($question['choices'][$choice]['ar'] ?? '') ?>"></label>
+                <label>الاختيار <?= $choice + 1 ?> بالإنجليزية<input dir="ltr" name="choice_en_<?= $i ?>_<?= $choice ?>" value="<?= e($question['choices'][$choice]['en'] ?? '') ?>"></label>
+              <?php endfor; ?>
+              <label>الإجابة الصحيحة
+                <select name="answer_<?= $i ?>"><?php for ($choice = 0; $choice < 4; $choice++): ?><option value="<?= $choice ?>" <?= ($question['answer'] ?? 0) === $choice ? 'selected' : '' ?>><?= $choice + 1 ?></option><?php endfor; ?></select>
+              </label>
+              <?php if ($question !== []): ?><label class="check"><input name="skip_question_<?= $i ?>" type="checkbox" value="1">حذف السؤال</label><?php endif; ?>
+            </details>
+          <?php endforeach; ?>
+        <?php endif; ?>
+      <?php endif; ?>
+      <button class="primary">حفظ في المسودة</button>
+    </form>
+    <?php if ($current !== null): ?>
+      <form method="post" class="delete-form">
+        <?php controls('delete', $revision); ?><input type="hidden" name="original" value="<?= e($current['id']) ?>">
+        <button class="quiet danger">حذف من المسودة</button>
+      </form>
+    <?php endif; ?>
+  </section>
+  <?php endif; ?>
+</div>
+<?php endif; ?>

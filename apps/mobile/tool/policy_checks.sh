@@ -23,9 +23,18 @@ if grep -Eq "$forbidden" pubspec.lock; then
 fi
 
 # --- 2. Android permissions --------------------------------------------------
-# Phase 0: the release (main) manifest requests no permissions at all.
-# The debug/profile manifests may add INTERNET for Flutter tooling only.
-allowed_permissions=()
+# P01-06 media playback, P01-07/P01-08 optional foreground location.
+# P00-11 opt-in update notifications and scheduled checks after a reboot.
+allowed_permissions=(
+  android.permission.ACCESS_COARSE_LOCATION
+  android.permission.ACCESS_FINE_LOCATION
+  android.permission.INTERNET
+  android.permission.WAKE_LOCK
+  android.permission.FOREGROUND_SERVICE
+  android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK
+  android.permission.POST_NOTIFICATIONS
+  android.permission.RECEIVE_BOOT_COMPLETED
+)
 manifest=android/app/src/main/AndroidManifest.xml
 while IFS= read -r perm; do
   [[ -z "$perm" ]] && continue

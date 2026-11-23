@@ -14,11 +14,12 @@ import '../features/learning/presentation/prophet_stories_screen.dart';
 import '../features/library/presentation/library_hub_screen.dart';
 import '../features/prayer/presentation/prayer_times_screen.dart';
 import '../features/qibla/presentation/qibla_screen.dart';
+import '../features/quran/data/mushaf_edition.dart';
+import '../features/quran/domain/quran_storage_contracts.dart';
 import '../features/quran/presentation/mushaf_screen.dart';
-import '../features/quran/presentation/quran_hub_screen.dart';
-import '../features/quran/presentation/recitations_screen.dart';
-import '../features/quran/presentation/tafsir_screen.dart';
 import '../features/settings/presentation/settings_screen.dart';
+import '../features/worship/presentation/cairo_radio_card.dart';
+import '../features/worship/presentation/daily_reading_card.dart';
 import '../features/worship/presentation/worship_hub_screen.dart';
 import 'app_shell.dart';
 import 'not_found_screen.dart';
@@ -36,7 +37,13 @@ GoRouter buildAppRouter({String initialLocation = AppRoutes.home}) {
     navigatorKey: rootNavigatorKey,
     initialLocation: initialLocation,
     errorBuilder: (_, _) => const NotFoundScreen(),
-    redirect: (_, state) => state.uri.path == '/' ? AppRoutes.home : null,
+    redirect: (_, state) => switch (state.uri.path) {
+      '/' => AppRoutes.home,
+      AppRoutes.mushaf ||
+      AppRoutes.recitations ||
+      AppRoutes.tafsir => state.uri.replace(path: AppRoutes.quran).toString(),
+      _ => null,
+    },
     routes: [
       StatefulShellRoute.indexedStack(
         builder: (_, _, shell) => AppShell(navigationShell: shell),
@@ -53,28 +60,55 @@ GoRouter buildAppRouter({String initialLocation = AppRoutes.home}) {
             routes: [
               GoRoute(
                 path: AppRoutes.quran,
-                builder: (_, _) => const QuranHubScreen(),
+                builder: (_, state) {
+                  final surah = int.tryParse(
+                    state.uri.queryParameters['surah'] ?? '',
+                  );
+                  final ayah = int.tryParse(
+                    state.uri.queryParameters['ayah'] ?? '',
+                  );
+                  return MushafScreen(
+                    initialVerse:
+                        surah != null &&
+                            surah >= 1 &&
+                            surah <= surahCount &&
+                            ayah != null &&
+                            ayah >= 1
+                        ? AyahRef(
+                            editionId: MushafEdition.id,
+                            surah: surah,
+                            ayah: ayah,
+                          )
+                        : null,
+                  );
+                },
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.adhkar,
+                builder: (_, _) => const AdhkarScreen(),
                 routes: [
                   _child(
-                    AppRoutes.mushaf,
-                    AppRoutes.quran,
-                    const MushafScreen(),
+                    AppRoutes.morningAdhkar,
+                    AppRoutes.adhkar,
+                    const AdhkarScreen(destination: AdhkarDestination.morning),
                   ),
                   _child(
-                    AppRoutes.recitations,
-                    AppRoutes.quran,
-                    const RecitationsScreen(),
-                  ),
-                  _child(
-                    AppRoutes.tafsir,
-                    AppRoutes.quran,
-                    const TafsirScreen(),
+                    AppRoutes.quranDuas,
+                    AppRoutes.adhkar,
+                    const AdhkarScreen(
+                      destination: AdhkarDestination.quranDuas,
+                    ),
                   ),
                 ],
               ),
             ],
           ),
           StatefulShellBranch(
+            initialLocation: AppRoutes.prayerTimes,
             routes: [
               GoRoute(
                 path: AppRoutes.worship,
@@ -89,11 +123,6 @@ GoRouter buildAppRouter({String initialLocation = AppRoutes.home}) {
                     AppRoutes.qibla,
                     AppRoutes.worship,
                     const QiblaScreen(),
-                  ),
-                  _child(
-                    AppRoutes.adhkar,
-                    AppRoutes.worship,
-                    const AdhkarScreen(),
                   ),
                 ],
               ),
@@ -118,10 +147,6 @@ GoRouter buildAppRouter({String initialLocation = AppRoutes.home}) {
                   ),
                 ],
               ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
               GoRoute(
                 path: AppRoutes.learning,
                 builder: (_, _) => const LearningHubScreen(),
@@ -141,6 +166,16 @@ GoRouter buildAppRouter({String initialLocation = AppRoutes.home}) {
             ],
           ),
         ],
+      ),
+      GoRoute(
+        path: AppRoutes.dailyReading,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (_, _) => const DailyReadingScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.cairoRadio,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (_, _) => const CairoRadioScreen(),
       ),
       GoRoute(
         path: AppRoutes.settings,

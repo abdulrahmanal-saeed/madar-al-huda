@@ -17,10 +17,10 @@ double contrast(Color a, Color b) {
 
 void main() {
   test('brand colours match docs/BRAND.md', () {
-    expect(BrandColors.primaryGreen, const Color(0xFF173F39));
-    expect(BrandColors.mutedGold, const Color(0xFFC7A86D));
-    expect(BrandColors.ivory, const Color(0xFFF8F5ED));
-    expect(BrandColors.darkInk, const Color(0xFF263B38));
+    expect(BrandColors.primaryGreen, const Color(0xFF0F4A43));
+    expect(BrandColors.mutedGold, const Color(0xFFB8893A));
+    expect(BrandColors.ivory, const Color(0xFFF5F0E6));
+    expect(BrandColors.darkInk, const Color(0xFF12332F));
   });
 
   test('light scheme is built on the brand palette', () {
@@ -100,6 +100,10 @@ void main() {
     );
     expect(
       AppTheme.dark().textTheme.titleLarge?.fontFamily,
+      AppTheme.headingFontFamily,
+    );
+    expect(
+      AppTheme.dark().textTheme.labelMedium?.fontFamily,
       AppTheme.fontFamily,
     );
   });

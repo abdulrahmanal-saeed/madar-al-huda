@@ -1,14 +1,14 @@
 # Madar Al-Huda brand source kit — P00-03
 
-**Current creative direction and logo approved by owner 2026-11-22; no redesign.** Legal trademark/package checks remain separate [R-10 / Issue #19](https://github.com/abdulrahmanal-saeed/madar-al-huda/issues/19).
+**Launcher icon approved by owner 2026-11-22.** The typography and Flutter startup screen follow the updated design. Legal trademark/package checks remain separate [R-10 / Issue #19](https://github.com/abdulrahmanal-saeed/madar-al-huda/issues/19).
 
-Original icon: book and orbit, representing knowledge and guidance, without religious script. Files: [icon-master.svg](icon-master.svg), [icon-monochrome.svg](icon-monochrome.svg), [wordmark-ar.svg](wordmark-ar.svg), [wordmark-en.svg](wordmark-en.svg), [tokens.json](tokens.json). Source SVGs remain editable; wordmark exports require IBM Plex Sans Arabic.
+Launcher and splash mark: an eight-point star and open orbit from the updated design. Files: [icon-master.svg](icon-master.svg), [icon-monochrome.svg](icon-monochrome.svg), [wordmark-ar.svg](wordmark-ar.svg), [wordmark-en.svg](wordmark-en.svg), [tokens.json](tokens.json). The editable wordmarks use Reem Kufi for the name and IBM Plex Sans Arabic for the tagline.
 
 ## Color and readability
 Deep green `#173F39`, muted gold `#C7A86D`, ivory `#F8F5ED`, dark ink `#263B38`. Muted gold is decorative only on ivory; use `#6E5420` for gold-like readable text there. Existing Flutter tests enforce AA contrast on text pairs.
 
 ## Type
-UI in both Arabic and English uses IBM Plex Sans Arabic (regular, medium, semibold, bold), bundled with [OFL-1.1](https://github.com/IBM/plex/blob/master/packages/plex-sans-arabic/LICENSE.txt), copy in `apps/mobile/assets/fonts/ibm_plex_sans_arabic/OFL.txt`. Inter is not bundled. Quran needs a separately validated licensed Uthmani text font (not fulfilled in this task).
+UI label and body styles in both Arabic and English use IBM Plex Sans Arabic. Headings and the wordmark use Reem Kufi 3.0. The Mushaf text uses Amiri Quran 1.003, and hadith text and the startup dedication use Amiri 1.003. The original OFL notices are in `apps/mobile/assets/fonts/` and appear in the app's licences page. [Reem Kufi](https://github.com/aliftype/reem-kufi/releases/tag/v3.0) · [Amiri and Amiri Quran](https://github.com/aliftype/amiri/releases/tag/1.003) · [IBM Plex](https://github.com/IBM/plex)
 
 ## Android assets
 Vector adaptive foreground and white monochrome themed icon in Android res/drawable. Raster legacy icons at mdpi=48, hdpi=72, xhdpi=96, xxhdpi=144, xxxhdpi=192. The design is non-directional and must not flip in RTL. Color source tokens mirror Flutter `BrandColors`.

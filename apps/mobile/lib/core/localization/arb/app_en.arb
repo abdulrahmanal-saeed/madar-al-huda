@@ -1,12 +1,89 @@
 {
   "@@locale": "en",
 
+  "adhkarHubTitle": "Adhkar & Duas",
+  "@adhkarHubTitle": {"description":"adhkar Hub Title."},
+  "adhkarToday": "Today’s adhkar",
+  "@adhkarToday": {"description":"adhkar Today."},
+  "adhkarResume": "Continue where you left off",
+  "@adhkarResume": {"description":"adhkar Resume."},
+  "adhkarFind": "Search adhkar and duas",
+  "@adhkarFind": {"description":"adhkar Find."},
+  "adhkarPosition": "{current} of {total}",
+  "@adhkarPosition": {"description":"adhkar Position.","placeholders":{"current":{"type":"String"},"total":{"type":"String"}}},
+  "adhkarVariant": "Narration · {counts}",
+  "@adhkarVariant": {"description":"adhkar Variant.","placeholders":{"counts":{"type":"String"}}},
+  "adhkarPrevious": "Previous",
+  "@adhkarPrevious": {"description":"adhkar Previous."},
+  "adhkarNext": "Next",
+  "@adhkarNext": {"description":"adhkar Next."},
+  "adhkarCompleted": "Completed",
+  "@adhkarCompleted": {"description":"adhkar Completed."},
+  "adhkarMarkRead": "Mark as read",
+  "@adhkarMarkRead": {"description":"adhkar Mark Read."},
+  "adhkarReset": "Reset counter",
+  "@adhkarReset": {"description":"adhkar Reset."},
+  "adhkarReturnToToday": "Back to adhkar",
+  "@adhkarReturnToToday": {"description":"adhkar Return To Today."},
+  "adhkarCountOnce": "Count one repetition",
+  "@adhkarCountOnce": {"description":"adhkar Count Once."},
+  "adhkarThreeSurahCycle": "Count one recitation of each surah",
+  "@adhkarThreeSurahCycle": {"description":"adhkar Three Surah Cycle."},
+  "adhkarBedtimeCycle": "Count one recitation and wiping cycle",
+  "@adhkarBedtimeCycle": {"description":"adhkar Bedtime Cycle."},
+  "adhkarTasbih": "Count one tasbih",
+  "@adhkarTasbih": {"description":"adhkar Tasbih."},
+  "adhkarTahmid": "Count one tahmid",
+  "@adhkarTahmid": {"description":"adhkar Tahmid."},
+  "adhkarTakbir": "Count one takbir",
+  "@adhkarTakbir": {"description":"adhkar Takbir."},
+  "adhkarTahlil": "Count the closing tahlil",
+  "@adhkarTahlil": {"description":"adhkar Tahlil."},
+  "adhkarIstighfar": "Count one istighfar",
+  "@adhkarIstighfar": {"description":"adhkar Istighfar."},
+  "adhkarSavedProgress": "Your progress is saved on this device",
+  "@adhkarSavedProgress": {"description":"adhkar Saved Progress."},
+  "adhkarWirdToday": "Today’s wird · {day}",
+  "@adhkarWirdToday": {"description":"adhkar Wird Today.","placeholders":{"day":{"type":"String"}}},
+  "adhkarWirdGroups": "Choose your sets",
+  "@adhkarWirdGroups": {"description":"adhkar Wird Groups."},
+  "adhkarAddToWird": "Add to my wird",
+  "@adhkarAddToWird": {"description":"adhkar Add To Wird."},
+  "adhkarRemoveFromWird": "Remove from my wird",
+  "@adhkarRemoveFromWird": {"description":"adhkar Remove From Wird."},
+  "adhkarHisnSubtitle": "Adhkar and duas for everyday situations",
+  "@adhkarHisnSubtitle": {"description":"adhkar Hisn Subtitle."},
+  "adhkarNothingFound": "No matching entries",
+  "@adhkarNothingFound": {"description":"adhkar Nothing Found."},
+  "adhkarAddFavorite": "Add to favorites",
+  "@adhkarAddFavorite": {"description":"adhkar Add Favorite."},
+  "adhkarRemoveFavorite": "Remove from favorites",
+  "@adhkarRemoveFavorite": {"description":"adhkar Remove Favorite."},
+  "adhkarHadithNumber": "Hadith {number}",
+  "@adhkarHadithNumber": {"description":"adhkar Hadith Number.","placeholders":{"number":{"type":"String"}}},
+  "adhkarMerit": "Reported virtue",
+  "@adhkarMerit": {"description":"adhkar Merit."},
+  "adhkarDraftMeaning": "Draft English meaning",
+  "@adhkarDraftMeaning": {"description":"adhkar Draft Meaning."},
+  "adhkarHadithSource": "Read the source hadith",
+  "@adhkarHadithSource": {"description":"adhkar Hadith Source."},
+  "adhkarRetrySource": "Try loading the source again",
+  "@adhkarRetrySource": {"description":"adhkar Retry Source."},
+  "adhkarBukhari6324": "Sahih al-Bukhari 6324",
+  "@adhkarBukhari6324": {"description":"adhkar Bukhari6324."},
+  "adhkarUsePeriodWording": "Read the wording for this time in the narration below.",
+  "@adhkarUsePeriodWording": {"description":"adhkar Use Period Wording."},
+
   "appTitle": "Madar Al-Huda",
   "@appTitle": {"description": "Brand name, transliterated. Not a literal translation."},
   "appTagline": "Quran, Knowledge & Worship in One Place",
   "@appTagline": {"description": "Product tagline from docs/BRAND.md."},
+  "appDedication": "An ongoing charity in memory of my father",
+  "@appDedication": {"description": "Dedication shown on the startup screen."},
+  "splashContinue": "Enter the app",
+  "@splashContinue": {"description": "Accessibility label for leaving the startup screen."},
 
-  "navHome": "Home",
+  "navHome": "Today",
   "@navHome": {"description": "Bottom navigation: home tab."},
   "navQuran": "Quran",
   "@navQuran": {"description": "Bottom navigation: Quran tab."},
@@ -87,6 +164,36 @@
   "sectionStoriesTitle": "Stories of the Prophets",
   "@sectionStoriesTitle": {"description": "Prophet stories section title."},
   "sectionStoriesSubtitle": "Told from the Quran and Sunnah, with sources",
+  "learningEpisodeCount": "{count, plural, =1{1 episode} other{{count} episodes}}",
+  "@learningEpisodeCount": {"description":"Number of episodes in a learning series.","placeholders":{"count":{"type":"int"}}},
+  "learningEpisodeNumber": "Episode {number}",
+  "@learningEpisodeNumber": {"description":"Title for a numbered episode.","placeholders":{"number":{"type":"int"}}},
+  "learningNoEpisodes": "Episodes will appear here when they’re added.",
+  "@learningNoEpisodes": {"description":"Empty state for a series that has no episodes yet."},
+  "learningFormatAudio": "Audio",
+  "@learningFormatAudio": {"description":"Select the audio editions of the episodes."},
+  "learningFormatVideo": "Video",
+  "@learningFormatVideo": {"description":"Select the video editions of the episodes."},
+  "learningPlaySeries": "Play playlist",
+  "@learningPlaySeries": {"description":"Play the numbered episodes in order."},
+  "learningDownload": "Download episode",
+  "@learningDownload": {"description":"Save the episode in the selected format for offline use."},
+  "learningDownloaded": "Available offline",
+  "@learningDownloaded": {"description":"Status of a saved episode in the selected format."},
+  "learningRemoveDownload": "Remove download",
+  "@learningRemoveDownload": {"description":"Delete the selected format from app storage."},
+  "learningMediaUnavailable": "Episode media is currently unavailable.",
+  "@learningMediaUnavailable": {"description":"The learning media source has not been configured."},
+  "learningPlaybackFailed": "Unable to play this episode.",
+  "@learningPlaybackFailed": {"description":"Shown when an episode cannot be played."},
+  "learningDownloadFailed": "Unable to update the download.",
+  "@learningDownloadFailed": {"description":"Shown when saving or removing a media download fails."},
+  "learningRetry": "Retry",
+  "@learningRetry": {"description":"Retry loading the current episode."},
+  "learningPreviousEpisode": "Previous episode",
+  "@learningPreviousEpisode": {"description":"Play the preceding video in the list."},
+  "learningNextEpisode": "Next episode",
+  "@learningNextEpisode": {"description":"Play the next video in the list."},
   "@sectionStoriesSubtitle": {"description": "Prophet stories section description."},
 
   "statusAwaitingSourceTitle": "Awaiting source verification",
@@ -142,6 +249,16 @@
   "@settingsGuestMode": {"description": "Account status: guest (no account)."},
   "settingsGuestModeBody": "No account needed. Your preferences are stored only on this device.",
   "@settingsGuestModeBody": {"description": "Explanation of guest mode."},
+  "settingsGoogleSignIn": "Sign in with Google",
+  "@settingsGoogleSignIn": {"description": "Action that opens Google sign-in in the browser."},
+  "settingsGoogleAccount": "Google account",
+  "@settingsGoogleAccount": {"description": "Label for the signed-in Google account."},
+  "settingsGoogleSignOut": "Sign out",
+  "@settingsGoogleSignOut": {"description": "Action that signs out on this device."},
+  "settingsGoogleSignInError": "Couldn’t sign in with Google. Try again.",
+  "@settingsGoogleSignInError": {"description": "Shown when Google sign-in fails."},
+  "settingsGoogleSignOutError": "Couldn’t sign out. Try again.",
+  "@settingsGoogleSignOutError": {"description": "Shown when sign-out fails."},
   "settingsAbout": "About",
   "@settingsAbout": {"description": "Settings group: about the app."},
   "settingsAboutBody": "Free forever, with no ads and no subscriptions.",
@@ -156,5 +273,830 @@
   "notFoundBody": "The page you were looking for doesn't exist.",
   "@notFoundBody": {"description": "Body shown for an unknown route."},
   "notFoundAction": "Back to home",
-  "@notFoundAction": {"description": "Button that returns to the home screen."}
+  "@notFoundAction": {"description": "Button that returns to the home screen."},
+  "cityDubai": "Dubai",
+  "@cityDubai": {
+    "description": "Dubai"
+  },
+  "cityAbuDhabi": "Abu Dhabi",
+  "@cityAbuDhabi": {
+    "description": "Abu Dhabi"
+  },
+  "cityCairo": "Cairo",
+  "@cityCairo": {
+    "description": "Cairo"
+  },
+  "cityAlexandria": "Alexandria",
+  "@cityAlexandria": {
+    "description": "Alexandria"
+  },
+  "chooseCity": "Choose a city",
+  "startupLocationTitle": "Set up your location",
+  "@startupLocationTitle": {
+    "description": "Title of the initial setup dialog for the shared worship location."
+  },
+  "startupLocationExplanation": "Use your location for prayer times and Qibla. You can also choose a city in Prayer Times or Qibla.",
+  "@startupLocationExplanation": {
+    "description": "Explains why the app asks for location access and where to set a manual city."
+  },
+  "startupLocationLater": "Later",
+  "@startupLocationLater": {
+    "description": "Dismisses location setup while leaving the rest of the app available."
+  },
+  "@chooseCity": {
+    "description": "Choose a city"
+  },
+  "useLocation": "Use my location",
+  "@useLocation": {
+    "description": "Use my location"
+  },
+  "deviceLocation": "Device location",
+  "@deviceLocation": {
+    "description": "Device location"
+  },
+  "locationDenied": "Location permission was declined. You can choose a city.",
+  "@locationDenied": {
+    "description": "Location permission was declined. You can choose a city."
+  },
+  "locationUnavailable": "Location is unavailable. Check location services or choose a city.",
+  "@locationUnavailable": {
+    "description": "Location is unavailable. Check location services or choose a city."
+  },
+  "locationOutside": "Device location is supported in Egypt and the UAE. Choose a city to continue.",
+  "@locationOutside": {
+    "description": "Device location is supported in Egypt and the UAE. Choose a city to continue."
+  },
+  "locationLoading": "Finding your location…",
+  "@locationLoading": {
+    "description": "Finding your location…"
+  },
+  "localSaveFailed": "Could not save on this device.",
+  "@localSaveFailed": {
+    "description": "Could not save on this device."
+  },
+  "prayerPreview": "Calculated times for testing while local references are being verified.",
+  "@prayerPreview": {
+    "description": "Calculated times for testing while local references are being verified."
+  },
+  "prayerEgyptMethod": "Calculation method · Egypt",
+  "@prayerEgyptMethod": {
+    "description": "Calculation method · Egypt"
+  },
+  "prayerDubaiMethod": "Calculation method · Dubai",
+  "@prayerDubaiMethod": {
+    "description": "Calculation method · Dubai"
+  },
+  "hanafiAsr": "Asr calculation",
+  "@hanafiAsr": {
+    "description": "Asr calculation"
+  },
+  "asrHanafi": "Hanafi",
+  "@asrHanafi": {
+    "description": "Hanafi"
+  },
+  "asrStandard": "Standard",
+  "@asrStandard": {
+    "description": "Standard"
+  },
+  "nextPrayer": "Next prayer",
+  "@nextPrayer": {
+    "description": "Next prayer"
+  },
+  "prayerFajr": "Fajr",
+  "@prayerFajr": {
+    "description": "Fajr"
+  },
+  "prayerSunrise": "Sunrise",
+  "@prayerSunrise": {
+    "description": "Sunrise"
+  },
+  "prayerDhuhr": "Dhuhr",
+  "@prayerDhuhr": {
+    "description": "Dhuhr"
+  },
+  "prayerAsr": "Asr",
+  "@prayerAsr": {
+    "description": "Asr"
+  },
+  "prayerMaghrib": "Maghrib",
+  "@prayerMaghrib": {
+    "description": "Maghrib"
+  },
+  "prayerIsha": "Isha",
+  "@prayerIsha": {
+    "description": "Isha"
+  },
+  "trueBearing": "{degrees}° from true north",
+  "@trueBearing": {
+    "description": "{degrees}° from true north",
+    "placeholders": {
+      "degrees": {
+        "type": "String"
+      }
+    }
+  },
+  "cityBearingApproximate": "Approximate direction from the selected city centre.",
+  "@cityBearingApproximate": {
+    "description": "Approximate direction from the selected city centre."
+  },
+  "compassHoldFlat": "Hold your phone flat and away from metal.",
+  "@compassHoldFlat": {
+    "description": "Hold your phone flat and away from metal."
+  },
+  "compassCalibrate": "Compass signal is weak. Move your phone in a figure eight away from metal.",
+  "@compassCalibrate": {
+    "description": "Compass signal is weak. Move your phone in a figure eight away from metal."
+  },
+  "compassWaiting": "Waiting for the compass…",
+  "@compassWaiting": {
+    "description": "Waiting for the compass…"
+  },
+  "compassUnavailable": "A live compass reading is unavailable.",
+  "@compassUnavailable": {
+    "description": "A live compass reading is unavailable."
+  },
+  "readerSurahs": "Surahs",
+  "@readerSurahs": {
+    "description": "Surahs"
+  },
+  "readerGoToVerse": "Go to verse",
+  "@readerGoToVerse": {
+    "description": "Go to verse"
+  },
+  "readerVerseNumber": "Verse number",
+  "@readerVerseNumber": {
+    "description": "Verse number"
+  },
+  "readerVerseInvalid": "Enter a verse number from 1 to {count}.",
+  "@readerVerseInvalid": {
+    "description": "Enter a verse number from 1 to {count}.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "readerGo": "Go",
+  "@readerGo": {
+    "description": "Go"
+  },
+  "readerCancel": "Cancel",
+  "@readerCancel": {
+    "description": "Cancel"
+  },
+  "readerTafsir": "Tafsir",
+  "@readerTafsir": {
+    "description": "Tafsir"
+  },
+  "readerTafsirFor": "Tafsir · verse {verse}",
+  "@readerTafsirFor": {
+    "description": "Tafsir · verse {verse}",
+    "placeholders": {
+      "verse": {
+        "type": "int"
+      }
+    }
+  },
+  "readerReciter": "Reciter",
+  "@readerReciter": {
+    "description": "Reciter"
+  },
+  "readerTanzil": "Quran text by Tanzil Project",
+  "@readerTanzil": {
+    "description": "Quran text by Tanzil Project"
+  },
+  "readerQuranFoundation": "Quran Foundation",
+  "@readerQuranFoundation": {
+    "description": "Quran Foundation"
+  },
+  "readerRetry": "Retry",
+  "@readerRetry": {
+    "description": "Retry"
+  },
+  "readerLoadFailed": "Could not load the Quran text.",
+  "@readerLoadFailed": {
+    "description": "Could not load the Quran text."
+  },
+  "readerResourcesUnavailable": "Tafsir and recitations are currently unavailable.",
+  "@readerResourcesUnavailable": {
+    "description": "Tafsir and recitations are currently unavailable."
+  },
+  "readerTafsirUnavailable": "Tafsir is unavailable for this verse.",
+  "@readerTafsirUnavailable": {
+    "description": "Tafsir is unavailable for this verse."
+  },
+  "readerAudioUnavailable": "Could not load this recitation.",
+  "@readerAudioUnavailable": {
+    "description": "Could not load this recitation."
+  },
+  "readerPlay": "Play surah",
+  "@readerPlay": {
+    "description": "Play surah"
+  },
+  "readerPause": "Pause recitation",
+  "@readerPause": {
+    "description": "Pause recitation"
+  },
+  "readerResume": "Resume recitation",
+  "@readerResume": {
+    "description": "Resume recitation"
+  },
+  "readerStop": "Stop recitation",
+  "@readerStop": {
+    "description": "Stop recitation"
+  },
+  "readerTafsirLoading": "Loading tafsir…",
+  "@readerTafsirLoading": {
+    "description": "Loading tafsir…"
+  },
+  "readerPreliveCoverage": "Tafsir and recitation are available for Al-Fatihah and Al-Baqarah in this preview.",
+  "@readerPreliveCoverage": {
+    "description": "Explains the limited Quran Foundation test content on other chapters."
+  },
+  "readerIndex": "Quran index",
+  "readerJuzs": "Parts",
+  "readerHizbs": "Hizbs",
+  "readerPages": "Pages",
+  "readerBookmarks": "Bookmarks",
+  "readerSearch": "Search",
+  "readerSearchHint": "Search Arabic text, a surah, or a verse like 2:255",
+  "readerNoResults": "No verses found",
+  "readerNoBookmarks": "No bookmarks yet",
+  "readerPageActions": "Choose a verse for tafsir or bookmarking",
+  "readerAddBookmark": "Add bookmark",
+  "readerRemoveBookmark": "Remove bookmark",
+  "readerJuzLabel": "Juz {number}",
+  "readerHizbLabel": "Hizb {number}",
+  "readerPageLabel": "Page {number}",
+  "duaTitle": "Quranic supplications",
+  "duaOpenVerse": "Open in the Quran",
+  "duaTranslationUnavailable": "English meaning is temporarily unavailable.",
+  "duaTopics": "All topics",
+  "duaTopicForgiveness": "Forgiveness and mercy",
+  "duaTopicGuidance": "Guidance and knowledge",
+  "duaTopicFamily": "Family and community",
+  "duaTopicHardship": "Patience and relief",
+  "duaTopicGratitude": "Gratitude and provision",
+  "duaTopicWorship": "Worship and good deeds",
+  "duaTopicHereafter": "The Hereafter",
+  "duaTopicProtection": "Protection",
+  "duaTranslationSource": "English meaning · Rowwad Translation Center via QuranEnc",
+  "radioTitle": "Cairo Quran Radio",
+  "radioOpen": "Open the official live player in the app",
+  "radioOpenFailed": "Could not open the official broadcast site.",
+  "@readerJuzLabel": {
+    "description": "Mushaf part label.",
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "@readerHizbLabel": {
+    "description": "Mushaf hizb label.",
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "@readerPageLabel": {
+    "description": "Mushaf or list page label.",
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "@readerIndex": {
+    "description": "Quran index"
+  },
+  "@readerJuzs": {
+    "description": "Parts"
+  },
+  "@readerHizbs": {
+    "description": "Hizbs"
+  },
+  "@readerPages": {
+    "description": "Pages"
+  },
+  "@readerBookmarks": {
+    "description": "Bookmarks"
+  },
+  "@readerSearch": {
+    "description": "Search"
+  },
+  "@readerSearchHint": {
+    "description": "Search Arabic text, a surah, or a verse like 2:255"
+  },
+  "@readerNoResults": {
+    "description": "No verses found"
+  },
+  "@readerNoBookmarks": {
+    "description": "No bookmarks yet"
+  },
+  "@readerPageActions": {
+    "description": "Choose a verse for tafsir or bookmarking"
+  },
+  "@readerAddBookmark": {
+    "description": "Add bookmark"
+  },
+  "@readerRemoveBookmark": {
+    "description": "Remove bookmark"
+  },
+  "@duaTitle": {
+    "description": "Quranic supplications"
+  },
+  "@duaOpenVerse": {
+    "description": "Open in the Quran"
+  },
+  "@duaTranslationUnavailable": {
+    "description": "English meaning is temporarily unavailable."
+  },
+  "@duaTopics": {
+    "description": "All topics"
+  },
+  "@duaTopicForgiveness": {
+    "description": "Forgiveness and mercy"
+  },
+  "@duaTopicGuidance": {
+    "description": "Guidance and knowledge"
+  },
+  "@duaTopicFamily": {
+    "description": "Family and community"
+  },
+  "@duaTopicHardship": {
+    "description": "Patience and relief"
+  },
+  "@duaTopicGratitude": {
+    "description": "Gratitude and provision"
+  },
+  "@duaTopicWorship": {
+    "description": "Worship and good deeds"
+  },
+  "@duaTopicHereafter": {
+    "description": "The Hereafter"
+  },
+  "@duaTopicProtection": {
+    "description": "Protection"
+  },
+  "@duaTranslationSource": {
+    "description": "English meaning · Rowwad Translation Center via QuranEnc"
+  },
+  "@radioTitle": {
+    "description": "Cairo Quran Radio"
+  },
+  "@radioOpen": {
+    "description": "Listen on the official site"
+  },
+  "@radioOpenFailed": {
+    "description": "Could not open the official broadcast site."
+  },
+  "readerEnglishMeaning": "English meaning",
+  "@readerEnglishMeaning": {
+    "description": "Action to show the English meaning of an ayah."
+  },
+  "hadithSearchTopics": "Search hadith topics",
+  "hadithNoTopics": "No matching topics",
+  "hadithPrevious": "Previous page",
+  "hadithNext": "Next page",
+  "hadithProviderGrade": "Grade from HadeethEnc · {grade}",
+  "hadithUnavailable": "Hadith content is temporarily unavailable.",
+  "@hadithSearchTopics": {
+    "description": "Search hadith topics"
+  },
+  "@hadithNoTopics": {
+    "description": "No matching topics"
+  },
+  "@hadithPrevious": {
+    "description": "Previous page"
+  },
+  "@hadithNext": {
+    "description": "Next page"
+  },
+  "@hadithProviderGrade": {
+    "description": "Grade from HadeethEnc · {grade}",
+    "placeholders": {
+      "grade": {
+        "type": "String"
+      }
+    }
+  },
+  "@hadithUnavailable": {
+    "description": "Hadith content is temporarily unavailable."
+  },
+  "duaSearch": "Search by verse text, surah or reference",
+  "duaShowSaved": "Show saved supplications",
+  "duaShowAll": "Show all supplications",
+  "duaNoResults": "No matching supplications",
+  "duaQuranCom": "More topics on Quran.com",
+  "radioOpenInBrowser": "Open browser",
+  "@duaSearch": {
+    "description": "Search by verse text, surah or reference"
+  },
+  "@duaShowSaved": {
+    "description": "Show saved supplications"
+  },
+  "@duaShowAll": {
+    "description": "Show all supplications"
+  },
+  "@duaNoResults": {
+    "description": "No matching supplications"
+  },
+  "@duaQuranCom": {
+    "description": "More topics on Quran.com"
+  },
+  "@radioOpenInBrowser": {
+    "description": "Open browser"
+  },
+  "dailyReadingTitle": "Daily Quran reading",
+  "@dailyReadingTitle": {
+    "description": "Daily Quran reading"
+  },
+  "dailyReadingEdit": "Change daily goal",
+  "@dailyReadingEdit": {
+    "description": "Change daily goal"
+  },
+  "dailyReadingPaceLabel": "Pages per session",
+  "@dailyReadingPaceLabel": {
+    "description": "Pages per session"
+  },
+  "dailyReadingPaceRange": "Enter a number between 1 and 604.",
+  "@dailyReadingPaceRange": {
+    "description": "Enter a number between 1 and 604."
+  },
+  "dailyReadingSave": "Save goal",
+  "@dailyReadingSave": {
+    "description": "Save goal"
+  },
+  "dailyReadingProgress": "Pages read: {read} of {total}",
+  "@dailyReadingProgress": {
+    "description": "Pages read: of",
+    "placeholders": {
+      "read": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "dailyReadingRange": "Read pages {start}–{end}",
+  "@dailyReadingRange": {
+    "description": "Read pages–",
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "dailyReadingRemaining": "Sessions remaining: {count}",
+  "@dailyReadingRemaining": {
+    "description": "Sessions remaining:",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "dailyReadingCompleted": "You’ve finished this reading plan.",
+  "@dailyReadingCompleted": {
+    "description": "You’ve finished this reading plan."
+  },
+  "dailyReadingRestart": "Start a new plan",
+  "@dailyReadingRestart": {
+    "description": "Start a new plan"
+  },
+  "dailyReadingOpen": "Open in Mushaf",
+  "@dailyReadingOpen": {
+    "description": "Open in Mushaf"
+  },
+  "dailyReadingMarkRead": "Mark this session read",
+  "@dailyReadingMarkRead": {
+    "description": "Mark this session read"
+  },
+  "navAdhkar": "Adhkar",
+  "@navAdhkar": {
+    "description": "Adhkar"
+  },
+  "navPrayer": "Prayer",
+  "@navPrayer": {
+    "description": "Prayer"
+  },
+  "prayerCalculationMethod": "Calculation method",
+  "@prayerCalculationMethod": {
+    "description": "Calculation method"
+  },
+  "prayerAsrCalculation": "Asr calculation",
+  "@prayerAsrCalculation": {
+    "description": "Asr calculation"
+  },
+  "prayerMinutesLeft": "In {minutes} min",
+  "@prayerMinutesLeft": {
+    "description": "In minutes min",
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "prayerHoursLeft": "In {hours} h {minutes} min",
+  "@prayerHoursLeft": {
+    "description": "In hours h minutes min",
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "compassAligned": "Facing the Qibla",
+  "@compassAligned": {
+    "description": "Facing the Qibla"
+  },
+  "compassTurnRight": "Turn right · {angle}°",
+  "@compassTurnRight": {
+    "description": "Turn right · angle°",
+    "placeholders": {
+      "angle": {
+        "type": "String"
+      }
+    }
+  },
+  "compassTurnLeft": "Turn left · {angle}°",
+  "@compassTurnLeft": {
+    "description": "Turn left · angle°",
+    "placeholders": {
+      "angle": {
+        "type": "String"
+      }
+    }
+  },
+  "compassPhoneHeading": "Phone heading {angle}°",
+  "@compassPhoneHeading": {
+    "description": "Phone heading angle°",
+    "placeholders": {
+      "angle": {
+        "type": "String"
+      }
+    }
+  },
+  "readerLastPosition": "Last reading position",
+  "@readerLastPosition": {
+    "description": "Last reading position"
+  },
+  "readerPosition": "{surah} · verse {verse} · p. {page}",
+  "@readerPosition": {
+    "description": "surah · verse verse · p. page",
+    "placeholders": {
+      "surah": {
+        "type": "String"
+      },
+      "verse": {
+        "type": "String"
+      },
+      "page": {
+        "type": "String"
+      }
+    }
+  },
+  "readerPageMeta": "{juz} · {hizb} · {page} of {total}",
+  "@readerPageMeta": {
+    "description": "juz · hizb · page of total",
+    "placeholders": {
+      "juz": {
+        "type": "String"
+      },
+      "hizb": {
+        "type": "String"
+      },
+      "page": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "readerPageInput": "Page number (1–604)",
+  "@readerPageInput": {
+    "description": "Page number (1–604)"
+  },
+  "readerPageInvalid": "Enter a page from 1 to 604.",
+  "@readerPageInvalid": {
+    "description": "Enter a page from 1 to 604."
+  },
+  "readerIndexScroll": "Scroll vertically between pages.",
+  "@readerIndexScroll": {
+    "description": "Scroll vertically between pages."
+  },
+  "readerIndexVerseCount": "{count} verses",
+  "@readerIndexVerseCount": {
+    "description": "count verses",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "readerCopy": "Copy verse",
+  "@readerCopy": {
+    "description": "Copy verse"
+  },
+  "readerCopied": "Verse copied",
+  "@readerCopied": {
+    "description": "Verse copied"
+  },
+  "readerShare": "Share verse",
+  "@readerShare": {
+    "description": "Share verse"
+  },
+  "readerShareFailed": "Could not share the verse.",
+  "@readerShareFailed": {
+    "description": "Could not share the verse."
+  },
+  "readerListenChapter": "Listen to the surah",
+  "@readerListenChapter": {
+    "description": "Listen to the surah"
+  },
+  "readerListenFromVerse": "Listen from this verse",
+  "@readerListenFromVerse": {
+    "description": "Listen from this verse"
+  },
+  "readerVerseAudioUnavailable": "This recording has no timing for the selected verse.",
+  "@readerVerseAudioUnavailable": {
+    "description": "This recording has no timing for the selected verse."
+  },
+  "readerSources": "Reading sources",
+  "@readerSources": {
+    "description": "Reading sources"
+  },
+  "homeContinueReading": "Continue reading",
+  "@homeContinueReading": {
+    "description": "Continue reading"
+  },
+  "homeOpenPage": "Open page {number}",
+  "@homeOpenPage": {
+    "description": "Open page number",
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "homeReadQuran": "Open the Mushaf",
+  "@homeReadQuran": {
+    "description": "Open the Mushaf"
+  },
+  "homeDuaOfDay": "Dua of the day",
+  "@homeDuaOfDay": {
+    "description": "Dua of the day"
+  },
+  "homeMorning": "Morning adhkar",
+  "@homeMorning": {
+    "description": "Morning adhkar"
+  },
+  "homeWird": "Reading plan",
+  "@homeWird": {
+    "description": "Reading plan"
+  },
+  "homeOpenPrayer": "Set your prayer location",
+  "@homeOpenPrayer": {
+    "description": "Set your prayer location"
+  },
+  "radioLive": "Live",
+  "@radioLive": {
+    "description": "Live"
+  },
+  "radioCairo": "Live from Cairo",
+  "@radioCairo": {
+    "description": "Live from Cairo"
+  },
+  "hadithGradeTitle": "Grade",
+  "@hadithGradeTitle": {
+    "description": "Grade"
+  },
+  "hadithSourceTitle": "Source",
+  "@hadithSourceTitle": {
+    "description": "Source"
+  },
+  "hadithExplanationTitle": "Explanation",
+  "@hadithExplanationTitle": {
+    "description": "Explanation"
+  },
+  "hadithAddFavorite": "Add to favorites",
+  "@hadithAddFavorite": {
+    "description": "Add to favorites"
+  },
+  "hadithRemoveFavorite": "Remove from favorites",
+  "@hadithRemoveFavorite": {
+    "description": "Remove from favorites"
+  },
+  "hadithFavoritesTitle": "Favorite hadiths",
+  "@hadithFavoritesTitle": {
+    "description": "Favorite hadiths"
+  },
+  "hadithNoFavorites": "You have no favorite hadiths yet.",
+  "@hadithNoFavorites": {
+    "description": "You have no favorite hadiths yet."
+  },
+  "libraryAcademy": "Academy",
+  "@libraryAcademy": {
+    "description": "Academy"
+  },
+  "libraryStories": "Stories of the prophets",
+  "@libraryStories": {
+    "description": "Stories of the prophets"
+  },
+  "libraryMore": "View all",
+  "@libraryMore": {
+    "description": "View all"
+  },
+  "dailyReadingCurrentPlan": "Current reading plan",
+  "@dailyReadingCurrentPlan": {
+    "description": "Current reading plan"
+  },
+  "dailyReadingNextPage": "Open next page · {page}",
+  "@dailyReadingNextPage": {
+    "description": "Open next page · page",
+    "placeholders": {
+      "page": {
+        "type": "String"
+      }
+    }
+  },
+  "dailyReadingTodaysWird": "Today’s reading",
+  "@dailyReadingTodaysWird": {
+    "description": "Today’s reading"
+  },
+  "decreaseReadingPace": "Fewer pages per session",
+  "@decreaseReadingPace": {
+    "description": "Fewer pages per session"
+  },
+  "increaseReadingPace": "More pages per session",
+  "@increaseReadingPace": {
+    "description": "More pages per session"
+  },
+  "homeApproximateHijriDate": "Approximate civil Hijri date",
+  "@homeApproximateHijriDate": {
+    "description": "Tooltip for the approximate civil Hijri date."
+  },
+  "radioPlay": "Play live radio",
+  "@radioPlay": {
+    "description": "Play live radio"
+  },
+  "radioStop": "Stop live radio",
+  "@radioStop": {
+    "description": "Stop live radio"
+  },
+  "radioConnecting": "Connecting to the live broadcast…",
+  "@radioConnecting": {
+    "description": "Connecting to the live broadcast…"
+  },
+  "radioStreamFailed": "The broadcast is unavailable. Try again or open the official player.",
+  "@radioStreamFailed": {
+    "description": "The broadcast is unavailable. Try again or open the official player."
+  },
+  "compassApproximateHeading": "Approximate phone heading {angle}°",
+  "@compassApproximateHeading": {
+    "description": "Approximate phone heading angle°",
+    "placeholders": {
+      "angle": {
+        "type": "String"
+      }
+    }
+  },
+  "recitationDownload": "Download recitation",
+  "@recitationDownload": {
+    "description": "Download recitation"
+  },
+  "recitationDownloading": "Downloading recitation",
+  "@recitationDownloading": {
+    "description": "Downloading recitation"
+  },
+  "recitationDownloads": "Downloaded recitations",
+  "@recitationDownloads": {
+    "description": "Downloaded recitations"
+  },
+  "recitationNoDownloads": "Download a surah to listen offline.",
+  "@recitationNoDownloads": {
+    "description": "Download a surah to listen offline."
+  },
+  "recitationPlayOffline": "Play downloaded recitation",
+  "@recitationPlayOffline": {
+    "description": "Play downloaded recitation"
+  },
+  "recitationRemoveDownload": "Remove download",
+  "@recitationRemoveDownload": {
+    "description": "Remove download"
+  },
+  "recitationDownloadFailed": "Could not save or access this download.",
+  "@recitationDownloadFailed": {
+    "description": "Could not save or access this download."
+  }
 }
