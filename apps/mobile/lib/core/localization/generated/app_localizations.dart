@@ -2245,6 +2245,138 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'A supplication'**
   String get reminderDuaTitle;
+
+  /// Download center screen title.
+  ///
+  /// In en, this message translates to:
+  /// **'Download center'**
+  String get downloadsTitle;
+
+  /// Settings and library entry subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the app without internet'**
+  String get downloadsSettingsSubtitle;
+
+  /// Summary card title.
+  ///
+  /// In en, this message translates to:
+  /// **'On your device'**
+  String get downloadsOnDevice;
+
+  /// Storage used.
+  ///
+  /// In en, this message translates to:
+  /// **'{size} used by downloads'**
+  String downloadsUsed(String size);
+
+  /// Label above built-in content.
+  ///
+  /// In en, this message translates to:
+  /// **'Always available offline'**
+  String get downloadsAlwaysOffline;
+
+  /// Section title.
+  ///
+  /// In en, this message translates to:
+  /// **'Recitations'**
+  String get downloadsRecitations;
+
+  /// Empty state.
+  ///
+  /// In en, this message translates to:
+  /// **'No recitation is available for download yet.'**
+  String get downloadsNoReciters;
+
+  /// Reciter row subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{saved} of {total} surahs saved'**
+  String downloadsReciterProgress(String saved, String total);
+
+  /// Button tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Download all'**
+  String get downloadsAll;
+
+  /// Button tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove downloads'**
+  String get downloadsRemoveAll;
+
+  /// Removal confirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove the downloaded files of {name}? You can download them again later.'**
+  String downloadsRemoveConfirm(String name);
+
+  /// Dialog button.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get downloadsCancel;
+
+  /// Dialog button.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get downloadsConfirmRemove;
+
+  /// Section title.
+  ///
+  /// In en, this message translates to:
+  /// **'Stories and lessons'**
+  String get downloadsStories;
+
+  /// Series row subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{saved} of {total} audio episodes saved'**
+  String downloadsEpisodeProgress(String saved, String total);
+
+  /// Section title.
+  ///
+  /// In en, this message translates to:
+  /// **'Library texts'**
+  String get downloadsLibrary;
+
+  /// Library row title.
+  ///
+  /// In en, this message translates to:
+  /// **'Remembrance, supplications, articles and lessons'**
+  String get downloadsLibraryBody;
+
+  /// Library status.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved on this device'**
+  String get downloadsLibrarySaved;
+
+  /// Library status.
+  ///
+  /// In en, this message translates to:
+  /// **'Not saved yet'**
+  String get downloadsLibraryMissing;
+
+  /// Button that refreshes the library texts.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get downloadsUpdate;
+
+  /// Section title.
+  ///
+  /// In en, this message translates to:
+  /// **'Online only'**
+  String get downloadsOnlineOnly;
+
+  /// Online-only explanation.
+  ///
+  /// In en, this message translates to:
+  /// **'Offered for download once its publishing rights allow it.'**
+  String get downloadsOnlineOnlyBody;
 }
 
 class _AppLocalizationsDelegate

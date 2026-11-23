@@ -36,6 +36,7 @@ abstract final class AppRoutes {
   // Full-screen (outside the tab shell)
   static const String settings = '/settings';
   static const String reminders = '$settings/reminders';
+  static const String downloads = '$settings/downloads';
 
   /// Tab roots in navigation order.
   static const List<String> tabs = [home, quran, adhkar, prayerTimes, library];
