@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:madar_al_huda/app/app_shell.dart';
 import 'package:madar_al_huda/core/localization/app_locales.dart';
@@ -6,6 +7,8 @@ import 'package:madar_al_huda/core/routing/app_sections.dart';
 import 'package:madar_al_huda/core/widgets/content_status_panel.dart';
 import 'package:madar_al_huda/core/widgets/section_card.dart';
 import 'package:madar_al_huda/core/widgets/settings_button.dart';
+import 'package:madar_al_huda/features/learning/data/learning_catalog.dart';
+import 'package:madar_al_huda/features/learning/data/learning_files.dart';
 import 'package:madar_al_huda/features/prayer/presentation/prayer_times_screen.dart';
 import 'package:madar_al_huda/features/qibla/presentation/qibla_screen.dart';
 import 'package:madar_al_huda/features/quran/presentation/mushaf_screen.dart';
@@ -61,7 +64,6 @@ void main() {
         AppSection.fiqh,
         AppSection.articles,
         AppSection.lessons,
-        AppSection.stories,
       ]) {
         await pumpMadarApp(
           tester,
@@ -107,6 +109,35 @@ void main() {
       expect(find.byType(ExpansionTile), findsWidgets);
     });
   }
+
+  testWidgets('prophet stories open the audio and video episode lists', (
+    tester,
+  ) async {
+    final catalog = await tester.runAsync(
+      () async => parseLearningSeries(
+        await rootBundle.loadString('assets/learning/prophet_stories.json'),
+      ),
+    );
+    await pumpMadarApp(
+      tester,
+      initialLocation: AppRoutes.stories,
+      additionalOverrides: [
+        prophetStoriesProvider.overrideWith((_) => catalog!),
+        lessonSavedProvider.overrideWith((_, _) => false),
+      ],
+    );
+    expect(find.byType(ContentStatusPanel), findsNothing);
+    expect(find.text('Idris, peace be upon him'), findsOneWidget);
+    await tester.tap(find.text('Adam, peace be upon him'));
+    await tester.pumpAndSettle();
+    expect(find.widgetWithText(ChoiceChip, 'Audio'), findsOneWidget);
+    final video = find.widgetWithText(ChoiceChip, 'Video');
+    await tester.tap(video);
+    await tester.pumpAndSettle();
+    expect(tester.widget<ChoiceChip>(video).selected, isTrue);
+    expect(find.text('Episode 1'), findsOneWidget);
+    expect(find.text('Episode 6'), findsOneWidget);
+  });
 
   testWidgets('legacy Quran paths all open the unified reader', (tester) async {
     for (final path in [

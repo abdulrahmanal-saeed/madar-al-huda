@@ -267,6 +267,63 @@ class AppLocalizationsEn extends AppLocalizations {
       'Told from the Quran and Sunnah, with sources';
 
   @override
+  String learningEpisodeCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count episodes',
+      one: '1 episode',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String learningEpisodeNumber(int number) {
+    return 'Episode $number';
+  }
+
+  @override
+  String get learningNoEpisodes =>
+      'Episodes will appear here when they’re added.';
+
+  @override
+  String get learningFormatAudio => 'Audio';
+
+  @override
+  String get learningFormatVideo => 'Video';
+
+  @override
+  String get learningPlaySeries => 'Play playlist';
+
+  @override
+  String get learningDownload => 'Download episode';
+
+  @override
+  String get learningDownloaded => 'Available offline';
+
+  @override
+  String get learningRemoveDownload => 'Remove download';
+
+  @override
+  String get learningMediaUnavailable =>
+      'Episode media is currently unavailable.';
+
+  @override
+  String get learningPlaybackFailed => 'Unable to play this episode.';
+
+  @override
+  String get learningDownloadFailed => 'Unable to update the download.';
+
+  @override
+  String get learningRetry => 'Retry';
+
+  @override
+  String get learningPreviousEpisode => 'Previous episode';
+
+  @override
+  String get learningNextEpisode => 'Next episode';
+
+  @override
   String get statusAwaitingSourceTitle => 'Awaiting source verification';
 
   @override
