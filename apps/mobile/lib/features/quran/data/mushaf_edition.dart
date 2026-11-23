@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:xml/xml.dart';
@@ -75,11 +76,22 @@ class MushafEdition {
     return low;
   }
 
+  /// Reads the bundled edition, then verifies and parses it on a background
+  /// isolate: hashing and parsing 6,236 verses would otherwise hold up the
+  /// first frames of the home screen and the reader.
   static Future<MushafEdition> load(AssetBundle bundle) async {
-    final source = await Future.wait([
-      _read(bundle, 'assets/quran/uthmani.txt', textSha256),
-      _read(bundle, 'assets/quran/metadata.xml', metadataSha256),
+    final bytes = await Future.wait([
+      _bytes(bundle, 'assets/quran/uthmani.txt'),
+      _bytes(bundle, 'assets/quran/metadata.xml'),
     ]);
+    return compute(_parse, (text: bytes[0], metadata: bytes[1]));
+  }
+
+  static MushafEdition _parse(({Uint8List text, Uint8List metadata}) input) {
+    final source = [
+      _verified(input.text, 'assets/quran/uthmani.txt', textSha256),
+      _verified(input.metadata, 'assets/quran/metadata.xml', metadataSha256),
+    ];
     final metadata = XmlDocument.parse(source[1]).rootElement;
     final elements = metadata
         .getElement('suras')!
@@ -169,16 +181,12 @@ class MushafEdition {
     );
   }
 
-  static Future<String> _read(
-    AssetBundle bundle,
-    String path,
-    String digest,
-  ) async {
+  static Future<Uint8List> _bytes(AssetBundle bundle, String path) async {
     final data = await bundle.load(path);
-    final bytes = data.buffer.asUint8List(
-      data.offsetInBytes,
-      data.lengthInBytes,
-    );
+    return data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+  }
+
+  static String _verified(Uint8List bytes, String path, String digest) {
     if (sha256.convert(bytes).toString() != digest) {
       throw FormatException('Checksum mismatch: $path');
     }
