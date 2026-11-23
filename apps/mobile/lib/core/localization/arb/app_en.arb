@@ -1257,5 +1257,9 @@
   "downloadsOnlineOnly": "Online only",
   "@downloadsOnlineOnly": {"description":"Section title."},
   "downloadsOnlineOnlyBody": "Offered for download once its publishing rights allow it.",
-  "@downloadsOnlineOnlyBody": {"description":"Online-only explanation."}
+  "@downloadsOnlineOnlyBody": {"description":"Online-only explanation."},
+  "librarySectionEmpty": "Nothing has been added here yet.",
+  "@librarySectionEmpty": {"description":"Empty state of a section added on the dashboard."},
+  "librarySectionOpenFailed": "Couldn't open the link.",
+  "@librarySectionOpenFailed": {"description":"Shown when a section link cannot be opened."}
 }

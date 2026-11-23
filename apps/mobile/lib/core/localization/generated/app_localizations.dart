@@ -2377,6 +2377,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Offered for download once its publishing rights allow it.'**
   String get downloadsOnlineOnlyBody;
+
+  /// Empty state of a section added on the dashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing has been added here yet.'**
+  String get librarySectionEmpty;
+
+  /// Shown when a section link cannot be opened.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t open the link.'**
+  String get librarySectionOpenFailed;
 }
 
 class _AppLocalizationsDelegate

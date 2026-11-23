@@ -1274,4 +1274,10 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get downloadsOnlineOnlyBody =>
       'سيُتاح للتحميل عندما تسمح حقوق نشره بذلك.';
+
+  @override
+  String get librarySectionEmpty => 'لم يُضف محتوى هنا بعد.';
+
+  @override
+  String get librarySectionOpenFailed => 'تعذّر فتح الرابط.';
 }

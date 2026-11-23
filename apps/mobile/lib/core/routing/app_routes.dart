@@ -29,6 +29,9 @@ abstract final class AppRoutes {
   static const String fiqh = '$library/fiqh';
   static const String articles = '$library/articles';
 
+  /// A section added on the dashboard, by its id.
+  static String librarySection(String id) => '$library/s/$id';
+
   // Learning
   static const String lessons = '$learning/lessons';
   static const String stories = '$learning/prophet-stories';

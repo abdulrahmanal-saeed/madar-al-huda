@@ -11,6 +11,7 @@ import '../../../core/theme/app_tokens.dart';
 import '../../../core/widgets/responsive_content.dart';
 import '../../../core/widgets/settings_button.dart';
 import '../../worship/presentation/cairo_radio_card.dart';
+import '../domain/library_sections.dart';
 
 class LibraryHubScreen extends ConsumerWidget {
   const LibraryHubScreen({super.key});
@@ -56,35 +57,10 @@ class LibraryHubScreen extends ConsumerWidget {
           SliverResponsiveContent(
             sliver: SliverList.list(
               children: [
-                const CairoRadioCard(),
-                const SizedBox(height: AppSpacing.md),
-                _LibraryTile(
-                  route: AppRoutes.quranDuas,
-                  icon: Icons.volunteer_activism_outlined,
-                  title: l10n.duaTitle,
-                  subtitle: l10n.sectionAdhkarTitle,
-                ),
-                for (final section in sections)
-                  if (_published(section, feed))
-                    _LibraryTile(
-                      key: ValueKey('section-card-$section'),
-                      route: section.path,
-                      icon: section.icon,
-                      title: section.title(l10n),
-                      subtitle: section.subtitle(l10n),
-                    ),
-                const SizedBox(height: AppSpacing.lg),
-                _LibraryCollection(
-                  title: l10n.libraryStories,
-                  section: AppSection.stories,
-                ),
-                if (_published(AppSection.lessons, feed)) ...[
-                  const SizedBox(height: AppSpacing.md),
-                  _LibraryCollection(
-                    title: l10n.libraryAcademy,
-                    section: AppSection.lessons,
-                  ),
-                ],
+                // Order and visibility come from the dashboard's «أقسام
+                // المكتبة» page; the app's own order applies until then.
+                for (final entry in ref.watch(librarySectionsProvider))
+                  ..._entry(context, entry, feed),
                 if (managedReleaseEnabled) ...[
                   const SizedBox(height: AppSpacing.md),
                   Card(
@@ -106,6 +82,71 @@ class LibraryHubScreen extends ConsumerWidget {
       ),
     );
   }
+}
+
+List<Widget> _entry(
+  BuildContext context,
+  LibraryEntry entry,
+  Map<String, Object?>? feed,
+) {
+  final l10n = context.l10n;
+  final language = Localizations.localeOf(context).languageCode;
+  Widget tile(AppSection section) => _LibraryTile(
+    key: ValueKey('section-card-$section'),
+    route: section.path,
+    icon: section.icon,
+    title: section.title(l10n),
+    subtitle: section.subtitle(l10n),
+  );
+  return switch (entry) {
+    LinksEntry(:final id, :final title, :final subtitle) => [
+      _LibraryTile(
+        key: ValueKey('library-section-$id'),
+        route: AppRoutes.librarySection(id),
+        icon: Icons.video_library_outlined,
+        title: title.inLanguage(language),
+        subtitle: subtitle?.inLanguage(language) ?? '',
+      ),
+    ],
+    BuiltinEntry(id: 'radio') => const [
+      CairoRadioCard(),
+      SizedBox(height: AppSpacing.md),
+    ],
+    BuiltinEntry(id: 'duas') => [
+      _LibraryTile(
+        route: AppRoutes.quranDuas,
+        icon: Icons.volunteer_activism_outlined,
+        title: l10n.duaTitle,
+        subtitle: l10n.sectionAdhkarTitle,
+      ),
+    ],
+    BuiltinEntry(id: 'hadith') => [tile(AppSection.hadith)],
+    BuiltinEntry(id: 'fiqh') => [
+      if (LibraryHubScreen._published(AppSection.fiqh, feed))
+        tile(AppSection.fiqh),
+    ],
+    BuiltinEntry(id: 'articles') => [
+      if (LibraryHubScreen._published(AppSection.articles, feed))
+        tile(AppSection.articles),
+    ],
+    BuiltinEntry(id: 'stories') => [
+      const SizedBox(height: AppSpacing.lg),
+      _LibraryCollection(
+        title: l10n.libraryStories,
+        section: AppSection.stories,
+      ),
+    ],
+    BuiltinEntry(id: 'lessons') => [
+      if (LibraryHubScreen._published(AppSection.lessons, feed)) ...[
+        const SizedBox(height: AppSpacing.md),
+        _LibraryCollection(
+          title: l10n.libraryAcademy,
+          section: AppSection.lessons,
+        ),
+      ],
+    ],
+    BuiltinEntry() => const [],
+  };
 }
 
 class _LibraryCollection extends StatelessWidget {
