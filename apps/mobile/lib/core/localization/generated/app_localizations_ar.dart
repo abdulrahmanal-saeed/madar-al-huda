@@ -556,4 +556,46 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get radioOpenInBrowser => 'افتح المتصفح';
+
+  @override
+  String get dailyReadingTitle => 'الورد اليومي';
+
+  @override
+  String get dailyReadingEdit => 'تعديل الورد';
+
+  @override
+  String get dailyReadingPaceLabel => 'عدد الصفحات في الورد';
+
+  @override
+  String get dailyReadingPaceRange => 'أدخل عددًا من ١ إلى ٦٠٤.';
+
+  @override
+  String get dailyReadingSave => 'حفظ الورد';
+
+  @override
+  String dailyReadingProgress(String read, String total) {
+    return 'الصفحات المقروءة: $read من $total';
+  }
+
+  @override
+  String dailyReadingRange(String start, String end) {
+    return 'اقرأ من الصفحة $start إلى $end';
+  }
+
+  @override
+  String dailyReadingRemaining(String count) {
+    return 'الأوراد المتبقية: $count';
+  }
+
+  @override
+  String get dailyReadingCompleted => 'أكملت هذه الختمة.';
+
+  @override
+  String get dailyReadingRestart => 'ابدأ ختمة جديدة';
+
+  @override
+  String get dailyReadingOpen => 'افتح في المصحف';
+
+  @override
+  String get dailyReadingMarkRead => 'سجّل قراءة الورد';
 }

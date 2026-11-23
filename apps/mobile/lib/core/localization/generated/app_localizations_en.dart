@@ -567,4 +567,46 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get radioOpenInBrowser => 'Open browser';
+
+  @override
+  String get dailyReadingTitle => 'Daily Quran reading';
+
+  @override
+  String get dailyReadingEdit => 'Change daily goal';
+
+  @override
+  String get dailyReadingPaceLabel => 'Pages per session';
+
+  @override
+  String get dailyReadingPaceRange => 'Enter a number between 1 and 604.';
+
+  @override
+  String get dailyReadingSave => 'Save goal';
+
+  @override
+  String dailyReadingProgress(String read, String total) {
+    return 'Pages read: $read of $total';
+  }
+
+  @override
+  String dailyReadingRange(String start, String end) {
+    return 'Read pages $start–$end';
+  }
+
+  @override
+  String dailyReadingRemaining(String count) {
+    return 'Sessions remaining: $count';
+  }
+
+  @override
+  String get dailyReadingCompleted => 'You’ve finished this reading plan.';
+
+  @override
+  String get dailyReadingRestart => 'Start a new plan';
+
+  @override
+  String get dailyReadingOpen => 'Open in Mushaf';
+
+  @override
+  String get dailyReadingMarkRead => 'Mark this session read';
 }

@@ -179,5 +179,17 @@
   "duaShowAll": "عرض كل الأدعية",
   "duaNoResults": "لا توجد أدعية مطابقة",
   "duaQuranCom": "المزيد من الموضوعات على Quran.com",
-  "radioOpenInBrowser": "افتح المتصفح"
+  "radioOpenInBrowser": "افتح المتصفح",
+  "dailyReadingTitle": "الورد اليومي",
+  "dailyReadingEdit": "تعديل الورد",
+  "dailyReadingPaceLabel": "عدد الصفحات في الورد",
+  "dailyReadingPaceRange": "أدخل عددًا من ١ إلى ٦٠٤.",
+  "dailyReadingSave": "حفظ الورد",
+  "dailyReadingProgress": "الصفحات المقروءة: {read} من {total}",
+  "dailyReadingRange": "اقرأ من الصفحة {start} إلى {end}",
+  "dailyReadingRemaining": "الأوراد المتبقية: {count}",
+  "dailyReadingCompleted": "أكملت هذه الختمة.",
+  "dailyReadingRestart": "ابدأ ختمة جديدة",
+  "dailyReadingOpen": "افتح في المصحف",
+  "dailyReadingMarkRead": "سجّل قراءة الورد"
 }
