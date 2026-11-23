@@ -133,6 +133,16 @@ class _AudioFixture extends Fake implements AudioPlayer {
   @override
   Stream<PlayerException> get errorStream => const Stream.empty();
 
+  // The mini player shows progress for recordings.
+  @override
+  Duration get position => Duration.zero;
+
+  @override
+  Duration? get duration => null;
+
+  @override
+  Stream<Duration> get positionStream => const Stream.empty();
+
   @override
   Future<Duration?> setAudioSource(
     AudioSource audioSource, {

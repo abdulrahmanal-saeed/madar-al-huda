@@ -3,6 +3,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../localization/l10n_extension.dart';
+import 'audio_full_player.dart';
 import 'audio_playback.dart';
 
 class AudioMiniPlayer extends ConsumerWidget {
@@ -47,39 +48,62 @@ class AudioMiniPlayer extends ConsumerWidget {
             state?.processingState != ProcessingState.completed;
         return Material(
           color: colors.primaryContainer,
-          child: ListTile(
-            dense: true,
-            leading: Icon(live ? Icons.radio : Icons.headphones_outlined),
-            title: Text(
-              track.title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            subtitle: Text(
-              track.artist ?? '',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (!live || !playing)
-                  IconButton(
-                    tooltip: playing ? l10n.readerPause : l10n.readerResume,
-                    onPressed: busy
-                        ? null
-                        : () => transport(
-                            playing ? controller.pause : controller.resume,
-                          ),
-                    icon: Icon(playing ? Icons.pause : Icons.play_arrow),
-                  ),
-                IconButton(
-                  tooltip: live ? l10n.radioStop : l10n.readerStop,
-                  onPressed: busy ? null : () => transport(controller.stop),
-                  icon: const Icon(Icons.stop),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (!live)
+                StreamBuilder<Duration>(
+                  stream: player.positionStream,
+                  initialData: player.position,
+                  builder: (context, position) {
+                    final total = player.duration?.inMilliseconds ?? 0;
+                    return LinearProgressIndicator(
+                      key: const ValueKey('mini-player-progress'),
+                      minHeight: 3,
+                      value: total <= 0
+                          ? 0
+                          : ((position.data?.inMilliseconds ?? 0) / total)
+                                .clamp(0.0, 1.0),
+                    );
+                  },
                 ),
-              ],
-            ),
+              ListTile(
+                key: const ValueKey('mini-player'),
+                onTap: () => showFullPlayer(context),
+                dense: true,
+                leading: Icon(live ? Icons.radio : Icons.headphones_outlined),
+                title: Text(
+                  track.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                subtitle: Text(
+                  track.artist ?? '',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (!live || !playing)
+                      IconButton(
+                        tooltip: playing ? l10n.readerPause : l10n.readerResume,
+                        onPressed: busy
+                            ? null
+                            : () => transport(
+                                playing ? controller.pause : controller.resume,
+                              ),
+                        icon: Icon(playing ? Icons.pause : Icons.play_arrow),
+                      ),
+                    IconButton(
+                      tooltip: live ? l10n.radioStop : l10n.readerStop,
+                      onPressed: busy ? null : () => transport(controller.stop),
+                      icon: const Icon(Icons.stop),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         );
       },

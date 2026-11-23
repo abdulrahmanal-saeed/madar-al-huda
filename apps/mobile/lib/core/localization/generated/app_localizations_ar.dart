@@ -1467,4 +1467,29 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get reminderFastBody => 'تذكير لمن أراد الصيام.';
+
+  @override
+  String get playerSpeed => 'السرعة';
+
+  @override
+  String get playerSleep => 'مؤقت النوم';
+
+  @override
+  String get playerSleepOff => 'إيقاف';
+
+  @override
+  String playerSleepMinutes(String minutes) {
+    return '$minutes د';
+  }
+
+  @override
+  String playerSleepUntil(String time) {
+    return 'يتوقف التشغيل الساعة $time';
+  }
+
+  @override
+  String get playerBack => 'رجوع ١٠ ثوانٍ';
+
+  @override
+  String get playerForward => 'تقديم ١٠ ثوانٍ';
 }

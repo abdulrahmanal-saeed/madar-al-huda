@@ -447,5 +447,12 @@
   "reminderFastArafah": "غدًا يوم عرفة",
   "reminderFastTasua": "غدًا تاسوعاء",
   "reminderFastAshura": "غدًا عاشوراء",
-  "reminderFastBody": "تذكير لمن أراد الصيام."
+  "reminderFastBody": "تذكير لمن أراد الصيام.",
+  "playerSpeed": "السرعة",
+  "playerSleep": "مؤقت النوم",
+  "playerSleepOff": "إيقاف",
+  "playerSleepMinutes": "{minutes} د",
+  "playerSleepUntil": "يتوقف التشغيل الساعة {time}",
+  "playerBack": "رجوع ١٠ ثوانٍ",
+  "playerForward": "تقديم ١٠ ثوانٍ"
 }

@@ -2725,6 +2725,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'A reminder for anyone who wishes to fast.'**
   String get reminderFastBody;
+
+  /// Playback speed.
+  ///
+  /// In en, this message translates to:
+  /// **'Speed'**
+  String get playerSpeed;
+
+  /// Stops playback after a while.
+  ///
+  /// In en, this message translates to:
+  /// **'Sleep timer'**
+  String get playerSleep;
+
+  /// Sleep timer off.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get playerSleepOff;
+
+  /// Sleep timer choice.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String playerSleepMinutes(String minutes);
+
+  /// When the sleep timer ends.
+  ///
+  /// In en, this message translates to:
+  /// **'Playback stops at {time}'**
+  String playerSleepUntil(String time);
+
+  /// Seek back.
+  ///
+  /// In en, this message translates to:
+  /// **'Back 10 seconds'**
+  String get playerBack;
+
+  /// Seek forward.
+  ///
+  /// In en, this message translates to:
+  /// **'Forward 10 seconds'**
+  String get playerForward;
 }
 
 class _AppLocalizationsDelegate
