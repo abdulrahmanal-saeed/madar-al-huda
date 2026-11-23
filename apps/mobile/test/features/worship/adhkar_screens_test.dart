@@ -36,7 +36,7 @@ void main() {
       store.getString(AdhkarProgressController.key),
       contains('three-surahs-morning-evening/6082'),
     );
-    await tester.pageBack();
+    await tester.tap(find.byType(BackButton).hitTestable());
     await tester.pumpAndSettle();
 
     await tapVisible(tester, find.text(l10n.adhkarResume));
@@ -65,7 +65,7 @@ void main() {
       store.getString(AdhkarProgressController.key),
       contains('"groups":["morning"]'),
     );
-    await tester.pageBack();
+    await tester.tap(find.byType(BackButton).hitTestable());
     await tester.pumpAndSettle();
 
     await tapVisible(tester, find.text('Fortress of the Muslim'));
@@ -73,7 +73,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Weather and natural events'), findsOneWidget);
     expect(find.text('When rain falls'), findsOneWidget);
-    await tester.pageBack();
+    await tester.tap(find.byType(BackButton).hitTestable());
     await tester.pumpAndSettle();
 
     await tapVisible(tester, find.text('Merits of remembrance'));
@@ -83,9 +83,9 @@ void main() {
       store.getString(AdhkarProgressController.key),
       contains('"merits":["beloved-words"]'),
     );
-    await tester.pageBack();
+    await tester.tap(find.byType(BackButton).hitTestable());
     await tester.pumpAndSettle();
-    await tester.pageBack();
+    await tester.tap(find.byType(BackButton).hitTestable());
     await tester.pumpAndSettle();
 
     await tapVisible(tester, find.text('Quranic supplications'));
