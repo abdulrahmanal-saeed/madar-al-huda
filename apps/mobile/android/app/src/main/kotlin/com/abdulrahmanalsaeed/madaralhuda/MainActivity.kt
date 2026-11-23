@@ -1,7 +1,9 @@
 package com.abdulrahmanalsaeed.madaralhuda
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.hardware.GeomagneticField
 import android.hardware.Sensor
 import android.hardware.SensorEvent
@@ -18,10 +20,35 @@ import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : AudioServiceActivity() {
     private val compass by lazy { CompassStream() }
+    private var notificationRequest: MethodChannel.Result? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         val messenger = flutterEngine.dartExecutor.binaryMessenger
+        MethodChannel(messenger, "madar/updates").setMethodCallHandler { call, result ->
+            when (call.method) {
+                "installed" -> result.success(mapOf(
+                    "channel" to UpdateNotifications.channel(this),
+                    "code" to UpdateNotifications.version(this),
+                    "notifications" to UpdateNotifications.enabled(this),
+                ))
+                "notifications" -> {
+                    val enabled = call.arguments == true
+                    if (enabled && Build.VERSION.SDK_INT >= 33 &&
+                        checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                        if (notificationRequest != null) {
+                            result.success(false)
+                        } else {
+                            notificationRequest = result
+                            requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 4411)
+                        }
+                    } else {
+                        result.success(UpdateNotifications.setEnabled(this, enabled))
+                    }
+                }
+                else -> result.notImplemented()
+            }
+        }
         EventChannel(messenger, "madar/compass").setStreamHandler(compass)
         MethodChannel(messenger, "madar/share").setMethodCallHandler { call, result ->
             val text = call.arguments as? String
@@ -62,6 +89,15 @@ class MainActivity : AudioServiceActivity() {
         compass.resume()
     }
 
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 4411) {
+            val allowed = grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED
+            notificationRequest?.success(UpdateNotifications.setEnabled(this, allowed))
+            notificationRequest = null
+        }
+    }
+
     override fun onPause() {
         compass.pause()
         super.onPause()
@@ -73,6 +109,9 @@ class MainActivity : AudioServiceActivity() {
         EventChannel(messenger, "madar/compass").setStreamHandler(null)
         MethodChannel(messenger, "madar/geomagnetic").setMethodCallHandler(null)
         MethodChannel(messenger, "madar/share").setMethodCallHandler(null)
+        MethodChannel(messenger, "madar/updates").setMethodCallHandler(null)
+        notificationRequest?.success(false)
+        notificationRequest = null
         super.cleanUpFlutterEngine(flutterEngine)
     }
 

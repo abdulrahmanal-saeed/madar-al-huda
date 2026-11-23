@@ -5,13 +5,25 @@ ini_set('display_errors', '0');
 header('X-Content-Type-Options: nosniff');
 header('Referrer-Policy: no-referrer');
 require __DIR__ . '/content.php';
+require __DIR__ . '/advanced.php';
 require __DIR__ . '/storage.php';
 require __DIR__ . '/stories.php';
+require __DIR__ . '/releases.php';
 
 try {
     $db = database();
     if (($_GET['feed'] ?? '') === 'library') {
         serveFeed($db);
+    }
+    if (($_GET['feed'] ?? '') === 'updates' || isset($_GET['apk']) || isset($_GET['updates'])) {
+        releaseTable($db);
+        if (($_GET['feed'] ?? '') === 'updates') {
+            serveReleaseFeed($db, $_GET['channel'] ?? 'dev');
+        }
+        if (isset($_GET['apk'])) {
+            serveApk($db, $_GET['apk']);
+        }
+        require __DIR__ . '/release-public.php';
     }
 } catch (Throwable $error) {
     error_log('Madar admin storage: ' . $error->getMessage());
@@ -63,6 +75,9 @@ $sections = [
     'daily' => 'أذكار اليوم', 'merits' => 'فضائل الذكر',
     'hisn' => 'حصن المسلم', 'duas' => 'الأدعية القرآنية',
     'stories' => 'قصص الأنبياء', 'history' => 'سجل النشر',
+    'fiqh' => 'الفقه المقارن', 'articles' => 'المقالات',
+    'lessons' => 'الدروس والاختبارات', 'reciters' => 'القراء',
+    'releases' => 'إصدارات التطبيق',
 ];
 $section = $_GET['section'] ?? 'daily';
 if (!is_string($section) || !isset($sections[$section])) {
@@ -116,6 +131,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'archive_story' => 'أُرشف التسجيل وأُخفي من الفهرس.',
                 default => 'استُعيد التسجيل إلى الفهرس.',
             };
+        } elseif (in_array($action, ['release_upload', 'release_publish', 'release_notify'], true)) {
+            releaseTable($db);
+            $_SESSION['notice'] = changeRelease($db, $action);
         } else {
             throw new InvalidArgumentException('الإجراء غير متاح.');
         }
@@ -140,9 +158,10 @@ if ($active) {
     if (!is_string($edit)) {
         $edit = '';
     }
-    $rows = !in_array($section, ['stories', 'history'], true)
-        ? contentRows($draft, $section, $topic)
-        : [];
+    $rows = in_array($section, BOOK_SECTIONS, true)
+        ? ($draft['library'][$section] ?? [])
+        : (in_array($section, ['stories', 'history', 'reciters', 'releases'], true)
+            ? [] : contentRows($draft, $section, $topic));
     $current = null;
     foreach ($rows as $index => $row) {
         $id = $row['id'] ?? (string) $index;
@@ -195,9 +214,9 @@ if ($active) {
   <main>
     <header class="section-head">
       <div><h1><?= e($sections[$section]) ?></h1>
-        <?php if ($section !== 'stories'): ?><p><?= $dirty ? 'تغييرات في المسودة' : 'المكتبة محدثة' ?></p><?php endif; ?>
+        <?php if (!in_array($section, ['stories', 'releases'], true)): ?><p><?= $dirty ? 'تغييرات في المسودة' : 'المكتبة محدثة' ?></p><?php endif; ?>
       </div>
-      <?php if ($dirty && $section !== 'stories'): ?>
+      <?php if ($dirty && !in_array($section, ['stories', 'releases'], true)): ?>
         <form method="post"><?php controls('publish', $revision); ?><button class="primary">نشر المسودة للتطبيق</button></form>
       <?php endif; ?>
     </header>
@@ -227,6 +246,8 @@ if ($active) {
           <?php endforeach; ?>
         </section>
       <?php endforeach; ?>
+    <?php elseif ($section === 'releases'): ?>
+      <?php releaseTable($db); require __DIR__ . '/release-view.php'; ?>
     <?php elseif ($section === 'history'): ?>
       <section class="panel">
         <h2>الإصدارات المنشورة</h2>
@@ -239,6 +260,8 @@ if ($active) {
           </div>
         <?php endforeach; ?>
       </section>
+    <?php elseif (in_array($section, BOOK_SECTIONS, true) || $section === 'reciters'): ?>
+      <?php require __DIR__ . '/advanced-view.php'; ?>
     <?php else: ?>
       <?php if ($section === 'duas'): ?>
         <nav class="topics" aria-label="موضوعات الدعاء">

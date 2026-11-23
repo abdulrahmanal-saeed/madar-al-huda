@@ -403,6 +403,22 @@ class AppLocalizationsAr extends AppLocalizations {
       'لا حاجة إلى حساب. تُحفظ تفضيلاتك على هذا الجهاز فقط.';
 
   @override
+  String get settingsGoogleSignIn => 'تسجيل الدخول باستخدام Google';
+
+  @override
+  String get settingsGoogleAccount => 'حساب Google';
+
+  @override
+  String get settingsGoogleSignOut => 'تسجيل الخروج';
+
+  @override
+  String get settingsGoogleSignInError =>
+      'تعذّر تسجيل الدخول باستخدام Google. حاول مرة أخرى.';
+
+  @override
+  String get settingsGoogleSignOutError => 'تعذّر تسجيل الخروج. حاول مرة أخرى.';
+
+  @override
   String get settingsAbout => 'عن التطبيق';
 
   @override

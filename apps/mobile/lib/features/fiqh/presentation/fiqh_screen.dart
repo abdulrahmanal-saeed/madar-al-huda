@@ -1,7 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
 import '../../../core/routing/app_sections.dart';
-import '../../../core/widgets/section_detail_scaffold.dart';
+import '../../library/presentation/managed_content_screen.dart';
 
 /// Comparative fiqh of the four madhhabs. Requires qualified scholarly review (P00-08 → P03-05).
 class FiqhScreen extends StatelessWidget {
@@ -9,5 +9,5 @@ class FiqhScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) =>
-      const SectionDetailScaffold(section: AppSection.fiqh);
+      const ManagedContentScreen(section: AppSection.fiqh);
 }

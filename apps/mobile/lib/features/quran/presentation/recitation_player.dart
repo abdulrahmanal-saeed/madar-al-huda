@@ -5,6 +5,7 @@ import 'package:just_audio_background/just_audio_background.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../core/audio/audio_playback.dart';
+import '../../../core/content/collection_downloads.dart';
 import '../../../core/localization/l10n_extension.dart';
 import '../../../core/storage/storage_providers.dart';
 import '../data/chapter_reciters.dart';
@@ -34,7 +35,7 @@ Future<void> playRecitation(
 }) async {
   try {
     Uri? saved;
-    if (verse == null && reader.publisher != null) {
+    if (verse == null && reader.hasOfflineAudio) {
       try {
         final file = await ref
             .read(offlineAudioStoreProvider)
@@ -168,6 +169,7 @@ class _RecitationPlayerState extends ConsumerState<RecitationPlayer> {
     final language = Localizations.localeOf(context).languageCode;
     final playback = ref.watch(audioPlaybackProvider);
     final download = ref.watch(audioDownloadProvider);
+    final batch = ref.watch(collectionDownloadsProvider)?.running == true;
     final key = offlineAudioKey(selected, widget.surah.id);
     final saved =
         ref.watch(offlineAudioLibraryProvider).asData?.value.contains(key) ==
@@ -233,12 +235,12 @@ class _RecitationPlayerState extends ConsumerState<RecitationPlayer> {
                   ),
                 ),
               )
-            else if (selected.publisher != null)
+            else if (selected.hasOfflineAudio)
               IconButton(
                 tooltip: saved
                     ? l10n.recitationRemoveDownload
                     : l10n.recitationDownload,
-                onPressed: download != null || playback.pending != null
+                onPressed: batch || download != null || playback.pending != null
                     ? null
                     : saved
                     ? () => _removeDownload(
@@ -283,15 +285,45 @@ class _RecitationDownloads extends ConsumerWidget {
     final l10n = context.l10n;
     final language = Localizations.localeOf(context).languageCode;
     final library = ref.watch(offlineAudioLibraryProvider);
-    final readers = {
-      for (final reader in publishedChapterReciters) reader.key: reader,
-    };
+    final selection = ref.watch(reciterSelectionProvider);
+    final busy =
+        ref.watch(collectionDownloadsProvider)?.running == true ||
+        ref.watch(audioDownloadProvider) != null;
+    final ar = language == 'ar';
+    final readers = {for (final reader in selection.all) reader.key: reader};
     return Column(
       children: [
         Text(
           l10n.recitationDownloads,
           style: Theme.of(context).textTheme.titleLarge,
         ),
+        const CollectionDownloadStatus(),
+        if (selection.active.isNotEmpty)
+          PopupMenuButton<ChapterReciter>(
+            enabled: !busy,
+            icon: const Icon(Icons.download_for_offline_outlined),
+            tooltip: ar
+                ? 'تنزيل تلاوات قارئ'
+                : 'Download a reciter’s recordings',
+            onSelected: (reader) {
+              final controller = ref.read(audioDownloadProvider.notifier);
+              final label = reader.name(language);
+              unawaited(
+                ref.read(collectionDownloadsProvider.notifier).start(label, [
+                  for (final surah in edition.surahs)
+                    if (reader.publisherAudio(surah.id) != null)
+                      () => controller.download(reader, surah.id),
+                ]),
+              );
+            },
+            itemBuilder: (_) => [
+              for (final reader in selection.active)
+                PopupMenuItem(
+                  value: reader,
+                  child: Text(reader.name(language)),
+                ),
+            ],
+          ),
         const SizedBox(height: 8),
         Expanded(
           child: library.when(

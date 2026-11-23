@@ -145,10 +145,13 @@ function updateLibrary(PDO $db, string $action, array $seed, string $section, st
                 throw new InvalidArgumentException('الإصدار غير موجود.');
             }
         } else {
-            $draft = encode(changeContent(
-                json_decode($draft, true, 64, JSON_THROW_ON_ERROR),
-                $seed['ayahCounts'], $section, $topic, $action === 'delete',
-            ));
+            $content = json_decode($draft, true, 64, JSON_THROW_ON_ERROR);
+            $delete = $action === 'delete';
+            $draft = encode(match (true) {
+                $section === 'reciters' => changeReaders($content, $delete),
+                in_array($section, BOOK_SECTIONS, true) => changeBook($content, $section, $delete),
+                default => changeContent($content, $seed['ayahCounts'], $section, $topic, $delete),
+            });
         }
         $save = $db->prepare('UPDATE library SET draft = ?, revision = revision + 1 WHERE id = 1');
         $save->execute([$draft]);

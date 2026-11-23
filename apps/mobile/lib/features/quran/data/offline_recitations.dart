@@ -20,7 +20,9 @@ final offlineAudioStoreProvider = Provider<OfflineAudioStore>((ref) {
 });
 
 final offlineAudioLibraryProvider = FutureProvider<Set<OfflineAudioKey>>(
-  (ref) => ref.watch(offlineAudioStoreProvider).saved(),
+  (ref) => ref
+      .watch(offlineAudioStoreProvider)
+      .saved(ref.watch(reciterSelectionProvider).all),
 );
 
 final audioDownloadProvider = NotifierProvider<AudioDownloads, AudioDownload?>(
@@ -72,7 +74,9 @@ class OfflineAudioStore {
   static const _timeout = Duration(seconds: 30);
   static final _name = RegExp(r'^(.+)_(\d{1,3})\.mp3$');
 
-  Future<Set<OfflineAudioKey>> saved() async {
+  Future<Set<OfflineAudioKey>> saved([
+    Iterable<ChapterReciter> readers = publishedChapterReciters,
+  ]) async {
     final dir = await _directory();
     if (!await dir.exists()) return {};
     final entries = <OfflineAudioKey>{};
@@ -81,9 +85,7 @@ class OfflineAudioStore {
       final match = _name.firstMatch(path.uri.pathSegments.last);
       if (match == null) continue;
       final chapter = int.parse(match[2]!);
-      final reader = publishedChapterReciters
-          .where((item) => item.key == match[1])
-          .firstOrNull;
+      final reader = readers.where((item) => item.key == match[1]).firstOrNull;
       if (reader != null && reader.covers(chapter) && await path.length() > 3) {
         entries.add(offlineAudioKey(reader, chapter));
       }

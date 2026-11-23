@@ -14,6 +14,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_tokens.dart';
 import '../../../core/widgets/responsive_content.dart';
 import '../../../core/widgets/settings_button.dart';
+import '../../adhkar/data/adhkar_catalog.dart';
 import '../../adhkar/data/quran_dua_index.dart';
 import '../../prayer/application/prayer_preferences.dart';
 import '../../prayer/domain/prayer_schedule.dart';
@@ -35,6 +36,7 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   late final Timer _timer;
+  late final AppLifecycleListener _lifecycle;
 
   @override
   void initState() {
@@ -42,11 +44,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     _timer = Timer.periodic(const Duration(seconds: 30), (_) {
       if (TickerMode.valuesOf(context).enabled) setState(() {});
     });
+    _lifecycle = AppLifecycleListener(onResume: () => setState(() {}));
   }
 
   @override
   void dispose() {
     _timer.cancel();
+    _lifecycle.dispose();
     super.dispose();
   }
 
@@ -63,7 +67,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final showPrayer =
         !AppSection.prayerTimes.status.isGated || featurePreviewEnabled;
     final showMushaf =
-        !AppSection.mushaf.status.isGated || featurePreviewEnabled;
+        !AppSection.mushaf.status.isGated || managedReleaseEnabled;
     final schedule = showPrayer && point != null && country != null
         ? PrayerSchedule.calculate(
             location: point,
@@ -154,7 +158,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ),
                 if (edition != null &&
                     (!AppSection.adhkar.status.isGated ||
-                        featurePreviewEnabled)) ...[
+                        managedReleaseEnabled)) ...[
                   const SizedBox(height: AppSpacing.lg),
                   _DuaOfDay(edition: edition, day: date),
                 ],
@@ -255,26 +259,30 @@ class _ContinueReading extends ConsumerWidget {
   }
 }
 
-final _dailyDuas = [
-  for (final ranges in quranDuaIndex.values)
-    for (final range in ranges)
-      if (range.first == range.last) range,
-];
+/// Counts calendar days in UTC so a short or long local DST day still advances once.
+DuaRange? duaForCivilDay(DateTime day, Iterable<List<DuaRange>> groups) {
+  final unique = {for (final group in groups) ...group}.toList();
+  if (unique.isEmpty) return null;
+  final offset = DateTime.utc(
+    day.year,
+    day.month,
+    day.day,
+  ).difference(DateTime.utc(2026, 1, 1)).inDays;
+  return unique[offset % unique.length];
+}
 
-class _DuaOfDay extends StatelessWidget {
+class _DuaOfDay extends ConsumerWidget {
   const _DuaOfDay({required this.edition, required this.day});
 
   final MushafEdition edition;
   final DateTime day;
 
   @override
-  Widget build(BuildContext context) {
-    final offset = DateTime.utc(
-      day.year,
-      day.month,
-      day.day,
-    ).difference(DateTime.utc(2026, 1, 1)).inDays;
-    final range = _dailyDuas[offset % _dailyDuas.length];
+  Widget build(BuildContext context, WidgetRef ref) {
+    final index =
+        ref.watch(quranDuaIndexProvider).asData?.value ?? quranDuaIndex;
+    final range = duaForCivilDay(day, index.values);
+    if (range == null) return const SizedBox.shrink();
     final locale = Localizations.localeOf(context).languageCode;
     final numbers = NumberFormat.decimalPattern(locale);
     final surah = edition.surahs[range.surah - 1];
@@ -291,7 +299,7 @@ class _DuaOfDay extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.sm),
             Text(
-              surah.verses[range.first - 1],
+              surah.verses.sublist(range.first - 1, range.last).join(' '),
               textDirection: TextDirection.rtl,
               style: const TextStyle(
                 fontFamily: AppTheme.quranFontFamily,
@@ -306,7 +314,10 @@ class _DuaOfDay extends StatelessWidget {
                 last: range.last,
                 count: surah.verses.length,
               ),
-            Text('${surah.name(locale)} · ${numbers.format(range.first)}'),
+            Text(
+              '${surah.name(locale)} · ${numbers.format(range.first)}'
+              '${range.last == range.first ? '' : '–${numbers.format(range.last)}'}',
+            ),
             TextButton.icon(
               onPressed: () =>
                   context.go(AppRoutes.verse(range.surah, range.first)),

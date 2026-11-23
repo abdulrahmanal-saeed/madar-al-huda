@@ -30,7 +30,7 @@ class MushafScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (AppSection.mushaf.status.isGated && !featurePreviewEnabled) {
+    if (AppSection.mushaf.status.isGated && !managedReleaseEnabled) {
       return const SectionDetailScaffold(section: AppSection.mushaf);
     }
     final source = ref.watch(_readingProvider);
@@ -285,6 +285,7 @@ class _ReaderState extends ConsumerState<_Reader> {
     final resources = _matches(catalog, verse.surah)
         ? catalog!.tafsirs
         : const <QuranResource>[];
+    final selection = ref.read(reciterSelectionProvider);
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -303,6 +304,8 @@ class _ReaderState extends ConsumerState<_Reader> {
           reciters: chapterRecitersFor(
             verse.surah,
             _matches(catalog, verse.surah) ? catalog!.reciters : const [],
+            published: selection.active,
+            configured: selection.configured,
           ),
           chapterCount: widget.edition.surahs[verse.surah - 1].verses.length,
         ),
@@ -320,7 +323,13 @@ class _ReaderState extends ConsumerState<_Reader> {
     final surah = widget.edition.surahs[_current.surah - 1];
     final matched = _matches(data, surah.id);
     final verifiedReciters = matched ? data!.reciters : const <QuranResource>[];
-    final reciters = chapterRecitersFor(surah.id, verifiedReciters);
+    final selection = ref.watch(reciterSelectionProvider);
+    final reciters = chapterRecitersFor(
+      surah.id,
+      verifiedReciters,
+      published: selection.active,
+      configured: selection.configured,
+    );
     final numbers = NumberFormat.decimalPattern(language);
     final edition = widget.edition;
     return Scaffold(

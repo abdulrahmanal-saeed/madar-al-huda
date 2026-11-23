@@ -32,11 +32,17 @@ def seed() -> dict:
 def main() -> None:
     parser = ArgumentParser(description=__doc__)
     parser.add_argument("destination", type=Path)
-    parser.add_argument("private_code", type=Path)
+    parser.add_argument("private_code", type=Path, nargs="?")
+    parser.add_argument("--update", action="store_true", help="Copy only code for an existing installation")
     args = parser.parse_args()
+    if args.update == (args.private_code is not None):
+        parser.error("use --update for a deployed dashboard, or provide private_code for initial setup")
     args.destination.mkdir(parents=True, exist_ok=False)
-    for filename in ("index.php", "content.php", "storage.php", "stories.php", "dashboard.css"):
-        shutil.copyfile(ROOT / "hosting/admin" / filename, args.destination / filename)
+    for source in (ROOT / "hosting/admin").iterdir():
+        if source.suffix in {".php", ".css"} and source.name not in {"seed.php", "setup-config.php"}:
+            shutil.copyfile(source, args.destination / source.name)
+    if args.update:
+        return
 
     data = json.dumps(seed(), ensure_ascii=False, separators=(",", ":"))
     (args.destination / "seed.php").write_text(

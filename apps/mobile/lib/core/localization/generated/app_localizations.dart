@@ -818,6 +818,36 @@ abstract class AppLocalizations {
   /// **'No account needed. Your preferences are stored only on this device.'**
   String get settingsGuestModeBody;
 
+  /// Action that opens Google sign-in in the browser.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with Google'**
+  String get settingsGoogleSignIn;
+
+  /// Label for the signed-in Google account.
+  ///
+  /// In en, this message translates to:
+  /// **'Google account'**
+  String get settingsGoogleAccount;
+
+  /// Action that signs out on this device.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out'**
+  String get settingsGoogleSignOut;
+
+  /// Shown when Google sign-in fails.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t sign in with Google. Try again.'**
+  String get settingsGoogleSignInError;
+
+  /// Shown when sign-out fails.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t sign out. Try again.'**
+  String get settingsGoogleSignOutError;
+
   /// Settings group: about the app.
   ///
   /// In en, this message translates to:
