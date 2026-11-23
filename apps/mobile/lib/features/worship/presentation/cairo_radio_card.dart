@@ -104,6 +104,7 @@ class _CairoRadioScreenState extends ConsumerState<CairoRadioScreen> {
     final l10n = context.l10n;
     final player = active ? ref.watch(audioPlayerProvider) : null;
     return StreamBuilder<PlayerState>(
+      key: ValueKey(active),
       stream: player?.playerStateStream,
       initialData: player?.playerState,
       builder: (context, snapshot) {
