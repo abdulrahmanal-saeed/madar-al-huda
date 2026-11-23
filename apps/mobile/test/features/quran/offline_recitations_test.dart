@@ -138,7 +138,9 @@ void main() {
       addTearDown(() => dir.delete(recursive: true));
       final client = MockClient((_) async => http.Response('', 503));
       addTearDown(client.close);
-      final playback = _RecordedPlayback();
+      final playback = (await tester.runAsync(
+        () async => _RecordedPlayback(),
+      ))!;
       final store = OfflineAudioStore(() async => dir, client);
       final l10n = lookupAppLocalizations(const Locale('en'));
       await pumpMadarApp(

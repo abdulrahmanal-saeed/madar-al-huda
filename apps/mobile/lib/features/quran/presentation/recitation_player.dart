@@ -96,10 +96,10 @@ Future<void> playRecitation(
     await playback.startQueue(first, () async {
       final PlaybackSource firstSource;
       if (useFoundation && verse != null) {
-        firstSource = await api!.audioAtVerse(verse, foundation!);
+        firstSource = await api!.audioAtVerse(verse, foundation);
       } else {
         final url = useFoundation
-            ? await api!.audio(surah.id, foundation!)
+            ? await api!.audio(surah.id, foundation)
             : firstFile ?? reader.publisherAudio(surah.id);
         if (url == null) throw StateError('Recording unavailable');
         firstSource = (url: url, start: Duration.zero);
