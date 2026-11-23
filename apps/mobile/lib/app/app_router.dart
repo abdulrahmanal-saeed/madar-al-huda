@@ -22,6 +22,7 @@ import '../features/quran/presentation/mushaf_screen.dart';
 import '../features/ramadan/presentation/ramadan_screen.dart';
 import '../features/reminders/presentation/reminder_settings_screen.dart';
 import '../features/settings/presentation/settings_screen.dart';
+import '../features/tasbih/presentation/tasbih_screen.dart';
 import '../features/worship/presentation/cairo_radio_card.dart';
 import '../features/worship/presentation/daily_reading_card.dart';
 import '../features/worship/presentation/worship_hub_screen.dart';
@@ -187,6 +188,11 @@ GoRouter buildAppRouter({String initialLocation = AppRoutes.home}) {
         path: AppRoutes.dailyReading,
         parentNavigatorKey: rootNavigatorKey,
         builder: (_, _) => const DailyReadingScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.tasbih,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (_, _) => const TasbihScreen(),
       ),
       GoRoute(
         path: AppRoutes.ramadan,

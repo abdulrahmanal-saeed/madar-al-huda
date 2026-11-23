@@ -1333,5 +1333,21 @@
   "readerPaperWarm": "Warm",
   "@readerPaperWarm": {"description":"Page background."},
   "readerPaperNight": "Night",
-  "@readerPaperNight": {"description":"Page background."}
+  "@readerPaperNight": {"description":"Page background."},
+  "tasbihTitle": "Tasbih",
+  "@tasbihTitle": {"description":"Counter screen title and home shortcut."},
+  "tasbihTap": "Tap anywhere to count",
+  "@tasbihTap": {"description":"Hint under the counter."},
+  "tasbihCount": "{count} counted",
+  "@tasbihCount": {"description":"Screen reader value of the counter.","placeholders":{"count":{"type":"String"}}},
+  "tasbihNoGoal": "Open",
+  "@tasbihNoGoal": {"description":"Goal choice without a target."},
+  "tasbihReset": "Start again",
+  "@tasbihReset": {"description":"Resets the current round."},
+  "tasbihToday": "Today: {count}",
+  "@tasbihToday": {"description":"Today's total.","placeholders":{"count":{"type":"String"}}},
+  "tasbihDone": "Goal reached",
+  "@tasbihDone": {"description":"Shown and announced at the goal."},
+  "tasbihFree": "Free count",
+  "@tasbihFree": {"description":"Counting without a phrase."}
 }

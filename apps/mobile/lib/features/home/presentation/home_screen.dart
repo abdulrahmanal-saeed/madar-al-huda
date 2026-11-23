@@ -159,6 +159,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       AppRoutes.morningAdhkar,
                     ),
                     _HomeShortcut(
+                      Icons.touch_app_outlined,
+                      l10n.tasbihTitle,
+                      AppRoutes.tasbih,
+                      key: const ValueKey('quick-access-tasbih'),
+                    ),
+                    _HomeShortcut(
                       Icons.format_quote_outlined,
                       l10n.sectionHadithTitle,
                       AppRoutes.hadith,
@@ -193,7 +199,9 @@ class _HomeShortcut extends StatelessWidget {
     avatar: Icon(icon, size: 18),
     label: Text(label),
     onPressed: () {
-      if (route == AppRoutes.dailyReading || route == AppRoutes.cairoRadio) {
+      if (route == AppRoutes.dailyReading ||
+          route == AppRoutes.cairoRadio ||
+          route == AppRoutes.tasbih) {
         context.push(route);
       } else {
         context.go(route);

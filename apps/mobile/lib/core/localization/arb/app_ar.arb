@@ -427,5 +427,13 @@
   "readerPaperAuto": "تلقائي",
   "readerPaperLight": "فاتح",
   "readerPaperWarm": "دافئ",
-  "readerPaperNight": "ليلي"
+  "readerPaperNight": "ليلي",
+  "tasbihTitle": "السبحة",
+  "tasbihTap": "اضغط في أي مكان للعدّ",
+  "tasbihCount": "العدد {count}",
+  "tasbihNoGoal": "مفتوح",
+  "tasbihReset": "ابدأ من جديد",
+  "tasbihToday": "اليوم: {count}",
+  "tasbihDone": "اكتمل العدد",
+  "tasbihFree": "عدّ حر"
 }
