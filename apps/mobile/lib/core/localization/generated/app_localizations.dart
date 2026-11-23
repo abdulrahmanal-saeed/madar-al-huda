@@ -98,6 +98,222 @@ abstract class AppLocalizations {
     Locale('en'),
   ];
 
+  /// adhkar Hub Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Adhkar & Duas'**
+  String get adhkarHubTitle;
+
+  /// adhkar Today.
+  ///
+  /// In en, this message translates to:
+  /// **'Today’s adhkar'**
+  String get adhkarToday;
+
+  /// adhkar Resume.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue where you left off'**
+  String get adhkarResume;
+
+  /// adhkar Find.
+  ///
+  /// In en, this message translates to:
+  /// **'Search adhkar and duas'**
+  String get adhkarFind;
+
+  /// adhkar Position.
+  ///
+  /// In en, this message translates to:
+  /// **'{current} of {total}'**
+  String adhkarPosition(String current, String total);
+
+  /// adhkar Variant.
+  ///
+  /// In en, this message translates to:
+  /// **'Narration · {counts}'**
+  String adhkarVariant(String counts);
+
+  /// adhkar Previous.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous'**
+  String get adhkarPrevious;
+
+  /// adhkar Next.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get adhkarNext;
+
+  /// adhkar Completed.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get adhkarCompleted;
+
+  /// adhkar Mark Read.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as read'**
+  String get adhkarMarkRead;
+
+  /// adhkar Reset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset counter'**
+  String get adhkarReset;
+
+  /// adhkar Return To Today.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to adhkar'**
+  String get adhkarReturnToToday;
+
+  /// adhkar Count Once.
+  ///
+  /// In en, this message translates to:
+  /// **'Count one repetition'**
+  String get adhkarCountOnce;
+
+  /// adhkar Three Surah Cycle.
+  ///
+  /// In en, this message translates to:
+  /// **'Count one recitation of each surah'**
+  String get adhkarThreeSurahCycle;
+
+  /// adhkar Bedtime Cycle.
+  ///
+  /// In en, this message translates to:
+  /// **'Count one recitation and wiping cycle'**
+  String get adhkarBedtimeCycle;
+
+  /// adhkar Tasbih.
+  ///
+  /// In en, this message translates to:
+  /// **'Count one tasbih'**
+  String get adhkarTasbih;
+
+  /// adhkar Tahmid.
+  ///
+  /// In en, this message translates to:
+  /// **'Count one tahmid'**
+  String get adhkarTahmid;
+
+  /// adhkar Takbir.
+  ///
+  /// In en, this message translates to:
+  /// **'Count one takbir'**
+  String get adhkarTakbir;
+
+  /// adhkar Tahlil.
+  ///
+  /// In en, this message translates to:
+  /// **'Count the closing tahlil'**
+  String get adhkarTahlil;
+
+  /// adhkar Istighfar.
+  ///
+  /// In en, this message translates to:
+  /// **'Count one istighfar'**
+  String get adhkarIstighfar;
+
+  /// adhkar Saved Progress.
+  ///
+  /// In en, this message translates to:
+  /// **'Your progress is saved on this device'**
+  String get adhkarSavedProgress;
+
+  /// adhkar Wird Today.
+  ///
+  /// In en, this message translates to:
+  /// **'Today’s wird · {day}'**
+  String adhkarWirdToday(String day);
+
+  /// adhkar Wird Groups.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your sets'**
+  String get adhkarWirdGroups;
+
+  /// adhkar Add To Wird.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to my wird'**
+  String get adhkarAddToWird;
+
+  /// adhkar Remove From Wird.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from my wird'**
+  String get adhkarRemoveFromWird;
+
+  /// adhkar Hisn Subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Adhkar and duas for everyday situations'**
+  String get adhkarHisnSubtitle;
+
+  /// adhkar Nothing Found.
+  ///
+  /// In en, this message translates to:
+  /// **'No matching entries'**
+  String get adhkarNothingFound;
+
+  /// adhkar Add Favorite.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to favorites'**
+  String get adhkarAddFavorite;
+
+  /// adhkar Remove Favorite.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from favorites'**
+  String get adhkarRemoveFavorite;
+
+  /// adhkar Hadith Number.
+  ///
+  /// In en, this message translates to:
+  /// **'Hadith {number}'**
+  String adhkarHadithNumber(String number);
+
+  /// adhkar Merit.
+  ///
+  /// In en, this message translates to:
+  /// **'Reported virtue'**
+  String get adhkarMerit;
+
+  /// adhkar Draft Meaning.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft English meaning'**
+  String get adhkarDraftMeaning;
+
+  /// adhkar Hadith Source.
+  ///
+  /// In en, this message translates to:
+  /// **'Read the source hadith'**
+  String get adhkarHadithSource;
+
+  /// adhkar Retry Source.
+  ///
+  /// In en, this message translates to:
+  /// **'Try loading the source again'**
+  String get adhkarRetrySource;
+
+  /// adhkar Bukhari6324.
+  ///
+  /// In en, this message translates to:
+  /// **'Sahih al-Bukhari 6324'**
+  String get adhkarBukhari6324;
+
+  /// adhkar Use Period Wording.
+  ///
+  /// In en, this message translates to:
+  /// **'Read the wording for this time in the narration below.'**
+  String get adhkarUsePeriodWording;
+
   /// Brand name, transliterated. Not a literal translation.
   ///
   /// In en, this message translates to:

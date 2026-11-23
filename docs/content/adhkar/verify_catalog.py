@@ -90,7 +90,8 @@ def main():
     args.add_argument("--sources", action="store_true", help="check current publisher editions")
     here = Path(__file__).resolve().parent
     root = here.parents[2]
-    catalog = json.loads((here / "catalog.json").read_text(encoding="utf-8"))
+    catalog_path = root / "apps/mobile/assets/adhkar/catalog.json"
+    catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
     assert catalog["schemaVersion"] == 1 and catalog["status"] == "editorial_draft"
     for title in catalog["sections"].values():
         translated_text(title)
@@ -120,6 +121,10 @@ def main():
     assert len(chapters) == len(set(chapters))
     assert set(chapters) == set(range(133)) - {alias["id"]}
     assert alias["canonicalId"] in chapters
+    chapter_titles = catalog["hisn"]["chapterTitles"]
+    assert len(chapter_titles) == len(chapters) + 1
+    for title in chapter_titles:
+        translated_text(title)
     for topic in topics:
         hadith_ids.update(topic.get("hadiths", []))
 

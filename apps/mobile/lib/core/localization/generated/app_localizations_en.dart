@@ -10,6 +10,123 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get adhkarHubTitle => 'Adhkar & Duas';
+
+  @override
+  String get adhkarToday => 'Today’s adhkar';
+
+  @override
+  String get adhkarResume => 'Continue where you left off';
+
+  @override
+  String get adhkarFind => 'Search adhkar and duas';
+
+  @override
+  String adhkarPosition(String current, String total) {
+    return '$current of $total';
+  }
+
+  @override
+  String adhkarVariant(String counts) {
+    return 'Narration · $counts';
+  }
+
+  @override
+  String get adhkarPrevious => 'Previous';
+
+  @override
+  String get adhkarNext => 'Next';
+
+  @override
+  String get adhkarCompleted => 'Completed';
+
+  @override
+  String get adhkarMarkRead => 'Mark as read';
+
+  @override
+  String get adhkarReset => 'Reset counter';
+
+  @override
+  String get adhkarReturnToToday => 'Back to adhkar';
+
+  @override
+  String get adhkarCountOnce => 'Count one repetition';
+
+  @override
+  String get adhkarThreeSurahCycle => 'Count one recitation of each surah';
+
+  @override
+  String get adhkarBedtimeCycle => 'Count one recitation and wiping cycle';
+
+  @override
+  String get adhkarTasbih => 'Count one tasbih';
+
+  @override
+  String get adhkarTahmid => 'Count one tahmid';
+
+  @override
+  String get adhkarTakbir => 'Count one takbir';
+
+  @override
+  String get adhkarTahlil => 'Count the closing tahlil';
+
+  @override
+  String get adhkarIstighfar => 'Count one istighfar';
+
+  @override
+  String get adhkarSavedProgress => 'Your progress is saved on this device';
+
+  @override
+  String adhkarWirdToday(String day) {
+    return 'Today’s wird · $day';
+  }
+
+  @override
+  String get adhkarWirdGroups => 'Choose your sets';
+
+  @override
+  String get adhkarAddToWird => 'Add to my wird';
+
+  @override
+  String get adhkarRemoveFromWird => 'Remove from my wird';
+
+  @override
+  String get adhkarHisnSubtitle => 'Adhkar and duas for everyday situations';
+
+  @override
+  String get adhkarNothingFound => 'No matching entries';
+
+  @override
+  String get adhkarAddFavorite => 'Add to favorites';
+
+  @override
+  String get adhkarRemoveFavorite => 'Remove from favorites';
+
+  @override
+  String adhkarHadithNumber(String number) {
+    return 'Hadith $number';
+  }
+
+  @override
+  String get adhkarMerit => 'Reported virtue';
+
+  @override
+  String get adhkarDraftMeaning => 'Draft English meaning';
+
+  @override
+  String get adhkarHadithSource => 'Read the source hadith';
+
+  @override
+  String get adhkarRetrySource => 'Try loading the source again';
+
+  @override
+  String get adhkarBukhari6324 => 'Sahih al-Bukhari 6324';
+
+  @override
+  String get adhkarUsePeriodWording =>
+      'Read the wording for this time in the narration below.';
+
+  @override
   String get appTitle => 'Madar Al-Huda';
 
   @override

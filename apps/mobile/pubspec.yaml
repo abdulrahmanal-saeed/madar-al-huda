@@ -67,6 +67,7 @@ flutter:
         - asset: assets/fonts/amiri/Amiri-Regular.ttf
 
   assets:
+    - assets/adhkar/catalog.json
     - assets/fonts/amiri/OFL.txt
     - assets/fonts/amiri_quran/OFL.txt
     - assets/fonts/reem_kufi/OFL.txt

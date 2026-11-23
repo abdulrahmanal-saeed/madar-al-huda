@@ -96,6 +96,17 @@ void main() {
         initialLocation: AppRoutes.adhkar,
       );
       final l10n = lookupAppLocalizations(locale);
+      final tile = find
+          .text(
+            locale.languageCode == 'ar'
+                ? 'الأدعية القرآنية'
+                : 'Quranic supplications',
+          )
+          .hitTestable();
+      await tester.scrollUntilVisible(tile, 140);
+      await tester.pumpAndSettle();
+      await tester.tap(tile);
+      await tester.pumpAndSettle();
       expect(find.text(l10n.duaTitle), findsOneWidget);
       expect(find.text(l10n.duaTopics), findsOneWidget);
       expect(find.byType(ExpansionTile), findsWidgets);

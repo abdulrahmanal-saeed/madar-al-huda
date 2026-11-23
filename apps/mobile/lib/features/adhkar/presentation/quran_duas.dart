@@ -8,13 +8,13 @@ import '../../../core/localization/app_locales.dart';
 import '../../../core/localization/l10n_extension.dart';
 import '../../../core/routing/app_routes.dart';
 import '../../../core/theme/app_theme.dart';
-import '../../../core/widgets/settings_button.dart';
 import '../../quran/data/local_quran_bookmarks.dart';
 import '../../quran/data/mushaf_edition.dart';
 import '../../quran/domain/quran_search_text.dart';
 import '../../quran/domain/quran_storage_contracts.dart';
 import '../../quran/presentation/quran_meaning_view.dart';
 import '../data/quran_dua_index.dart';
+import 'adhkar_widgets.dart';
 
 extension on DuaTopic {
   String title(AppLocalizations l10n) => switch (this) {
@@ -122,32 +122,20 @@ class _QuranDuasState extends ConsumerState<QuranDuas> {
                 setState(() => _query = quranSearchText(value)),
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
           child: Row(
             children: [
-              Expanded(
-                child: DropdownButton<DuaTopic?>(
-                  isExpanded: true,
-                  value: _topic,
-                  items: [
-                    DropdownMenuItem(value: null, child: Text(l10n.duaTopics)),
-                    for (final topic in DuaTopic.values)
-                      DropdownMenuItem(
-                        value: topic,
-                        child: Text(topic.title(l10n)),
-                      ),
-                  ],
-                  onChanged: (topic) => setState(() => _topic = topic),
+              for (final topic in [null, ...DuaTopic.values])
+                Padding(
+                  padding: const EdgeInsetsDirectional.only(end: 6),
+                  child: ChoiceChip(
+                    label: Text(topic?.title(l10n) ?? l10n.duaTopics),
+                    selected: _topic == topic,
+                    onSelected: (_) => setState(() => _topic = topic),
+                  ),
                 ),
-              ),
-              IconButton(
-                tooltip: _savedOnly ? l10n.duaShowAll : l10n.duaShowSaved,
-                isSelected: _savedOnly,
-                icon: const Icon(Icons.bookmarks_outlined),
-                selectedIcon: const Icon(Icons.bookmarks),
-                onPressed: () => setState(() => _savedOnly = !_savedOnly),
-              ),
             ],
           ),
         ),
@@ -202,11 +190,17 @@ class _QuranDuasState extends ConsumerState<QuranDuas> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final source = ref.watch(mushafEditionProvider);
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.duaTitle),
-        actions: const [SettingsButton()],
-      ),
+    return AdhkarPage(
+      title: l10n.duaTitle,
+      actions: [
+        IconButton(
+          tooltip: _savedOnly ? l10n.duaShowAll : l10n.duaShowSaved,
+          isSelected: _savedOnly,
+          icon: const Icon(Icons.bookmarks_outlined),
+          selectedIcon: const Icon(Icons.bookmarks),
+          onPressed: () => setState(() => _savedOnly = !_savedOnly),
+        ),
+      ],
       body: source.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (_, _) => Center(

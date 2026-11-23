@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -5,6 +7,7 @@ import 'package:madar_al_huda/app/app.dart';
 import 'package:madar_al_huda/app/app_router.dart';
 import 'package:madar_al_huda/core/storage/key_value_store.dart';
 import 'package:madar_al_huda/core/storage/storage_providers.dart';
+import 'package:madar_al_huda/features/adhkar/data/adhkar_catalog.dart';
 import 'package:madar_al_huda/features/quran/data/mushaf_edition.dart';
 import 'package:madar_al_huda/features/quran/data/quran_services.dart';
 import 'package:material_ui/material_ui.dart';
@@ -20,6 +23,7 @@ const Size tabletSize = Size(1024, 768);
 /// [deviceLocales] simulates the device language list; [store] lets a test
 /// pre-seed or inspect persisted preferences.
 MushafEdition? _testMushaf;
+AdhkarCatalog? _testAdhkar;
 
 Future<InMemoryKeyValueStore> pumpMadarApp(
   WidgetTester tester, {
@@ -32,6 +36,10 @@ Future<InMemoryKeyValueStore> pumpMadarApp(
 }) async {
   final kv = store ?? InMemoryKeyValueStore();
   _testMushaf ??= await tester.runAsync(() => MushafEdition.load(rootBundle));
+  _testAdhkar ??= await tester.runAsync(() async {
+    final source = await rootBundle.loadString('assets/adhkar/catalog.json');
+    return AdhkarCatalog.fromJson(jsonDecode(source) as Map<String, Object?>);
+  });
 
   tester.view.devicePixelRatio = 1;
   tester.view.physicalSize = size;
@@ -46,6 +54,7 @@ Future<InMemoryKeyValueStore> pumpMadarApp(
       overrides: [
         keyValueStoreProvider.overrideWithValue(kv),
         mushafEditionProvider.overrideWith((_) => _testMushaf!),
+        adhkarCatalogProvider.overrideWith((_) => _testAdhkar!),
         if (quranApi != null) quranApiProvider.overrideWithValue(quranApi),
         if (initialLocation != null)
           appRouterProvider.overrideWith((ref) {

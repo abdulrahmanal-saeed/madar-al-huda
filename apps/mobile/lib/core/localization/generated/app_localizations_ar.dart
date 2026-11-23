@@ -10,6 +10,122 @@ class AppLocalizationsAr extends AppLocalizations {
   AppLocalizationsAr([String locale = 'ar']) : super(locale);
 
   @override
+  String get adhkarHubTitle => 'الأذكار والأدعية';
+
+  @override
+  String get adhkarToday => 'أذكار اليوم';
+
+  @override
+  String get adhkarResume => 'استكمل من مكانك';
+
+  @override
+  String get adhkarFind => 'بحث في الأذكار والأدعية';
+
+  @override
+  String adhkarPosition(String current, String total) {
+    return '$current من $total';
+  }
+
+  @override
+  String adhkarVariant(String counts) {
+    return 'الرواية · $counts';
+  }
+
+  @override
+  String get adhkarPrevious => 'السابق';
+
+  @override
+  String get adhkarNext => 'التالي';
+
+  @override
+  String get adhkarCompleted => 'تمّت';
+
+  @override
+  String get adhkarMarkRead => 'سجّل القراءة';
+
+  @override
+  String get adhkarReset => 'إعادة العدّاد';
+
+  @override
+  String get adhkarReturnToToday => 'العودة إلى الأذكار';
+
+  @override
+  String get adhkarCountOnce => 'سجّل تكرارًا';
+
+  @override
+  String get adhkarThreeSurahCycle => 'سجّل قراءة السور الثلاث';
+
+  @override
+  String get adhkarBedtimeCycle => 'سجّل دورة القراءة والمسح';
+
+  @override
+  String get adhkarTasbih => 'سجّل تسبيحة';
+
+  @override
+  String get adhkarTahmid => 'سجّل تحميدة';
+
+  @override
+  String get adhkarTakbir => 'سجّل تكبيرة';
+
+  @override
+  String get adhkarTahlil => 'سجّل التهليل الختامي';
+
+  @override
+  String get adhkarIstighfar => 'سجّل استغفارة';
+
+  @override
+  String get adhkarSavedProgress => 'تقدّمك محفوظ على الجهاز';
+
+  @override
+  String adhkarWirdToday(String day) {
+    return 'ورد اليوم · $day';
+  }
+
+  @override
+  String get adhkarWirdGroups => 'اختَر مجموعات وردك';
+
+  @override
+  String get adhkarAddToWird => 'أضف إلى وردي';
+
+  @override
+  String get adhkarRemoveFromWird => 'أزل من وردي';
+
+  @override
+  String get adhkarHisnSubtitle => 'أذكار وأدعية حسب الموقف';
+
+  @override
+  String get adhkarNothingFound => 'لا توجد نتائج مطابقة';
+
+  @override
+  String get adhkarAddFavorite => 'أضف إلى المفضلة';
+
+  @override
+  String get adhkarRemoveFavorite => 'أزل من المفضلة';
+
+  @override
+  String adhkarHadithNumber(String number) {
+    return 'حديث $number';
+  }
+
+  @override
+  String get adhkarMerit => 'الفضل الوارد';
+
+  @override
+  String get adhkarDraftMeaning => 'معنى إنجليزي أولي';
+
+  @override
+  String get adhkarHadithSource => 'اقرأ الحديث ومصدره';
+
+  @override
+  String get adhkarRetrySource => 'أعد تحميل المصدر';
+
+  @override
+  String get adhkarBukhari6324 => 'صحيح البخاري ٦٣٢٤';
+
+  @override
+  String get adhkarUsePeriodWording => 'اقرأ صيغة هذا الوقت من الحديث أدناه.';
+
+  @override
   String get appTitle => 'مدار الهدى';
 
   @override
