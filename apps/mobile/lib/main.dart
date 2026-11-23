@@ -76,5 +76,11 @@ void _registerFontLicense() {
     yield LicenseEntryWithLineBreaks([
       'Amiri Quran',
     ], await rootBundle.loadString('assets/fonts/amiri_quran/OFL.txt'));
+    yield LicenseEntryWithLineBreaks([
+      'Reem Kufi',
+    ], await rootBundle.loadString('assets/fonts/reem_kufi/OFL.txt'));
+    yield LicenseEntryWithLineBreaks([
+      'Amiri',
+    ], await rootBundle.loadString('assets/fonts/amiri/OFL.txt'));
   });
 }

@@ -110,6 +110,18 @@ abstract class AppLocalizations {
   /// **'Quran, Knowledge & Worship in One Place'**
   String get appTagline;
 
+  /// Dedication shown on the startup screen.
+  ///
+  /// In en, this message translates to:
+  /// **'An ongoing charity in memory of my father'**
+  String get appDedication;
+
+  /// Accessibility label for leaving the startup screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the app'**
+  String get splashContinue;
+
   /// Bottom navigation: home tab.
   ///
   /// In en, this message translates to:

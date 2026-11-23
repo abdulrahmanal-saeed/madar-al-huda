@@ -100,6 +100,10 @@ void main() {
     );
     expect(
       AppTheme.dark().textTheme.titleLarge?.fontFamily,
+      AppTheme.headingFontFamily,
+    );
+    expect(
+      AppTheme.dark().textTheme.labelMedium?.fontFamily,
       AppTheme.fontFamily,
     );
   });

@@ -5,10 +5,13 @@ import '../core/localization/app_locales.dart';
 import '../core/theme/app_theme.dart';
 import '../features/settings/application/settings_controller.dart';
 import 'app_router.dart';
+import 'startup_splash.dart';
 
 /// Root widget. Wires settings (language, theme, motion) into MaterialApp.
 class MadarApp extends ConsumerWidget {
-  const MadarApp({super.key});
+  const MadarApp({this.showStartupSplash = true, super.key});
+
+  final bool showStartupSplash;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -32,12 +35,15 @@ class MadarApp extends ConsumerWidget {
       themeMode: settings.theme.themeMode,
       theme: AppTheme.light(reduceMotion: settings.reduceMotion),
       darkTheme: AppTheme.dark(reduceMotion: settings.reduceMotion),
-      builder: settings.reduceMotion
-          ? (context, child) => MediaQuery(
-              data: MediaQuery.of(context).copyWith(disableAnimations: true),
-              child: child!,
-            )
-          : null,
+      builder: (context, child) {
+        final content = settings.reduceMotion
+            ? MediaQuery(
+                data: MediaQuery.of(context).copyWith(disableAnimations: true),
+                child: child!,
+              )
+            : child!;
+        return showStartupSplash ? StartupSplash(child: content) : content;
+      },
     );
   }
 }

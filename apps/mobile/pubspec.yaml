@@ -43,9 +43,7 @@ flutter:
   # Generates lib/core/localization/generated/ from the ARB files (l10n.yaml).
   generate: true
 
-  # UI typeface per design/brand/tokens.json, licensed under SIL OFL 1.1
-  # (assets/fonts/ibm_plex_sans_arabic/OFL.txt). Covers Arabic and Latin.
-  # This is NOT a Quran typeface; Quran text requires an approved Uthmani font.
+  # Bundled typefaces and accompanying SIL OFL notices.
   fonts:
     - family: IBMPlexSansArabic
       fonts:
@@ -61,9 +59,17 @@ flutter:
     - family: AmiriQuran
       fonts:
         - asset: assets/fonts/amiri_quran/AmiriQuran.ttf
+    - family: ReemKufi
+      fonts:
+        - asset: assets/fonts/reem_kufi/ReemKufi.ttf
+    - family: Amiri
+      fonts:
+        - asset: assets/fonts/amiri/Amiri-Regular.ttf
 
   assets:
+    - assets/fonts/amiri/OFL.txt
     - assets/fonts/amiri_quran/OFL.txt
+    - assets/fonts/reem_kufi/OFL.txt
     - assets/location/countries.json
     - assets/quran/uthmani.txt
     - assets/quran/metadata.xml
