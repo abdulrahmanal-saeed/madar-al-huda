@@ -12,6 +12,7 @@
 | Recitation | Mahmoud Ali Al-Banna | Pending | Owner/provider, stream rights, cache duration |
 | Recitation | Islam Sobhi | Pending | Owner/provider, stream rights, cache duration |
 | Hadith | HadeethEnc / other licensed corpus | Pending | Text/translation rights, exact grading citations and updates |
+| Adhkar and supplications | HadeethEnc, Hisn al-Muslim, Tanzil and QuranEnc | Editorial draft, versions and links verified | Verify digital reuse rights for the Hisn edition and translation before bundling. Review wording, variants, counts and language before publication under D-21. |
 | Fiqh | Authoritative works per Sunni madhhab | Pending | Editions/rights and approved scholarly review |
 | Prayer times | Local calculation with verified parameters | Technical validation pending | UAE/Egypt official comparison fixtures |
 
@@ -55,3 +56,10 @@ On 2026-11-23, the authenticated Quran Foundation prelive catalog supplied Engli
 - [Cairo Quran Radio](https://misrquran.gov.eg/home) serves and controls the live web player. The app opens that HTTPS page in WebView. Playwright confirmed playback and pause from the broadcaster’s controls. The app links to its source and leaves playback to the page. A station-authorized stream endpoint is still needed for integration with the native background player.
 
 The dua preview now links 75 entries across 109 unique verses in the pinned Tanzil edition. The selection uses eight original themes. All verse references resolve against Tanzil. The [Eqtidaa supplications book](https://doa.eqtidaa.com/ar/download/interactive/book/doa-ar?download=true) provided an additional editorial reference. The English meanings and footnotes load from QuranEnc with edition attribution. The app links to [Quran.com’s original groups](https://quran.com/ar/duas) for browsing their full editorial collection.
+
+## 2026-11-23 — Bilingual adhkar content handoff
+
+- [Content catalog and verification](content/adhkar/README.md) cover daily remembrance, the user's remembrance routine, Hisn topics, hadith on the merits of remembrance and Quranic supplications. The catalog keeps editorial labels and suggestions distinct from publisher text.
+- The [HadeethEnc publisher](https://hadeethenc.com/ar) permits republication under its published conditions, including unaltered content, source credit, version notice and updates. The official CSV notices identify Arabic 1.8.0 and English 1.25.0. The selected records, source grades and takhrij fields were checked in those releases. Bukhari 6324 has an Arabic HadeethEnc record (65913); the English fallback is a separately labeled draft meaning with an original reference link.
+- Hisn al-Muslim's Arabic and English website indexes were matched by chapter link. The [1436 AH print edition](https://d1.islamhouse.com/data/ar/ih_books/single_01/ar_Hisn_Almuslim1436.pdf#page=2) records conditions for printing and free distribution. The handoff links to publisher pages while digital reuse scope for in-app bundling stays open (R-12).
+- The pinned Tanzil asset and the publisher's Rowwad English translation database cover all references in the handoff. The QuranEnc terms require preservation of the translation and version with attribution.

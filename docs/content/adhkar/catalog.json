@@ -1,0 +1,841 @@
+{
+  "schemaVersion": 1,
+  "preparedOn": "2026-11-23",
+  "status": "editorial_draft",
+  "sections": {
+    "daily": {
+      "ar": "أذكار اليوم",
+      "en": "Daily remembrance"
+    },
+    "routine": {
+      "ar": "ورد الأذكار",
+      "en": "Remembrance routine"
+    },
+    "hisn": {
+      "ar": "حصن المسلم",
+      "en": "Fortress of the Muslim"
+    },
+    "merits": {
+      "ar": "فضائل الذكر",
+      "en": "Merits of remembrance"
+    },
+    "quranDuas": {
+      "ar": "الأدعية القرآنية",
+      "en": "Quranic supplications"
+    }
+  },
+  "daily": {
+    "groups": [
+      {
+        "id": "morning",
+        "title": {
+          "ar": "أذكار الصباح",
+          "en": "Morning remembrance"
+        },
+        "entries": [
+          "morning-evening-life",
+          "chief-forgiveness",
+          "three-surahs-morning-evening",
+          "protection-by-allahs-name",
+          "refuge-from-self-and-devil",
+          "morning-evening-dominion",
+          "juwayriyah-tasbih"
+        ]
+      },
+      {
+        "id": "evening",
+        "title": {
+          "ar": "أذكار المساء",
+          "en": "Evening remembrance"
+        },
+        "entries": [
+          "morning-evening-life",
+          "chief-forgiveness",
+          "three-surahs-morning-evening",
+          "protection-by-allahs-name",
+          "refuge-from-self-and-devil",
+          "morning-evening-dominion"
+        ]
+      },
+      {
+        "id": "after-prayer",
+        "title": {
+          "ar": "أذكار بعد الصلاة",
+          "en": "Remembrance after prayer"
+        },
+        "entries": [
+          "forgiveness-and-peace-after-prayer",
+          "tasbih-after-prayer",
+          "dominion-after-prayer"
+        ]
+      },
+      {
+        "id": "bedtime",
+        "title": {
+          "ar": "أذكار النوم",
+          "en": "Bedtime remembrance"
+        },
+        "entries": [
+          "bedtime-in-allahs-name",
+          "three-surahs-at-bedtime",
+          "tasbih-at-bedtime",
+          "placing-ones-side",
+          "protection-on-resurrection-day",
+          "refuge-from-self-and-devil"
+        ]
+      },
+      {
+        "id": "waking",
+        "title": {
+          "ar": "أذكار الاستيقاظ",
+          "en": "Remembrance on waking"
+        },
+        "entries": [
+          "praise-on-waking"
+        ]
+      }
+    ],
+    "entries": [
+      {
+        "id": "morning-evening-life",
+        "title": {
+          "ar": "دعاء الصباح والمساء",
+          "en": "Morning and evening supplication"
+        },
+        "hadith": 5490
+      },
+      {
+        "id": "chief-forgiveness",
+        "title": {
+          "ar": "سيّد الاستغفار",
+          "en": "The foremost supplication for forgiveness"
+        },
+        "hadith": 5503
+      },
+      {
+        "id": "three-surahs-morning-evening",
+        "title": {
+          "ar": "الإخلاص والمعوذتان صباحًا ومساءً",
+          "en": "Al-Ikhlas, Al-Falaq and An-Nas in the morning and evening"
+        },
+        "hadith": 6082,
+        "quran": [
+          [
+            112,
+            1,
+            4
+          ],
+          [
+            113,
+            1,
+            5
+          ],
+          [
+            114,
+            1,
+            6
+          ]
+        ],
+        "repeat": [
+          {
+            "unit": "each_surah",
+            "count": 3
+          }
+        ]
+      },
+      {
+        "id": "protection-by-allahs-name",
+        "title": {
+          "ar": "الاستعاذة باسم الله من الضرر",
+          "en": "Seeking protection in Allah’s name"
+        },
+        "hadith": 6093,
+        "repeat": [
+          {
+            "unit": "supplication",
+            "count": 3
+          }
+        ]
+      },
+      {
+        "id": "refuge-from-self-and-devil",
+        "title": {
+          "ar": "الاستعاذة من شرّ النفس والشيطان",
+          "en": "Seeking refuge from the evil of oneself and Satan"
+        },
+        "hadith": 3006
+      },
+      {
+        "id": "morning-evening-dominion",
+        "title": {
+          "ar": "الإقرار بأن الملك لله",
+          "en": "Acknowledging that dominion belongs to Allah"
+        },
+        "hadith": 3008
+      },
+      {
+        "id": "juwayriyah-tasbih",
+        "title": {
+          "ar": "تسبيح جويرية",
+          "en": "Juwayriyah’s morning remembrance"
+        },
+        "hadith": 5508,
+        "repeat": [
+          {
+            "unit": "supplication",
+            "count": 3
+          }
+        ]
+      },
+      {
+        "id": "forgiveness-and-peace-after-prayer",
+        "title": {
+          "ar": "الاستغفار ودعاء السلام بعد الصلاة",
+          "en": "Seeking forgiveness and asking for peace after prayer"
+        },
+        "hadith": 10947,
+        "repeat": [
+          {
+            "unit": "seeking_forgiveness",
+            "count": 3
+          }
+        ]
+      },
+      {
+        "id": "tasbih-after-prayer",
+        "title": {
+          "ar": "التسبيح والتحميد والتكبير بعد الصلاة",
+          "en": "Glorifying, praising and magnifying Allah after prayer"
+        },
+        "variants": [
+          {
+            "hadith": 6259,
+            "repeat": [
+              {
+                "unit": "tasbih",
+                "count": 33
+              },
+              {
+                "unit": "tahmid",
+                "count": 33
+              },
+              {
+                "unit": "takbir",
+                "count": 34
+              }
+            ]
+          },
+          {
+            "hadith": 10948,
+            "repeat": [
+              {
+                "unit": "tasbih",
+                "count": 33
+              },
+              {
+                "unit": "tahmid",
+                "count": 33
+              },
+              {
+                "unit": "takbir",
+                "count": 33
+              },
+              {
+                "unit": "closing_tahlil",
+                "count": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "dominion-after-prayer",
+        "title": {
+          "ar": "التوحيد والدعاء بعد الفريضة",
+          "en": "Affirming Allah’s oneness after the obligatory prayer"
+        },
+        "hadith": 65102
+      },
+      {
+        "id": "bedtime-in-allahs-name",
+        "title": {
+          "ar": "الدعاء عند النوم",
+          "en": "Supplication before sleep"
+        },
+        "hadith": 65913,
+        "wording": {
+          "ar": "بِاسْمِكَ اللَّهُمَّ أَمُوتُ وَأَحْيَا",
+          "draftMeaningEn": "In Your name, O Allah, I die and I live."
+        }
+      },
+      {
+        "id": "three-surahs-at-bedtime",
+        "title": {
+          "ar": "قراءة الإخلاص والمعوذتين عند النوم",
+          "en": "Reciting Al-Ikhlas, Al-Falaq and An-Nas at bedtime"
+        },
+        "hadith": 65060,
+        "quran": [
+          [
+            112,
+            1,
+            4
+          ],
+          [
+            113,
+            1,
+            5
+          ],
+          [
+            114,
+            1,
+            6
+          ]
+        ],
+        "repeat": [
+          {
+            "unit": "full_recitation_and_wiping_cycle",
+            "count": 3
+          }
+        ]
+      },
+      {
+        "id": "tasbih-at-bedtime",
+        "title": {
+          "ar": "التسبيح والتحميد والتكبير عند النوم",
+          "en": "Glorifying, praising and magnifying Allah at bedtime"
+        },
+        "hadith": 6076,
+        "repeat": [
+          {
+            "unit": "tasbih",
+            "count": 33
+          },
+          {
+            "unit": "tahmid",
+            "count": 33
+          },
+          {
+            "unit": "takbir",
+            "count": 34
+          }
+        ]
+      },
+      {
+        "id": "placing-ones-side",
+        "title": {
+          "ar": "دعاء وضع الجنب للنوم",
+          "en": "Supplication when lying down to sleep"
+        },
+        "hadith": 6034
+      },
+      {
+        "id": "protection-on-resurrection-day",
+        "title": {
+          "ar": "سؤال الوقاية من عذاب يوم البعث",
+          "en": "Asking for protection on the Day of Resurrection"
+        },
+        "hadith": 6167
+      },
+      {
+        "id": "praise-on-waking",
+        "title": {
+          "ar": "حمد الله عند الاستيقاظ",
+          "en": "Praising Allah on waking"
+        },
+        "hadith": 65913,
+        "wording": {
+          "ar": "الحَمْدُ لِلَّهِ الَّذِي أَحْيَانَا بَعْدَمَا أَمَاتَنَا، وَإِلَيْهِ النُّشُورُ",
+          "draftMeaningEn": "Praise belongs to Allah, who gave us life after causing us to die. To Him is the resurrection."
+        }
+      }
+    ]
+  },
+  "routine": {
+    "eligibleGroups": [
+      "morning",
+      "evening",
+      "after-prayer",
+      "bedtime",
+      "waking"
+    ],
+    "completionLabels": {
+      "empty": {
+        "ar": "اختر مجموعات وردك",
+        "en": "Choose the groups for your routine"
+      },
+      "continue": {
+        "ar": "أكمل وردك",
+        "en": "Continue your routine"
+      },
+      "complete": {
+        "ar": "أنهيت المجموعات المختارة",
+        "en": "You completed your selected groups"
+      },
+      "save": {
+        "ar": "احفظ وردك",
+        "en": "Save your routine"
+      }
+    }
+  },
+  "hisn": {
+    "indexUrls": {
+      "ar": "https://hisnmuslim.com/i/ar/1",
+      "en": "https://hisnmuslim.com/i/en/1"
+    },
+    "chapterUrl": "https://hisnmuslim.com/i/{locale}/{chapterId}",
+    "duplicatedChapter": {
+      "id": 27,
+      "canonicalId": 1
+    },
+    "topics": [
+      {
+        "id": "daily",
+        "title": {
+          "ar": "الاستيقاظ والنوم وورد اليوم",
+          "en": "Waking, bedtime and daily remembrance"
+        },
+        "chapterIds": [
+          0,
+          1,
+          28,
+          29,
+          30,
+          31
+        ]
+      },
+      {
+        "id": "home",
+        "title": {
+          "ar": "البيت واللباس والطهارة",
+          "en": "Home, clothing and purification"
+        },
+        "chapterIds": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11
+        ],
+        "hadiths": [
+          3504,
+          10571,
+          3037
+        ]
+      },
+      {
+        "id": "prayer",
+        "title": {
+          "ar": "المسجد والأذان والصلاة",
+          "en": "Mosque, call to prayer and prayer"
+        },
+        "chapterIds": [
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          32,
+          33
+        ],
+        "hadiths": [
+          65092,
+          65087
+        ]
+      },
+      {
+        "id": "relief",
+        "title": {
+          "ar": "الهمّ والخوف وتيسير الأمور",
+          "en": "Worry, fear and ease in difficulties"
+        },
+        "chapterIds": [
+          34,
+          35,
+          36,
+          37,
+          38,
+          39,
+          40,
+          41,
+          42,
+          43,
+          45,
+          46,
+          83,
+          106,
+          122,
+          126,
+          128
+        ],
+        "hadiths": [
+          5141
+        ]
+      },
+      {
+        "id": "repentance",
+        "title": {
+          "ar": "التوبة والمغفرة",
+          "en": "Repentance and seeking forgiveness"
+        },
+        "chapterIds": [
+          44,
+          92,
+          129
+        ],
+        "hadiths": [
+          5503,
+          65063
+        ]
+      },
+      {
+        "id": "family",
+        "title": {
+          "ar": "الأسرة والأبناء والزواج",
+          "en": "Family, children and marriage"
+        },
+        "chapterIds": [
+          47,
+          48,
+          79,
+          80,
+          81
+        ]
+      },
+      {
+        "id": "illness",
+        "title": {
+          "ar": "المرض والألم",
+          "en": "Illness and pain"
+        },
+        "chapterIds": [
+          49,
+          50,
+          51,
+          124
+        ]
+      },
+      {
+        "id": "bereavement",
+        "title": {
+          "ar": "الموت والتعزية",
+          "en": "Death and bereavement"
+        },
+        "chapterIds": [
+          52,
+          53,
+          54,
+          55,
+          56,
+          57,
+          58,
+          59,
+          60
+        ]
+      },
+      {
+        "id": "weather",
+        "title": {
+          "ar": "الطقس والظواهر",
+          "en": "Weather and natural events"
+        },
+        "chapterIds": [
+          61,
+          62,
+          63,
+          64,
+          65,
+          66
+        ],
+        "hadiths": [
+          8956
+        ]
+      },
+      {
+        "id": "fasting",
+        "title": {
+          "ar": "الهلال والصيام والإفطار",
+          "en": "New moon, fasting and breaking the fast"
+        },
+        "chapterIds": [
+          67,
+          68,
+          73,
+          74,
+          75
+        ]
+      },
+      {
+        "id": "food",
+        "title": {
+          "ar": "الطعام والشراب والضيافة",
+          "en": "Food, drink and hospitality"
+        },
+        "chapterIds": [
+          69,
+          70,
+          71,
+          72,
+          76
+        ],
+        "hadiths": [
+          5431,
+          3037
+        ]
+      },
+      {
+        "id": "social",
+        "title": {
+          "ar": "المجالس والتعامل مع الناس",
+          "en": "Gatherings and social interactions"
+        },
+        "chapterIds": [
+          77,
+          78,
+          82,
+          84,
+          85,
+          86,
+          87,
+          89,
+          90,
+          91,
+          93,
+          108,
+          109,
+          112,
+          113,
+          114,
+          125,
+          132
+        ]
+      },
+      {
+        "id": "travel",
+        "title": {
+          "ar": "السفر والتنقل",
+          "en": "Travel and journeys"
+        },
+        "chapterIds": [
+          94,
+          95,
+          96,
+          97,
+          98,
+          99,
+          100,
+          101,
+          102,
+          103,
+          104,
+          105
+        ],
+        "hadiths": [
+          5937
+        ]
+      },
+      {
+        "id": "pilgrimage",
+        "title": {
+          "ar": "الحج والعمرة",
+          "en": "Hajj and Umrah"
+        },
+        "chapterIds": [
+          115,
+          116,
+          117,
+          118,
+          119,
+          120,
+          121
+        ]
+      },
+      {
+        "id": "general",
+        "title": {
+          "ar": "أذكار متنوعة وفضائلها",
+          "en": "Other remembrances and their merits"
+        },
+        "chapterIds": [
+          88,
+          107,
+          110,
+          111,
+          123,
+          127,
+          130,
+          131
+        ]
+      }
+    ]
+  },
+  "merits": [
+    {
+      "id": "beloved-words",
+      "title": {
+        "ar": "التسبيح والتحميد",
+        "en": "Glorification and praise"
+      },
+      "hadith": 5507
+    },
+    {
+      "id": "four-phrases",
+      "title": {
+        "ar": "أربع كلمات من الذكر",
+        "en": "Four phrases of remembrance"
+      },
+      "hadith": 5475
+    },
+    {
+      "id": "daily-praise",
+      "title": {
+        "ar": "فضل التسبيح مائة مرة في اليوم",
+        "en": "The merit of glorification one hundred times a day"
+      },
+      "hadith": 5516
+    },
+    {
+      "id": "chief-forgiveness",
+      "title": {
+        "ar": "فضل سيّد الاستغفار",
+        "en": "The merit of the foremost supplication for forgiveness"
+      },
+      "hadith": 5503
+    },
+    {
+      "id": "prophetic-blessings",
+      "title": {
+        "ar": "الصلاة على النبي ﷺ عند سماع الأذان",
+        "en": "Sending blessings on the Prophet after hearing the call to prayer"
+      },
+      "hadith": 65087
+    },
+    {
+      "id": "repentance-prayer",
+      "title": {
+        "ar": "الاستغفار بعد صلاة التوبة",
+        "en": "Seeking forgiveness after the prayer of repentance"
+      },
+      "hadith": 65063
+    },
+    {
+      "id": "last-verses-at-night",
+      "title": {
+        "ar": "آخر آيتين من البقرة في الليل",
+        "en": "The last two verses of Al-Baqarah at night"
+      },
+      "hadith": 6274,
+      "quran": [
+        [
+          2,
+          285,
+          286
+        ]
+      ]
+    }
+  ],
+  "quranDuas": {
+    "appIndex": "apps/mobile/lib/features/adhkar/data/quran_dua_index.dart",
+    "edition": "tanzil-uthmani-1.1",
+    "englishTranslationKey": "english_rwwad",
+    "englishTranslationVersion": "1.0.21",
+    "cardCount": 75,
+    "verseCount": 109,
+    "topics": [
+      {
+        "id": "forgiveness",
+        "title": {
+          "ar": "المغفرة والرحمة",
+          "en": "Forgiveness and mercy"
+        }
+      },
+      {
+        "id": "guidance",
+        "title": {
+          "ar": "الهداية والعلم",
+          "en": "Guidance and knowledge"
+        }
+      },
+      {
+        "id": "family",
+        "title": {
+          "ar": "الأهل والمجتمع",
+          "en": "Family and community"
+        }
+      },
+      {
+        "id": "hardship",
+        "title": {
+          "ar": "الصبر والفرج",
+          "en": "Patience and relief"
+        }
+      },
+      {
+        "id": "gratitude",
+        "title": {
+          "ar": "الشكر والرزق",
+          "en": "Gratitude and provision"
+        }
+      },
+      {
+        "id": "worship",
+        "title": {
+          "ar": "العبادة والعمل الصالح",
+          "en": "Worship and good deeds"
+        }
+      },
+      {
+        "id": "hereafter",
+        "title": {
+          "ar": "الآخرة",
+          "en": "The Hereafter"
+        }
+      },
+      {
+        "id": "protection",
+        "title": {
+          "ar": "الاستعاذة والحفظ",
+          "en": "Protection"
+        }
+      }
+    ]
+  },
+  "sources": {
+    "hadeethEnc": {
+      "pageUrl": "https://hadeethenc.com/{locale}/browse/hadith/{hadithId}",
+      "releases": {
+        "ar": {
+          "version": "1.8.0",
+          "url": "https://hadeethenc.com/ar/browse/download/ar/csv"
+        },
+        "en": {
+          "version": "1.25.0",
+          "url": "https://hadeethenc.com/ar/browse/download/en/csv"
+        }
+      },
+      "exceptions": {
+        "65913": {
+          "originalReference": "Sahih Al-Bukhari 6324",
+          "parallelTextUrl": "https://sunnah.com/bukhari:6324",
+          "arabicEdition": "1.8.0",
+          "english": "external_reference_and_draft_meaning"
+        }
+      }
+    }
+  }
+}
