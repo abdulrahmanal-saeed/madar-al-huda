@@ -42,6 +42,11 @@ void main() {
       deviceLocales: const [locale],
       initialLocation: AppRoutes.adhkar,
     );
+    final quranicDuas = find.text('الأدعية القرآنية').hitTestable();
+    await tester.scrollUntilVisible(quranicDuas, 140);
+    await tester.pumpAndSettle();
+    await tester.tap(quranicDuas);
+    await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), '٢:١٢٩');
     await tester.pumpAndSettle();
     expect(find.byType(ExpansionTile), findsOneWidget);
@@ -57,6 +62,10 @@ void main() {
       initialLocation: AppRoutes.adhkar,
       store: store,
     );
+    await tester.scrollUntilVisible(quranicDuas, 140);
+    await tester.pumpAndSettle();
+    await tester.tap(quranicDuas);
+    await tester.pumpAndSettle();
     await tester.tap(find.byTooltip(l10n.duaShowSaved));
     await tester.pumpAndSettle();
     expect(find.byType(ExpansionTile), findsOneWidget);

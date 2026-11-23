@@ -1,12 +1,17 @@
 # Implementation log
 
+## 2026-11-23 — P02-03 and P02-04 adhkar screens
+- The five screens follow the supplied RTL and LTR designs. The catalog is now an application asset with bilingual Hisn chapter labels. Hadith text is fetched from HadeethEnc. The Hisn book chapters open on the official site inside the app.
+- Daily progress, narrated count variants, the selected wird, and favorites are persisted on device. Quranic supplications reuse the existing Mushaf, meanings and bookmarks.
+- The content preview is gated under D-21. The tracker keeps the tasks open for device QA and final content review.
+
 ## 2026-11-23 — Typography and startup screen
 - Branch `phase-02/design-typography` uses the owner-specified font roles from the design handoff. Reem Kufi 3.0 styles headings and both wordmarks. Amiri 1.003 styles hadith text and the dedication. Amiri Quran and IBM Plex Sans Arabic continue as the Quran and UI fonts.
 - The Flutter startup screen uses the supplied orbit motif and bilingual wordmark. It displays the Arabic dedication in either locale, with an English meaning in the English locale. The screen is dismissible by tapping and automatically closes after 1.8 seconds. The current route builds below the splash so links resume where requested.
 - Publisher binaries and OFL notices are bundled. Physical-device startup and the remaining screen designs are separate from this typography change.
 
 ## 2026-11-23 — P02-03 and P02-04 bilingual adhkar content
-- Branch `phase-02/adhkar-content` prepares the five owner-selected sections. The [catalog](../docs/content/adhkar/catalog.json) includes Arabic and English editorial labels, reference IDs, documented counts, and the local routine completion copy.
+- Branch `phase-02/adhkar-content` prepares the five owner-selected sections. The [catalog](../apps/mobile/assets/adhkar/catalog.json) includes Arabic and English editorial labels, reference IDs, documented counts, and the local routine completion copy.
 - `python docs/content/adhkar/verify_catalog.py --sources` passed against the existing Tanzil asset, the QuranEnc 1.0.21 database, HadeethEnc Arabic 1.8.0 and English 1.25.0, and both Hisn indexes. The Arabic-only hadith on sleep and waking has a linked English source and separately marked draft meanings.
 - The design handoff, in-app flow validation and final content and language reviews remain open. There are no Flutter UI or runtime changes in this PR.
 
