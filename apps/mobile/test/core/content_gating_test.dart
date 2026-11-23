@@ -29,17 +29,27 @@ void main() {
     );
   });
 
-  test('every section path is unique and lives under a tab root', () {
-    final paths = AppSection.values.map((s) => s.path).toList();
-    expect(paths.toSet().length, paths.length);
-    for (final path in paths) {
-      expect(
-        AppRoutes.tabs.any((tab) => path.startsWith('$tab/')),
-        isTrue,
-        reason: path,
-      );
-    }
-  });
+  test(
+    'section paths remain unique under the tab and legacy route prefixes',
+    () {
+      final paths = AppSection.values.map((s) => s.path).toList();
+      expect(paths.toSet().length, paths.length);
+      final prefixes = [
+        ...AppRoutes.tabs,
+        AppRoutes.worship,
+        AppRoutes.learning,
+      ];
+      for (final path in paths) {
+        expect(
+          prefixes.any(
+            (prefix) => path == prefix || path.startsWith('$prefix/'),
+          ),
+          isTrue,
+          reason: path,
+        );
+      }
+    },
+  );
 
   group('AyahRef', () {
     test('accepts valid references and compares by value', () {

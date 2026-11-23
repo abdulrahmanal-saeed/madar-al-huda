@@ -9,6 +9,7 @@ import '../../../core/routing/app_sections.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/section_detail_scaffold.dart';
 import '../data/hadeeth_enc.dart';
+import '../data/hadith_favorites.dart';
 
 /// Hadith library. Gated until a licensed corpus is selected (P03-01).
 class HadithScreen extends ConsumerStatefulWidget {
@@ -30,7 +31,20 @@ class _HadithScreenState extends ConsumerState<HadithScreen> {
     final categories = hadithCategoriesProvider(language);
     final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.sectionHadithTitle)),
+      appBar: AppBar(
+        title: Text(l10n.sectionHadithTitle),
+        actions: [
+          IconButton(
+            tooltip: l10n.hadithFavoritesTitle,
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => const _HadithFavoritesScreen(),
+              ),
+            ),
+            icon: const Icon(Icons.favorite_border),
+          ),
+        ],
+      ),
       body: ref
           .watch(categories)
           .when(
@@ -174,44 +188,143 @@ class _HadithEntry extends ConsumerWidget {
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (_, _) =>
                 _HadithUnavailable(onRetry: () => ref.invalidate(source)),
-            data: (hadith) => ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                Text(
-                  hadith.title,
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  hadith.text,
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    fontFamily: AppTheme.readingFontFamily,
-                    fontFamilyFallback: const [AppTheme.fontFamily],
-                    fontSize: 21,
-                    height: 1.75,
+            data: (hadith) {
+              final theme = Theme.of(context);
+              final favorite = ref.watch(hadithFavoritesProvider).contains(id);
+              final arabic = language == 'ar'
+                  ? hadith
+                  : ref
+                        .watch(hadithDetailProvider((language: 'ar', id: id)))
+                        .asData
+                        ?.value;
+              return ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  Text(hadith.title, style: theme.textTheme.titleLarge),
+                  const SizedBox(height: 12),
+                  Card(
+                    color: theme.colorScheme.primaryContainer,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          if (arabic != null)
+                            Text(
+                              arabic.text,
+                              textDirection: TextDirection.rtl,
+                              style: theme.textTheme.bodyLarge?.copyWith(
+                                fontFamily: AppTheme.readingFontFamily,
+                                fontSize: 23,
+                                height: 1.75,
+                              ),
+                            ),
+                          if (language != 'ar') ...[
+                            const SizedBox(height: 8),
+                            Text(hadith.text),
+                          ],
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 12),
-                if (hadith.attribution.isNotEmpty) Text(hadith.attribution),
-                if (hadith.grade.isNotEmpty)
-                  Text(l10n.hadithProviderGrade(hadith.grade)),
-                const SizedBox(height: 12),
-                Text(hadith.explanation),
-                if (hadith.reference case final reference?
-                    when reference.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 12),
-                    child: Text(reference),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    children: [
+                      if (hadith.grade.isNotEmpty)
+                        Chip(
+                          label: Text(l10n.hadithProviderGrade(hadith.grade)),
+                        ),
+                      if (hadith.attribution.isNotEmpty)
+                        Chip(label: Text(hadith.attribution)),
+                    ],
                   ),
-                TextButton(
-                  onPressed: () => launchUrl(
-                    Uri.https('hadeethenc.com', '/$language/browse/hadith/$id'),
+                  if (hadith.reference case final reference?
+                      when reference.isNotEmpty)
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(l10n.hadithSourceTitle),
+                      subtitle: Text(reference),
+                    ),
+                  if (hadith.explanation.isNotEmpty) ...[
+                    const SizedBox(height: 12),
+                    Text(
+                      l10n.hadithExplanationTitle,
+                      style: theme.textTheme.titleMedium,
+                    ),
+                    Text(hadith.explanation),
+                  ],
+                  const SizedBox(height: 12),
+                  OutlinedButton.icon(
+                    onPressed: () async {
+                      try {
+                        await ref
+                            .read(hadithFavoritesProvider.notifier)
+                            .toggle(id);
+                      } catch (_) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(l10n.localSaveFailed)),
+                          );
+                        }
+                      }
+                    },
+                    icon: Icon(
+                      favorite ? Icons.favorite : Icons.favorite_border,
+                    ),
+                    label: Text(
+                      favorite
+                          ? l10n.hadithRemoveFavorite
+                          : l10n.hadithAddFavorite,
+                    ),
                   ),
-                  child: const Text('HadeethEnc'),
-                ),
-              ],
-            ),
+                  TextButton(
+                    onPressed: () => launchUrl(
+                      Uri.https(
+                        'hadeethenc.com',
+                        '/$language/browse/hadith/$id',
+                      ),
+                    ),
+                    child: const Text('HadeethEnc'),
+                  ),
+                ],
+              );
+            },
           ),
+    );
+  }
+}
+
+class _HadithFavoritesScreen extends ConsumerWidget {
+  const _HadithFavoritesScreen();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final ids = ref.watch(hadithFavoritesProvider).toList();
+    final language = Localizations.localeOf(context).languageCode;
+    final l10n = context.l10n;
+    return Scaffold(
+      appBar: AppBar(title: Text(l10n.hadithFavoritesTitle)),
+      body: ids.isEmpty
+          ? Center(child: Text(l10n.hadithNoFavorites))
+          : ListView.builder(
+              itemCount: ids.length,
+              itemBuilder: (context, index) {
+                final id = ids[index];
+                final entry = ref.watch(
+                  hadithDetailProvider((language: language, id: id)),
+                );
+                return ListTile(
+                  leading: const Icon(Icons.favorite_border),
+                  title: Text(entry.asData?.value.title ?? '#$id'),
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => _HadithEntry(id: id),
+                    ),
+                  ),
+                );
+              },
+            ),
     );
   }
 }

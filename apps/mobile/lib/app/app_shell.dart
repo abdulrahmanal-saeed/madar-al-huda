@@ -3,6 +3,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../core/localization/l10n_extension.dart';
 import '../core/theme/app_tokens.dart';
+import '../features/quran/presentation/recitation_player.dart';
 
 /// Tab destination metadata, in [AppRoutes.tabs] order.
 class _Destination {
@@ -20,13 +21,17 @@ final List<_Destination> _destinations = [
     Icons.menu_book,
     (c) => c.l10n.navQuran,
   ),
-  _Destination(Icons.mosque_outlined, Icons.mosque, (c) => c.l10n.navWorship),
+  _Destination(
+    Icons.wb_twilight_outlined,
+    Icons.wb_twilight,
+    (c) => c.l10n.navAdhkar,
+  ),
+  _Destination(Icons.mosque_outlined, Icons.mosque, (c) => c.l10n.navPrayer),
   _Destination(
     Icons.local_library_outlined,
     Icons.local_library,
     (c) => c.l10n.navLibrary,
   ),
-  _Destination(Icons.school_outlined, Icons.school, (c) => c.l10n.navLearning),
 ];
 
 /// Five-tab shell. Each tab keeps its own navigation stack and scroll state
@@ -75,7 +80,14 @@ class AppShell extends StatelessWidget {
               ),
             ),
             const VerticalDivider(width: 1),
-            Expanded(child: navigationShell),
+            Expanded(
+              child: Column(
+                children: [
+                  Expanded(child: navigationShell),
+                  const RecitationMiniPlayer(),
+                ],
+              ),
+            ),
           ],
         ),
       );
@@ -83,17 +95,23 @@ class AppShell extends StatelessWidget {
 
     return Scaffold(
       body: navigationShell,
-      bottomNavigationBar: NavigationBar(
-        key: navigationBarKey,
-        selectedIndex: index,
-        onDestinationSelected: _onSelect,
-        destinations: [
-          for (final d in _destinations)
-            NavigationDestination(
-              icon: Icon(d.icon),
-              selectedIcon: Icon(d.selectedIcon),
-              label: d.label(context),
-            ),
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const RecitationMiniPlayer(),
+          NavigationBar(
+            key: navigationBarKey,
+            selectedIndex: index,
+            onDestinationSelected: _onSelect,
+            destinations: [
+              for (final d in _destinations)
+                NavigationDestination(
+                  icon: Icon(d.icon),
+                  selectedIcon: Icon(d.selectedIcon),
+                  label: d.label(context),
+                ),
+            ],
+          ),
         ],
       ),
     );

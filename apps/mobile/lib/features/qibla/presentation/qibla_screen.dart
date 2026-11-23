@@ -2,12 +2,14 @@ import 'dart:math' as math;
 
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' show NumberFormat;
 import 'package:material_ui/material_ui.dart';
 
 import '../../../core/content/feature_preview.dart';
 import '../../../core/localization/l10n_extension.dart';
 import '../../../core/routing/app_sections.dart';
+import '../../../core/theme/app_tokens.dart';
+import '../../../core/widgets/responsive_content.dart';
 import '../../../core/widgets/section_detail_scaffold.dart';
 import '../../worship/application/worship_location.dart';
 import '../../worship/presentation/worship_location_picker.dart';
@@ -37,23 +39,14 @@ final _declinationProvider = FutureProvider.autoDispose
           }),
     );
 
-class QiblaScreen extends StatelessWidget {
+class QiblaScreen extends ConsumerWidget {
   const QiblaScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     if (AppSection.qibla.status.isGated && !featurePreviewEnabled) {
       return const SectionDetailScaffold(section: AppSection.qibla);
     }
-    return const _QiblaCompass();
-  }
-}
-
-class _QiblaCompass extends ConsumerWidget {
-  const _QiblaCompass();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
     final location = ref.watch(worshipLocationProvider);
     final point = location.point;
     final bearing = point == null ? null : QiblaBearing.calculate(point);
@@ -68,67 +61,192 @@ class _QiblaCompass extends ConsumerWidget {
         : ref.watch(_declinationProvider(point));
     final heading = sensor?.asData?.value;
     final correction = declination?.asData?.value;
-    final live = heading != null && heading.reliable && correction != null;
+    final trueHeading =
+        heading != null && heading.reliable && correction != null
+        ? (heading.degrees + correction) % 360
+        : null;
     final l10n = context.l10n;
-    final decimal = NumberFormat.decimalPatternDigits(
-      locale: Localizations.localeOf(context).toLanguageTag(),
-      decimalDigits: 1,
+    final theme = Theme.of(context);
+    final numbers = NumberFormat.decimalPattern(
+      Localizations.localeOf(context).toLanguageTag(),
     );
-    final direction = bearing == null
-        ? null
-        : l10n.trueBearing(decimal.format(bearing));
-    final message = switch ((heading, live)) {
-      (_, true) => l10n.compassHoldFlat,
-      ((reliable: false, degrees: _), _) => l10n.compassCalibrate,
-      _ when sensor?.isLoading == true => l10n.compassWaiting,
+    final error = bearing != null && trueHeading != null
+        ? (bearing - trueHeading + 540) % 360 - 180
+        : null;
+    final message = switch (heading) {
+      (reliable: false, degrees: _) => l10n.compassCalibrate,
+      _ when error != null => l10n.compassHoldFlat,
+      _ when sensor?.isLoading == true || declination?.isLoading == true =>
+        l10n.compassWaiting,
       _ => l10n.compassUnavailable,
     };
+
     return Scaffold(
       appBar: AppBar(title: Text(l10n.sectionQiblaTitle)),
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            const WorshipLocationPicker(),
-            if (point != null && bearing != null && direction != null) ...[
-              const SizedBox(height: 24),
-              if (live)
-                Center(
-                  child: Semantics(
-                    label: direction,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Theme.of(context).colorScheme.outline,
+      body: CustomScrollView(
+        slivers: [
+          SliverResponsiveContent(
+            sliver: SliverList.list(
+              children: [
+                const WorshipLocationPicker(),
+                const SizedBox(height: AppSpacing.lg),
+                if (bearing != null) ...[
+                  if (error != null)
+                    Center(
+                      child: Chip(
+                        avatar: Icon(
+                          error.abs() < 3
+                              ? Icons.check_circle_outline
+                              : error > 0
+                              ? Icons.turn_right
+                              : Icons.turn_left,
+                        ),
+                        label: Text(
+                          error.abs() < 3
+                              ? l10n.compassAligned
+                              : error > 0
+                              ? l10n.compassTurnRight(
+                                  numbers.format(error.round()),
+                                )
+                              : l10n.compassTurnLeft(
+                                  numbers.format(error.abs().round()),
+                                ),
                         ),
                       ),
-                      child: SizedBox.square(
-                        dimension: 144,
-                        child: Transform.rotate(
-                          angle:
-                              (bearing - heading.degrees - correction) *
-                              math.pi /
-                              180,
-                          child: const Icon(Icons.navigation, size: 64),
+                    ),
+                  const SizedBox(height: AppSpacing.md),
+                  Center(
+                    child: ExcludeSemantics(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 280),
+                        child: AspectRatio(
+                          aspectRatio: 1,
+                          child: CustomPaint(
+                            painter: _CompassDial(
+                              angle: error ?? bearing,
+                              north: -(trueHeading ?? 0),
+                              colors: theme.colorScheme,
+                            ),
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ListTile(
-                title: Text(direction),
-                subtitle: Text(
-                  location.devicePoint == null
-                      ? l10n.cityBearingApproximate
-                      : l10n.deviceLocation,
-                ),
-              ),
-              Text(message),
-            ],
-          ],
-        ),
+                  const SizedBox(height: AppSpacing.md),
+                  Center(
+                    child: Text(
+                      '${numbers.format(bearing.round() % 360)}°',
+                      style: theme.textTheme.displaySmall,
+                    ),
+                  ),
+                  Text(
+                    l10n.trueBearing(numbers.format(bearing.round() % 360)),
+                    textAlign: TextAlign.center,
+                  ),
+                  if (trueHeading != null)
+                    Text(
+                      l10n.compassPhoneHeading(
+                        numbers.format(trueHeading.round() % 360),
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  if (location.devicePoint == null)
+                    Text(
+                      l10n.cityBearingApproximate,
+                      textAlign: TextAlign.center,
+                    ),
+                  const SizedBox(height: AppSpacing.md),
+                  Card(
+                    child: ListTile(
+                      leading: Icon(
+                        error == null ? Icons.info_outline : Icons.explore,
+                      ),
+                      title: Text(message),
+                    ),
+                  ),
+                ],
+                const SizedBox(height: AppSpacing.xl),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
+}
+
+/// The dial needle points to the Qibla. With no heading sample the dial
+/// remains north-up and represents a geographic bearing.
+class _CompassDial extends CustomPainter {
+  const _CompassDial({
+    required this.angle,
+    required this.north,
+    required this.colors,
+  });
+
+  final double angle;
+  final double north;
+  final ColorScheme colors;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = size.center(Offset.zero);
+    final radius = size.shortestSide / 2 - 2;
+    final paint = Paint()..color = colors.primaryContainer;
+    canvas.drawCircle(center, radius, paint);
+    paint
+      ..color = colors.outline
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1;
+    canvas.drawCircle(center, radius, paint);
+    canvas.drawCircle(center, radius * .78, paint);
+    for (var degrees = 0; degrees < 360; degrees += 10) {
+      final radians = (degrees + north) * math.pi / 180;
+      final vector = Offset(math.sin(radians), -math.cos(radians));
+      paint.strokeWidth = degrees % 30 == 0 ? 2 : 1;
+      canvas.drawLine(
+        center + vector * (radius * (degrees % 30 == 0 ? .83 : .88)),
+        center + vector * (radius * .94),
+        paint,
+      );
+    }
+    final northRadians = north * math.pi / 180;
+    final label = TextPainter(
+      text: TextSpan(
+        text: 'N',
+        style: TextStyle(color: colors.onPrimaryContainer),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    label.paint(
+      canvas,
+      center +
+          Offset(math.sin(northRadians), -math.cos(northRadians)) *
+              radius *
+              .68 -
+          Offset(label.width / 2, label.height / 2),
+    );
+    label.dispose();
+    canvas
+      ..save()
+      ..translate(center.dx, center.dy)
+      ..rotate(angle * math.pi / 180);
+    final needle = Path()
+      ..moveTo(0, -radius * .62)
+      ..lineTo(radius * .13, 0)
+      ..lineTo(0, radius * .4)
+      ..lineTo(-radius * .13, 0)
+      ..close();
+    paint
+      ..style = PaintingStyle.fill
+      ..color = colors.primary;
+    canvas.drawPath(needle, paint);
+    paint.color = colors.onPrimary;
+    canvas.drawCircle(Offset.zero, radius * .05, paint);
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(_CompassDial old) =>
+      old.angle != angle || old.north != north || old.colors != colors;
 }

@@ -7,16 +7,23 @@ import '../../../core/routing/app_sections.dart';
 import '../../../core/widgets/section_detail_scaffold.dart';
 import '../data/adhkar_catalog.dart';
 import 'adhkar_hub.dart';
+import 'dhikr_reader.dart';
+import 'quran_duas.dart';
+
+enum AdhkarDestination { hub, morning, quranDuas }
 
 /// Adhkar & dua. Gated until sources and review are complete (P02-03).
 class AdhkarScreen extends ConsumerWidget {
-  const AdhkarScreen({super.key});
+  const AdhkarScreen({this.destination = AdhkarDestination.hub, super.key});
+
+  final AdhkarDestination destination;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (AppSection.adhkar.status.isGated && !featurePreviewEnabled) {
       return const SectionDetailScaffold(section: AppSection.adhkar);
     }
+    if (destination == AdhkarDestination.quranDuas) return const QuranDuas();
     return ref
         .watch(adhkarCatalogProvider)
         .when(
@@ -30,7 +37,13 @@ class AdhkarScreen extends ConsumerWidget {
               ),
             ),
           ),
-          data: (catalog) => AdhkarHub(catalog: catalog),
+          data: (catalog) => destination == AdhkarDestination.morning
+              ? DhikrReader(
+                  group: catalog.groups.firstWhere(
+                    (group) => group.id == 'morning',
+                  ),
+                )
+              : AdhkarHub(catalog: catalog),
         );
   }
 }

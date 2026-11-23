@@ -338,13 +338,12 @@ async function displayData(
     await takeRequest();
     return catalog(lang);
   }
-  checkParams(
-    query,
-    route === "tafsir" ? ["surah", "ayah", "resource"] : ["surah", "resource"],
-  );
+  checkParams(query, ["surah", "ayah", "resource"]);
   const surah = integer(query, "surah", 114);
   const resource = integer(query, "resource", 9_999_999);
-  const requestedAyah = route === "tafsir" ? integer(query, "ayah", 286) : null;
+  const requestedAyah = route === "tafsir" || query.has("ayah")
+    ? integer(query, "ayah", 286)
+    : null;
   await takeRequest();
   const active = await catalog("ar");
   const resources = objects(
@@ -360,7 +359,7 @@ async function displayData(
   ) {
     throw new ApiError(404, "resource_unavailable");
   }
-  if (requestedAyah !== null) {
+  if (route === "tafsir") {
     const verse = `${surah}:${requestedAyah}`;
     const data = await provider(
       `/tafsirs/${resource}/by_ayah/${verse}`,
@@ -382,6 +381,9 @@ async function displayData(
   const data = await provider(
     `/chapter_recitations/${resource}/${surah}`,
     "audio",
+    requestedAyah === null
+      ? undefined
+      : new URLSearchParams({ segments: "true" }),
   );
   const audio = data.audio_file as Json | undefined;
   if (typeof audio?.audio_url !== "string" || audio.chapter_id !== surah) {
@@ -394,7 +396,21 @@ async function displayData(
   ) {
     throw new ApiError(503, "provider_unavailable");
   }
-  return { surah, resource, url: url.href };
+  const chapterAudio = { surah, resource, url: url.href };
+  if (requestedAyah === null) return chapterAudio;
+  const verse = `${surah}:${requestedAyah}`;
+  const timestamp = objects(audio.timestamps ?? []).find((row) =>
+    row.verse_key === verse
+  );
+  const startMs = timestamp?.timestamp_from;
+  if (
+    typeof startMs !== "number" || !Number.isSafeInteger(startMs) ||
+    startMs < 0 || (typeof audio.duration === "number" && audio.duration > 0 &&
+      startMs >= audio.duration)
+  ) {
+    throw new ApiError(404, "verse_timing_unavailable");
+  }
+  return { ...chapterAudio, verse, start_ms: startMs };
 }
 
 export async function handleRequest(request: Request): Promise<Response> {

@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 850 195">
- <rect width="850" height="195" rx="24" fill="#F8F5ED"/>
- <g transform="translate(12 10) scale(.69)">
- <path d="M37 146 C27 122 59 80 110 62 C162 43 220 65 222 102 C222 121 209 140 193 154" fill="none" stroke="#C7A86D" stroke-width="9"/>
- <path d="M41 181 Q76 169 126 202 Q177 169 215 181 L207 191 Q161 183 126 217 Q89 184 49 191Z" fill="#C7A86D"/>
- <path d="M124 122 Q94 95 56 99 L46 171 Q88 162 124 196Z M132 122 Q162 95 200 99 L210 171 Q168 162 132 196Z" fill="#173F39"/>
+ <rect width="850" height="195" rx="24" fill="#F5F0E6"/>
+ <g transform="translate(12 10) scale(.69) scale(2)">
+ <path d="M105.033 34 A52 52 0 1 1 86 14.967" fill="none" stroke="#0F4A43" stroke-width="3"/>
+ <path d="M37 37H83V83H37Z M60 27.473L92.527 60 60 92.527 27.473 60Z" fill="none" stroke="#0F4A43" stroke-width="3.5"/>
+ <circle cx="96.8" cy="23.2" r="6" fill="#0F4A43"/>
+ <circle cx="60" cy="60" r="8" fill="#0F4A43"/>
  </g>
- <text x="795" y="117" direction="rtl" text-anchor="start" unicode-bidi="plaintext" font-family="Reem Kufi, sans-serif" font-weight="600" font-size="74" fill="#173F39">مدار الهدى</text>
- <text x="794" y="160" direction="rtl" text-anchor="start" unicode-bidi="plaintext" font-family="IBM Plex Sans Arabic, sans-serif" font-size="21" fill="#263B38">القرآن والعلم والعبادة في مكان واحد</text>
+ <text x="795" y="117" direction="rtl" text-anchor="start" unicode-bidi="plaintext" font-family="Reem Kufi, sans-serif" font-weight="600" font-size="74" fill="#0F4A43">مدار الهدى</text>
+ <text x="794" y="160" direction="rtl" text-anchor="start" unicode-bidi="plaintext" font-family="IBM Plex Sans Arabic, sans-serif" font-size="21" fill="#12332F">القرآن والعلم والعبادة في مكان واحد</text>
 </svg>

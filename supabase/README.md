@@ -6,7 +6,7 @@ The Android preview uses the `quran` Edge Function. Offline reading uses the sep
 | --- | --- | --- |
 | `catalog` | `lang` (`ar` or `en`) | Chapter IDs, verse counts, tafsir and chapter-reciter choices |
 | `tafsir` | `surah`, `ayah`, `resource` | Source-identified tafsir for the requested verse, rendered as text |
-| `recitation` | `surah`, `resource` | Source-identified HTTPS stream URL |
+| `recitation` | `surah`, `resource`, optional `ayah` | Source-identified HTTPS stream URL and, when requested and available, the verified verse start in milliseconds |
 
 ## Configuration
 
@@ -25,3 +25,5 @@ The connected prelive project returned Ibn Kathir (Abridged) in English and Mish
 Use `MADAR_CHANNEL=preview` for a side-by-side Android test package. Pass the public Supabase client settings described above when building this APK. The package uses the same Edge URL when an approved production account is later configured on the server.
 
 The Mobile CI debug job reads the two public Android settings from GitHub Actions repository variables of the same names. When configured, it builds the side-by-side preview as its APK artifact. Keep provider credentials and service-role keys in Supabase Secrets.
+
+Production function version 8 returned the 114 chapters, Tafsir Ibn Kathir for 112:1, and Maher Al-Muaiqly's chapter recording for Al-Ikhlas. The ayah operation returned the same recording with verse 112:2 at 12,310 ms. A recording without timings still supports chapter playback. [Chapter audio and timestamps](https://api-docs.quran.com/docs/content_apis_versioned/4.0.0/chapter-reciter-audio-file/)

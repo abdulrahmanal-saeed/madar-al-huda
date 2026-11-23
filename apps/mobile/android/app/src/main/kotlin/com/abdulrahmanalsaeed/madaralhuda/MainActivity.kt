@@ -1,6 +1,7 @@
 package com.abdulrahmanalsaeed.madaralhuda
 
 import android.content.Context
+import android.content.Intent
 import android.hardware.GeomagneticField
 import android.hardware.Sensor
 import android.hardware.SensorEvent
@@ -20,6 +21,21 @@ class MainActivity : AudioServiceActivity() {
         super.configureFlutterEngine(flutterEngine)
         val messenger = flutterEngine.dartExecutor.binaryMessenger
         EventChannel(messenger, "madar/compass").setStreamHandler(compass)
+        MethodChannel(messenger, "madar/share").setMethodCallHandler { call, result ->
+            val text = call.arguments as? String
+            if (call.method != "shareText") {
+                result.notImplemented()
+            } else if (text.isNullOrBlank()) {
+                result.error("empty_text", "No text to share", null)
+            } else {
+                val send = Intent(Intent.ACTION_SEND).apply {
+                    type = "text/plain"
+                    putExtra(Intent.EXTRA_TEXT, text)
+                }
+                startActivity(Intent.createChooser(send, null))
+                result.success(null)
+            }
+        }
         MethodChannel(messenger, "madar/geomagnetic").setMethodCallHandler { call, result ->
             if (call.method != "declination") {
                 result.notImplemented()
@@ -54,6 +70,7 @@ class MainActivity : AudioServiceActivity() {
         val messenger = flutterEngine.dartExecutor.binaryMessenger
         EventChannel(messenger, "madar/compass").setStreamHandler(null)
         MethodChannel(messenger, "madar/geomagnetic").setMethodCallHandler(null)
+        MethodChannel(messenger, "madar/share").setMethodCallHandler(null)
         super.cleanUpFlutterEngine(flutterEngine)
     }
 

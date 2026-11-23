@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart' show NumberFormat;
 import 'package:material_ui/material_ui.dart';
@@ -9,8 +10,9 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../core/content/feature_preview.dart';
 import '../../../core/localization/l10n_extension.dart';
 import '../../../core/routing/app_sections.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/section_detail_scaffold.dart';
-import '../../../core/widgets/settings_button.dart';
+import '../../worship/data/daily_reading_plan.dart';
 import '../data/local_quran_bookmarks.dart';
 import '../data/mushaf_edition.dart';
 import '../data/quran_services.dart';
@@ -137,6 +139,15 @@ class _ReaderState extends ConsumerState<_Reader> {
         }
       }
       if (!mounted || first == _current) return;
+      final previousPage = widget.edition.pageOf(_current);
+      if (widget.edition.pageOf(first) == previousPage + 1) {
+        unawaited(
+          ref
+              .read(dailyReadingPlanProvider.notifier)
+              .completePage(previousPage + 1)
+              .catchError((Object _) {}),
+        );
+      }
       setState(() {
         _current = first;
         _selected = null;
@@ -148,6 +159,7 @@ class _ReaderState extends ConsumerState<_Reader> {
   Future<void> _save(AyahRef verse) async {
     try {
       await ref.read(quranPositionProvider).saveLastRead(verse);
+      if (mounted) ref.invalidate(lastReadingPositionProvider);
     } catch (_) {
       // A storage failure must leave the open reading session usable.
     }
@@ -189,9 +201,22 @@ class _ReaderState extends ConsumerState<_Reader> {
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
-      builder: (_) => FractionallySizedBox(
-        heightFactor: .84,
-        child: MushafIndex(edition: widget.edition, bookmarks: bookmarks),
+      showDragHandle: true,
+      builder: (context) => FractionallySizedBox(
+        heightFactor: .95,
+        child: Scaffold(
+          resizeToAvoidBottomInset: true,
+          appBar: AppBar(
+            automaticallyImplyLeading: false,
+            title: Text(context.l10n.navQuran),
+            actions: [const CloseButton()],
+          ),
+          body: MushafIndex(
+            edition: widget.edition,
+            bookmarks: bookmarks,
+            current: _current,
+          ),
+        ),
       ),
     );
     if (mounted && selected != null) _navigate(selected);
@@ -263,11 +288,20 @@ class _ReaderState extends ConsumerState<_Reader> {
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
+      showDragHandle: true,
       builder: (_) => FractionallySizedBox(
-        heightFactor: .82,
+        heightFactor: .72,
         child: _TafsirSheet(
           verse: verse,
+          verseText: widget.edition.verses[widget.edition.indexOf(verse)].text,
+          surahName: widget.edition.surahs[verse.surah - 1].name(
+            Localizations.localeOf(context).languageCode,
+          ),
           resources: resources,
+          surah: widget.edition.surahs[verse.surah - 1],
+          reciters: _matches(catalog, verse.surah)
+              ? catalog!.reciters
+              : const <QuranResource>[],
           chapterCount: widget.edition.surahs[verse.surah - 1].verses.length,
         ),
       ),
@@ -284,9 +318,32 @@ class _ReaderState extends ConsumerState<_Reader> {
     final surah = widget.edition.surahs[_current.surah - 1];
     final matched = _matches(data, surah.id);
     final reciters = matched ? data!.reciters : const <QuranResource>[];
+    final numbers = NumberFormat.decimalPattern(language);
+    final edition = widget.edition;
     return Scaffold(
       appBar: AppBar(
-        title: Text(surah.name(language)),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(surah.name(language)),
+            Text(
+              l10n.readerPageMeta(
+                l10n.readerJuzLabel(
+                  numbers.format(edition.juzOf(_current) + 1),
+                ),
+                l10n.readerHizbLabel(
+                  numbers.format(edition.hizbOf(_current) + 1),
+                ),
+                l10n.readerPageLabel(
+                  numbers.format(edition.pageOf(_current) + 1),
+                ),
+                numbers.format(edition.pageStarts.length),
+              ),
+              style: Theme.of(context).textTheme.labelSmall,
+              maxLines: 2,
+            ),
+          ],
+        ),
         actions: [
           IconButton(
             tooltip: l10n.readerGoToVerse,
@@ -298,27 +355,26 @@ class _ReaderState extends ConsumerState<_Reader> {
             onPressed: _chooseIndex,
             icon: const Icon(Icons.list_alt),
           ),
-          const SettingsButton(),
+          PopupMenuButton<Uri>(
+            tooltip: l10n.readerSources,
+            onSelected: launchUrl,
+            itemBuilder: (_) => [
+              PopupMenuItem(
+                value: Uri.https('tanzil.net'),
+                child: Text(l10n.readerTanzil),
+              ),
+              if (matched && (data!.tafsirs.isNotEmpty || reciters.isNotEmpty))
+                PopupMenuItem(
+                  value: Uri.https('quran.foundation'),
+                  child: Text(l10n.readerQuranFoundation),
+                ),
+            ],
+          ),
         ],
       ),
       body: SafeArea(
         child: Column(
           children: [
-            Wrap(
-              alignment: WrapAlignment.center,
-              children: [
-                TextButton(
-                  onPressed: () => launchUrl(Uri.https('tanzil.net')),
-                  child: Text(l10n.readerTanzil),
-                ),
-                if (matched &&
-                    (data!.tafsirs.isNotEmpty || reciters.isNotEmpty))
-                  TextButton(
-                    onPressed: () => launchUrl(Uri.https('quran.foundation')),
-                    child: Text(l10n.readerQuranFoundation),
-                  ),
-              ],
-            ),
             Expanded(
               child: ScrollablePositionedList.builder(
                 initialScrollIndex: _initialPage,
@@ -359,11 +415,7 @@ class _ReaderState extends ConsumerState<_Reader> {
                   ),
                 ],
               ),
-            RecitationPlayer(
-              surah: surah,
-              reciters: reciters,
-              language: language,
-            ),
+            RecitationPlayer(surah: surah, reciters: reciters),
           ],
         ),
       ),
@@ -429,10 +481,18 @@ class _VerseDialogState extends State<_VerseDialog> {
 class _TafsirSheet extends ConsumerStatefulWidget {
   const _TafsirSheet({
     required this.verse,
+    required this.verseText,
+    required this.surahName,
+    required this.surah,
+    required this.reciters,
     required this.resources,
     required this.chapterCount,
   });
   final AyahRef verse;
+  final String verseText;
+  final String surahName;
+  final MushafSurah surah;
+  final List<QuranResource> reciters;
   final List<QuranResource> resources;
   final int chapterCount;
 
@@ -455,6 +515,29 @@ class _TafsirSheetState extends ConsumerState<_TafsirSheet> {
   void _load(QuranResource resource) {
     _resource = resource;
     _text = ref.read(quranApiProvider).tafsir(widget.verse, resource.id);
+  }
+
+  Future<void> _copy() async {
+    await Clipboard.setData(ClipboardData(text: widget.verseText));
+    if (mounted) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(context.l10n.readerCopied)));
+    }
+  }
+
+  Future<void> _share() async {
+    try {
+      await const MethodChannel('madar/share').invokeMethod<void>(
+        'shareText',
+        '${widget.verseText}\n${widget.surahName} ${widget.verse.surah}:${widget.verse.ayah}',
+      );
+    } on Exception {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(context.l10n.readerShareFailed)));
+      }
+    }
   }
 
   Future<void> _toggleBookmark(QuranBookmark? bookmark) async {
@@ -482,6 +565,7 @@ class _TafsirSheetState extends ConsumerState<_TafsirSheet> {
         ?.where((item) => item.ref == widget.verse)
         .firstOrNull;
     final verse = widget.verse;
+    final reciter = selectedReciter(ref, widget.reciters);
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -491,9 +575,7 @@ class _TafsirSheetState extends ConsumerState<_TafsirSheet> {
             children: [
               Expanded(
                 child: Text(
-                  _showMeaning
-                      ? l10n.readerEnglishMeaning
-                      : l10n.readerTafsirFor(verse.ayah),
+                  '${widget.surahName} · ${l10n.readerTafsirFor(verse.ayah)}',
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
               ),
@@ -505,32 +587,45 @@ class _TafsirSheetState extends ConsumerState<_TafsirSheet> {
                   onPressed: () => setState(() => _showMeaning = !_showMeaning),
                   icon: const Icon(Icons.translate),
                 ),
-              IconButton(
-                tooltip: bookmark == null
-                    ? l10n.readerAddBookmark
-                    : l10n.readerRemoveBookmark,
-                onPressed: () => _toggleBookmark(bookmark),
-                icon: Icon(
-                  bookmark == null ? Icons.bookmark_border : Icons.bookmark,
-                ),
-              ),
+              const CloseButton(),
             ],
           ),
           if (!_showMeaning && _resource != null)
-            DropdownButton<QuranResource>(
-              isExpanded: true,
-              value: _resource,
-              items: [
-                for (final resource in widget.resources)
-                  DropdownMenuItem(value: resource, child: Text(resource.name)),
-              ],
-              onChanged: (resource) {
-                if (resource != null) setState(() => _load(resource));
-              },
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  for (final resource in widget.resources)
+                    Padding(
+                      padding: const EdgeInsetsDirectional.only(end: 8),
+                      child: ChoiceChip(
+                        label: Text(resource.name),
+                        selected: _resource == resource,
+                        onSelected: (_) => setState(() => _load(resource)),
+                      ),
+                    ),
+                ],
+              ),
             ),
           Expanded(
             child: ListView(
               children: [
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Text(
+                      widget.verseText,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                      textDirection: TextDirection.rtl,
+                      style: const TextStyle(
+                        fontFamily: AppTheme.quranFontFamily,
+                        fontSize: 22,
+                        height: 1.75,
+                      ),
+                    ),
+                  ),
+                ),
                 if (_showMeaning)
                   QuranMeaningView(
                     surah: verse.surah,
@@ -570,6 +665,42 @@ class _TafsirSheetState extends ConsumerState<_TafsirSheet> {
                   ),
               ],
             ),
+          ),
+          Wrap(
+            spacing: 4,
+            children: [
+              IconButton(
+                tooltip: bookmark == null
+                    ? l10n.readerAddBookmark
+                    : l10n.readerRemoveBookmark,
+                onPressed: () => _toggleBookmark(bookmark),
+                icon: Icon(
+                  bookmark == null ? Icons.bookmark_border : Icons.bookmark,
+                ),
+              ),
+              if (reciter != null)
+                IconButton(
+                  tooltip: l10n.readerListenFromVerse,
+                  icon: const Icon(Icons.play_circle_outline),
+                  onPressed: () => playRecitation(
+                    context,
+                    ref,
+                    surah: widget.surah,
+                    resource: reciter,
+                    verse: verse,
+                  ),
+                ),
+              IconButton(
+                tooltip: l10n.readerCopy,
+                onPressed: _copy,
+                icon: const Icon(Icons.copy_outlined),
+              ),
+              IconButton(
+                tooltip: l10n.readerShare,
+                onPressed: _share,
+                icon: const Icon(Icons.share_outlined),
+              ),
+            ],
           ),
           if (!_showMeaning && _resource != null)
             TextButton(

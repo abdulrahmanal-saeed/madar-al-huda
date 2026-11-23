@@ -1,54 +1,41 @@
+import 'dart:math' as math;
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart' show NumberFormat;
 import 'package:material_ui/material_ui.dart';
 
+import '../../../core/content/feature_preview.dart';
 import '../../../core/localization/l10n_extension.dart';
 import '../../../core/routing/app_routes.dart';
+import '../../../core/routing/app_sections.dart';
+import '../../../core/widgets/section_detail_scaffold.dart';
 import '../../quran/data/mushaf_edition.dart';
 import '../../quran/domain/quran_search_text.dart';
-import '../../quran/domain/quran_storage_contracts.dart';
 import '../data/daily_reading_plan.dart';
 
 class DailyReadingCard extends StatelessWidget {
   const DailyReadingCard({super.key});
-
-  Future<void> _open(BuildContext context) async {
-    final verse = await showModalBottomSheet<AyahRef>(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      showDragHandle: true,
-      builder: (_) => const _DailyReadingSheet(),
-    );
-    if (verse == null || !context.mounted) return;
-    context.go(
-      Uri(
-        path: AppRoutes.quran,
-        queryParameters: {'surah': '${verse.surah}', 'ayah': '${verse.ayah}'},
-      ).toString(),
-    );
-  }
 
   @override
   Widget build(BuildContext context) => Card(
     child: ListTile(
       leading: const Icon(Icons.menu_book_outlined),
       title: Text(context.l10n.dailyReadingTitle),
-      trailing: const Icon(Icons.arrow_forward_ios),
-      onTap: () => _open(context),
+      trailing: const Icon(Icons.chevron_right),
+      onTap: () => context.push(AppRoutes.dailyReading),
     ),
   );
 }
 
-class _DailyReadingSheet extends ConsumerStatefulWidget {
-  const _DailyReadingSheet();
+class DailyReadingScreen extends ConsumerStatefulWidget {
+  const DailyReadingScreen({super.key});
 
   @override
-  ConsumerState<_DailyReadingSheet> createState() => _DailyReadingSheetState();
+  ConsumerState<DailyReadingScreen> createState() => _DailyReadingScreenState();
 }
 
-class _DailyReadingSheetState extends ConsumerState<_DailyReadingSheet> {
+class _DailyReadingScreenState extends ConsumerState<DailyReadingScreen> {
   final _paceForm = GlobalKey<FormState>();
   bool _saving = false;
   bool _saveFailed = false;
@@ -135,72 +122,133 @@ class _DailyReadingSheetState extends ConsumerState<_DailyReadingSheet> {
       numbers.format(plan.pagesRead),
       numbers.format(total),
     );
-    return SafeArea(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    if (AppSection.mushaf.status.isGated && !featurePreviewEnabled) {
+      return const SectionDetailScaffold(section: AppSection.mushaf);
+    }
+
+    void openPage(int page) {
+      if (edition == null) return;
+      final verse = edition.verses[edition.pageStarts[page - 1]].ref;
+      context.go(AppRoutes.verse(verse.surah, verse.ayah));
+    }
+
+    final pace = plan.pagesPerSession;
+    final next = plan.pagesRead + 1;
+    final end = plan.endPage(total);
+    final theme = Theme.of(context);
+    return Scaffold(
+      appBar: AppBar(title: Text(l10n.dailyReadingTitle)),
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.all(20),
           children: [
-            Text(
-              l10n.dailyReadingTitle,
-              style: Theme.of(context).textTheme.titleLarge,
+            Card(
+              color: theme.colorScheme.primaryContainer,
+              child: ListTile(
+                contentPadding: const EdgeInsets.all(16),
+                leading: SizedBox.square(
+                  dimension: 42,
+                  child: CircularProgressIndicator(
+                    value: plan.pagesRead / total,
+                    semanticsLabel: progress,
+                  ),
+                ),
+                title: Text(l10n.dailyReadingCurrentPlan),
+                subtitle: Text(progress),
+              ),
             ),
             const SizedBox(height: 12),
-            Text(progress),
-            LinearProgressIndicator(value: plan.pagesRead / total),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.dailyReadingPaceLabel,
+                      style: theme.textTheme.titleMedium,
+                    ),
+                    if (!completed)
+                      Text(
+                        l10n.dailyReadingRemaining(
+                          numbers.format(plan.remainingSessions(total)),
+                        ),
+                      ),
+                    Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        IconButton(
+                          tooltip: l10n.decreaseReadingPace,
+                          onPressed: _saving || pace == 1
+                              ? null
+                              : () => _save(() => controller.setPace(pace - 1)),
+                          icon: const Icon(Icons.remove_circle_outline),
+                        ),
+                        TextButton(
+                          onPressed: _saving
+                              ? null
+                              : () => _editPace(pace, numbers),
+                          child: Text(
+                            numbers.format(pace),
+                            style: theme.textTheme.titleLarge,
+                          ),
+                        ),
+                        IconButton(
+                          tooltip: l10n.increaseReadingPace,
+                          onPressed: _saving || pace == total
+                              ? null
+                              : () => _save(() => controller.setPace(pace + 1)),
+                          icon: const Icon(Icons.add_circle_outline),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
             const SizedBox(height: 12),
-            if (completed)
-              Text(l10n.dailyReadingCompleted)
-            else ...[
+            if (_saveFailed) Text(l10n.localSaveFailed),
+            if (completed) ...[
+              Text(l10n.dailyReadingCompleted),
+              FilledButton(
+                onPressed: _saving ? null : () => _save(controller.startAgain),
+                child: Text(l10n.dailyReadingRestart),
+              ),
+            ] else ...[
+              Text(
+                l10n.dailyReadingTodaysWird,
+                style: theme.textTheme.titleMedium,
+              ),
               Text(
                 l10n.dailyReadingRange(
-                  numbers.format(plan.pagesRead + 1),
-                  numbers.format(plan.endPage(total)),
+                  numbers.format(next),
+                  numbers.format(end),
                 ),
               ),
-              Text(
-                l10n.dailyReadingRemaining(
-                  numbers.format(plan.remainingSessions(total)),
-                ),
+              Wrap(
+                spacing: 6,
+                children: [
+                  for (var page = next; page <= math.min(end, next + 6); page++)
+                    ActionChip(
+                      label: Text(l10n.readerPageLabel(numbers.format(page))),
+                      onPressed: edition == null ? null : () => openPage(page),
+                    ),
+                ],
+              ),
+              FilledButton.icon(
+                onPressed: edition == null || _saving
+                    ? null
+                    : () => openPage(next),
+                icon: const Icon(Icons.menu_book_outlined),
+                label: Text(l10n.dailyReadingNextPage(numbers.format(next))),
+              ),
+              OutlinedButton(
+                onPressed: _saving
+                    ? null
+                    : () => _save(controller.completeSession),
+                child: Text(l10n.dailyReadingMarkRead),
               ),
             ],
-            if (_saveFailed) Text(l10n.localSaveFailed),
-            Wrap(
-              spacing: 8,
-              children: [
-                TextButton(
-                  onPressed: _saving
-                      ? null
-                      : () => _editPace(plan.pagesPerSession, numbers),
-                  child: Text(l10n.dailyReadingEdit),
-                ),
-                if (completed)
-                  FilledButton(
-                    onPressed: _saving
-                        ? null
-                        : () => _save(controller.startAgain),
-                    child: Text(l10n.dailyReadingRestart),
-                  )
-                else ...[
-                  FilledButton(
-                    onPressed: edition == null || _saving
-                        ? null
-                        : () {
-                            final index = edition.pageStarts[plan.pagesRead];
-                            Navigator.of(context)
-                                .pop(edition.verses[index].ref);
-                          },
-                    child: Text(l10n.dailyReadingOpen),
-                  ),
-                  OutlinedButton(
-                    onPressed: _saving
-                        ? null
-                        : () => _save(controller.completeSession),
-                    child: Text(l10n.dailyReadingMarkRead),
-                  ),
-                ],
-              ],
-            ),
           ],
         ),
       ),

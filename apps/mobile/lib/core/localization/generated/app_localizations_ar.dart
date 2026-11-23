@@ -138,10 +138,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get splashContinue => 'الدخول إلى التطبيق';
 
   @override
-  String get navHome => 'الرئيسية';
+  String get navHome => 'اليوم';
 
   @override
-  String get navQuran => 'القرآن';
+  String get navQuran => 'المصحف';
 
   @override
   String get navWorship => 'العبادات';
@@ -720,4 +720,175 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get dailyReadingMarkRead => 'سجّل قراءة الورد';
+
+  @override
+  String get navAdhkar => 'الأذكار';
+
+  @override
+  String get navPrayer => 'الصلاة';
+
+  @override
+  String get prayerCalculationMethod => 'طريقة الحساب';
+
+  @override
+  String get prayerAsrCalculation => 'حساب العصر';
+
+  @override
+  String prayerMinutesLeft(String minutes) {
+    return 'بعد $minutes د';
+  }
+
+  @override
+  String prayerHoursLeft(String hours, String minutes) {
+    return 'بعد $hours س $minutes د';
+  }
+
+  @override
+  String get compassAligned => 'أنت باتجاه القبلة';
+
+  @override
+  String compassTurnRight(String angle) {
+    return 'لِف لليمين · $angle°';
+  }
+
+  @override
+  String compassTurnLeft(String angle) {
+    return 'لِف لليسار · $angle°';
+  }
+
+  @override
+  String compassPhoneHeading(String angle) {
+    return 'اتجاه الهاتف $angle°';
+  }
+
+  @override
+  String get readerLastPosition => 'آخر موضع قراءة';
+
+  @override
+  String readerPosition(String surah, String verse, String page) {
+    return '$surah · الآية $verse · ص $page';
+  }
+
+  @override
+  String readerPageMeta(String juz, String hizb, String page, String total) {
+    return '$juz · $hizb · $page من $total';
+  }
+
+  @override
+  String get readerPageInput => 'رقم الصفحة (١–٦٠٤)';
+
+  @override
+  String get readerPageInvalid => 'أدخل رقم صفحة من ١ إلى ٦٠٤.';
+
+  @override
+  String get readerIndexScroll => 'صفحات المصحف متصلة رأسيًا.';
+
+  @override
+  String readerIndexVerseCount(String count) {
+    return '$count آية';
+  }
+
+  @override
+  String get readerCopy => 'نسخ الآية';
+
+  @override
+  String get readerCopied => 'تم نسخ الآية';
+
+  @override
+  String get readerShare => 'مشاركة الآية';
+
+  @override
+  String get readerShareFailed => 'تعذّرت مشاركة الآية.';
+
+  @override
+  String get readerListenChapter => 'استمع للسورة';
+
+  @override
+  String get readerListenFromVerse => 'استمع من هنا';
+
+  @override
+  String get readerVerseAudioUnavailable =>
+      'التوقيت غير متاح لهذه الآية في هذه التلاوة.';
+
+  @override
+  String get readerSources => 'مصادر القراءة';
+
+  @override
+  String get homeContinueReading => 'استكمل القراءة';
+
+  @override
+  String homeOpenPage(String number) {
+    return 'افتح الصفحة $number';
+  }
+
+  @override
+  String get homeReadQuran => 'افتح المصحف';
+
+  @override
+  String get homeDuaOfDay => 'دعاء اليوم';
+
+  @override
+  String get homeMorning => 'أذكار الصباح';
+
+  @override
+  String get homeWird => 'الورد';
+
+  @override
+  String get homeOpenPrayer => 'حدّد موقعك للصلاة';
+
+  @override
+  String get radioLive => 'مباشر';
+
+  @override
+  String get radioCairo => 'من القاهرة · بث مباشر';
+
+  @override
+  String get hadithGradeTitle => 'الدرجة';
+
+  @override
+  String get hadithSourceTitle => 'المصدر';
+
+  @override
+  String get hadithExplanationTitle => 'الشرح';
+
+  @override
+  String get hadithAddFavorite => 'أضف إلى المفضلة';
+
+  @override
+  String get hadithRemoveFavorite => 'إزالة من المفضلة';
+
+  @override
+  String get hadithFavoritesTitle => 'الأحاديث المفضلة';
+
+  @override
+  String get hadithNoFavorites => 'مفيش أحاديث في المفضلة لسه.';
+
+  @override
+  String get libraryAcademy => 'الأكاديمية';
+
+  @override
+  String get libraryStories => 'قصص الأنبياء';
+
+  @override
+  String get libraryMore => 'الكل';
+
+  @override
+  String get dailyReadingCurrentPlan => 'الختمة الحالية';
+
+  @override
+  String dailyReadingNextPage(String page) {
+    return 'افتح الصفحة التالية · $page';
+  }
+
+  @override
+  String get dailyReadingTodaysWird => 'ورد اليوم';
+
+  @override
+  String get decreaseReadingPace => 'تقليل عدد الصفحات';
+
+  @override
+  String get increaseReadingPace => 'زيادة عدد الصفحات';
+
+  @override
+  String get homeApproximateHijriDate => 'التاريخ الهجري الحسابي التقريبي';
 }

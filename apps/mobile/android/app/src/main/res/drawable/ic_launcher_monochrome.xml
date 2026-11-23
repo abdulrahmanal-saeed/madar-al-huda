@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Android themed-icon monochrome source; system tint applies. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
- android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
- <path android:strokeColor="#FFFFFFFF" android:strokeWidth="3.2"
-   android:strokeLineCap="round" android:fillColor="#00000000"
-   android:pathData="M22,61 C18,51 32,34 53,27 C75,20 92,31 92,44 C92,52 86,58 80,63"/>
- <path android:fillColor="#FFFFFFFF"
-   android:pathData="M21,75 Q37,70 53,84 Q69,70 86,75 L83,80 Q65,77 53,90 Q41,78 24,80Z"/>
- <path android:fillColor="#FFFFFFFF"
-   android:pathData="M52,52 Q40,41 28,43 L24,72 Q41,68 52,82Z"/>
- <path android:fillColor="#FFFFFFFF"
-   android:pathData="M56,52 Q68,41 80,43 L84,72 Q67,68 56,82Z"/>
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <group android:scaleX="0.59" android:scaleY="0.59"
+        android:translateX="18.6" android:translateY="18.6">
+        <path android:fillColor="#00000000" android:strokeColor="#FFFFFFFF"
+            android:strokeWidth="3" android:pathData="M105.033 34 A52 52 0 1 1 86 14.967" />
+        <path android:fillColor="#00000000" android:strokeColor="#FFFFFFFF"
+            android:strokeWidth="3.5" android:pathData="M37 37H83V83H37Z M60 27.473L92.527 60 60 92.527 27.473 60Z" />
+        <path android:fillColor="#FFFFFFFF"
+            android:pathData="M90.8,23.2a6,6 0 1,0 12,0a6,6 0 1,0 -12,0Z M52,60a8,8 0 1,0 16,0a8,8 0 1,0 -16,0Z" />
+    </group>
 </vector>

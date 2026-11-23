@@ -54,6 +54,8 @@ class MushafEdition {
 
   int juzOf(AyahRef ref) => _partitionOf(indexOf(ref), juzStarts);
 
+  int hizbOf(AyahRef ref) => _partitionOf(indexOf(ref), hizbStarts);
+
   List<MushafVerse> page(int index) => verses.sublist(
     pageStarts[index],
     index + 1 < pageStarts.length ? pageStarts[index + 1] : verses.length,

@@ -13,10 +13,12 @@ class MushafIndex extends StatefulWidget {
     super.key,
     required this.edition,
     required this.bookmarks,
+    required this.current,
   });
 
   final MushafEdition edition;
   final List<QuranBookmark> bookmarks;
+  final AyahRef current;
 
   @override
   State<MushafIndex> createState() => _MushafIndexState();
@@ -25,6 +27,26 @@ class MushafIndex extends StatefulWidget {
 class _MushafIndexState extends State<MushafIndex> {
   _Index _index = _Index.surahs;
   String _query = '';
+  String _page = '';
+  bool _invalidPage = false;
+  final _searchInput = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchInput.dispose();
+    super.dispose();
+  }
+
+  void _openPage() {
+    final edition = widget.edition;
+    final number = int.tryParse(quranSearchText(_page));
+    if (number == null || number < 1 || number > edition.pageStarts.length) {
+      setState(() => _invalidPage = true);
+      return;
+    }
+    Navigator.pop(context, edition.verses[edition.pageStarts[number - 1]].ref);
+  }
+
   List<MushafVerse> _results = [];
   void _search(String text) {
     final query = quranSearchText(text);
@@ -57,6 +79,7 @@ class _MushafIndexState extends State<MushafIndex> {
     }
     setState(() {
       _query = query;
+      _index = query.isEmpty ? _Index.surahs : _Index.search;
       _results = results.take(150).toList();
     });
   }
@@ -73,7 +96,6 @@ class _MushafIndexState extends State<MushafIndex> {
       _Index.hizbs: l10n.readerHizbs,
       _Index.pages: l10n.readerPages,
       _Index.bookmarks: l10n.readerBookmarks,
-      _Index.search: l10n.readerSearch,
     };
     final starts = switch (_index) {
       _Index.surahs => edition.surahStarts,
@@ -95,28 +117,76 @@ class _MushafIndexState extends State<MushafIndex> {
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: DropdownButton<_Index>(
-            isExpanded: true,
-            value: _index,
-            items: [
-              for (final option in options.entries)
-                DropdownMenuItem(value: option.key, child: Text(option.value)),
-            ],
-            onChanged: (value) {
-              if (value != null) setState(() => _index = value);
-            },
+          child: TextField(
+            controller: _searchInput,
+            decoration: InputDecoration(
+              prefixIcon: const Icon(Icons.search),
+              labelText: l10n.readerSearch,
+              helperText: l10n.readerSearchHint,
+              helperMaxLines: 2,
+            ),
+            onChanged: _search,
           ),
         ),
-        if (_index == _Index.search)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: TextFormField(
-              initialValue: _query,
-              decoration: InputDecoration(
-                prefixIcon: const Icon(Icons.search),
-                labelText: l10n.readerSearchHint,
+        Card(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: ListTile(
+            leading: const Icon(Icons.history),
+            title: Text(l10n.readerLastPosition),
+            subtitle: Text(
+              l10n.readerPosition(
+                edition.surahs[widget.current.surah - 1].name(language),
+                numbers.format(widget.current.ayah),
+                numbers.format(edition.pageOf(widget.current) + 1),
               ),
-              onChanged: _search,
+            ),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => Navigator.pop(context, widget.current),
+          ),
+        ),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              for (final option in options.entries)
+                Padding(
+                  padding: const EdgeInsetsDirectional.only(end: 8),
+                  child: ChoiceChip(
+                    label: Text(option.value),
+                    selected: _index == option.key,
+                    onSelected: (_) {
+                      _searchInput.clear();
+                      setState(() => _index = option.key);
+                    },
+                  ),
+                ),
+            ],
+          ),
+        ),
+        if (_index == _Index.pages)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: TextField(
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      labelText: l10n.readerPageInput,
+                      errorText: _invalidPage ? l10n.readerPageInvalid : null,
+                    ),
+                    onChanged: (value) => setState(() {
+                      _page = value;
+                      _invalidPage = false;
+                    }),
+                    onSubmitted: (_) => _openPage(),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                FilledButton(onPressed: _openPage, child: Text(l10n.readerGo)),
+              ],
             ),
           ),
         Expanded(
@@ -152,12 +222,25 @@ class _MushafIndexState extends State<MushafIndex> {
                         overflow: TextOverflow.ellipsis,
                         textDirection: TextDirection.rtl,
                       ),
-                      _Index.surahs => null,
+                      _Index.surahs => Text(
+                        l10n.readerIndexVerseCount(
+                          numbers.format(
+                            edition.surahs[ref.surah - 1].verses.length,
+                          ),
+                        ),
+                      ),
                       _ => Text('$surah · ${numbers.format(ref.ayah)}'),
                     };
                     return ListTile(
                       title: Text(title),
                       subtitle: subtitle,
+                      trailing: _index == _Index.pages
+                          ? null
+                          : Text(
+                              l10n.readerPageLabel(
+                                numbers.format(edition.pageOf(ref) + 1),
+                              ),
+                            ),
                       onTap: () => Navigator.pop(context, ref),
                     );
                   },

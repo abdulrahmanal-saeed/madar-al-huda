@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
+import 'package:intl/intl.dart' show NumberFormat;
 import 'package:madar_al_huda/core/localization/app_locales.dart';
 import 'package:madar_al_huda/core/routing/app_routes.dart';
 import 'package:madar_al_huda/core/storage/key_value_store.dart';
@@ -15,6 +16,33 @@ import 'package:material_ui/material_ui.dart';
 import '../../helpers/pump_app.dart';
 
 void main() {
+  testWidgets('Arabic page input reaches the last page without network', (
+    tester,
+  ) async {
+    const locale = Locale('ar');
+    final l10n = lookupAppLocalizations(locale);
+    await pumpMadarApp(
+      tester,
+      deviceLocales: const [locale],
+      initialLocation: AppRoutes.quran,
+    );
+    await tester.tap(find.byTooltip(l10n.readerIndex));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(ChoiceChip, l10n.readerPages));
+    await tester.pumpAndSettle();
+    final number = find.widgetWithText(TextField, l10n.readerPageInput);
+    await tester.enterText(number, '٦٠٥');
+    await tester.tap(find.widgetWithText(FilledButton, l10n.readerGo));
+    await tester.pumpAndSettle();
+    expect(find.text(l10n.readerPageInvalid), findsOneWidget);
+    await tester.enterText(number, '٦٠٤');
+    await tester.tap(find.widgetWithText(FilledButton, l10n.readerGo));
+    await tester.pumpAndSettle();
+    final lastPage = NumberFormat.decimalPattern('ar').format(604);
+    expect(find.textContaining(l10n.readerPageLabel(lastPage)), findsWidgets);
+    expect(tester.takeException(), isNull);
+  });
+
   for (final locale in const [Locale('en'), Locale('ar')]) {
     testWidgets(
       '${locale.languageCode}: long-press opens the selected verse and keeps its position',
@@ -73,11 +101,18 @@ void main() {
         await tester.pump(const Duration(milliseconds: 100));
         await tester.pumpAndSettle();
         final l10n = lookupAppLocalizations(locale);
+        await tester.tap(find.byTooltip(l10n.readerSources));
+        await tester.pumpAndSettle();
         expect(
           find.text(l10n.readerQuranFoundation),
           findsOneWidget,
           reason: '$requested',
         );
+        tester
+            .element(find.text(l10n.readerQuranFoundation))
+            .findAncestorStateOfType<NavigatorState>()!
+            .pop();
+        await tester.pumpAndSettle();
         final edition = await tester.runAsync(
           () => MushafEdition.load(rootBundle),
         );
@@ -97,7 +132,7 @@ void main() {
         );
         await tester.pumpAndSettle();
         expect(
-          find.text(l10n.readerTafsirFor(255)),
+          find.textContaining(l10n.readerTafsirFor(255)),
           findsOneWidget,
           reason: '$requested',
         );

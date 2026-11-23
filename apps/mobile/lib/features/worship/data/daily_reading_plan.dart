@@ -24,7 +24,7 @@ class DailyReadingPlanController extends Notifier<DailyReadingPlan> {
   static const key = 'worship.dailyReadingPlan.v1';
   static const totalPages = 604;
   static const _initial = (pagesPerSession: 20, pagesRead: 0);
-  bool _saving = false;
+  Future<void> _writes = Future.value();
 
   @override
   DailyReadingPlan build() {
@@ -47,27 +47,31 @@ class DailyReadingPlanController extends Notifier<DailyReadingPlan> {
 
   Future<void> setPace(int pagesPerSession) {
     RangeError.checkValueInInterval(pagesPerSession, 1, totalPages);
-    return _save((
-      pagesPerSession: pagesPerSession,
-      pagesRead: state.pagesRead,
-    ));
+    return _save(
+      (plan) => (pagesPerSession: pagesPerSession, pagesRead: plan.pagesRead),
+    );
   }
 
-  Future<void> completeSession() {
-    final plan = state;
-    return _save((
+  Future<void> completeSession() => _save(
+    (plan) => (
       pagesPerSession: plan.pagesPerSession,
       pagesRead: plan.endPage(totalPages),
-    ));
-  }
+    ),
+  );
+
+  Future<void> completePage(int oneBasedPage) => _save(
+    (plan) => oneBasedPage == plan.pagesRead + 1
+        ? (pagesPerSession: plan.pagesPerSession, pagesRead: oneBasedPage)
+        : plan,
+  );
 
   Future<void> startAgain() =>
-      _save((pagesPerSession: state.pagesPerSession, pagesRead: 0));
+      _save((plan) => (pagesPerSession: plan.pagesPerSession, pagesRead: 0));
 
-  Future<void> _save(DailyReadingPlan plan) async {
-    if (_saving || state == plan) return;
-    _saving = true;
-    try {
+  Future<void> _save(DailyReadingPlan Function(DailyReadingPlan) update) {
+    final operation = _writes.then((_) async {
+      final plan = update(state);
+      if (plan == state) return;
       await ref
           .read(keyValueStoreProvider)
           .setString(
@@ -75,8 +79,11 @@ class DailyReadingPlanController extends Notifier<DailyReadingPlan> {
             '${MushafEdition.id}|${plan.pagesPerSession}|${plan.pagesRead}',
           );
       state = plan;
-    } finally {
-      _saving = false;
-    }
+    });
+    _writes = operation.then<void>(
+      (_) {},
+      onError: (Object _, StackTrace _) {},
+    );
+    return operation;
   }
 }
