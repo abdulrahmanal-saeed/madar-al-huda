@@ -84,3 +84,46 @@ summary { cursor: pointer; }
   .editor-grid > section:nth-child(2) { order: -1; }
 }
 @media (max-width: 450px) { .inline { display: grid; } }
+/* Appearance editor */
+.appearance-grid { display: grid; grid-template-columns: minmax(0, 1fr) 20rem; gap: 1rem; align-items: start; }
+.presets { grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr)); margin-top: 1rem; }
+.preset { display: grid; gap: .3rem; justify-items: start; text-align: start; background: var(--paper); border: 1px solid var(--line); color: var(--ink); font-weight: 500; }
+.preset.current { border: 2px solid var(--green); background: var(--green-soft); }
+.preset span:last-child { color: var(--muted); font-size: .88rem; }
+.swatches { display: flex; gap: .3rem; }
+.swatch { width: 1.4rem; height: 1.4rem; border-radius: 50%; border: 1px solid rgba(0,0,0,.15); }
+.preset-brand-primary { background: #0F4A43; } .preset-brand-gold { background: #B8893A; } .preset-brand-background { background: #F5F0E6; }
+.preset-ramadan-primary { background: #1E2A4A; } .preset-ramadan-gold { background: #C9A24A; } .preset-ramadan-background { background: #F7F1E3; }
+.preset-calm-primary { background: #2F5D50; } .preset-calm-gold { background: #A77B3B; } .preset-calm-background { background: #F2F4F1; }
+.preset-sand-primary { background: #5A3E22; } .preset-sand-gold { background: #B8893A; } .preset-sand-background { background: #F6EEDF; }
+.color-row { display: flex; align-items: center; gap: .6rem; }
+.color-row input { width: 3rem; height: 2.6rem; padding: .15rem; }
+.preview-wrap { position: sticky; top: 1rem; display: grid; gap: .6rem; justify-items: center; }
+.phone { width: 18rem; height: 34rem; border-radius: 2.4rem; background: #12332F; padding: .6rem; }
+.phone-screen { height: 100%; border-radius: 1.9rem; overflow: hidden; display: flex; flex-direction: column; gap: .6rem; padding: .9rem .75rem 0; background: var(--p-background); color: var(--p-ink); font-size: calc(1rem * var(--p-scale)); }
+.phone-brand { color: var(--p-primary); font-weight: 750; font-size: 1.15em; }
+.phone-hero { display: grid; gap: .35rem; border-radius: var(--p-radius); background: var(--p-primary); color: #F5F0E6; padding: .9rem; }
+.phone-hero strong { font-size: 1.25em; }
+.phone-hero > span:nth-of-type(2) { opacity: .85; font-size: .8em; }
+.phone-chip { justify-self: start; color: var(--p-gold); background: rgba(255,255,255,.12); border-radius: 999px; padding: .05rem .55rem; font-size: .7em; }
+.phone-track { height: .25rem; border-radius: .2rem; background: rgba(255,255,255,.2); }
+.phone-track span { display: block; height: 100%; width: 28%; border-radius: .2rem; background: var(--p-gold); }
+.phone-button { justify-self: stretch; text-align: center; border-radius: var(--p-radius-small); background: #F5F0E6; color: var(--p-primary); font-weight: 650; padding: .45rem; font-size: .85em; }
+.phone-card { display: grid; gap: .15rem; border-radius: var(--p-radius-small); background: #FFFDF8; border: 1px solid rgba(0,0,0,.08); padding: .6rem .75rem; }
+.phone-card .muted { opacity: .75; font-size: .75em; }
+.phone-card .gold { color: var(--p-gold); font-weight: 650; font-size: .8em; }
+.phone-nav { margin: auto -.75rem 0; display: grid; grid-template-columns: repeat(5, 1fr); background: #FFFDF8; border-top: 1px solid rgba(0,0,0,.08); padding: .7rem 0; text-align: center; font-size: .65em; }
+.phone-nav .on { color: var(--p-primary); font-weight: 750; }
+@media (max-width: 1100px) { .appearance-grid { grid-template-columns: 1fr; } .preview-wrap { position: static; } }
+/* Library sections */
+.section-row { flex-wrap: wrap; }
+.section-row.hidden-section .section-name strong { color: var(--muted); }
+.section-name { display: flex; flex-wrap: wrap; align-items: center; gap: .45rem; min-width: 0; }
+.section-actions { display: flex; flex-wrap: wrap; gap: .35rem; align-items: center; }
+.section-actions form { display: block; }
+.section-actions button, .section-actions .button { padding: .35rem .7rem; }
+.badge { font-size: .78rem; padding: .05rem .5rem; border-radius: 999px; background: #f1e5c9; color: #5c4513; }
+.badge.muted { background: var(--line); color: var(--muted); }
+.url { color: var(--muted); font-size: .85rem; overflow-wrap: anywhere; }
+.spaced { margin-top: 1.2rem; }
+button[disabled] { opacity: .4; cursor: not-allowed; }
