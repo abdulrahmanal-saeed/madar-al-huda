@@ -891,4 +891,17 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get homeApproximateHijriDate => 'التاريخ الهجري الحسابي التقريبي';
+
+  @override
+  String get radioPlay => 'شغّل البث المباشر';
+
+  @override
+  String get radioStop => 'أوقف البث المباشر';
+
+  @override
+  String get radioConnecting => 'جاري الاتصال بالبث المباشر…';
+
+  @override
+  String get radioStreamFailed =>
+      'تعذّر تشغيل البث. جرّب تاني أو افتح المشغّل الرسمي.';
 }
