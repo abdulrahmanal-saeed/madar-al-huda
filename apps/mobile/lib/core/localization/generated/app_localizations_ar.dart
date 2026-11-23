@@ -382,6 +382,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get chooseCity => 'اختر مدينة';
 
   @override
+  String get startupLocationTitle => 'إعداد الموقع';
+
+  @override
+  String get startupLocationExplanation =>
+      'استخدم موقعك لحساب مواقيت الصلاة وتحديد القبلة. يمكنك أيضًا اختيار مدينة من شاشة الصلاة أو القبلة.';
+
+  @override
+  String get startupLocationLater => 'لاحقًا';
+
+  @override
   String get useLocation => 'استخدم موقعي';
 
   @override

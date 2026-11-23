@@ -251,6 +251,18 @@
     "description": "Alexandria"
   },
   "chooseCity": "Choose a city",
+  "startupLocationTitle": "Set up your location",
+  "@startupLocationTitle": {
+    "description": "Title of the initial setup dialog for the shared worship location."
+  },
+  "startupLocationExplanation": "Use your location for prayer times and Qibla. You can also choose a city in Prayer Times or Qibla.",
+  "@startupLocationExplanation": {
+    "description": "Explains why the app asks for location access and where to set a manual city."
+  },
+  "startupLocationLater": "Later",
+  "@startupLocationLater": {
+    "description": "Dismisses location setup while leaving the rest of the app available."
+  },
   "@chooseCity": {
     "description": "Choose a city"
   },

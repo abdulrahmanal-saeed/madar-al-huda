@@ -391,6 +391,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chooseCity => 'Choose a city';
 
   @override
+  String get startupLocationTitle => 'Set up your location';
+
+  @override
+  String get startupLocationExplanation =>
+      'Use your location for prayer times and Qibla. You can also choose a city in Prayer Times or Qibla.';
+
+  @override
+  String get startupLocationLater => 'Later';
+
+  @override
   String get useLocation => 'Use my location';
 
   @override

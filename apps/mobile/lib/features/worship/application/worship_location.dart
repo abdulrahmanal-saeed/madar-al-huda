@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 
 import '../../../core/localization/app_locales.dart';
+import '../../../core/storage/key_value_store.dart';
 import '../../../core/storage/storage_providers.dart';
 import '../../qibla/domain/qibla_bearing.dart';
 
@@ -50,15 +51,14 @@ class WorshipLocation {
   WorshipCountry? get country => deviceCountry ?? city?.country;
 }
 
-typedef ReadDeviceLocation = Future<GeoCoordinate> Function();
+typedef ReadDeviceLocation = Future<GeoCoordinate> Function({
+  required bool requestPermission,
+});
 
 final readDeviceLocationProvider = Provider<ReadDeviceLocation>(
-  (_) => () async {
-    if (!await Geolocator.isLocationServiceEnabled()) {
-      throw LocationProblem.unavailable;
-    }
+  (_) => ({required requestPermission}) async {
     var permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
+    if (permission == LocationPermission.denied && requestPermission) {
       permission = await Geolocator.requestPermission();
     }
     if (permission == LocationPermission.deniedForever) {
@@ -67,6 +67,9 @@ final readDeviceLocationProvider = Provider<ReadDeviceLocation>(
     if (permission == LocationPermission.denied ||
         permission == LocationPermission.unableToDetermine) {
       throw LocationProblem.denied;
+    }
+    if (!await Geolocator.isLocationServiceEnabled()) {
+      throw LocationProblem.unavailable;
     }
     final position = await Geolocator.getCurrentPosition(
       locationSettings: const LocationSettings(
@@ -85,6 +88,7 @@ final worshipLocationProvider =
 
 class WorshipLocationController extends Notifier<WorshipLocation> {
   static const cityKey = 'worship.manualCity';
+  static const deviceLocationKey = 'worship.useDeviceLocation';
   int _request = 0;
   Future<void> _save = Future.value();
 
@@ -99,13 +103,47 @@ class WorshipLocationController extends Notifier<WorshipLocation> {
   Future<void> selectCity(ManualCity city) {
     ++_request;
     state = WorshipLocation(city: city);
+    return _persist((store) async {
+      await store.setString(cityKey, city.id);
+      await store.setBool(deviceLocationKey, value: false);
+    });
+  }
+
+  /// Refreshes an already granted location and signals when initial setup
+  /// should offer the user the option to request Android's permission.
+  Future<bool> locateAtStartup() async {
+    final preferred = ref
+        .read(keyValueStoreProvider)
+        .getBool(deviceLocationKey);
+    if (_request != 0 || preferred == false) return false;
+    final request = _request + 1;
+    await _locate(requestPermission: false);
+    return ref.mounted &&
+        _request == request &&
+        preferred == null &&
+        state.problem == LocationProblem.denied;
+  }
+
+  Future<void> deferDeviceAtStartup() =>
+      _persist((store) => store.setBool(deviceLocationKey, value: false));
+
+  Future<void> useDevice() async {
+    if (state.loading) return;
+    final save = _persist(
+      (store) => store.setBool(deviceLocationKey, value: true),
+    ).then<void>((_) {}, onError: (Object _, StackTrace _) {});
+    await _locate(requestPermission: true);
+    await save;
+  }
+
+  Future<void> _persist(Future<void> Function(KeyValueStore store) update) {
     final store = ref.read(keyValueStoreProvider);
-    final write = _save.then((_) => store.setString(cityKey, city.id));
+    final write = _save.then((_) => update(store));
     _save = write.then<void>((_) {}, onError: (Object _, StackTrace _) {});
     return write;
   }
 
-  Future<void> useDevice() async {
+  Future<void> _locate({required bool requestPermission}) async {
     final request = ++_request;
     final previous = state;
     state = WorshipLocation(
@@ -115,7 +153,10 @@ class WorshipLocationController extends Notifier<WorshipLocation> {
       loading: true,
     );
     try {
-      final point = await ref.read(readDeviceLocationProvider)();
+      final point = await ref.read(readDeviceLocationProvider)(
+        requestPermission: requestPermission,
+      );
+      if (!ref.mounted || request != _request) return;
       final country = await ref
           .read(countryBoundariesProvider.future)
           .then((boundaries) => boundaries.countryAt(point));

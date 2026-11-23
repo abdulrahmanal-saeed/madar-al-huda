@@ -800,6 +800,24 @@ abstract class AppLocalizations {
   /// **'Choose a city'**
   String get chooseCity;
 
+  /// Title of the initial setup dialog for the shared worship location.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up your location'**
+  String get startupLocationTitle;
+
+  /// Explains why the app asks for location access and where to set a manual city.
+  ///
+  /// In en, this message translates to:
+  /// **'Use your location for prayer times and Qibla. You can also choose a city in Prayer Times or Qibla.'**
+  String get startupLocationExplanation;
+
+  /// Dismisses location setup while leaving the rest of the app available.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get startupLocationLater;
+
   /// Use my location
   ///
   /// In en, this message translates to:

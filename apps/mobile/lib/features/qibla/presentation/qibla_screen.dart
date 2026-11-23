@@ -232,14 +232,15 @@ class _CompassDial extends CustomPainter {
       center +
           Offset(math.sin(northRadians), -math.cos(northRadians)) *
               radius *
-              .68 -
+              .74 -
           Offset(label.width / 2, label.height / 2),
     );
     label.dispose();
+    final radians = angle * math.pi / 180;
     canvas
       ..save()
       ..translate(center.dx, center.dy)
-      ..rotate(angle * math.pi / 180);
+      ..rotate(radians);
     final needle = Path()
       ..moveTo(0, -radius * .62)
       ..lineTo(radius * .13, 0)
@@ -252,6 +253,64 @@ class _CompassDial extends CustomPainter {
     canvas.drawPath(needle, paint);
     paint.color = colors.onPrimary;
     canvas.drawCircle(Offset.zero, radius * .05, paint);
+    canvas.restore();
+
+    final marker =
+        center + Offset(math.sin(radians), -math.cos(radians)) * (radius * .54);
+    _paintKaaba(canvas, marker, radius * .13);
+  }
+
+  void _paintKaaba(Canvas canvas, Offset center, double radius) {
+    final paint = Paint()..color = colors.surface;
+    canvas.drawCircle(center, radius, paint);
+    canvas.drawCircle(
+      center,
+      radius,
+      paint
+        ..color = colors.primary
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.5,
+    );
+    canvas
+      ..save()
+      ..translate(center.dx, center.dy)
+      ..scale(radius / 12);
+    final front = Path()
+      ..moveTo(-7, -5)
+      ..lineTo(3, -5)
+      ..lineTo(3, 7)
+      ..lineTo(-7, 7)
+      ..close();
+    final side = Path()
+      ..moveTo(3, -5)
+      ..lineTo(7, -8)
+      ..lineTo(7, 4)
+      ..lineTo(3, 7)
+      ..close();
+    paint.style = PaintingStyle.fill;
+    canvas.drawPath(
+      Path()
+        ..moveTo(-7, -5)
+        ..lineTo(-3, -8)
+        ..lineTo(7, -8)
+        ..lineTo(3, -5)
+        ..close(),
+      paint..color = const Color(0xFF4B4035),
+    );
+    canvas.drawPath(side, paint..color = const Color(0xFF3A3430));
+    canvas.drawPath(front, paint..color = const Color(0xFF211E1B));
+    canvas.drawPath(
+      Path()
+        ..moveTo(-7, -2)
+        ..lineTo(3, -2)
+        ..lineTo(7, -5)
+        ..lineTo(7, -3)
+        ..lineTo(3, 0)
+        ..lineTo(-7, 0)
+        ..close(),
+      paint..color = const Color(0xFFE1BD70),
+    );
+    canvas.drawRect(const Rect.fromLTWH(-2, 2, 2, 4), paint);
     canvas.restore();
   }
 
