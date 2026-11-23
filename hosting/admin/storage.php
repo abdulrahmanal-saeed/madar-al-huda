@@ -145,6 +145,7 @@ function updateLibrary(PDO $db, string $action, array $seed, string $section, st
         }
         $draft = $row['draft'];
         if ($action === 'publish') {
+            assertReadableTheme(json_decode($draft, true, 64, JSON_THROW_ON_ERROR));
             if (strlen($draft) > FEED_MAX_BYTES) {
                 throw new InvalidArgumentException('حجم المكتبة ' . feedSizeLabel(strlen($draft)) .
                     ' ويتجاوز الحد الذي يقبله التطبيق (' . feedSizeLabel(FEED_MAX_BYTES) . '). احذف أو اختصر بعض المحتوى ثم انشر.');
@@ -167,6 +168,7 @@ function updateLibrary(PDO $db, string $action, array $seed, string $section, st
             $delete = $action === 'delete';
             $draft = encode(match (true) {
                 $section === 'reciters' => changeReaders($content, $delete),
+                $section === 'appearance' => changeAppearance($content, $delete),
                 in_array($section, BOOK_SECTIONS, true) => changeBook($content, $section, $delete),
                 default => changeContent($content, $seed['ayahCounts'], $section, $topic, $delete),
             });

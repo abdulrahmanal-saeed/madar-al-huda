@@ -8,6 +8,7 @@ header('X-Content-Type-Options: nosniff');
 header('Referrer-Policy: no-referrer');
 require __DIR__ . '/content.php';
 require __DIR__ . '/advanced.php';
+require __DIR__ . '/appearance.php';
 require __DIR__ . '/storage.php';
 require __DIR__ . '/stories.php';
 require __DIR__ . '/apk-signature.php';
@@ -102,7 +103,7 @@ $sections = [
     'stories' => 'قصص الأنبياء', 'history' => 'سجل النشر',
     'fiqh' => 'الفقه المقارن', 'articles' => 'المقالات',
     'lessons' => 'الدروس والاختبارات', 'reciters' => 'القراء',
-    'releases' => 'إصدارات التطبيق',
+    'appearance' => 'الثيم والألوان', 'releases' => 'إصدارات التطبيق',
 ];
 $section = $_GET['section'] ?? 'daily';
 if (!is_string($section) || !isset($sections[$section])) {
@@ -118,6 +119,9 @@ $active = isset($_SESSION['signed_at'], $_SESSION['seen_at']) &&
     $_SESSION['seen_at'] >= time() - SESSION_IDLE;
 if ($active) {
     $_SESSION['seen_at'] = time();
+    if (isset($_GET['preview_css'])) {
+        servePreviewCss(json_decode(library($db)['draft'], true, 64, JSON_THROW_ON_ERROR));
+    }
 }
 $setup = accountPassword($db) === false;
 $error = null;
@@ -163,7 +167,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif (isset(CONFIRMATIONS[$action]) && field('confirmed') !== 'yes') {
             // Irreversible actions show a confirmation page first; the CSP
             // blocks scripts, so the check happens on the server.
-            $confirming = ['action' => $action, 'message' => CONFIRMATIONS[$action]];
+            $confirming = ['action' => $action, 'message' => $section === 'appearance' && $action === 'delete'
+                ? 'سترجع ألوان التطبيق وشكله إلى الهوية الأصلية في المسودة. هل تريد المتابعة؟'
+                : CONFIRMATIONS[$action]];
         } elseif ($action === 'logout') {
             $_SESSION = [];
             session_destroy();
@@ -214,7 +220,7 @@ if ($active) {
     }
     $rows = in_array($section, BOOK_SECTIONS, true)
         ? ($draft['library'][$section] ?? [])
-        : (in_array($section, ['stories', 'history', 'reciters', 'releases'], true)
+        : (in_array($section, ['stories', 'history', 'reciters', 'releases', 'appearance'], true)
             ? [] : contentRows($draft, $section, $topic));
     $current = null;
     foreach ($rows as $index => $row) {
@@ -327,6 +333,8 @@ if ($active) {
       <?php endforeach; ?>
     <?php elseif ($section === 'releases'): ?>
       <?php releaseTable($db); require __DIR__ . '/release-view.php'; ?>
+    <?php elseif ($section === 'appearance'): ?>
+      <?php require __DIR__ . '/appearance-view.php'; ?>
     <?php elseif ($section === 'history'): ?>
       <section class="panel">
         <h2>الإصدارات المنشورة</h2>
