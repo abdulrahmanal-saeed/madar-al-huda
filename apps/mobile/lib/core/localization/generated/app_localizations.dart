@@ -2605,6 +2605,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Night'**
   String get readerPaperNight;
+
+  /// Counter screen title and home shortcut.
+  ///
+  /// In en, this message translates to:
+  /// **'Tasbih'**
+  String get tasbihTitle;
+
+  /// Hint under the counter.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap anywhere to count'**
+  String get tasbihTap;
+
+  /// Screen reader value of the counter.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} counted'**
+  String tasbihCount(String count);
+
+  /// Goal choice without a target.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get tasbihNoGoal;
+
+  /// Resets the current round.
+  ///
+  /// In en, this message translates to:
+  /// **'Start again'**
+  String get tasbihReset;
+
+  /// Today's total.
+  ///
+  /// In en, this message translates to:
+  /// **'Today: {count}'**
+  String tasbihToday(String count);
+
+  /// Shown and announced at the goal.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal reached'**
+  String get tasbihDone;
+
+  /// Counting without a phrase.
+  ///
+  /// In en, this message translates to:
+  /// **'Free count'**
+  String get tasbihFree;
 }
 
 class _AppLocalizationsDelegate

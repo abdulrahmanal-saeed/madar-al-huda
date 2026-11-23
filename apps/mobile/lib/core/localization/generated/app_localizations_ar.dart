@@ -1401,4 +1401,32 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get readerPaperNight => 'ليلي';
+
+  @override
+  String get tasbihTitle => 'السبحة';
+
+  @override
+  String get tasbihTap => 'اضغط في أي مكان للعدّ';
+
+  @override
+  String tasbihCount(String count) {
+    return 'العدد $count';
+  }
+
+  @override
+  String get tasbihNoGoal => 'مفتوح';
+
+  @override
+  String get tasbihReset => 'ابدأ من جديد';
+
+  @override
+  String tasbihToday(String count) {
+    return 'اليوم: $count';
+  }
+
+  @override
+  String get tasbihDone => 'اكتمل العدد';
+
+  @override
+  String get tasbihFree => 'عدّ حر';
 }

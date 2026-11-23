@@ -1418,4 +1418,32 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get readerPaperNight => 'Night';
+
+  @override
+  String get tasbihTitle => 'Tasbih';
+
+  @override
+  String get tasbihTap => 'Tap anywhere to count';
+
+  @override
+  String tasbihCount(String count) {
+    return '$count counted';
+  }
+
+  @override
+  String get tasbihNoGoal => 'Open';
+
+  @override
+  String get tasbihReset => 'Start again';
+
+  @override
+  String tasbihToday(String count) {
+    return 'Today: $count';
+  }
+
+  @override
+  String get tasbihDone => 'Goal reached';
+
+  @override
+  String get tasbihFree => 'Free count';
 }

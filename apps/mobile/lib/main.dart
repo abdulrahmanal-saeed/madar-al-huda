@@ -16,6 +16,7 @@ import 'features/quran/data/local_quran_bookmarks.dart';
 import 'features/reminders/application/reminder_settings_controller.dart';
 import 'features/reminders/data/reminder_scheduler.dart';
 import 'features/settings/data/settings_repository.dart';
+import 'features/tasbih/application/tasbih_controller.dart';
 import 'features/worship/application/worship_location.dart';
 import 'features/worship/data/daily_reading_plan.dart';
 
@@ -69,6 +70,7 @@ Future<KeyValueStore> _openPreferences() async {
         LocalQuranBookmarks.key,
         LocalQuranBookmarks.backupKey,
         ReadingPreferencesController.key,
+        TasbihController.key,
         AdhkarProgressController.key,
         DailyReadingPlanController.key,
         'quran.reciter.v1',
