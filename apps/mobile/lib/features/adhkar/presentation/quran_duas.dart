@@ -13,6 +13,7 @@ import '../../quran/data/mushaf_edition.dart';
 import '../../quran/domain/quran_search_text.dart';
 import '../../quran/domain/quran_storage_contracts.dart';
 import '../../quran/presentation/quran_meaning_view.dart';
+import '../data/adhkar_catalog.dart';
 import '../data/quran_dua_index.dart';
 import 'adhkar_widgets.dart';
 
@@ -87,7 +88,7 @@ class _QuranDuasState extends ConsumerState<QuranDuas> {
         ).contains(_query);
   }
 
-  Widget _list(MushafEdition edition) {
+  Widget _list(MushafEdition edition, Map<DuaTopic, List<DuaRange>> index) {
     final l10n = context.l10n;
     final language = Localizations.localeOf(context).languageCode;
     final bookmarks = {
@@ -97,7 +98,7 @@ class _QuranDuasState extends ConsumerState<QuranDuas> {
         item.ref: item,
     };
     final rows = [
-      for (final entry in quranDuaIndex.entries)
+      for (final entry in index.entries)
         if (_topic == null || _topic == entry.key)
           for (final range in entry.value)
             if ((!_savedOnly || bookmarks.containsKey(_reference(range))) &&
@@ -190,6 +191,7 @@ class _QuranDuasState extends ConsumerState<QuranDuas> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final source = ref.watch(mushafEditionProvider);
+    final duas = ref.watch(quranDuaIndexProvider);
     return AdhkarPage(
       title: l10n.duaTitle,
       actions: [
@@ -209,7 +211,16 @@ class _QuranDuasState extends ConsumerState<QuranDuas> {
             child: Text(l10n.readerRetry),
           ),
         ),
-        data: _list,
+        data: (edition) => duas.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (_, _) => Center(
+            child: TextButton(
+              onPressed: () => ref.invalidate(quranDuaIndexProvider),
+              child: Text(l10n.readerRetry),
+            ),
+          ),
+          data: (index) => _list(edition, index),
+        ),
       ),
     );
   }

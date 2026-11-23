@@ -1,12 +1,103 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final adhkarCatalogProvider = FutureProvider<AdhkarCatalog>((ref) async {
-  final text = await rootBundle.loadString('assets/adhkar/catalog.json');
-  return AdhkarCatalog.fromJson(jsonDecode(text) as Map<String, Object?>);
+import '../../../core/content/hosted_feed.dart';
+import '../../quran/data/mushaf_edition.dart';
+import 'quran_dua_index.dart';
+
+final adhkarCatalogProvider = FutureProvider.autoDispose<AdhkarCatalog>(
+  (ref) async => (await ref.watch(_libraryProvider.future)).adhkar,
+);
+
+final quranDuaIndexProvider =
+    FutureProvider.autoDispose<Map<DuaTopic, List<DuaRange>>>(
+      (ref) async => (await ref.watch(_libraryProvider.future)).duas,
+    );
+
+typedef _LibraryContent = ({
+  AdhkarCatalog adhkar,
+  Map<DuaTopic, List<DuaRange>> duas,
 });
+
+final _libraryProvider = FutureProvider.autoDispose<_LibraryContent>((
+  ref,
+) async {
+  final feed = ref.watch(hostedFeedProvider);
+  final editionFuture = ref.watch(mushafEditionProvider.future);
+  final timer = Timer(const Duration(minutes: 2), ref.invalidateSelf);
+  ref.onDispose(timer.cancel);
+  final edition = await editionFuture;
+  return feed.load(
+    url: Uri.https('quran.abdulrahmanalsaeed.com', '/admin/', {
+      'feed': 'library',
+    }),
+    cacheName: 'madar-library-v1',
+    decode: (data) => _decodeLibrary(data, edition),
+    fallback: () async {
+      final text = await rootBundle.loadString('assets/adhkar/catalog.json');
+      return (
+        adhkar: AdhkarCatalog.fromJson(
+          jsonDecode(text) as Map<String, Object?>,
+        ),
+        duas: quranDuaIndex,
+      );
+    },
+  );
+});
+
+_LibraryContent _decodeLibrary(Object? source, MushafEdition edition) {
+  final data = source as Map<String, Object?>;
+  if (data['version'] != 1) {
+    throw const FormatException('Unknown library version');
+  }
+  final adhkar = AdhkarCatalog.fromJson(data['adhkar'] as Map<String, Object?>);
+  final rawDuas = data['duas'] as Map<String, Object?>;
+  final duas = {
+    for (final topic in DuaTopic.values)
+      topic: [
+        for (final item in _list<List<Object?>>(rawDuas[topic.name]))
+          (surah: item[0] as int, first: item[1] as int, last: item[2] as int),
+      ],
+  };
+  void validateRange(DuaRange range) {
+    if (range.surah < 1 ||
+        range.surah > edition.surahs.length ||
+        range.first < 1 ||
+        range.last < range.first ||
+        range.last > edition.surahs[range.surah - 1].verses.length) {
+      throw const FormatException('Invalid library verse range');
+    }
+  }
+
+  for (final key in ['daily', 'routine', 'hisn', 'merits', 'quranDuas']) {
+    if (!adhkar.sections.containsKey(key)) {
+      throw const FormatException('Missing library section');
+    }
+  }
+  if (!adhkar.groups.any((group) => group.id == 'morning')) {
+    throw const FormatException('Missing morning remembrance');
+  }
+  for (final range in duas.values.expand((items) => items)) {
+    validateRange(range);
+  }
+  for (final entry in [
+    ...adhkar.groups.expand((group) => group.entries),
+    ...adhkar.merits,
+  ]) {
+    for (final range in entry.verses) {
+      validateRange(range);
+    }
+  }
+  for (final chapter in adhkar.hisnTopics.expand((topic) => topic.chapters)) {
+    if (chapter < 0 || chapter >= adhkar.chapterTitles.length) {
+      throw const FormatException('Invalid Fortress of the Muslim chapter');
+    }
+  }
+  return (adhkar: adhkar, duas: duas);
+}
 
 typedef LocalizedLabel = ({String ar, String en});
 typedef DhikrStep = ({String unit, int count});

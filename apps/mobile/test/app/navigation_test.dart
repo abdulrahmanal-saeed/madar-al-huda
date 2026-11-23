@@ -9,6 +9,7 @@ import 'package:madar_al_huda/core/widgets/section_card.dart';
 import 'package:madar_al_huda/core/widgets/settings_button.dart';
 import 'package:madar_al_huda/features/learning/data/learning_catalog.dart';
 import 'package:madar_al_huda/features/learning/data/learning_files.dart';
+import 'package:madar_al_huda/features/learning/data/prophet_stories.dart';
 import 'package:madar_al_huda/features/prayer/presentation/prayer_times_screen.dart';
 import 'package:madar_al_huda/features/qibla/presentation/qibla_screen.dart';
 import 'package:madar_al_huda/features/quran/presentation/mushaf_screen.dart';
