@@ -22,6 +22,7 @@ abstract final class AppRoutes {
   /// One remembrance group by its catalog id, e.g. `evening`.
   static String adhkarGroup(String id) => '$adhkar/group/$id';
   static const String dailyReading = '$worship/daily-reading';
+  static const String ramadan = '$worship/ramadan';
   static const String cairoRadio = '$worship/cairo-radio';
 
   // Library

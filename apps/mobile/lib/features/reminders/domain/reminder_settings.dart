@@ -17,6 +17,8 @@ class ReminderSettings {
     this.kahf = false,
     this.dailyDua = false,
     this.duaEveryHours = 0,
+    this.suhoor = false,
+    this.iftar = false,
     this.quietStartMinutes = 23 * 60,
     this.quietEndMinutes = 6 * 60,
   });
@@ -42,6 +44,8 @@ class ReminderSettings {
       kahf: flag('kahf'),
       dailyDua: flag('dailyDua'),
       duaEveryHours: every is int && duaIntervals.contains(every) ? every : 0,
+      suhoor: flag('suhoor'),
+      iftar: flag('iftar'),
       quietStartMinutes: number('quietStartMinutes', 23 * 60, 0, day),
       quietEndMinutes: number('quietEndMinutes', 6 * 60, 0, day),
     );
@@ -75,6 +79,10 @@ class ReminderSettings {
   /// Hours between supplication reminders; 0 when off.
   final int duaEveryHours;
 
+  /// Ramadan only: 30 minutes before imsak, and at Maghrib.
+  final bool suhoor;
+  final bool iftar;
+
   /// No supplication reminders between these times (minutes after midnight).
   final int quietStartMinutes;
   final int quietEndMinutes;
@@ -88,7 +96,9 @@ class ReminderSettings {
       bedtime ||
       kahf ||
       dailyDua ||
-      duaEveryHours > 0;
+      duaEveryHours > 0 ||
+      suhoor ||
+      iftar;
 
   Map<String, Object?> toJson() => {
     'adhan': adhan,
@@ -102,6 +112,8 @@ class ReminderSettings {
     'kahf': kahf,
     'dailyDua': dailyDua,
     'duaEveryHours': duaEveryHours,
+    'suhoor': suhoor,
+    'iftar': iftar,
     'quietStartMinutes': quietStartMinutes,
     'quietEndMinutes': quietEndMinutes,
   };
@@ -120,6 +132,8 @@ class ReminderSettings {
     bool? kahf,
     bool? dailyDua,
     int? duaEveryHours,
+    bool? suhoor,
+    bool? iftar,
   }) => ReminderSettings(
     adhan: adhan ?? this.adhan,
     beforePrayer: beforePrayer ?? this.beforePrayer,
@@ -132,6 +146,8 @@ class ReminderSettings {
     kahf: kahf ?? this.kahf,
     dailyDua: dailyDua ?? this.dailyDua,
     duaEveryHours: duaEveryHours ?? this.duaEveryHours,
+    suhoor: suhoor ?? this.suhoor,
+    iftar: iftar ?? this.iftar,
     quietStartMinutes: quietStartMinutes,
     quietEndMinutes: quietEndMinutes,
   );

@@ -1296,4 +1296,99 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get librarySectionOpenFailed => 'Couldn\'t open the link.';
+
+  @override
+  String get ramadanTitle => 'Ramadan';
+
+  @override
+  String get ramadanGreeting => 'Ramadan Kareem';
+
+  @override
+  String ramadanDay(String day) {
+    return 'Day $day of Ramadan';
+  }
+
+  @override
+  String get ramadanUntilIftar => 'Until iftar';
+
+  @override
+  String get ramadanUntilImsak => 'Until imsak';
+
+  @override
+  String ramadanMaghrib(String time) {
+    return 'Maghrib at $time';
+  }
+
+  @override
+  String ramadanImsak(String time) {
+    return 'Imsak at $time';
+  }
+
+  @override
+  String get ramadanImsakiya => 'Imsakiya';
+
+  @override
+  String get ramadanImsakNote =>
+      'Imsak is 10 minutes before Fajr. Days follow the civil Hijri calendar and may differ by a day from local moon sighting.';
+
+  @override
+  String get ramadanColumnDay => 'Day';
+
+  @override
+  String get ramadanColumnImsak => 'Imsak';
+
+  @override
+  String get ramadanKhatma => 'Ramadan khatma';
+
+  @override
+  String ramadanKhatmaToday(String juz) {
+    return 'Today\'s portion: juz $juz';
+  }
+
+  @override
+  String get ramadanOpenJuz => 'Open';
+
+  @override
+  String get ramadanLastTen => 'The last ten nights';
+
+  @override
+  String ramadanLastTenIn(String days) {
+    return 'They begin in $days days';
+  }
+
+  @override
+  String get ramadanLastTenNow => 'Seek Laylat al-Qadr in these nights';
+
+  @override
+  String ramadanNotNow(String date) {
+    return 'Ramadan is expected to begin around $date.';
+  }
+
+  @override
+  String get remindersRamadanSection => 'Ramadan';
+
+  @override
+  String get remindersSuhoor => 'Suhoor';
+
+  @override
+  String get remindersSuhoorSubtitle =>
+      '30 minutes before imsak, during Ramadan';
+
+  @override
+  String get remindersIftar => 'Iftar';
+
+  @override
+  String get remindersIftarSubtitle => 'At Maghrib, during Ramadan';
+
+  @override
+  String get reminderSuhoorTitle => 'Time for suhoor';
+
+  @override
+  String get reminderSuhoorBody => 'Imsak is in 30 minutes.';
+
+  @override
+  String get reminderIftarTitle => 'Time to break your fast';
+
+  @override
+  String get reminderIftarBody => 'May Allah accept your fast.';
 }

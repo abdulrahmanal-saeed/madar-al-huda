@@ -1,7 +1,9 @@
 import 'package:timezone/timezone.dart' as tz;
 
+import '../../../core/localization/civil_hijri_date.dart';
 import '../../../core/routing/app_routes.dart';
 import '../../prayer/domain/prayer_schedule.dart';
+import '../../ramadan/domain/ramadan.dart' show imsakMinutes;
 import '../../worship/domain/worship_moment.dart';
 import 'reminder_settings.dart';
 
@@ -15,6 +17,8 @@ enum ReminderKind {
   kahf,
   dailyDua,
   dua,
+  suhoor,
+  iftar,
 }
 
 /// One notification to schedule.
@@ -54,6 +58,10 @@ abstract interface class ReminderTexts {
   String get kahfTitle;
   String get kahfBody;
   String get duaTitle;
+  String get suhoorTitle;
+  String get suhoorBody;
+  String get iftarTitle;
+  String get iftarBody;
 }
 
 /// A supplication used in reminders, already in its final wording.
@@ -203,6 +211,30 @@ List<PlannedReminder> planReminders({
         texts.kahfBody,
         AppRoutes.verse(18, 1),
       );
+    }
+    if ((settings.suhoor || settings.iftar) &&
+        civilHijri(DateTime.utc(date.year, date.month, date.day))?.month == 9) {
+      if (settings.suhoor) {
+        add(
+          35,
+          at(PrayerSlot.fajr)
+              .subtract(const Duration(minutes: imsakMinutes + 30)),
+          ReminderKind.suhoor,
+          texts.suhoorTitle,
+          texts.suhoorBody,
+          AppRoutes.ramadan,
+        );
+      }
+      if (settings.iftar) {
+        add(
+          36,
+          at(PrayerSlot.maghrib),
+          ReminderKind.iftar,
+          texts.iftarTitle,
+          texts.iftarBody,
+          AppRoutes.ramadan,
+        );
+      }
     }
     final dayNumber = date.difference(DateTime.utc(2026)).inDays;
     if (settings.dailyDua && duas.isNotEmpty) {

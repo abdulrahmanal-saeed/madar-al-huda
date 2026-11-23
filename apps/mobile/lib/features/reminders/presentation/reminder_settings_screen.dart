@@ -226,6 +226,21 @@ class _ReminderSettingsScreenState
                     apply: (on) => settings.copyWith(kahf: on),
                   ),
                 ]),
+                section(l10n.remindersRamadanSection, [
+                  toggle(
+                    key: const ValueKey('reminder-suhoor'),
+                    title: l10n.remindersSuhoor,
+                    subtitle: l10n.remindersSuhoorSubtitle,
+                    value: settings.suhoor,
+                    apply: (on) => settings.copyWith(suhoor: on),
+                  ),
+                  toggle(
+                    title: l10n.remindersIftar,
+                    subtitle: l10n.remindersIftarSubtitle,
+                    value: settings.iftar,
+                    apply: (on) => settings.copyWith(iftar: on),
+                  ),
+                ]),
                 section(l10n.remindersDuaSection, [
                   toggle(
                     title: l10n.remindersDailyDua,
