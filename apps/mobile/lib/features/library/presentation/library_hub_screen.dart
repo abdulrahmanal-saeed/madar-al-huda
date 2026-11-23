@@ -1,10 +1,7 @@
-import 'dart:async';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
-import '../../../core/content/collection_downloads.dart';
 import '../../../core/content/feature_preview.dart';
 import '../../../core/content/managed_library.dart';
 import '../../../core/localization/l10n_extension.dart';
@@ -13,7 +10,6 @@ import '../../../core/routing/app_sections.dart';
 import '../../../core/theme/app_tokens.dart';
 import '../../../core/widgets/responsive_content.dart';
 import '../../../core/widgets/settings_button.dart';
-import '../../adhkar/data/adhkar_catalog.dart';
 import '../../worship/presentation/cairo_radio_card.dart';
 
 class LibraryHubScreen extends ConsumerWidget {
@@ -89,7 +85,19 @@ class LibraryHubScreen extends ConsumerWidget {
                     section: AppSection.lessons,
                   ),
                 ],
-                if (managedReleaseEnabled) const _SaveLibrary(),
+                if (managedReleaseEnabled) ...[
+                  const SizedBox(height: AppSpacing.md),
+                  Card(
+                    child: ListTile(
+                      key: const ValueKey('library-downloads'),
+                      leading: const Icon(Icons.download_for_offline_outlined),
+                      title: Text(l10n.downloadsTitle),
+                      subtitle: Text(l10n.downloadsSettingsSubtitle),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => context.push(AppRoutes.downloads),
+                    ),
+                  ),
+                ],
                 const SizedBox(height: AppSpacing.xl),
               ],
             ),
@@ -125,46 +133,6 @@ class _LibraryCollection extends StatelessWidget {
       ),
     ],
   );
-}
-
-class _SaveLibrary extends ConsumerWidget {
-  const _SaveLibrary();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final ar = Localizations.localeOf(context).languageCode == 'ar';
-    final busy = ref.watch(collectionDownloadsProvider)?.running ?? false;
-    final label = ar ? 'تنزيل محتوى المكتبة' : 'Download library content';
-    return Column(
-      children: [
-        ListTile(
-          leading: const Icon(Icons.download_outlined),
-          title: Text(label),
-          subtitle: Text(
-            ar
-                ? 'المحتوى النصّي والأدعية والأذكار'
-                : 'Articles, lessons, supplications and remembrance',
-          ),
-          enabled: !busy,
-          onTap: () {
-            final manager = ref.read(collectionDownloadsProvider.notifier);
-            unawaited(
-              manager.start(label, [
-                () async {
-                  if (await ref.refresh(managedLibraryProvider.future) ==
-                      null) {
-                    throw StateError('Hosted library is unavailable');
-                  }
-                },
-                () async => ref.refresh(adhkarCatalogProvider.future),
-              ]),
-            );
-          },
-        ),
-        const CollectionDownloadStatus(),
-      ],
-    );
-  }
 }
 
 class _LibraryTile extends StatelessWidget {

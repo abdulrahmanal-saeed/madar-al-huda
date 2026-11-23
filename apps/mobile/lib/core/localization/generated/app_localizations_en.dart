@@ -1213,4 +1213,81 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reminderDuaTitle => 'A supplication';
+
+  @override
+  String get downloadsTitle => 'Download center';
+
+  @override
+  String get downloadsSettingsSubtitle => 'Use the app without internet';
+
+  @override
+  String get downloadsOnDevice => 'On your device';
+
+  @override
+  String downloadsUsed(String size) {
+    return '$size used by downloads';
+  }
+
+  @override
+  String get downloadsAlwaysOffline => 'Always available offline';
+
+  @override
+  String get downloadsRecitations => 'Recitations';
+
+  @override
+  String get downloadsNoReciters =>
+      'No recitation is available for download yet.';
+
+  @override
+  String downloadsReciterProgress(String saved, String total) {
+    return '$saved of $total surahs saved';
+  }
+
+  @override
+  String get downloadsAll => 'Download all';
+
+  @override
+  String get downloadsRemoveAll => 'Remove downloads';
+
+  @override
+  String downloadsRemoveConfirm(String name) {
+    return 'Remove the downloaded files of $name? You can download them again later.';
+  }
+
+  @override
+  String get downloadsCancel => 'Cancel';
+
+  @override
+  String get downloadsConfirmRemove => 'Remove';
+
+  @override
+  String get downloadsStories => 'Stories and lessons';
+
+  @override
+  String downloadsEpisodeProgress(String saved, String total) {
+    return '$saved of $total audio episodes saved';
+  }
+
+  @override
+  String get downloadsLibrary => 'Library texts';
+
+  @override
+  String get downloadsLibraryBody =>
+      'Remembrance, supplications, articles and lessons';
+
+  @override
+  String get downloadsLibrarySaved => 'Saved on this device';
+
+  @override
+  String get downloadsLibraryMissing => 'Not saved yet';
+
+  @override
+  String get downloadsUpdate => 'Update';
+
+  @override
+  String get downloadsOnlineOnly => 'Online only';
+
+  @override
+  String get downloadsOnlineOnlyBody =>
+      'Offered for download once its publishing rights allow it.';
 }

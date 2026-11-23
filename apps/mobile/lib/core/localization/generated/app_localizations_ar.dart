@@ -1199,4 +1199,79 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get reminderDuaTitle => 'دعاء';
+
+  @override
+  String get downloadsTitle => 'مركز التحميل';
+
+  @override
+  String get downloadsSettingsSubtitle => 'استخدم التطبيق دون اتصال بالإنترنت';
+
+  @override
+  String get downloadsOnDevice => 'على جهازك';
+
+  @override
+  String downloadsUsed(String size) {
+    return 'المساحة المستخدمة للتحميلات: $size';
+  }
+
+  @override
+  String get downloadsAlwaysOffline => 'متاح دائمًا دون اتصال';
+
+  @override
+  String get downloadsRecitations => 'التلاوات';
+
+  @override
+  String get downloadsNoReciters => 'لا توجد تلاوة متاحة للتحميل بعد.';
+
+  @override
+  String downloadsReciterProgress(String saved, String total) {
+    return '$saved من $total سورة محفوظة';
+  }
+
+  @override
+  String get downloadsAll => 'تحميل الكل';
+
+  @override
+  String get downloadsRemoveAll => 'حذف التحميلات';
+
+  @override
+  String downloadsRemoveConfirm(String name) {
+    return 'هل تريد حذف الملفات المحمّلة لـ $name؟ يمكنك تحميلها مرة أخرى لاحقًا.';
+  }
+
+  @override
+  String get downloadsCancel => 'إلغاء';
+
+  @override
+  String get downloadsConfirmRemove => 'حذف';
+
+  @override
+  String get downloadsStories => 'القصص والدروس';
+
+  @override
+  String downloadsEpisodeProgress(String saved, String total) {
+    return '$saved من $total حلقة صوتية محفوظة';
+  }
+
+  @override
+  String get downloadsLibrary => 'نصوص المكتبة';
+
+  @override
+  String get downloadsLibraryBody => 'الأذكار والأدعية والمقالات والدروس';
+
+  @override
+  String get downloadsLibrarySaved => 'محفوظة على هذا الجهاز';
+
+  @override
+  String get downloadsLibraryMissing => 'لم تُحفظ بعد';
+
+  @override
+  String get downloadsUpdate => 'تحديث';
+
+  @override
+  String get downloadsOnlineOnly => 'عبر الإنترنت فقط';
+
+  @override
+  String get downloadsOnlineOnlyBody =>
+      'سيُتاح للتحميل عندما تسمح حقوق نشره بذلك.';
 }
