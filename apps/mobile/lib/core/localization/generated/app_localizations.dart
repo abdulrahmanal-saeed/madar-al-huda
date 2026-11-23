@@ -1123,6 +1123,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open browser'**
   String get radioOpenInBrowser;
+
+  /// Daily Quran reading
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Quran reading'**
+  String get dailyReadingTitle;
+
+  /// Change daily goal
+  ///
+  /// In en, this message translates to:
+  /// **'Change daily goal'**
+  String get dailyReadingEdit;
+
+  /// Pages per session
+  ///
+  /// In en, this message translates to:
+  /// **'Pages per session'**
+  String get dailyReadingPaceLabel;
+
+  /// Enter a number between 1 and 604.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a number between 1 and 604.'**
+  String get dailyReadingPaceRange;
+
+  /// Save goal
+  ///
+  /// In en, this message translates to:
+  /// **'Save goal'**
+  String get dailyReadingSave;
+
+  /// Pages read: of
+  ///
+  /// In en, this message translates to:
+  /// **'Pages read: {read} of {total}'**
+  String dailyReadingProgress(String read, String total);
+
+  /// Read pages–
+  ///
+  /// In en, this message translates to:
+  /// **'Read pages {start}–{end}'**
+  String dailyReadingRange(String start, String end);
+
+  /// Sessions remaining:
+  ///
+  /// In en, this message translates to:
+  /// **'Sessions remaining: {count}'**
+  String dailyReadingRemaining(String count);
+
+  /// You’ve finished this reading plan.
+  ///
+  /// In en, this message translates to:
+  /// **'You’ve finished this reading plan.'**
+  String get dailyReadingCompleted;
+
+  /// Start a new plan
+  ///
+  /// In en, this message translates to:
+  /// **'Start a new plan'**
+  String get dailyReadingRestart;
+
+  /// Open in Mushaf
+  ///
+  /// In en, this message translates to:
+  /// **'Open in Mushaf'**
+  String get dailyReadingOpen;
+
+  /// Mark this session read
+  ///
+  /// In en, this message translates to:
+  /// **'Mark this session read'**
+  String get dailyReadingMarkRead;
 }
 
 class _AppLocalizationsDelegate

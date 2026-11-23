@@ -579,5 +579,74 @@
   },
   "@radioOpenInBrowser": {
     "description": "Open browser"
+  },
+  "dailyReadingTitle": "Daily Quran reading",
+  "@dailyReadingTitle": {
+    "description": "Daily Quran reading"
+  },
+  "dailyReadingEdit": "Change daily goal",
+  "@dailyReadingEdit": {
+    "description": "Change daily goal"
+  },
+  "dailyReadingPaceLabel": "Pages per session",
+  "@dailyReadingPaceLabel": {
+    "description": "Pages per session"
+  },
+  "dailyReadingPaceRange": "Enter a number between 1 and 604.",
+  "@dailyReadingPaceRange": {
+    "description": "Enter a number between 1 and 604."
+  },
+  "dailyReadingSave": "Save goal",
+  "@dailyReadingSave": {
+    "description": "Save goal"
+  },
+  "dailyReadingProgress": "Pages read: {read} of {total}",
+  "@dailyReadingProgress": {
+    "description": "Pages read: of",
+    "placeholders": {
+      "read": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "dailyReadingRange": "Read pages {start}–{end}",
+  "@dailyReadingRange": {
+    "description": "Read pages–",
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "dailyReadingRemaining": "Sessions remaining: {count}",
+  "@dailyReadingRemaining": {
+    "description": "Sessions remaining:",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "dailyReadingCompleted": "You’ve finished this reading plan.",
+  "@dailyReadingCompleted": {
+    "description": "You’ve finished this reading plan."
+  },
+  "dailyReadingRestart": "Start a new plan",
+  "@dailyReadingRestart": {
+    "description": "Start a new plan"
+  },
+  "dailyReadingOpen": "Open in Mushaf",
+  "@dailyReadingOpen": {
+    "description": "Open in Mushaf"
+  },
+  "dailyReadingMarkRead": "Mark this session read",
+  "@dailyReadingMarkRead": {
+    "description": "Mark this session read"
   }
 }

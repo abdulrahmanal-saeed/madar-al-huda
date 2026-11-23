@@ -1,5 +1,10 @@
 # Implementation log
 
+## 2026-11-23 — P02-05 daily Quran reading goal
+- Branch `phase-02/daily-reading-plan` stacks over PR #28 for access to the pinned 604-page Mushaf. D-21 allows preview implementation and technical checks while the parent reader is under review.
+- The worship screen opens a daily reading plan with an editable page target, an exact link to the next Mushaf page, and an explicit action to mark the session read. A versioned, edition-bound record keeps the current goal and progress on the device. The card is preview-gated.
+- The widget suite covers editing and reopening progress in Arabic and English. Android device QA remains open.
+
 ## 2026-11-22 — P00-07 Tanzil licence evidence only
 - Verified [official Tanzil text license](https://tanzil.net/docs/Text_License) and [download description](https://tanzil.net/pub/download/index.php); recorded conditions in `docs/CONTENT_SOURCES.md` and Issue #26.
 - No source Quran dataset was downloaded or imported, no SHA-256 or edition-specific totals asserted, and no recitation, translation or tafsir rights assumed. P00-07 remains BLOCKED and no content gate was opened.
