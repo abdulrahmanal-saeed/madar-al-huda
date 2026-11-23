@@ -9,6 +9,7 @@ header('Referrer-Policy: no-referrer');
 require __DIR__ . '/content.php';
 require __DIR__ . '/advanced.php';
 require __DIR__ . '/appearance.php';
+require __DIR__ . '/sections.php';
 require __DIR__ . '/storage.php';
 require __DIR__ . '/stories.php';
 require __DIR__ . '/apk-signature.php';
@@ -103,7 +104,8 @@ $sections = [
     'stories' => 'قصص الأنبياء', 'history' => 'سجل النشر',
     'fiqh' => 'الفقه المقارن', 'articles' => 'المقالات',
     'lessons' => 'الدروس والاختبارات', 'reciters' => 'القراء',
-    'appearance' => 'الثيم والألوان', 'releases' => 'إصدارات التطبيق',
+    'appearance' => 'الثيم والألوان', 'library_sections' => 'أقسام المكتبة',
+    'releases' => 'إصدارات التطبيق',
 ];
 $section = $_GET['section'] ?? 'daily';
 if (!is_string($section) || !isset($sections[$section])) {
@@ -167,9 +169,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif (isset(CONFIRMATIONS[$action]) && field('confirmed') !== 'yes') {
             // Irreversible actions show a confirmation page first; the CSP
             // blocks scripts, so the check happens on the server.
-            $confirming = ['action' => $action, 'message' => $section === 'appearance' && $action === 'delete'
-                ? 'سترجع ألوان التطبيق وشكله إلى الهوية الأصلية في المسودة. هل تريد المتابعة؟'
-                : CONFIRMATIONS[$action]];
+            $confirming = ['action' => $action, 'message' => match (true) {
+                $section === 'appearance' && $action === 'delete'
+                    => 'سترجع ألوان التطبيق وشكله إلى الهوية الأصلية في المسودة. هل تريد المتابعة؟',
+                $section === 'library_sections' && $action === 'delete'
+                    => 'سيُحذف هذا القسم وكل روابطه من المسودة. هل تريد المتابعة؟',
+                default => CONFIRMATIONS[$action],
+            }];
         } elseif ($action === 'logout') {
             $_SESSION = [];
             session_destroy();
@@ -196,7 +202,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new InvalidArgumentException('الإجراء غير متاح.');
         }
         if ($confirming === null) {
-            header('Location: ' . route($section, $topic), true, 303);
+            // The sections page keeps an open section's link editor open.
+            $keep = $section === 'library_sections' && is_string($_GET['edit'] ?? null) ? $_GET['edit'] : '';
+            header('Location: ' . route($section, $topic, $keep), true, 303);
             exit;
         }
     } catch (InvalidArgumentException $failure) {
@@ -220,7 +228,7 @@ if ($active) {
     }
     $rows = in_array($section, BOOK_SECTIONS, true)
         ? ($draft['library'][$section] ?? [])
-        : (in_array($section, ['stories', 'history', 'reciters', 'releases', 'appearance'], true)
+        : (in_array($section, ['stories', 'history', 'reciters', 'releases', 'appearance', 'library_sections'], true)
             ? [] : contentRows($draft, $section, $topic));
     $current = null;
     foreach ($rows as $index => $row) {
@@ -333,6 +341,8 @@ if ($active) {
       <?php endforeach; ?>
     <?php elseif ($section === 'releases'): ?>
       <?php releaseTable($db); require __DIR__ . '/release-view.php'; ?>
+    <?php elseif ($section === 'library_sections'): ?>
+      <?php require __DIR__ . '/sections-view.php'; ?>
     <?php elseif ($section === 'appearance'): ?>
       <?php require __DIR__ . '/appearance-view.php'; ?>
     <?php elseif ($section === 'history'): ?>
