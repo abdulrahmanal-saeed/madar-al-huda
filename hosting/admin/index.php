@@ -331,10 +331,17 @@ if ($active) {
           <h2><?= e($heading) ?></h2>
           <?php $recordings = listStoryFiles($folder, $action === 'restore_story'); ?>
           <?php if ($recordings === []): ?><p>لا توجد تسجيلات.</p><?php endif; ?>
-          <?php foreach ($recordings as $recording): ?>
+          <?php foreach (groupStoryFiles($recordings, $action === 'restore_story') as $episode): ?>
             <div class="row">
-              <bdi><?= e($action === 'restore_story' ? substr($recording, 18) : $recording) ?></bdi>
-              <form method="post"><?php controls($action); ?><input type="hidden" name="file" value="<?= e($recording) ?>"><button class="quiet"><?= e($verb) ?></button></form>
+              <span class="section-name">
+                <strong><?= e($episode['label']) ?></strong>
+                <?php foreach ($episode['files'] as $format => $recording): ?><span class="badge"><?= $format === 'mp3' ? 'صوت' : 'فيديو' ?></span><?php endforeach; ?>
+              </span>
+              <span class="section-actions">
+                <?php foreach ($episode['files'] as $format => $recording): ?>
+                  <form method="post"><?php controls($action); ?><input type="hidden" name="file" value="<?= e($recording) ?>"><button class="quiet"><?= e($verb . ' ' . ($format === 'mp3' ? 'الصوت' : 'الفيديو')) ?></button></form>
+                <?php endforeach; ?>
+              </span>
             </div>
           <?php endforeach; ?>
         </section>
@@ -348,11 +355,11 @@ if ($active) {
     <?php elseif ($section === 'history'): ?>
       <section class="panel">
         <h2>الإصدارات المنشورة</h2>
-        <?php $publications = $db->query('SELECT revision FROM publications ORDER BY revision DESC LIMIT 20')->fetchAll(); ?>
+        <?php $publications = $db->query('SELECT revision, published_at FROM publications ORDER BY revision DESC LIMIT 20')->fetchAll(); ?>
         <?php if ($publications === []): ?><p>لا توجد إصدارات منشورة بعد.</p><?php endif; ?>
         <?php foreach ($publications as $publication): ?>
           <div class="row">
-            <span>الإصدار <?= e($publication['revision']) ?></span>
+            <span>الإصدار <?= e(arabicDigits((string) $publication['revision'])) ?><?php if ($publication['published_at'] !== null): ?> · <bdi><?= e(publishedLabel((int) $publication['published_at'])) ?></bdi><?php endif; ?></span>
             <form method="post"><?php controls('restore', $revision); ?><input type="hidden" name="publication" value="<?= e($publication['revision']) ?>"><button class="quiet">استعادة إلى المسودة</button></form>
           </div>
         <?php endforeach; ?>
@@ -372,7 +379,7 @@ if ($active) {
           <?php foreach ($rows as $index => $row): ?>
           <?php $key = $row['id'] ?? (string) $index; ?>
           <a class="entry" href="<?= e(route($section, $topic, $key)) ?>" <?= $key === $edit ? 'aria-current="true"' : '' ?>>
-            <strong><?= $section === 'duas' ? e('سورة ' . $row[0] . ' · الآيات ' . $row[1] . '–' . $row[2]) : e($row['title']['ar']) ?></strong>
+            <strong><?= $section === 'duas' ? e(verseRangeLabel($row)) : e($row['title']['ar']) ?></strong>
             <?php if ($section !== 'duas'): ?><span lang="en" dir="ltr"><?= e($row['title']['en']) ?></span><?php endif; ?>
           </a>
           <?php endforeach; ?>
@@ -384,7 +391,13 @@ if ($active) {
             <?php controls('save', $revision); ?>
             <input type="hidden" name="original" value="<?= $current !== null ? e($edit) : '' ?>">
             <?php if ($section === 'duas'): ?>
-              <label>رقم السورة<input name="surah" type="number" min="1" max="114" value="<?= e($current[0] ?? '') ?>" required></label>
+              <label>السورة
+                <select name="surah" required>
+                  <?php foreach ((require __DIR__ . '/quran-surahs.php') as $index => [$surahName, $verseCount]): ?>
+                    <option value="<?= e($index + 1) ?>" <?= (int) ($current[0] ?? 0) === $index + 1 ? 'selected' : '' ?>><?= e(arabicDigits((string) ($index + 1)) . ' · ' . $surahName . ' (' . arabicDigits((string) $verseCount) . ' آية)') ?></option>
+                  <?php endforeach; ?>
+                </select>
+              </label>
               <div class="fields">
                 <label>أول آية<input name="first" type="number" min="1" value="<?= e($current[1] ?? '') ?>" required></label>
                 <label>آخر آية<input name="last" type="number" min="1" value="<?= e($current[2] ?? '') ?>" required></label>

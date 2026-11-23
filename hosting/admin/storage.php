@@ -7,6 +7,32 @@ const FEED_MAX_BYTES = 4 * 1024 * 1024;
 // App builds released before the limit was raised stop at 1 MB.
 const FEED_LEGACY_BYTES = 1024 * 1024;
 
+function arabicDigits(string $text): string
+{
+    return strtr($text, ['0' => '٠', '1' => '١', '2' => '٢', '3' => '٣', '4' => '٤',
+        '5' => '٥', '6' => '٦', '7' => '٧', '8' => '٨', '9' => '٩']);
+}
+
+/** «آل عمران ١٦» or «الأعراف ١٥٥–١٥٦» for a [surah, first, last] range. */
+function verseRangeLabel(array $range): string
+{
+    static $surahs = null;
+    $surahs ??= require __DIR__ . '/quran-surahs.php';
+    [$surah, $first, $last] = $range;
+    $name = $surahs[$surah - 1][0] ?? ('سورة ' . $surah);
+    return $name . ' ' . arabicDigits($first === $last ? (string) $first : "$first–$last");
+}
+
+/** The publish time of a history entry, in the owner's time zone. */
+function publishedLabel(?int $timestamp): string
+{
+    if ($timestamp === null) {
+        return '';
+    }
+    $date = new DateTimeImmutable('@' . $timestamp);
+    return arabicDigits($date->setTimezone(new DateTimeZone('Asia/Dubai'))->format('Y-m-d H:i'));
+}
+
 function feedSizeLabel(int $bytes): string
 {
     $digits = static fn (string $text): string => strtr($text, ['0' => '٠', '1' => '١', '2' => '٢', '3' => '٣', '4' => '٤', '5' => '٥', '6' => '٦', '7' => '٧', '8' => '٨', '9' => '٩', '.' => '٫']);
@@ -48,6 +74,10 @@ function database(): PDO
     $db->exec('CREATE TABLE IF NOT EXISTS auth_attempts (bucket TEXT PRIMARY KEY, started INTEGER NOT NULL, count INTEGER NOT NULL)');
     $db->exec('CREATE TABLE IF NOT EXISTS library (id INTEGER PRIMARY KEY, draft TEXT NOT NULL, revision INTEGER NOT NULL, published TEXT)');
     $db->exec('CREATE TABLE IF NOT EXISTS publications (revision INTEGER PRIMARY KEY, body TEXT NOT NULL)');
+    $columns = array_column($db->query('PRAGMA table_info(publications)')->fetchAll(), 'name');
+    if (!in_array('published_at', $columns, true)) {
+        $db->exec('ALTER TABLE publications ADD COLUMN published_at INTEGER');
+    }
     return $db;
 }
 
@@ -152,8 +182,8 @@ function updateLibrary(PDO $db, string $action, array $seed, string $section, st
             }
             $current = $db->prepare('UPDATE library SET published = ? WHERE id = 1');
             $current->execute([$draft]);
-            $history = $db->prepare('INSERT OR IGNORE INTO publications (revision, body) VALUES (?, ?)');
-            $history->execute([$revision, $draft]);
+            $history = $db->prepare('INSERT OR IGNORE INTO publications (revision, body, published_at) VALUES (?, ?, ?)');
+            $history->execute([$revision, $draft, time()]);
             return;
         }
         if ($action === 'restore') {

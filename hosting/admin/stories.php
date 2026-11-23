@@ -19,6 +19,33 @@ function listStoryFiles(string $directory, bool $archived): array
     ));
 }
 
+/**
+ * One row per episode: «آدم · الحلقة ١» with its audio and video files.
+ *
+ * @return list<array{label: string, files: array<string, string>}>
+ */
+function groupStoryFiles(array $files, bool $archived): array
+{
+    $episodes = [];
+    foreach ($files as $file) {
+        $name = $archived ? substr($file, 18) : $file;
+        if (!preg_match('/\AMadar-([A-Za-z][A-Za-z-]*)-([0-9]{1,6})\.(mp3|mp4)\z/', $name, $parts)) {
+            continue;
+        }
+        $key = $parts[1] . '-' . $parts[2];
+        $episodes[$key] ??= [
+            'label' => str_replace('-', ' ', $parts[1]) . ' · الحلقة ' . arabicDigits((string) (int) $parts[2]),
+            'files' => [],
+        ];
+        $episodes[$key]['files'][$parts[3]] = $file;
+    }
+    foreach ($episodes as &$episode) {
+        ksort($episode['files']);
+    }
+    unset($episode);
+    return array_values($episodes);
+}
+
 function changeStory(string $action): void
 {
     $media = realpath(ROOT . '/Prophet Stories');
