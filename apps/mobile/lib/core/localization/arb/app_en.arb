@@ -1112,7 +1112,7 @@
   "@recitationDownloadFailed": {
     "description": "Could not save or access this download."
   },
-  "contentLoadFailed": "Couldn't load this content. Check your connection and try again.",
+  "contentLoadFailed": "Couldn't check for new content. Check your connection and try again.",
   "@contentLoadFailed": {
     "description": "Shown when hosted library content has no response and no saved copy."
   },

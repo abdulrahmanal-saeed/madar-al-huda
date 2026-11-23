@@ -93,43 +93,46 @@ void main() {
     expect(requests, [false]);
   });
 
-  test('a located position survives a restart, rounded to about 1 km', () async {
-    final store = InMemoryKeyValueStore();
-    final first = ProviderContainer(
-      overrides: [
-        keyValueStoreProvider.overrideWithValue(store),
-        readDeviceLocationProvider.overrideWithValue(
-          ({required requestPermission}) async =>
-              const GeoCoordinate(25.204849, 55.270783),
-        ),
-      ],
-    );
-    addTearDown(first.dispose);
-    await first.read(worshipLocationProvider.notifier).useDevice();
-    expect(
-      first.read(worshipLocationProvider).deviceCountry,
-      WorshipCountry.emirates,
-    );
+  test(
+    'a located position survives a restart, rounded to about 1 km',
+    () async {
+      final store = InMemoryKeyValueStore();
+      final first = ProviderContainer(
+        overrides: [
+          keyValueStoreProvider.overrideWithValue(store),
+          readDeviceLocationProvider.overrideWithValue(
+            ({required requestPermission}) async =>
+                const GeoCoordinate(25.204849, 55.270783),
+          ),
+        ],
+      );
+      addTearDown(first.dispose);
+      await first.read(worshipLocationProvider.notifier).useDevice();
+      expect(
+        first.read(worshipLocationProvider).deviceCountry,
+        WorshipCountry.emirates,
+      );
 
-    final restart = ProviderContainer(
-      overrides: [
-        keyValueStoreProvider.overrideWithValue(store),
-        readDeviceLocationProvider.overrideWithValue(
-          ({required requestPermission}) async =>
-              throw LocationProblem.unavailable,
-        ),
-      ],
-    );
-    addTearDown(restart.dispose);
-    final saved = restart.read(worshipLocationProvider);
-    expect(saved.devicePoint?.latitude, 25.2);
-    expect(saved.devicePoint?.longitude, 55.27);
-    expect(saved.deviceCountry, WorshipCountry.emirates);
+      final restart = ProviderContainer(
+        overrides: [
+          keyValueStoreProvider.overrideWithValue(store),
+          readDeviceLocationProvider.overrideWithValue(
+            ({required requestPermission}) async =>
+                throw LocationProblem.unavailable,
+          ),
+        ],
+      );
+      addTearDown(restart.dispose);
+      final saved = restart.read(worshipLocationProvider);
+      expect(saved.devicePoint?.latitude, 25.2);
+      expect(saved.devicePoint?.longitude, 55.27);
+      expect(saved.deviceCountry, WorshipCountry.emirates);
 
-    // GPS off at start-up keeps the saved position instead of an error.
-    await restart.read(worshipLocationProvider.notifier).locateAtStartup();
-    final after = restart.read(worshipLocationProvider);
-    expect(after.problem, isNull);
-    expect(after.devicePoint?.latitude, 25.2);
-  });
+      // GPS off at start-up keeps the saved position instead of an error.
+      await restart.read(worshipLocationProvider.notifier).locateAtStartup();
+      final after = restart.read(worshipLocationProvider);
+      expect(after.problem, isNull);
+      expect(after.devicePoint?.latitude, 25.2);
+    },
+  );
 }

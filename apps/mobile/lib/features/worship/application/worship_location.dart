@@ -127,9 +127,7 @@ class WorshipLocationController extends Notifier<WorshipLocation> {
       final country = WorshipCountry.values
           .where((country) => country.name == data['country'])
           .firstOrNull;
-      if (country == null ||
-          latitude.abs() > 90 ||
-          longitude.abs() > 180) {
+      if (country == null || latitude.abs() > 90 || longitude.abs() > 180) {
         return null;
       }
       return (point: GeoCoordinate(latitude, longitude), country: country);

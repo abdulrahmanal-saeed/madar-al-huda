@@ -38,16 +38,20 @@ class ManagedContentScreen extends ConsumerWidget {
     final l10n = context.l10n;
     final value = ref.watch(managedLibraryProvider);
     final data = value.asData?.value;
-    // Without a response or a saved copy, the screen must say that the
-    // content could not be reached instead of presenting it as unpublished.
-    if (data == null) {
+    if (data == null && value.isLoading) {
       return Scaffold(
         appBar: AppBar(title: Text(section.title(l10n))),
-        body: value.isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : _LoadFailed(
-                onRetry: () => ref.invalidate(managedLibraryProvider),
-              ),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+    // Without a response or a saved copy the app cannot tell "not published
+    // yet" from "offline", so it keeps the status panel and offers a retry.
+    if (data == null) {
+      return SectionDetailScaffold(
+        section: section,
+        footer: _LoadFailed(
+          onRetry: () => ref.invalidate(managedLibraryProvider),
+        ),
       );
     }
     final library = data['library'];
@@ -95,28 +99,23 @@ class _LoadFailed extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.xl),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.cloud_off_outlined,
-              size: 48,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            Text(l10n.contentLoadFailed, textAlign: TextAlign.center),
-            const SizedBox(height: AppSpacing.lg),
-            FilledButton.icon(
-              icon: const Icon(Icons.refresh),
-              label: Text(l10n.contentRetry),
-              onPressed: onRetry,
-            ),
-          ],
+    final theme = Theme.of(context);
+    return Row(
+      children: [
+        Icon(
+          Icons.cloud_off_outlined,
+          color: theme.colorScheme.onSurfaceVariant,
         ),
-      ),
+        const SizedBox(width: AppSpacing.md),
+        Expanded(
+          child: Text(
+            l10n.contentLoadFailed,
+            style: theme.textTheme.bodyMedium,
+          ),
+        ),
+        const SizedBox(width: AppSpacing.sm),
+        TextButton(onPressed: onRetry, child: Text(l10n.contentRetry)),
+      ],
     );
   }
 }

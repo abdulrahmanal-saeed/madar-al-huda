@@ -102,7 +102,11 @@ void main() {
     await tester.pumpAndSettle();
     expect(requests, [false, true]);
     expect(find.text(l10n.deviceLocation), findsWidgets);
-    expect(store.values, {WorshipLocationController.deviceLocationKey: true});
+    expect(store.values, {
+      WorshipLocationController.deviceLocationKey: true,
+      // The located position is kept, rounded, for the next launch.
+      WorshipLocationController.lastDevicePointKey: isA<String>(),
+    });
 
     await tester.tap(find.widgetWithText(TextButton, l10n.sectionQiblaTitle));
     await tester.pumpAndSettle();

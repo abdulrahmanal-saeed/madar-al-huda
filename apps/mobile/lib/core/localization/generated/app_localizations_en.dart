@@ -1044,7 +1044,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get contentLoadFailed =>
-      'Couldn\'t load this content. Check your connection and try again.';
+      'Couldn\'t check for new content. Check your connection and try again.';
 
   @override
   String get contentRetry => 'Retry';

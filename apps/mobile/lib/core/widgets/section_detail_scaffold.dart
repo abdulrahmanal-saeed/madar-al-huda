@@ -14,10 +14,18 @@ import 'responsive_content.dart';
 /// [body] is ignored while the section is gated, so unverified content can't
 /// leak through by accident.
 class SectionDetailScaffold extends StatelessWidget {
-  const SectionDetailScaffold({required this.section, super.key, this.body});
+  const SectionDetailScaffold({
+    required this.section,
+    super.key,
+    this.body,
+    this.footer,
+  });
 
   final AppSection section;
   final Widget? body;
+
+  /// Shown under the status panel or [body], e.g. a retry prompt.
+  final Widget? footer;
 
   @override
   Widget build(BuildContext context) {
@@ -54,6 +62,10 @@ class SectionDetailScaffold extends StatelessWidget {
                   ContentStatusPanel(status: section.status)
                 else
                   body!,
+                if (footer case final footer?) ...[
+                  const SizedBox(height: AppSpacing.lg),
+                  footer,
+                ],
               ],
             ),
           ),

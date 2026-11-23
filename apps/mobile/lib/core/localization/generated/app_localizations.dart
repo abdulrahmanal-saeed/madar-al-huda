@@ -1955,7 +1955,7 @@ abstract class AppLocalizations {
   /// Shown when hosted library content has no response and no saved copy.
   ///
   /// In en, this message translates to:
-  /// **'Couldn\'t load this content. Check your connection and try again.'**
+  /// **'Couldn\'t check for new content. Check your connection and try again.'**
   String get contentLoadFailed;
 
   /// Button that loads hosted library content again.

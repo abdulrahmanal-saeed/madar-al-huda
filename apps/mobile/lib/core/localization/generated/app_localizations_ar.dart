@@ -1032,7 +1032,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get contentLoadFailed =>
-      'تعذّر تحميل المحتوى. تحقّق من اتصالك بالإنترنت ثم أعد المحاولة.';
+      'تعذّر التحقق من وجود محتوى جديد. تحقّق من اتصالك بالإنترنت ثم أعد المحاولة.';
 
   @override
   String get contentRetry => 'إعادة المحاولة';
