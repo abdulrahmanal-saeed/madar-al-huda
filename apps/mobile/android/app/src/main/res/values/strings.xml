@@ -5,4 +5,7 @@
     <string name="update_notifications_channel">App updates</string>
     <string name="update_notification_title">Madar Al-Huda update</string>
     <string name="update_notification_body">Version %1$s is ready to download.</string>
+    <string name="widget_next_prayer">Next prayer</string>
+    <string name="widget_description">The next prayer with a countdown</string>
+    <string name="widget_open_app">Open the app to set your location</string>
 </resources>
