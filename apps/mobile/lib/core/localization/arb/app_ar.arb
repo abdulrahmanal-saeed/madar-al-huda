@@ -597,5 +597,15 @@
   "errorReportClear": "مسح",
   "errorReportCount": "{count} مسجّلة على هاتفك",
   "downloadsStoriesTab": "القصص",
-  "downloadsLibraryTab": "المكتبة"
+  "downloadsLibraryTab": "المكتبة",
+  "firstRunLookTitle": "اختر اللغة والمظهر",
+  "firstRunNext": "التالي",
+  "firstRunNotificationsTitle": "التنبيهات",
+  "firstRunNotificationsBody": "يذكّرك «مدار الهدى» بمواقيت الصلاة وأذكار الصباح والمساء والأدعية التي تختارها. التنبيهات تُجهَّز على هاتفك ولا يُرسل منها شيء لأي جهة.",
+  "firstRunNotificationsAllow": "السماح بالتنبيهات",
+  "firstRunLocationBody": "موقعك يعطيك مواقيت صلاة دقيقة واتجاه القبلة أينما كنت، ويبقى على هاتفك فقط. ويمكنك اختيار مدينة لاحقًا بدلًا منه.",
+  "firstRunRemindersBody": "اختر التذكيرات التي تريدها، ويمكنك تغييرها في أي وقت من الإعدادات.",
+  "firstRunSelectAll": "تحديد الكل",
+  "firstRunClearAll": "إلغاء الكل",
+  "firstRunStart": "ابدأ"
 }

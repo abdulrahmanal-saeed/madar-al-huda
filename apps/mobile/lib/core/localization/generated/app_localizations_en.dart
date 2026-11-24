@@ -2022,4 +2022,37 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get downloadsLibraryTab => 'Library';
+
+  @override
+  String get firstRunLookTitle => 'Choose your language and look';
+
+  @override
+  String get firstRunNext => 'Next';
+
+  @override
+  String get firstRunNotificationsTitle => 'Notifications';
+
+  @override
+  String get firstRunNotificationsBody =>
+      'Madar Al-Huda reminds you of prayer times, morning and evening adhkar, and the supplications you choose. Reminders are made on your phone; nothing is sent anywhere.';
+
+  @override
+  String get firstRunNotificationsAllow => 'Allow notifications';
+
+  @override
+  String get firstRunLocationBody =>
+      'Your location gives exact prayer times and the qibla wherever you are. It stays on your phone. You can also pick a city later.';
+
+  @override
+  String get firstRunRemindersBody =>
+      'Pick the reminders you want. You can change them any time from Settings.';
+
+  @override
+  String get firstRunSelectAll => 'Select all';
+
+  @override
+  String get firstRunClearAll => 'Clear all';
+
+  @override
+  String get firstRunStart => 'Start';
 }

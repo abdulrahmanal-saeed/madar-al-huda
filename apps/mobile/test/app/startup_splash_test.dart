@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:madar_al_huda/app/first_run.dart';
 import 'package:madar_al_huda/core/localization/app_locales.dart';
 import 'package:madar_al_huda/core/routing/app_routes.dart';
 import 'package:madar_al_huda/core/storage/key_value_store.dart';
@@ -24,6 +25,7 @@ void main() {
           showStartupSplash: true,
           store: InMemoryKeyValueStore({
             WorshipLocationController.deviceLocationKey: false,
+            firstRunDoneKey: true,
           }),
         );
 
@@ -70,6 +72,7 @@ void main() {
       deviceLocales: const [locale],
       initialLocation: AppRoutes.prayerTimes,
       showStartupSplash: true,
+      store: InMemoryKeyValueStore({firstRunDoneKey: true}),
       additionalOverrides: [
         readDeviceLocationProvider.overrideWithValue(({
           required requestPermission,
@@ -94,6 +97,7 @@ void main() {
     expect(find.text(l10n.locationFromDevice), findsWidgets);
     expect(find.text('Cairo, Egypt'), findsWidgets);
     expect(store.values, {
+      firstRunDoneKey: true,
       WorshipLocationController.deviceLocationKey: true,
       // The located position is kept, rounded, for the next launch.
       WorshipLocationController.lastDevicePointKey: isA<String>(),

@@ -3619,6 +3619,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Library'**
   String get downloadsLibraryTab;
+
+  /// First run: language and theme.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your language and look'**
+  String get firstRunLookTitle;
+
+  /// First run: next.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get firstRunNext;
+
+  /// First run: notifications title.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get firstRunNotificationsTitle;
+
+  /// First run: why notifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Madar Al-Huda reminds you of prayer times, morning and evening adhkar, and the supplications you choose. Reminders are made on your phone; nothing is sent anywhere.'**
+  String get firstRunNotificationsBody;
+
+  /// First run: allow notifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow notifications'**
+  String get firstRunNotificationsAllow;
+
+  /// First run: why location.
+  ///
+  /// In en, this message translates to:
+  /// **'Your location gives exact prayer times and the qibla wherever you are. It stays on your phone. You can also pick a city later.'**
+  String get firstRunLocationBody;
+
+  /// First run: reminders intro.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick the reminders you want. You can change them any time from Settings.'**
+  String get firstRunRemindersBody;
+
+  /// First run: select all reminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Select all'**
+  String get firstRunSelectAll;
+
+  /// First run: clear all reminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all'**
+  String get firstRunClearAll;
+
+  /// First run: finish.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get firstRunStart;
 }
 
 class _AppLocalizationsDelegate

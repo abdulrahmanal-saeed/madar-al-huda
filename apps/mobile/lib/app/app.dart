@@ -8,6 +8,7 @@ import '../core/content/feature_preview.dart';
 import '../core/localization/app_locales.dart';
 import '../core/localization/l10n_extension.dart';
 import '../core/routing/app_sections.dart';
+import '../core/storage/storage_providers.dart';
 import '../core/theme/app_theme.dart';
 import '../core/theme/remote_theme.dart';
 import '../features/prayer/application/prayer_widget_sync.dart';
@@ -15,6 +16,7 @@ import '../features/reminders/application/reminder_sync.dart';
 import '../features/settings/application/settings_controller.dart';
 import '../features/worship/application/worship_location.dart';
 import 'app_router.dart';
+import 'first_run.dart';
 import 'startup_splash.dart';
 
 /// Root widget. Wires settings (language, theme, motion) into MaterialApp.
@@ -72,12 +74,17 @@ class MadarApp extends ConsumerWidget {
               )
             : child!;
         final synced = ReminderSync(child: PrayerWidgetSync(child: content));
-        return showStartupSplash
-            ? StartupSplash(
-                onDismissed: () => unawaited(_setUpLocation(context, ref)),
-                child: synced,
-              )
-            : synced;
+        if (!showStartupSplash) return synced;
+        // First launch: the first-run steps (language, theme, permissions,
+        // reminders) wait under the splash. Later launches only refresh
+        // the location.
+        final returning = firstRunDone(ref.read(keyValueStoreProvider));
+        return StartupSplash(
+          onDismissed: () {
+            if (returning) unawaited(_setUpLocation(context, ref));
+          },
+          child: returning ? synced : FirstRunGate(child: synced),
+        );
       },
     );
   }
