@@ -1628,4 +1628,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String hadithPosition(String index, String total) {
     return '$index of $total';
   }
+
+  @override
+  String get learningStoriesIntro =>
+      'The prophets\' stories, peace be upon them, to listen to or watch, in order from Adam.';
+
+  @override
+  String get learningDownloadAllStories => 'Download all stories';
+
+  @override
+  String get learningAudioAndVideo => 'Audio and video';
+
+  @override
+  String get learningNowPlaying => 'Now playing';
+
+  @override
+  String get learningFullscreen => 'Full screen';
+
+  @override
+  String get learningExitFullscreen => 'Exit full screen';
+
+  @override
+  String get learningEpisodeOptions => 'Episode options';
+
+  @override
+  String get learningSoon => 'Episodes coming soon';
+
+  @override
+  String learningFileSize(String size) {
+    return '$size MB';
+  }
 }

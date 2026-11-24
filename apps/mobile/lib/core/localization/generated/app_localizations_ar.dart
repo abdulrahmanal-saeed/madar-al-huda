@@ -1615,4 +1615,34 @@ class AppLocalizationsAr extends AppLocalizations {
   String hadithPosition(String index, String total) {
     return '$index من $total';
   }
+
+  @override
+  String get learningStoriesIntro =>
+      'قصص الأنبياء عليهم السلام بالصوت والفيديو، بالترتيب من سيدنا آدم.';
+
+  @override
+  String get learningDownloadAllStories => 'تنزيل كل القصص';
+
+  @override
+  String get learningAudioAndVideo => 'الصوت والفيديو';
+
+  @override
+  String get learningNowPlaying => 'يُشغَّل الآن';
+
+  @override
+  String get learningFullscreen => 'ملء الشاشة';
+
+  @override
+  String get learningExitFullscreen => 'الخروج من ملء الشاشة';
+
+  @override
+  String get learningEpisodeOptions => 'خيارات الحلقة';
+
+  @override
+  String get learningSoon => 'الحلقات قريبًا';
+
+  @override
+  String learningFileSize(String size) {
+    return '$size م.ب';
+  }
 }

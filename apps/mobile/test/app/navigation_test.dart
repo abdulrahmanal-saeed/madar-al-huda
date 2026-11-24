@@ -131,11 +131,18 @@ void main() {
     expect(find.text('Idris, peace be upon him'), findsOneWidget);
     await tester.tap(find.text('Adam, peace be upon him'));
     await tester.pumpAndSettle();
-    expect(find.widgetWithText(ChoiceChip, 'Audio'), findsOneWidget);
-    final video = find.widgetWithText(ChoiceChip, 'Video');
-    await tester.tap(video);
+    final formats = find.byKey(const Key('episode-format'));
+    expect(
+      find.descendant(of: formats, matching: find.text('Audio')),
+      findsOneWidget,
+    );
+    await tester.tap(
+      find.descendant(of: formats, matching: find.text('Video')),
+    );
     await tester.pumpAndSettle();
-    expect(tester.widget<ChoiceChip>(video).selected, isTrue);
+    expect(tester.widget<SegmentedButton<LessonFormat>>(formats).selected, {
+      LessonFormat.video,
+    });
     expect(find.text('Episode 1'), findsOneWidget);
     expect(find.text('Episode 6'), findsOneWidget);
   });

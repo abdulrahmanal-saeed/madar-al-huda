@@ -2935,6 +2935,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{index} of {total}'**
   String hadithPosition(String index, String total);
+
+  /// Stories page intro.
+  ///
+  /// In en, this message translates to:
+  /// **'The prophets\' stories, peace be upon them, to listen to or watch, in order from Adam.'**
+  String get learningStoriesIntro;
+
+  /// Downloads every story.
+  ///
+  /// In en, this message translates to:
+  /// **'Download all stories'**
+  String get learningDownloadAllStories;
+
+  /// Both formats.
+  ///
+  /// In en, this message translates to:
+  /// **'Audio and video'**
+  String get learningAudioAndVideo;
+
+  /// Marks the playing episode.
+  ///
+  /// In en, this message translates to:
+  /// **'Now playing'**
+  String get learningNowPlaying;
+
+  /// Enters full-screen video.
+  ///
+  /// In en, this message translates to:
+  /// **'Full screen'**
+  String get learningFullscreen;
+
+  /// Leaves full-screen video.
+  ///
+  /// In en, this message translates to:
+  /// **'Exit full screen'**
+  String get learningExitFullscreen;
+
+  /// Episode menu.
+  ///
+  /// In en, this message translates to:
+  /// **'Episode options'**
+  String get learningEpisodeOptions;
+
+  /// Story without episodes.
+  ///
+  /// In en, this message translates to:
+  /// **'Episodes coming soon'**
+  String get learningSoon;
+
+  /// Download size.
+  ///
+  /// In en, this message translates to:
+  /// **'{size} MB'**
+  String learningFileSize(String size);
 }
 
 class _AppLocalizationsDelegate

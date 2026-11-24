@@ -482,5 +482,14 @@
   "hadithSearchHint": "ابحث في الموضوعات، مثل: الصلاة، الصيام، الأخلاق",
   "hadithCount": "{count, plural, =0{لا أحاديث} =1{حديث واحد} =2{حديثان} few{{countText} أحاديث} other{{countText} حديثًا}}",
   "hadithAllIn": "كل أحاديث «{topic}»",
-  "hadithPosition": "{index} من {total}"
+  "hadithPosition": "{index} من {total}",
+  "learningStoriesIntro": "قصص الأنبياء عليهم السلام بالصوت والفيديو، بالترتيب من سيدنا آدم.",
+  "learningDownloadAllStories": "تنزيل كل القصص",
+  "learningAudioAndVideo": "الصوت والفيديو",
+  "learningNowPlaying": "يُشغَّل الآن",
+  "learningFullscreen": "ملء الشاشة",
+  "learningExitFullscreen": "الخروج من ملء الشاشة",
+  "learningEpisodeOptions": "خيارات الحلقة",
+  "learningSoon": "الحلقات قريبًا",
+  "learningFileSize": "{size} م.ب"
 }
