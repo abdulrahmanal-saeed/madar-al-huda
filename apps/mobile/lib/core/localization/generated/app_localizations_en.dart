@@ -1992,4 +1992,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String prayerSince(String time) {
     return '$time ago';
   }
+
+  @override
+  String get offlineBanner => 'You\'re offline. Saved content still works.';
+
+  @override
+  String get errorReportTitle => 'Error report';
+
+  @override
+  String get errorReportNone => 'No errors recorded';
+
+  @override
+  String get errorReportPrivacy =>
+      'Kept on this phone only. Share it with the developer if you want; nothing is sent by itself.';
+
+  @override
+  String get errorReportShare => 'Share the report';
+
+  @override
+  String get errorReportClear => 'Clear';
+
+  @override
+  String errorReportCount(String count) {
+    return '$count recorded on this phone';
+  }
 }

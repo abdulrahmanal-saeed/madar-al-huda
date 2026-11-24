@@ -1653,5 +1653,19 @@
   "prayerIn": "in {time}",
   "@prayerIn": {"description":"Relative prayer time.","placeholders":{"time":{"type":"String"}}},
   "prayerSince": "{time} ago",
-  "@prayerSince": {"description":"Relative prayer time.","placeholders":{"time":{"type":"String"}}}
+  "@prayerSince": {"description":"Relative prayer time.","placeholders":{"time":{"type":"String"}}},
+  "offlineBanner": "You're offline. Saved content still works.",
+  "@offlineBanner": {"description":"Offline banner."},
+  "errorReportTitle": "Error report",
+  "@errorReportTitle": {"description":"Settings row."},
+  "errorReportNone": "No errors recorded",
+  "@errorReportNone": {"description":"No errors."},
+  "errorReportPrivacy": "Kept on this phone only. Share it with the developer if you want; nothing is sent by itself.",
+  "@errorReportPrivacy": {"description":"Privacy note."},
+  "errorReportShare": "Share the report",
+  "@errorReportShare": {"description":"Share."},
+  "errorReportClear": "Clear",
+  "@errorReportClear": {"description":"Clear."},
+  "errorReportCount": "{count} recorded on this phone",
+  "@errorReportCount": {"description":"Error count.","placeholders":{"count":{"type":"String"}}}
 }

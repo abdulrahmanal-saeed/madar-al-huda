@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../../core/diagnostics/error_log.dart';
 import '../../../core/localization/l10n_extension.dart';
 import '../../../core/routing/app_routes.dart';
 import '../../../core/theme/app_tokens.dart';
@@ -123,6 +124,7 @@ class SettingsScreen extends ConsumerWidget {
                   const _Divider(),
                   _GroupHeader(l10n.settingsAbout),
                   const SettingsUpdates(),
+                  const ErrorReportTile(),
                   ListTile(
                     leading: const Icon(Icons.info_outline),
                     title: Text(l10n.appTitle),

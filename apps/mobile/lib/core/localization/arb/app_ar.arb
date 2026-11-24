@@ -588,5 +588,12 @@
   "zakatGold": "ذهب عيار {karat} (بالجرام)",
   "prayerRemaining": "الوقت المتبقي",
   "prayerIn": "بعد {time}",
-  "prayerSince": "منذ {time}"
+  "prayerSince": "منذ {time}",
+  "offlineBanner": "أنت غير متصل. المحتوى المحفوظ يعمل كالمعتاد.",
+  "errorReportTitle": "تقرير الأخطاء",
+  "errorReportNone": "لم تُسجَّل أخطاء",
+  "errorReportPrivacy": "محفوظ على هاتفك فقط. شاركه مع المطوّر إن أردت؛ لا يُرسل شيء تلقائيًا.",
+  "errorReportShare": "مشاركة التقرير",
+  "errorReportClear": "مسح",
+  "errorReportCount": "{count} مسجّلة على هاتفك"
 }

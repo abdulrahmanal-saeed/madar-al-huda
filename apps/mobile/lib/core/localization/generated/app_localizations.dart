@@ -3565,6 +3565,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{time} ago'**
   String prayerSince(String time);
+
+  /// Offline banner.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re offline. Saved content still works.'**
+  String get offlineBanner;
+
+  /// Settings row.
+  ///
+  /// In en, this message translates to:
+  /// **'Error report'**
+  String get errorReportTitle;
+
+  /// No errors.
+  ///
+  /// In en, this message translates to:
+  /// **'No errors recorded'**
+  String get errorReportNone;
+
+  /// Privacy note.
+  ///
+  /// In en, this message translates to:
+  /// **'Kept on this phone only. Share it with the developer if you want; nothing is sent by itself.'**
+  String get errorReportPrivacy;
+
+  /// Share.
+  ///
+  /// In en, this message translates to:
+  /// **'Share the report'**
+  String get errorReportShare;
+
+  /// Clear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get errorReportClear;
+
+  /// Error count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} recorded on this phone'**
+  String errorReportCount(String count);
 }
 
 class _AppLocalizationsDelegate

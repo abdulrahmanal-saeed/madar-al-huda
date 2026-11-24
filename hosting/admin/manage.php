@@ -52,6 +52,12 @@ function changeAppSettings(array $content): array
     if (mb_strlen($ar) > 300 || mb_strlen($en) > 300) {
         throw new InvalidArgumentException('اختصر نص الإعلان إلى ٣٠٠ حرف.');
     }
+    $minimum = field('min_app_version');
+    if ($minimum !== '' && !preg_match('/\A[0-9]{1,9}\z/', $minimum)) {
+        throw new InvalidArgumentException('أقل رقم بناء للتطبيق رقم صحيح.');
+    }
+    // Builds older than this keep their last library instead of this one.
+    $content['minAppVersion'] = (int) $minimum;
     $content['app'] = [
         'features' => $features,
         'announcement' => ['ar' => $ar, 'en' => $en, 'link' => $link, 'until' => $until],

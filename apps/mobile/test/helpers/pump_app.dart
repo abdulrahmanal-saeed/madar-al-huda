@@ -9,6 +9,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:madar_al_huda/app/app.dart';
 import 'package:madar_al_huda/app/app_router.dart';
 import 'package:madar_al_huda/core/audio/audio_playback.dart';
+import 'package:madar_al_huda/core/connectivity/offline_banner.dart';
 import 'package:madar_al_huda/core/content/managed_library.dart';
 import 'package:madar_al_huda/core/storage/key_value_store.dart';
 import 'package:madar_al_huda/core/storage/storage_providers.dart';
@@ -54,6 +55,7 @@ Future<InMemoryKeyValueStore> pumpMadarApp(
   WidgetTester tester, {
   InMemoryKeyValueStore? store,
   List<Locale> deviceLocales = const [Locale('en', 'US')],
+  bool offline = false,
   Size size = phoneSize,
   bool showStartupSplash = false,
   String? initialLocation,
@@ -86,6 +88,7 @@ Future<InMemoryKeyValueStore> pumpMadarApp(
         quranDuaIndexProvider.overrideWith((_) => quranDuaIndex),
         managedLibraryProvider.overrideWith((_) => null),
         worldCitiesProvider.overrideWith((_) => testCities()),
+        offlineProvider.overrideWith((_) => Stream.value(offline)),
         hadeethEncProvider.overrideWithValue(OfflineHadeethEnc()),
         if (quranApi != null) quranApiProvider.overrideWithValue(quranApi),
         if (audioPlayer != null)
