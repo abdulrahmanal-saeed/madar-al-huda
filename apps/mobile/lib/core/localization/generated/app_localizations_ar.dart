@@ -1654,4 +1654,39 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get homeRadio => 'الإذاعة';
+
+  @override
+  String get prayerSettingsTitle => 'إعدادات الحساب';
+
+  @override
+  String get prayerPreviousDay => 'اليوم السابق';
+
+  @override
+  String get prayerNextDay => 'اليوم التالي';
+
+  @override
+  String get prayerToday => 'اليوم';
+
+  @override
+  String get prayerNextBadge => 'التالية';
+
+  @override
+  String get qiblaAngle => 'زاوية القبلة';
+
+  @override
+  String get qiblaDistanceLabel => 'المسافة إلى مكة';
+
+  @override
+  String get qiblaPhoneLabel => 'اتجاه الهاتف';
+
+  @override
+  String qiblaKilometres(String km) {
+    return '$km كم';
+  }
+
+  @override
+  String get libraryBrowse => 'تصفّح المكتبة';
+
+  @override
+  String get libraryLive => 'بث مباشر';
 }

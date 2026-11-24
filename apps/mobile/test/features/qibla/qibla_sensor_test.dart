@@ -53,14 +53,15 @@ void main() {
       headings.add((degrees: 250, reliable: false));
       await tester.pump();
       await tester.pump();
-      expect(find.text(l10n.compassApproximateHeading('255')), findsOneWidget);
+      // The phone's heading shows in its own tile.
+      expect(find.text('255°'), findsOneWidget);
       expect(find.text(l10n.compassCalibrate), findsOneWidget);
       expect(find.text(l10n.compassAligned), findsNothing);
 
       headings.add((degrees: 253, reliable: true));
       await tester.pump();
       await tester.pump();
-      expect(find.text(l10n.compassPhoneHeading('258')), findsOneWidget);
+      expect(find.text('258°'), findsWidgets);
       expect(find.text(l10n.compassAligned), findsOneWidget);
       expect(declinationCalls, 1);
     },

@@ -495,5 +495,16 @@
   "recitationReciter": "القارئ",
   "recitationSearchReciter": "ابحث عن قارئ",
   "homeQuickAccess": "وصول سريع",
-  "homeRadio": "الإذاعة"
+  "homeRadio": "الإذاعة",
+  "prayerSettingsTitle": "إعدادات الحساب",
+  "prayerPreviousDay": "اليوم السابق",
+  "prayerNextDay": "اليوم التالي",
+  "prayerToday": "اليوم",
+  "prayerNextBadge": "التالية",
+  "qiblaAngle": "زاوية القبلة",
+  "qiblaDistanceLabel": "المسافة إلى مكة",
+  "qiblaPhoneLabel": "اتجاه الهاتف",
+  "qiblaKilometres": "{km} كم",
+  "libraryBrowse": "تصفّح المكتبة",
+  "libraryLive": "بث مباشر"
 }

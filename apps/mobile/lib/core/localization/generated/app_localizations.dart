@@ -3007,6 +3007,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Radio'**
   String get homeRadio;
+
+  /// Prayer settings header.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculation'**
+  String get prayerSettingsTitle;
+
+  /// Timetable navigation.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous day'**
+  String get prayerPreviousDay;
+
+  /// Timetable navigation.
+  ///
+  /// In en, this message translates to:
+  /// **'Next day'**
+  String get prayerNextDay;
+
+  /// Today's timetable.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get prayerToday;
+
+  /// Marks the next prayer.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get prayerNextBadge;
+
+  /// Bearing stat.
+  ///
+  /// In en, this message translates to:
+  /// **'Qibla angle'**
+  String get qiblaAngle;
+
+  /// Distance stat.
+  ///
+  /// In en, this message translates to:
+  /// **'To Makkah'**
+  String get qiblaDistanceLabel;
+
+  /// Heading stat.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone heading'**
+  String get qiblaPhoneLabel;
+
+  /// Distance.
+  ///
+  /// In en, this message translates to:
+  /// **'{km} km'**
+  String qiblaKilometres(String km);
+
+  /// Library grid header.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse'**
+  String get libraryBrowse;
+
+  /// Live radio badge.
+  ///
+  /// In en, this message translates to:
+  /// **'Live'**
+  String get libraryLive;
 }
 
 class _AppLocalizationsDelegate

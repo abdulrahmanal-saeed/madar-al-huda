@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/services.dart';
@@ -8,7 +9,9 @@ import '../../../core/content/feature_preview.dart';
 import '../../../core/localization/l10n_extension.dart';
 import '../../../core/localization/numbers.dart';
 import '../../../core/routing/app_sections.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_tokens.dart';
+import '../../../core/theme/brand_colors.dart';
 import '../../../core/widgets/responsive_content.dart';
 import '../../../core/widgets/section_detail_scaffold.dart';
 import '../../worship/application/worship_location.dart';
@@ -39,11 +42,32 @@ final _declinationProvider = FutureProvider.autoDispose
           }),
     );
 
-class QiblaScreen extends ConsumerWidget {
+/// Great-circle distance to the Kaaba in kilometres.
+double distanceToKaaba(GeoCoordinate point) {
+  const earth = 6371.0;
+  double rad(double degrees) => degrees * math.pi / 180;
+  final dLat = rad(QiblaBearing.kaaba.latitude - point.latitude);
+  final dLng = rad(QiblaBearing.kaaba.longitude - point.longitude);
+  final a =
+      math.pow(math.sin(dLat / 2), 2) +
+      math.cos(rad(point.latitude)) *
+          math.cos(rad(QiblaBearing.kaaba.latitude)) *
+          math.pow(math.sin(dLng / 2), 2);
+  return earth * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
+}
+
+class QiblaScreen extends ConsumerStatefulWidget {
   const QiblaScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<QiblaScreen> createState() => _QiblaScreenState();
+}
+
+class _QiblaScreenState extends ConsumerState<QiblaScreen> {
+  bool _aligned = false;
+
+  @override
+  Widget build(BuildContext context) {
     if (AppSection.qibla.status.isGated && !managedReleaseEnabled) {
       return const SectionDetailScaffold(section: AppSection.qibla);
     }
@@ -73,13 +97,18 @@ class QiblaScreen extends ConsumerWidget {
         : null;
     final l10n = context.l10n;
     final theme = Theme.of(context);
-    final numbers = decimalFormat(
-      Localizations.localeOf(context).toLanguageTag(),
-    );
+    final scheme = theme.colorScheme;
+    final language = Localizations.localeOf(context).languageCode;
+    final numbers = decimalFormat(language);
     final rotation = bearing != null && trueHeading != null
         ? (bearing - trueHeading + 540) % 360 - 180
         : null;
     final turn = heading?.reliable == true ? rotation : null;
+    final aligned = turn != null && turn.abs() < 3;
+    if (aligned != _aligned) {
+      _aligned = aligned;
+      if (aligned) unawaited(HapticFeedback.mediumImpact());
+    }
     final message = switch (heading) {
       (reliable: false, degrees: _) => l10n.compassCalibrate,
       _ when turn != null => l10n.compassHoldFlat,
@@ -87,6 +116,38 @@ class QiblaScreen extends ConsumerWidget {
         l10n.compassWaiting,
       _ => l10n.compassUnavailable,
     };
+
+    Widget stat(String label, String value, IconData icon) => Expanded(
+      child: Card(
+        margin: EdgeInsets.zero,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            vertical: AppSpacing.md,
+            horizontal: AppSpacing.sm,
+          ),
+          child: Column(
+            children: [
+              Icon(icon, size: 20, color: scheme.primary),
+              const SizedBox(height: AppSpacing.xs),
+              Text(
+                value,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              Text(
+                label,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: scheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.sectionQiblaTitle)),
@@ -97,80 +158,124 @@ class QiblaScreen extends ConsumerWidget {
               children: [
                 const WorshipLocationPicker(),
                 const SizedBox(height: AppSpacing.lg),
-                if (bearing != null) ...[
-                  if (turn != null)
-                    Center(
-                      child: Chip(
-                        avatar: Icon(
-                          turn.abs() < 3
-                              ? Icons.check_circle_outline
-                              : turn > 0
-                              ? Icons.turn_right
-                              : Icons.turn_left,
-                        ),
-                        label: Text(
-                          turn.abs() < 3
-                              ? l10n.compassAligned
-                              : turn > 0
-                              ? l10n.compassTurnRight(
-                                  numbers.format(turn.round()),
-                                )
-                              : l10n.compassTurnLeft(
-                                  numbers.format(turn.abs().round()),
-                                ),
-                        ),
+                if (bearing != null && point != null) ...[
+                  Center(
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 250),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.lg,
+                        vertical: AppSpacing.sm,
+                      ),
+                      decoration: BoxDecoration(
+                        color: aligned
+                            ? scheme.primary
+                            : scheme.surfaceContainerHighest,
+                        borderRadius: AppRadii.xlAll,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            aligned
+                                ? Icons.check_circle
+                                : turn == null
+                                ? Icons.explore_outlined
+                                : turn > 0
+                                ? Icons.turn_right
+                                : Icons.turn_left,
+                            size: 20,
+                            color: aligned ? scheme.onPrimary : scheme.primary,
+                          ),
+                          const SizedBox(width: AppSpacing.sm),
+                          Text(
+                            aligned
+                                ? l10n.compassAligned
+                                : turn == null
+                                ? l10n.trueBearing(
+                                    numbers.format(bearing.round() % 360),
+                                  )
+                                : turn > 0
+                                ? l10n.compassTurnRight(
+                                    numbers.format(turn.round()),
+                                  )
+                                : l10n.compassTurnLeft(
+                                    numbers.format(turn.abs().round()),
+                                  ),
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              color: aligned ? scheme.onPrimary : null,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  const SizedBox(height: AppSpacing.md),
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
                   Center(
                     child: ExcludeSemantics(
                       child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 280),
+                        constraints: const BoxConstraints(maxWidth: 320),
                         child: AspectRatio(
                           aspectRatio: 1,
                           child: CustomPaint(
+                            key: const Key('qibla-dial'),
                             painter: _CompassDial(
-                              angle: rotation ?? bearing,
+                              // The dial turns with the phone: north sits
+                              // where north is, the Kaaba where the Qibla is.
                               north: -(trueHeading ?? 0),
-                              colors: theme.colorScheme,
+                              qibla: bearing,
+                              aligned: aligned,
+                              colors: scheme,
+                              cardinals: language == 'ar'
+                                  ? const ['ش', 'ق', 'ج', 'غ']
+                                  : const ['N', 'E', 'S', 'W'],
                             ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: AppSpacing.md),
-                  Center(
-                    child: Text(
-                      '${numbers.format(bearing.round() % 360)}°',
-                      style: theme.textTheme.displaySmall,
-                    ),
-                  ),
-                  Text(
-                    l10n.trueBearing(numbers.format(bearing.round() % 360)),
-                    textAlign: TextAlign.center,
-                  ),
-                  if (trueHeading != null)
-                    Text(
-                      (heading?.reliable == true
-                          ? l10n.compassPhoneHeading
-                          : l10n.compassApproximateHeading)(
-                        numbers.format(trueHeading.round() % 360),
+                  const SizedBox(height: AppSpacing.lg),
+                  Row(
+                    children: [
+                      stat(
+                        l10n.qiblaAngle,
+                        '${numbers.format(bearing.round() % 360)}°',
+                        Icons.explore_outlined,
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-                  if (!location.fromDevice)
-                    Text(
-                      l10n.cityBearingApproximate,
-                      textAlign: TextAlign.center,
-                    ),
+                      const SizedBox(width: AppSpacing.sm),
+                      stat(
+                        l10n.qiblaDistanceLabel,
+                        l10n.qiblaKilometres(
+                          numbers.format(distanceToKaaba(point).round()),
+                        ),
+                        Icons.mosque_outlined,
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      stat(
+                        l10n.qiblaPhoneLabel,
+                        trueHeading == null
+                            ? '—'
+                            : '${numbers.format(trueHeading.round() % 360)}°',
+                        Icons.smartphone,
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: AppSpacing.md),
                   Card(
+                    margin: EdgeInsets.zero,
                     child: ListTile(
                       leading: Icon(
-                        turn == null ? Icons.info_outline : Icons.explore,
+                        heading?.reliable == false
+                            ? Icons.screen_rotation_alt
+                            : turn == null
+                            ? Icons.info_outline
+                            : Icons.stay_current_portrait,
+                        color: scheme.primary,
                       ),
                       title: Text(message),
+                      subtitle: location.fromDevice
+                          ? null
+                          : Text(l10n.cityBearingApproximate),
                     ),
                   ),
                 ],
@@ -184,80 +289,90 @@ class QiblaScreen extends ConsumerWidget {
   }
 }
 
-/// The dial needle points to the Qibla. With no heading sample the dial
-/// remains north-up and represents a geographic bearing.
+/// A dial that turns with the phone. The fixed mark at the top is where the
+/// phone points; the Kaaba on the ring is the Qibla.
 class _CompassDial extends CustomPainter {
   const _CompassDial({
-    required this.angle,
     required this.north,
+    required this.qibla,
+    required this.aligned,
     required this.colors,
+    required this.cardinals,
   });
 
-  final double angle;
   final double north;
+  final double qibla;
+  final bool aligned;
   final ColorScheme colors;
+  final List<String> cardinals;
+
+  Offset _at(Offset center, double degrees, double distance) {
+    final radians = (degrees + north) * math.pi / 180;
+    return center + Offset(math.sin(radians), -math.cos(radians)) * distance;
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
     final center = size.center(Offset.zero);
-    final radius = size.shortestSide / 2 - 2;
-    final paint = Paint()..color = colors.primaryContainer;
+    final radius = size.shortestSide / 2 - 14;
+    final accent = aligned ? BrandColors.goldBright : colors.primary;
+    final paint = Paint()..color = colors.surfaceContainerLow;
     canvas.drawCircle(center, radius, paint);
     paint
-      ..color = colors.outline
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 1;
+      ..strokeWidth = aligned ? 6 : 3
+      ..color = accent;
     canvas.drawCircle(center, radius, paint);
-    canvas.drawCircle(center, radius * .78, paint);
-    for (var degrees = 0; degrees < 360; degrees += 10) {
-      final radians = (degrees + north) * math.pi / 180;
-      final vector = Offset(math.sin(radians), -math.cos(radians));
-      paint.strokeWidth = degrees % 30 == 0 ? 2 : 1;
+
+    for (var degrees = 0; degrees < 360; degrees += 5) {
+      final major = degrees % 30 == 0;
+      paint
+        ..strokeWidth = major ? 2 : 1
+        ..color = major ? colors.onSurfaceVariant : colors.outlineVariant;
       canvas.drawLine(
-        center + vector * (radius * (degrees % 30 == 0 ? .83 : .88)),
-        center + vector * (radius * .94),
+        _at(center, degrees.toDouble(), radius * (major ? .84 : .89)),
+        _at(center, degrees.toDouble(), radius * .95),
         paint,
       );
     }
-    final northRadians = north * math.pi / 180;
-    final label = TextPainter(
-      text: TextSpan(
-        text: 'N',
-        style: TextStyle(color: colors.onPrimaryContainer),
-      ),
-      textDirection: TextDirection.ltr,
-    )..layout();
-    label.paint(
-      canvas,
-      center +
-          Offset(math.sin(northRadians), -math.cos(northRadians)) *
-              radius *
-              .74 -
-          Offset(label.width / 2, label.height / 2),
-    );
-    label.dispose();
-    final radians = angle * math.pi / 180;
-    canvas
-      ..save()
-      ..translate(center.dx, center.dy)
-      ..rotate(radians);
-    final needle = Path()
-      ..moveTo(0, -radius * .62)
-      ..lineTo(radius * .13, 0)
-      ..lineTo(0, radius * .4)
-      ..lineTo(-radius * .13, 0)
-      ..close();
-    paint
-      ..style = PaintingStyle.fill
-      ..color = colors.primary;
-    canvas.drawPath(needle, paint);
-    paint.color = colors.onPrimary;
-    canvas.drawCircle(Offset.zero, radius * .05, paint);
-    canvas.restore();
+    for (final (index, label) in cardinals.indexed) {
+      final text = TextPainter(
+        text: TextSpan(
+          text: label,
+          style: TextStyle(
+            fontFamily: AppTheme.fontFamily,
+            color: index == 0 ? colors.error : colors.onSurface,
+            fontSize: radius * .12,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      )..layout();
+      text.paint(
+        canvas,
+        _at(center, index * 90.0, radius * .7) -
+            Offset(text.width / 2, text.height / 2),
+      );
+      text.dispose();
+    }
 
-    final marker =
-        center + Offset(math.sin(radians), -math.cos(radians)) * (radius * .54);
-    _paintKaaba(canvas, marker, radius * .13);
+    // The line from the centre to the Kaaba.
+    final kaaba = _at(center, qibla, radius * .78);
+    paint
+      ..strokeWidth = 3
+      ..strokeCap = StrokeCap.round
+      ..color = accent.withValues(alpha: 0.6);
+    canvas.drawLine(center, kaaba, paint);
+    canvas.drawCircle(center, 6, Paint()..color = accent);
+    _paintKaaba(canvas, kaaba, radius * .14);
+
+    // Where the phone points: a fixed mark above the dial.
+    final top = Path()
+      ..moveTo(center.dx, center.dy - radius - 12)
+      ..lineTo(center.dx - 9, center.dy - radius + 4)
+      ..lineTo(center.dx + 9, center.dy - radius + 4)
+      ..close();
+    canvas.drawPath(top, Paint()..color = accent);
   }
 
   void _paintKaaba(Canvas canvas, Offset center, double radius) {
@@ -267,9 +382,9 @@ class _CompassDial extends CustomPainter {
       center,
       radius,
       paint
-        ..color = colors.primary
+        ..color = aligned ? BrandColors.goldBright : colors.primary
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.5,
+        ..strokeWidth = 2,
     );
     canvas
       ..save()
@@ -316,5 +431,8 @@ class _CompassDial extends CustomPainter {
 
   @override
   bool shouldRepaint(_CompassDial old) =>
-      old.angle != angle || old.north != north || old.colors != colors;
+      old.north != north ||
+      old.qibla != qibla ||
+      old.aligned != aligned ||
+      old.colors != colors;
 }

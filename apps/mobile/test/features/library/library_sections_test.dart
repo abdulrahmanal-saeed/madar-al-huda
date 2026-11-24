@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:madar_al_huda/core/localization/app_locales.dart';
 import 'package:madar_al_huda/core/routing/app_routes.dart';
 import 'package:madar_al_huda/core/routing/app_sections.dart';
 import 'package:madar_al_huda/features/library/domain/library_sections.dart';
@@ -83,9 +82,11 @@ void main() {
         ),
       ],
     );
-    final l10n = lookupAppLocalizations(const Locale('en'));
     expect(find.text('Tafsir videos'), findsOneWidget);
-    expect(find.text(l10n.libraryAcademy), findsNothing);
+    expect(
+      find.byKey(ValueKey('section-card-${AppSection.lessons}')),
+      findsNothing,
+    );
     expect(
       find.byKey(ValueKey('section-card-${AppSection.hadith}')),
       findsOneWidget,
