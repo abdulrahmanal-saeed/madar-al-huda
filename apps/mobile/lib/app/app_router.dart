@@ -24,6 +24,7 @@ import '../features/ramadan/presentation/ramadan_screen.dart';
 import '../features/reminders/presentation/reminder_settings_screen.dart';
 import '../features/search/presentation/global_search_screen.dart';
 import '../features/settings/presentation/settings_screen.dart';
+import '../features/stats/presentation/stats_screen.dart';
 import '../features/tasbih/presentation/tasbih_screen.dart';
 import '../features/worship/presentation/cairo_radio_card.dart';
 import '../features/worship/presentation/daily_reading_card.dart';
@@ -205,6 +206,11 @@ GoRouter buildAppRouter({String initialLocation = AppRoutes.home}) {
         path: AppRoutes.cairoRadio,
         parentNavigatorKey: rootNavigatorKey,
         builder: (_, _) => const CairoRadioScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.stats,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (_, _) => const StatsScreen(),
       ),
       GoRoute(
         path: AppRoutes.memorize,

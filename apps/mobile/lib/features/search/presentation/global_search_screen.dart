@@ -96,6 +96,13 @@ final List<_Place> _places = [
     label: (l) => l.memorizeTitle,
   ),
   (
+    id: 'stats',
+    route: AppRoutes.stats,
+    push: true,
+    icon: Icons.insights_outlined,
+    label: (l) => l.statsTitle,
+  ),
+  (
     id: 'ramadan',
     route: AppRoutes.ramadan,
     push: true,

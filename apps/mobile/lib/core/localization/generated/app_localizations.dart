@@ -3301,6 +3301,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Repeated {count} of {target}'**
   String memorizeRepeated(String count, String target);
+
+  /// Statistics screen.
+  ///
+  /// In en, this message translates to:
+  /// **'My statistics'**
+  String get statsTitle;
+
+  /// Privacy note.
+  ///
+  /// In en, this message translates to:
+  /// **'Worked out from what this phone keeps; nothing is sent anywhere.'**
+  String get statsPrivate;
+
+  /// Section.
+  ///
+  /// In en, this message translates to:
+  /// **'Quran reading'**
+  String get statsReading;
+
+  /// Tile.
+  ///
+  /// In en, this message translates to:
+  /// **'pages today'**
+  String get statsToday;
+
+  /// Tile.
+  ///
+  /// In en, this message translates to:
+  /// **'pages this week'**
+  String get statsWeek;
+
+  /// Tile.
+  ///
+  /// In en, this message translates to:
+  /// **'pages in 30 days'**
+  String get statsMonth;
+
+  /// Tile.
+  ///
+  /// In en, this message translates to:
+  /// **'days in a row'**
+  String get statsStreak;
+
+  /// Tile.
+  ///
+  /// In en, this message translates to:
+  /// **'best streak'**
+  String get statsBestStreak;
+
+  /// Tile.
+  ///
+  /// In en, this message translates to:
+  /// **'of the khatma'**
+  String get statsKhatma;
+
+  /// Heat strip.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 30 days'**
+  String get statsLast30;
+
+  /// Section.
+  ///
+  /// In en, this message translates to:
+  /// **'Memorization'**
+  String get statsMemorize;
+
+  /// Tile.
+  ///
+  /// In en, this message translates to:
+  /// **'verses memorized'**
+  String get statsVerses;
+
+  /// Tile.
+  ///
+  /// In en, this message translates to:
+  /// **'surahs started'**
+  String get statsSurahsStarted;
+
+  /// Section.
+  ///
+  /// In en, this message translates to:
+  /// **'Remembrance'**
+  String get statsRemembrance;
+
+  /// Tile.
+  ///
+  /// In en, this message translates to:
+  /// **'days with adhkar (30)'**
+  String get statsAdhkarDays;
+
+  /// Tile.
+  ///
+  /// In en, this message translates to:
+  /// **'tasbih today'**
+  String get statsTasbihToday;
+
+  /// Tile.
+  ///
+  /// In en, this message translates to:
+  /// **'tasbih in all'**
+  String get statsTasbihTotal;
 }
 
 class _AppLocalizationsDelegate

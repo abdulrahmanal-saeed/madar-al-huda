@@ -1847,4 +1847,56 @@ class AppLocalizationsEn extends AppLocalizations {
   String memorizeRepeated(String count, String target) {
     return 'Repeated $count of $target';
   }
+
+  @override
+  String get statsTitle => 'My statistics';
+
+  @override
+  String get statsPrivate =>
+      'Worked out from what this phone keeps; nothing is sent anywhere.';
+
+  @override
+  String get statsReading => 'Quran reading';
+
+  @override
+  String get statsToday => 'pages today';
+
+  @override
+  String get statsWeek => 'pages this week';
+
+  @override
+  String get statsMonth => 'pages in 30 days';
+
+  @override
+  String get statsStreak => 'days in a row';
+
+  @override
+  String get statsBestStreak => 'best streak';
+
+  @override
+  String get statsKhatma => 'of the khatma';
+
+  @override
+  String get statsLast30 => 'Last 30 days';
+
+  @override
+  String get statsMemorize => 'Memorization';
+
+  @override
+  String get statsVerses => 'verses memorized';
+
+  @override
+  String get statsSurahsStarted => 'surahs started';
+
+  @override
+  String get statsRemembrance => 'Remembrance';
+
+  @override
+  String get statsAdhkarDays => 'days with adhkar (30)';
+
+  @override
+  String get statsTasbihToday => 'tasbih today';
+
+  @override
+  String get statsTasbihTotal => 'tasbih in all';
 }
