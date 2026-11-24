@@ -99,7 +99,7 @@ void main() {
       WorshipLocationController.lastDevicePointKey: isA<String>(),
     });
 
-    await tester.tap(find.widgetWithText(TextButton, l10n.sectionQiblaTitle));
+    await tester.tap(find.byTooltip(l10n.sectionQiblaTitle));
     await tester.pumpAndSettle();
     expect(find.text(l10n.trueBearing('136')), findsOneWidget);
     expect(find.text(l10n.locationFromDevice), findsWidgets);

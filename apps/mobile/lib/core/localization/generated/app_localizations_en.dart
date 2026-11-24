@@ -1667,4 +1667,39 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeRadio => 'Radio';
+
+  @override
+  String get prayerSettingsTitle => 'Calculation';
+
+  @override
+  String get prayerPreviousDay => 'Previous day';
+
+  @override
+  String get prayerNextDay => 'Next day';
+
+  @override
+  String get prayerToday => 'Today';
+
+  @override
+  String get prayerNextBadge => 'Next';
+
+  @override
+  String get qiblaAngle => 'Qibla angle';
+
+  @override
+  String get qiblaDistanceLabel => 'To Makkah';
+
+  @override
+  String get qiblaPhoneLabel => 'Phone heading';
+
+  @override
+  String qiblaKilometres(String km) {
+    return '$km km';
+  }
+
+  @override
+  String get libraryBrowse => 'Browse';
+
+  @override
+  String get libraryLive => 'Live';
 }

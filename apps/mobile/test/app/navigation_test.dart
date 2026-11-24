@@ -52,8 +52,12 @@ void main() {
       );
       expect(find.byKey(SectionCard.keyFor(section)), findsOneWidget);
     }
-    expect(find.text('Stories of the prophets'), findsWidgets);
-    expect(find.text('Academy'), findsOneWidget);
+    for (final section in [AppSection.stories, AppSection.lessons]) {
+      await tester.scrollUntilVisible(
+        find.byKey(SectionCard.keyFor(section)),
+        160,
+      );
+    }
   });
 
   for (final locale in const [Locale('en'), Locale('ar')]) {
@@ -165,7 +169,7 @@ void main() {
 
     await tester.tap(navTab('Prayer'));
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(TextButton, 'Qibla'));
+    await tester.tap(find.byTooltip('Qibla'));
     await tester.pumpAndSettle();
     expect(find.byType(QiblaScreen), findsOneWidget);
 
@@ -206,7 +210,7 @@ void main() {
     expect(find.text('Dubai, UAE'), findsOneWidget);
     // One location only: no list of other cities on the screen.
     expect(find.text('Cairo'), findsNothing);
-    await tester.tap(find.widgetWithText(TextButton, l10n.sectionQiblaTitle));
+    await tester.tap(find.byTooltip(l10n.sectionQiblaTitle));
     await tester.pumpAndSettle();
     expect(find.text('Dubai, UAE'), findsOneWidget);
     expect(find.text(l10n.cityBearingApproximate), findsOneWidget);

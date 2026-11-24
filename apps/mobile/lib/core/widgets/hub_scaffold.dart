@@ -25,16 +25,13 @@ class HubScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
+      appBar: AppBar(title: Text(title), actions: const [SettingsButton()]),
       body: CustomScrollView(
         slivers: [
-          SliverAppBar.large(
-            title: Text(title),
-            actions: const [SettingsButton()],
-          ),
           SliverResponsiveContent(
             sliver: SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.only(bottom: AppSpacing.xl),
+                padding: const EdgeInsets.only(bottom: AppSpacing.lg),
                 child: Text(
                   intro,
                   style: theme.textTheme.bodyLarge?.copyWith(
@@ -45,14 +42,25 @@ class HubScaffold extends StatelessWidget {
             ),
           ),
           SliverResponsiveContent(
-            sliver: SliverList.separated(
+            sliver: SliverGrid.builder(
+              gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: 220,
+                mainAxisSpacing: AppSpacing.md,
+                crossAxisSpacing: AppSpacing.md,
+                mainAxisExtent: MediaQuery.textScalerOf(context).scale(164),
+              ),
               itemCount: sections.length,
-              itemBuilder: (context, i) => SectionCard(section: sections[i]),
-              separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
+              itemBuilder: (context, i) =>
+                  SectionCard(section: sections[i], tone: i),
             ),
           ),
-          if (footer != null)
-            SliverResponsiveContent(sliver: SliverToBoxAdapter(child: footer)),
+          if (footer != null) ...[
+            const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),
+            if (footer != null)
+              SliverResponsiveContent(
+                sliver: SliverToBoxAdapter(child: footer),
+              ),
+          ],
           const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xxl)),
         ],
       ),
