@@ -12,6 +12,7 @@ import '../core/storage/storage_providers.dart';
 import '../core/theme/app_theme.dart';
 import '../core/theme/remote_theme.dart';
 import '../features/prayer/application/prayer_widget_sync.dart';
+import '../features/quran/data/recitation_resume.dart';
 import '../features/reminders/application/reminder_sync.dart';
 import '../features/settings/application/settings_controller.dart';
 import '../features/worship/application/worship_location.dart';
@@ -75,7 +76,9 @@ class MadarApp extends ConsumerWidget {
               )
             : child!;
         final synced = DeepLinks(
-          child: ReminderSync(child: PrayerWidgetSync(child: content)),
+          child: ReminderSync(
+            child: PrayerWidgetSync(child: RecitationMemory(child: content)),
+          ),
         );
         if (!showStartupSplash) return synced;
         // First launch: the first-run steps (language, theme, permissions,

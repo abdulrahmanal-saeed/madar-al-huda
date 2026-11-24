@@ -2125,4 +2125,14 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get namesDua => 'الدعاء';
+
+  @override
+  String recitationResumeVerse(String surah, String ayah) {
+    return 'أكمل سورة $surah من الآية $ayah';
+  }
+
+  @override
+  String recitationResumeTime(String surah, String time) {
+    return 'أكمل سورة $surah من $time';
+  }
 }

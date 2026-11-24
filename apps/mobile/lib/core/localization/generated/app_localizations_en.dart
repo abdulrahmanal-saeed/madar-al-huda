@@ -2139,4 +2139,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get namesDua => 'Supplication';
+
+  @override
+  String recitationResumeVerse(String surah, String ayah) {
+    return 'Continue $surah from verse $ayah';
+  }
+
+  @override
+  String recitationResumeTime(String surah, String time) {
+    return 'Continue $surah from $time';
+  }
 }
