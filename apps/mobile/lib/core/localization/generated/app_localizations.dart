@@ -386,7 +386,7 @@ abstract class AppLocalizations {
   /// **'Today'**
   String get homeTodayLabel;
 
-  /// Heading for the grid of shortcuts on the home screen.
+  /// Home shortcuts header.
   ///
   /// In en, this message translates to:
   /// **'Quick access'**
@@ -2989,6 +2989,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{size} MB'**
   String learningFileSize(String size);
+
+  /// Reciter sheet title.
+  ///
+  /// In en, this message translates to:
+  /// **'Reciter'**
+  String get recitationReciter;
+
+  /// Reciter search.
+  ///
+  /// In en, this message translates to:
+  /// **'Search reciters'**
+  String get recitationSearchReciter;
+
+  /// Short radio shortcut label.
+  ///
+  /// In en, this message translates to:
+  /// **'Radio'**
+  String get homeRadio;
 }
 
 class _AppLocalizationsDelegate

@@ -491,5 +491,9 @@
   "learningExitFullscreen": "الخروج من ملء الشاشة",
   "learningEpisodeOptions": "خيارات الحلقة",
   "learningSoon": "الحلقات قريبًا",
-  "learningFileSize": "{size} م.ب"
+  "learningFileSize": "{size} م.ب",
+  "recitationReciter": "القارئ",
+  "recitationSearchReciter": "ابحث عن قارئ",
+  "homeQuickAccess": "وصول سريع",
+  "homeRadio": "الإذاعة"
 }

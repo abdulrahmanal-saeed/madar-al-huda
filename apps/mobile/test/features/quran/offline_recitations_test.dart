@@ -186,7 +186,10 @@ void main() {
           audioDownloadProvider.overrideWith(() => downloads),
         ],
       );
-      await tester.tap(find.text(l10n.recitationDownloadMushaf));
+      // The player bar opens the reciter sheet, which leads to downloads.
+      await tester.tap(find.byKey(const Key('reciter-picker')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(l10n.recitationDownloads));
       await tester.pumpAndSettle();
       await tester.tap(find.text(l10n.recitationDownloadSurahs('114')));
       await tester.pumpAndSettle();

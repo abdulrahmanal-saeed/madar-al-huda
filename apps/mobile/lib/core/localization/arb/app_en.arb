@@ -1459,5 +1459,13 @@
   "learningSoon": "Episodes coming soon",
   "@learningSoon": {"description":"Story without episodes."},
   "learningFileSize": "{size} MB",
-  "@learningFileSize": {"description":"Download size.","placeholders":{"size":{"type":"String"}}}
+  "@learningFileSize": {"description":"Download size.","placeholders":{"size":{"type":"String"}}},
+  "recitationReciter": "Reciter",
+  "@recitationReciter": {"description":"Reciter sheet title."},
+  "recitationSearchReciter": "Search reciters",
+  "@recitationSearchReciter": {"description":"Reciter search."},
+  "homeQuickAccess": "Quick access",
+  "@homeQuickAccess": {"description":"Home shortcuts header."},
+  "homeRadio": "Radio",
+  "@homeRadio": {"description":"Short radio shortcut label."}
 }

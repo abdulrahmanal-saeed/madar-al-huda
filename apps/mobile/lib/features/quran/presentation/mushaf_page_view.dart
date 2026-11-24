@@ -219,7 +219,7 @@ class MushafPageViewState extends State<MushafPageView> {
                       ),
                       padding: const EdgeInsets.symmetric(vertical: 4),
                       child: Text(
-                        '❖  ${widget.edition.surahs[entry.key - 1].arabicName}  ❖',
+                        'سُورَةُ ${widget.edition.surahs[entry.key - 1].arabicName}',
                         textAlign: TextAlign.center,
                         textDirection: TextDirection.rtl,
                         style: quranStyle.copyWith(
