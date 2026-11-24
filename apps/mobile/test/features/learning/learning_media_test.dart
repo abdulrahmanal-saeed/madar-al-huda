@@ -11,6 +11,7 @@ import 'package:just_audio_background/just_audio_background.dart';
 import 'package:madar_al_huda/core/audio/audio_playback.dart';
 import 'package:madar_al_huda/features/learning/data/learning_catalog.dart';
 import 'package:madar_al_huda/features/learning/data/learning_files.dart';
+import 'package:madar_al_huda/features/learning/presentation/prophet_stories_screen.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -46,6 +47,13 @@ void main() {
       container.read(learningFilesProvider).source(first).toString(),
       'https://quran.abdulrahmanalsaeed.com/Prophet%20Stories/Madar-Adam-001.mp3',
     );
+  });
+
+  test("story badges show the prophet's name alone", () {
+    expect(prophetShortName('سيدنا آدم عليه السلام'), 'آدم');
+    expect(prophetShortName('سيدنا إدريس عليه السلام'), 'إدريس');
+    expect(prophetShortName('Adam, peace be upon him'), 'Adam');
+    expect(prophetShortName('Maryam'), 'Maryam');
   });
 
   test('only complete downloads play offline in the chosen format', () async {
