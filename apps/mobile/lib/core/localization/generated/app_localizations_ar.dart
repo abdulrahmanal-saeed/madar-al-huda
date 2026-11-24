@@ -1838,4 +1838,55 @@ class AppLocalizationsAr extends AppLocalizations {
   String memorizeRepeated(String count, String target) {
     return 'كرّرتها $count من $target';
   }
+
+  @override
+  String get statsTitle => 'إحصائياتي';
+
+  @override
+  String get statsPrivate => 'محسوبة مما يحفظه هاتفك فقط، ولا يُرسل منها شيء.';
+
+  @override
+  String get statsReading => 'قراءة القرآن';
+
+  @override
+  String get statsToday => 'صفحة اليوم';
+
+  @override
+  String get statsWeek => 'صفحة هذا الأسبوع';
+
+  @override
+  String get statsMonth => 'صفحة في ٣٠ يومًا';
+
+  @override
+  String get statsStreak => 'أيام متتالية';
+
+  @override
+  String get statsBestStreak => 'أطول سلسلة';
+
+  @override
+  String get statsKhatma => 'من الختمة';
+
+  @override
+  String get statsLast30 => 'آخر ٣٠ يومًا';
+
+  @override
+  String get statsMemorize => 'الحفظ';
+
+  @override
+  String get statsVerses => 'آية محفوظة';
+
+  @override
+  String get statsSurahsStarted => 'سورة بدأت حفظها';
+
+  @override
+  String get statsRemembrance => 'الذكر';
+
+  @override
+  String get statsAdhkarDays => 'يوم أذكار (٣٠ يومًا)';
+
+  @override
+  String get statsTasbihToday => 'تسبيحة اليوم';
+
+  @override
+  String get statsTasbihTotal => 'تسبيحة إجمالًا';
 }

@@ -137,7 +137,17 @@ class _DailyReadingScreenState extends ConsumerState<DailyReadingScreen> {
     final end = plan.endPage(total);
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.dailyReadingTitle)),
+      appBar: AppBar(
+        title: Text(l10n.dailyReadingTitle),
+        actions: [
+          IconButton(
+            key: const ValueKey('open-stats'),
+            tooltip: l10n.statsTitle,
+            onPressed: () => context.push(AppRoutes.stats),
+            icon: const Icon(Icons.insights_outlined),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(20),

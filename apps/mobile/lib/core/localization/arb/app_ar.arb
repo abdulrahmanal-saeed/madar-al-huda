@@ -544,5 +544,22 @@
   "memorizeMarkRange": "تعليم المقطع كمحفوظ",
   "memorizeClearRange": "إلغاء تعليم المقطع",
   "memorizeOverall": "حفظت {done} من {total} آية",
-  "memorizeRepeated": "كرّرتها {count} من {target}"
+  "memorizeRepeated": "كرّرتها {count} من {target}",
+  "statsTitle": "إحصائياتي",
+  "statsPrivate": "محسوبة مما يحفظه هاتفك فقط، ولا يُرسل منها شيء.",
+  "statsReading": "قراءة القرآن",
+  "statsToday": "صفحة اليوم",
+  "statsWeek": "صفحة هذا الأسبوع",
+  "statsMonth": "صفحة في ٣٠ يومًا",
+  "statsStreak": "أيام متتالية",
+  "statsBestStreak": "أطول سلسلة",
+  "statsKhatma": "من الختمة",
+  "statsLast30": "آخر ٣٠ يومًا",
+  "statsMemorize": "الحفظ",
+  "statsVerses": "آية محفوظة",
+  "statsSurahsStarted": "سورة بدأت حفظها",
+  "statsRemembrance": "الذكر",
+  "statsAdhkarDays": "يوم أذكار (٣٠ يومًا)",
+  "statsTasbihToday": "تسبيحة اليوم",
+  "statsTasbihTotal": "تسبيحة إجمالًا"
 }

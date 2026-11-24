@@ -86,6 +86,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             title: Text(l10n.homeGreeting),
             actions: [
               IconButton(
+                tooltip: l10n.statsTitle,
+                onPressed: () => context.push(AppRoutes.stats),
+                icon: const Icon(Icons.insights_outlined),
+              ),
+              IconButton(
                 key: const ValueKey('home-search'),
                 tooltip: l10n.searchTitle,
                 onPressed: () => context.push(AppRoutes.search),
