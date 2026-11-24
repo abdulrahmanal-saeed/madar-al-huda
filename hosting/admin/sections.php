@@ -10,6 +10,7 @@ declare(strict_types=1);
 /** Built-in library entries; they can be hidden or moved, never deleted. */
 const BUILTIN_SECTIONS = [
     'duas' => 'الأدعية القرآنية',
+    'names' => 'أسماء الله الحسنى',
     'hadith' => 'الحديث',
     'fiqh' => 'الفقه المقارن',
     'articles' => 'المقالات',

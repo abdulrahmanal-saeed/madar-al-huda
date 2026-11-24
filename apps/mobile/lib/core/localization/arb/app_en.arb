@@ -1721,5 +1721,21 @@
   "feedbackTooMany": "You've sent several messages recently. Try again in an hour.",
   "@feedbackTooMany": {"description":"Rate limited."},
   "feedbackFailed": "Couldn't send. Check the connection and try again.",
-  "@feedbackFailed": {"description":"Failed."}
+  "@feedbackFailed": {"description":"Failed."},
+  "namesTitle": "The Beautiful Names of Allah",
+  "@namesTitle": {"description":"Names screen title."},
+  "namesSubtitle": "The names, their meanings and evidence",
+  "@namesSubtitle": {"description":"Library tile subtitle."},
+  "namesSearch": "Search a name or a meaning",
+  "@namesSearch": {"description":"Search hint."},
+  "namesComingSoon": "The names and their explanation will be added soon.",
+  "@namesComingSoon": {"description":"Empty state."},
+  "namesVerseReference": "Al-A'raf 7:180",
+  "@namesVerseReference": {"description":"Verse reference."},
+  "namesMeaning": "Meaning",
+  "@namesMeaning": {"description":"Detail heading."},
+  "namesEvidence": "Evidence",
+  "@namesEvidence": {"description":"Detail heading."},
+  "namesSource": "Source",
+  "@namesSource": {"description":"Source link."}
 }

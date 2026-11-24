@@ -53,6 +53,7 @@ void main() {
       's-abc123',
       'radio',
       'duas',
+      'names',
       'hadith',
       'fiqh',
       'articles',

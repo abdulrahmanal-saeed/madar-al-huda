@@ -2105,4 +2105,29 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get feedbackFailed =>
       'Couldn\'t send. Check the connection and try again.';
+
+  @override
+  String get namesTitle => 'The Beautiful Names of Allah';
+
+  @override
+  String get namesSubtitle => 'The names, their meanings and evidence';
+
+  @override
+  String get namesSearch => 'Search a name or a meaning';
+
+  @override
+  String get namesComingSoon =>
+      'The names and their explanation will be added soon.';
+
+  @override
+  String get namesVerseReference => 'Al-A\'raf 7:180';
+
+  @override
+  String get namesMeaning => 'Meaning';
+
+  @override
+  String get namesEvidence => 'Evidence';
+
+  @override
+  String get namesSource => 'Source';
 }

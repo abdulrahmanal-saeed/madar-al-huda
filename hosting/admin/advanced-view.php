@@ -59,6 +59,20 @@ if (!defined('MADAR_ADMIN')) {
       </a>
     <?php endforeach; ?>
   </section>
+  <?php if ($section === 'names' && $current === null && $edit !== 'new'): ?>
+  <section class="panel">
+    <h2>إضافة أسماء دفعة واحدة</h2>
+    <p>الصق اسمًا في كل سطر بهذا الشكل، ثم «حفظ في المسودة». السطر الذي اسمه موجود يحدّث معناه:</p>
+    <p dir="rtl"><code>الرحمن | Ar-Rahman | ذو الرحمة الواسعة التي وسعت كل شيء | The Most Merciful</code></p>
+    <form method="post">
+      <?php controls('save', $revision); ?>
+      <input type="hidden" name="original" value="">
+      <textarea name="bulk" rows="10" required></textarea>
+      <button class="primary">حفظ في المسودة</button>
+    </form>
+    <p class="hint">بعد الحفظ افتح أي اسم لإضافة الدليل ورابط المصدر أو تعديل الرقم. ولا يظهر القسم في التطبيق حتى تنشر المسودة.</p>
+  </section>
+  <?php endif; ?>
   <?php if ($current !== null || $edit === 'new'): ?>
   <section class="panel">
     <h2><?= $current !== null ? 'تعديل العنصر' : 'إضافة عنصر' ?></h2>
@@ -75,9 +89,22 @@ if (!defined('MADAR_ADMIN')) {
     <form method="post">
       <?php controls('save', $revision); ?>
       <input type="hidden" name="original" value="<?= e($current['id'] ?? '') ?>">
+      <?php if ($section === 'names'): ?>
+        <div class="fields">
+          <label>الرقم<input name="number" type="number" min="1" max="999" value="<?= e($current['number'] ?? count($rows) + 1) ?>" required></label>
+          <label>الاسم<input name="ar" value="<?= e($current['title']['ar'] ?? '') ?>" required placeholder="الرحمن"></label>
+          <label>النطق بالإنجليزية<input name="en" dir="ltr" value="<?= e($current['title']['en'] ?? '') ?>" required placeholder="Ar-Rahman"></label>
+        </div>
+        <label>المعنى والشرح بالعربية<textarea name="body_ar" rows="6" required><?= e($current['body']['ar'] ?? '') ?></textarea></label>
+        <label>المعنى بالإنجليزية (اختياري)<textarea name="body_en" dir="ltr" rows="4"><?= e($current['body']['en'] ?? '') ?></textarea></label>
+        <label>الدليل من القرآن أو السنة (اختياري)<textarea name="evidence" rows="3"><?= e($current['evidence']['ar'] ?? '') ?></textarea></label>
+        <label>رابط المصدر (اختياري)<input name="source" type="url" dir="ltr" value="<?= e($current['source'] ?? '') ?>"></label>
+      <?php else: ?>
       <label>العنوان بالعربية<input name="ar" value="<?= e($current['title']['ar'] ?? '') ?>" required></label>
       <label>العنوان بالإنجليزية<input name="en" dir="ltr" value="<?= e($current['title']['en'] ?? '') ?>" required></label>
-      <?php if ($section === 'fiqh'): ?>
+      <?php endif; ?>
+      <?php if ($section === 'names'): ?>
+      <?php elseif ($section === 'fiqh'): ?>
         <?php $positions = array_column($current['positions'] ?? [], null, 'school'); ?>
         <?php foreach (SCHOOLS as $key => $name): ?>
           <?php $position = $positions[$key] ?? []; ?>

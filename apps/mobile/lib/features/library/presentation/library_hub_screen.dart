@@ -12,6 +12,7 @@ import '../../../core/theme/app_tokens.dart';
 import '../../../core/theme/brand_colors.dart';
 import '../../../core/widgets/responsive_content.dart';
 import '../../../core/widgets/settings_button.dart';
+import '../../names/names_screen.dart';
 import '../domain/library_sections.dart';
 
 class LibraryHubScreen extends ConsumerWidget {
@@ -153,6 +154,16 @@ Widget? _tile(
       subtitle: l10n.sectionAdhkarTitle,
       tone: 0,
     ),
+    // Shown once the dashboard publishes the names.
+    BuiltinEntry(id: 'names') when divineNamesFrom(feed).isNotEmpty =>
+      _LibraryTile(
+        key: const ValueKey('library-names'),
+        route: AppRoutes.names,
+        icon: Icons.auto_awesome_outlined,
+        title: l10n.namesTitle,
+        subtitle: l10n.namesSubtitle,
+        tone: 2,
+      ),
     BuiltinEntry(id: 'hadith') => section(AppSection.hadith, 1),
     BuiltinEntry(id: 'fiqh')
         when LibraryHubScreen._published(AppSection.fiqh, feed) =>

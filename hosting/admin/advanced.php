@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-const BOOK_SECTIONS = ['fiqh', 'articles', 'lessons'];
+const BOOK_SECTIONS = ['fiqh', 'articles', 'lessons', 'names'];
 const SCHOOLS = [
     'hanafi' => 'الحنفي', 'maliki' => 'المالكي',
     'shafii' => 'الشافعي', 'hanbali' => 'الحنبلي',
@@ -74,6 +74,10 @@ function changeBook(array $payload, string $section, bool $delete): array
     if ($original !== '' && $position === null) {
         throw new InvalidArgumentException('العنصر غير موجود في المسودة.');
     }
+    if ($section === 'names' && !$delete && $original === '' && field('bulk') !== '') {
+        $payload['library'][$section] = namesWithBulk($rows, field('bulk'));
+        return $payload;
+    }
     if ($delete) {
         if ($position === null) {
             throw new InvalidArgumentException('اختر عنصرًا لحذفه.');
@@ -82,7 +86,17 @@ function changeBook(array $payload, string $section, bool $delete): array
     } else {
         $id = $original === '' ? bin2hex(random_bytes(12)) : $original;
         $row = ['id' => $id, 'title' => label()];
-        if ($section === 'fiqh') {
+        if ($section === 'names') {
+            $row = ['id' => $id, 'number' => integer(field('number'), 1, 999)] + $row;
+            $row['body'] = ['ar' => contentText('body_ar', 6000), 'en' => contentText('body_en', 6000, false)];
+            $evidence = contentText('evidence', 3000, false);
+            if ($evidence !== '') {
+                $row['evidence'] = ['ar' => $evidence];
+            }
+            if (field('source') !== '') {
+                $row['source'] = sourceLink('source');
+            }
+        } elseif ($section === 'fiqh') {
             $row['positions'] = [];
             foreach (SCHOOLS as $key => $school) {
                 if (field("ar_$key") === '' && field("en_$key") === '') {
@@ -110,8 +124,52 @@ function changeBook(array $payload, string $section, bool $delete): array
             $rows[$position] = $row;
         }
     }
+    if ($section === 'names') {
+        usort($rows, static fn (array $a, array $b): int => ($a['number'] ?? 0) <=> ($b['number'] ?? 0));
+    }
     $payload['library'][$section] = $rows;
     return $payload;
+}
+
+/**
+ * Adds names pasted one per line: «الاسم | Transliteration | المعنى |
+ * English meaning». A line for a name already listed replaces it.
+ */
+function namesWithBulk(array $rows, string $text): array
+{
+    $byName = [];
+    foreach ($rows as $index => $row) {
+        $byName[$row['title']['ar']] = $index;
+    }
+    $added = 0;
+    foreach (preg_split('/\R/u', $text) as $line) {
+        if (trim($line) === '') {
+            continue;
+        }
+        $parts = array_map('trim', explode('|', $line));
+        if (count($parts) < 3 || $parts[0] === '' || $parts[2] === '') {
+            throw new InvalidArgumentException('كل سطر: الاسم | النطق بالإنجليزية | المعنى | المعنى بالإنجليزية (اختياري).');
+        }
+        if (mb_strlen($parts[0]) > 60 || mb_strlen($parts[1]) > 80 || mb_strlen($parts[2]) > 6000 || mb_strlen($parts[3] ?? '') > 6000) {
+            throw new InvalidArgumentException('أحد الأسطر أطول من المسموح.');
+        }
+        $row = [
+            'title' => ['ar' => $parts[0], 'en' => $parts[1] !== '' ? $parts[1] : $parts[0]],
+            'body' => ['ar' => $parts[2], 'en' => $parts[3] ?? ''],
+        ];
+        if (isset($byName[$parts[0]])) {
+            $rows[$byName[$parts[0]]] = $row + $rows[$byName[$parts[0]]];
+        } else {
+            $rows[] = ['id' => bin2hex(random_bytes(12)), 'number' => count($rows) + 1] + $row;
+            $byName[$parts[0]] = count($rows) - 1;
+        }
+        $added++;
+    }
+    if ($added === 0 || count($rows) > 150) {
+        throw new InvalidArgumentException('الصق سطرًا واحدًا على الأقل (١٥٠ اسمًا على الأكثر).');
+    }
+    usort($rows, static fn (array $a, array $b): int => ($a['number'] ?? 0) <=> ($b['number'] ?? 0));
+    return $rows;
 }
 
 function defaultReaders(): array

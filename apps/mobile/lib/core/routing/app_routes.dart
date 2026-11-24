@@ -30,6 +30,7 @@ abstract final class AppRoutes {
   static const String hadith = '$library/hadith';
   static const String fiqh = '$library/fiqh';
   static const String articles = '$library/articles';
+  static const String names = '$library/names';
 
   /// A section added on the dashboard, by its id.
   static String librarySection(String id) => '$library/s/$id';
