@@ -2044,4 +2044,52 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get firstRunStart => 'ابدأ';
+
+  @override
+  String get feedbackTitle => 'أبلغ عن مشكلة أو اقترح';
+
+  @override
+  String get feedbackSettingsSubtitle =>
+      'أخبرنا بما لا يعمل أو بما تتمنى إضافته';
+
+  @override
+  String get feedbackIntro =>
+      'تصل رسالتك مباشرة إلى فريق التطبيق. شكرًا لمساعدتك في تحسين «مدار الهدى».';
+
+  @override
+  String get feedbackProblem => 'مشكلة';
+
+  @override
+  String get feedbackSuggestion => 'اقتراح';
+
+  @override
+  String get feedbackProblemHint => 'ماذا حدث، وفي أي شاشة؟';
+
+  @override
+  String get feedbackSuggestionHint => 'ما الذي تتمنى أن تراه؟';
+
+  @override
+  String get feedbackContact => 'بريدك أو رقمك للرد (اختياري)';
+
+  @override
+  String get feedbackPrivacy => 'لا يُرسل إلا ما تكتبه ورقم نسخة التطبيق.';
+
+  @override
+  String get feedbackSend => 'إرسال';
+
+  @override
+  String get feedbackThanks => 'شكرًا لك، وصلت رسالتك.';
+
+  @override
+  String get feedbackDone => 'تم';
+
+  @override
+  String get feedbackTooShort => 'اكتب تفاصيل أكثر قليلًا أولًا.';
+
+  @override
+  String get feedbackTooMany =>
+      'أرسلت عدة رسائل مؤخرًا. حاول مرة أخرى بعد ساعة.';
+
+  @override
+  String get feedbackFailed => 'تعذّر الإرسال. تحقق من الاتصال وحاول مرة أخرى.';
 }

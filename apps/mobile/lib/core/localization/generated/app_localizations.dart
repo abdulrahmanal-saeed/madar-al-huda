@@ -3679,6 +3679,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Start'**
   String get firstRunStart;
+
+  /// Feedback screen title.
+  ///
+  /// In en, this message translates to:
+  /// **'Report a problem or suggest'**
+  String get feedbackTitle;
+
+  /// Settings row.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell us what is wrong or what you would like'**
+  String get feedbackSettingsSubtitle;
+
+  /// Intro.
+  ///
+  /// In en, this message translates to:
+  /// **'Your message goes straight to the app\'s team. Thank you for helping improve Madar Al-Huda.'**
+  String get feedbackIntro;
+
+  /// Kind.
+  ///
+  /// In en, this message translates to:
+  /// **'Problem'**
+  String get feedbackProblem;
+
+  /// Kind.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggestion'**
+  String get feedbackSuggestion;
+
+  /// Message label.
+  ///
+  /// In en, this message translates to:
+  /// **'What happened, and where in the app?'**
+  String get feedbackProblemHint;
+
+  /// Message label.
+  ///
+  /// In en, this message translates to:
+  /// **'What would you like to see?'**
+  String get feedbackSuggestionHint;
+
+  /// Contact label.
+  ///
+  /// In en, this message translates to:
+  /// **'Email or phone for a reply (optional)'**
+  String get feedbackContact;
+
+  /// Privacy note.
+  ///
+  /// In en, this message translates to:
+  /// **'Only what you write and the app\'s build number are sent.'**
+  String get feedbackPrivacy;
+
+  /// Send.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get feedbackSend;
+
+  /// Sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you, your message arrived.'**
+  String get feedbackThanks;
+
+  /// Close.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get feedbackDone;
+
+  /// Too short.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a little more first.'**
+  String get feedbackTooShort;
+
+  /// Rate limited.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve sent several messages recently. Try again in an hour.'**
+  String get feedbackTooMany;
+
+  /// Failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t send. Check the connection and try again.'**
+  String get feedbackFailed;
 }
 
 class _AppLocalizationsDelegate

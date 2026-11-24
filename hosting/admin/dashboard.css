@@ -155,3 +155,7 @@ label.check { display: flex; align-items: center; gap: .4rem; }
 
 /* Review state */
 .badge.warn { background: #fdecc8; color: #7a4a00; }
+/* Reports from the app */
+.report-row { margin: .75rem 0; padding: .9rem 1rem; }
+.report-row.muted { opacity: .65; }
+.report-text { white-space: normal; line-height: 1.8; margin: .5rem 0; overflow-wrap: anywhere; }

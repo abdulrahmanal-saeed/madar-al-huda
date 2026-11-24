@@ -124,6 +124,14 @@ class SettingsScreen extends ConsumerWidget {
                   const _Divider(),
                   _GroupHeader(l10n.settingsAbout),
                   const SettingsUpdates(),
+                  ListTile(
+                    key: const ValueKey('settings-feedback'),
+                    leading: const Icon(Icons.feedback_outlined),
+                    title: Text(l10n.feedbackTitle),
+                    subtitle: Text(l10n.feedbackSettingsSubtitle),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => context.push(AppRoutes.feedback),
+                  ),
                   const ErrorReportTile(),
                   ListTile(
                     leading: const Icon(Icons.info_outline),

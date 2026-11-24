@@ -18,11 +18,16 @@ require __DIR__ . '/account.php';
 require __DIR__ . '/diff.php';
 require __DIR__ . '/manage.php';
 require __DIR__ . '/governance.php';
+require __DIR__ . '/reports.php';
 
 try {
     $db = database();
     if (($_GET['feed'] ?? '') === 'library') {
         serveFeed($db);
+    }
+    if (isset($_GET['report'])) {
+        reportsTable($db);
+        receiveReport($db);
     }
     if (($_GET['ci'] ?? '') === 'release') {
         releaseTable($db);
@@ -121,6 +126,7 @@ $sections = [
     'appearance' => 'الثيم والألوان', 'library_sections' => 'أقسام المكتبة',
     'releases' => 'إصدارات التطبيق', 'app_settings' => 'إعدادات التطبيق',
     'story_titles' => 'عناوين القصص', 'adhkar_groups' => 'مجموعات الأذكار',
+    'reports' => 'البلاغات والاقتراحات',
     'users' => 'المستخدمون', 'audit' => 'سجل التعديلات', 'account' => 'حسابي',
 ];
 $section = $_GET['section'] ?? 'daily';
@@ -177,6 +183,7 @@ const CONFIRMATIONS = [
     'release_notify' => 'سيظهر إشعار التحديث على أجهزة المستخدمين. هل تريد المتابعة؟',
     'release_withdraw' => 'سيُسحب هذا الإصدار ويعود الإصدار السابق هو المتاح للتنزيل. الأجهزة التي حدّثت بالفعل لن تعود للإصدار السابق. هل تريد المتابعة؟',
     'totp_disable' => 'سيُوقف التحقق بخطوتين، ويكفي بعدها كلمة المرور للدخول. هل تريد المتابعة؟',
+    'report_delete' => 'سيُحذف هذا البلاغ نهائيًا. هل تريد المتابعة؟',
 ];
 $notice = $_SESSION['notice'] ?? null;
 unset($_SESSION['notice']);
@@ -277,6 +284,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['notice'] = changeUsers($db, $user, $action);
         } elseif (in_array($action, ['password_change', 'totp_enable', 'totp_disable'], true)) {
             $_SESSION['notice'] = changeAccount($db, $user, $action);
+        } elseif (in_array($action, ['report_settings', 'report_done', 'report_open', 'report_delete'], true)) {
+            $_SESSION['notice'] = changeReports($db, $action);
         } elseif (in_array($action, ['release_upload', 'release_publish', 'release_notify', 'release_withdraw'], true)) {
             releaseTable($db);
             $_SESSION['notice'] = changeRelease($db, $action);
@@ -332,7 +341,7 @@ if ($active) {
     }
     $rows = in_array($section, BOOK_SECTIONS, true)
         ? ($draft['library'][$section] ?? [])
-        : (in_array($section, ['stories', 'history', 'reciters', 'releases', 'appearance', 'library_sections', 'account', 'app_settings', 'story_titles', 'adhkar_groups', 'users', 'audit'], true)
+        : (in_array($section, ['stories', 'history', 'reciters', 'releases', 'appearance', 'library_sections', 'account', 'app_settings', 'story_titles', 'adhkar_groups', 'users', 'audit', 'reports'], true)
             ? [] : contentRows($draft, $section, $topic));
     $current = null;
     foreach ($rows as $index => $row) {
@@ -393,9 +402,9 @@ if ($active) {
   <main>
     <header class="section-head">
       <div><h1><?= e($sections[$section]) ?></h1>
-        <?php if (!in_array($section, ['stories', 'releases'], true)): ?><p><?= $dirty ? 'تغييرات في المسودة' : 'المكتبة محدثة' ?> · الحجم <?= e(feedSizeLabel(strlen($state['draft']))) ?></p><?php endif; ?>
+        <?php if (!in_array($section, ['stories', 'releases', 'reports'], true)): ?><p><?= $dirty ? 'تغييرات في المسودة' : 'المكتبة محدثة' ?> · الحجم <?= e(feedSizeLabel(strlen($state['draft']))) ?></p><?php endif; ?>
       </div>
-      <?php if ($dirty && !in_array($section, ['stories', 'releases'], true)): ?>
+      <?php if ($dirty && !in_array($section, ['stories', 'releases', 'reports'], true)): ?>
         <?php if (allowedAction($user, 'publish', $section)): ?>
         <form method="post"><?php controls('publish', $revision); ?><button class="primary">نشر المسودة للتطبيق</button></form>
         <?php else: ?><p>النشر للمراجع الشرعي أو المالك.</p><?php endif; ?>
@@ -447,6 +456,9 @@ if ($active) {
     <?php endif; ?>
     <?php if (in_array($section, ['users', 'audit'], true)): ?>
       <?php require __DIR__ . '/governance-view.php'; ?>
+    <?php endif; ?>
+    <?php if ($section === 'reports'): ?>
+      <?php require __DIR__ . '/reports-view.php'; ?>
     <?php endif; ?>
     <?php if ($section === 'stories'): ?>
       <section class="panel">
@@ -509,7 +521,7 @@ if ($active) {
       </section>
     <?php elseif (in_array($section, BOOK_SECTIONS, true) || $section === 'reciters'): ?>
       <?php require __DIR__ . '/advanced-view.php'; ?>
-    <?php elseif (in_array($section, ['account', 'app_settings', 'story_titles', 'adhkar_groups', 'users', 'audit'], true)): ?>
+    <?php elseif (in_array($section, ['account', 'app_settings', 'story_titles', 'adhkar_groups', 'users', 'audit', 'reports'], true)): ?>
       <?php /* Drawn above. */ ?>
     <?php else: ?>
       <?php if ($section === 'duas'): ?>
