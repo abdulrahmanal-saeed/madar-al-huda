@@ -7,7 +7,7 @@ declare(strict_types=1);
  */
 
 /** Sections only the owner manages. */
-const OWNER_SECTIONS = ['appearance', 'app_settings', 'library_sections', 'reciters', 'releases', 'users', 'audit', 'reports'];
+const OWNER_SECTIONS = ['appearance', 'app_settings', 'library_sections', 'reciters', 'releases', 'users', 'audit', 'reports', 'chatgpt'];
 
 /** Actions and the roles allowed to take them. */
 const ACTION_ROLES = [
@@ -37,6 +37,11 @@ const ACTION_ROLES = [
     'report_done' => ['owner'],
     'report_open' => ['owner'],
     'report_delete' => ['owner'],
+    'agent_key_create' => ['owner'],
+    'agent_key_revoke' => ['owner'],
+    'agent_publish_approve' => ['owner'],
+    'agent_publish_reject' => ['owner'],
+    'agent_publish_mode' => ['owner'],
 ];
 
 function canSee(array $user, string $section): bool
@@ -87,6 +92,9 @@ const AUDIT_ACTIONS = [
     'totp_enable' => 'تفعيل التحقق بخطوتين', 'totp_disable' => 'إيقاف التحقق بخطوتين',
     'report_settings' => 'بريد البلاغات', 'report_done' => 'إنهاء بلاغ', 'report_open' => 'إعادة فتح بلاغ',
     'report_delete' => 'حذف بلاغ',
+    'agent_key_create' => 'إنشاء رابط ChatGPT', 'agent_key_revoke' => 'إلغاء رابط ChatGPT',
+    'agent_publish_approve' => 'موافقة على نشر من ChatGPT', 'agent_publish_reject' => 'رفض نشر من ChatGPT',
+    'agent_publish_mode' => 'طريقة النشر من ChatGPT',
 ];
 
 /** What the audit line says about a request, without secrets. */
