@@ -350,7 +350,7 @@ if ($active) {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
   <title>إدارة المكتبة · مدار الهدى</title>
-  <link rel="stylesheet" href="dashboard.css">
+  <link rel="stylesheet" href="dashboard.css?v=<?= e((string) @filemtime(__DIR__ . '/dashboard.css')) ?>">
 </head>
 <body>
 <?php if (!$active): ?>
@@ -589,6 +589,6 @@ if ($active) {
   </main>
 </div>
 <?php endif; ?>
-<script src="admin.js" defer></script>
+<script src="admin.js?v=<?= e((string) @filemtime(__DIR__ . '/admin.js')) ?>" defer></script>
 </body>
 </html>
