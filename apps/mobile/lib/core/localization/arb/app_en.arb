@@ -1373,5 +1373,19 @@
   "reminderFastAshura": "Tomorrow is Ashura",
   "@reminderFastAshura": {"description":"Fasting reminder title."},
   "reminderFastBody": "A reminder for anyone who wishes to fast.",
-  "@reminderFastBody": {"description":"Fasting reminder body."}
+  "@reminderFastBody": {"description":"Fasting reminder body."},
+  "playerSpeed": "Speed",
+  "@playerSpeed": {"description":"Playback speed."},
+  "playerSleep": "Sleep timer",
+  "@playerSleep": {"description":"Stops playback after a while."},
+  "playerSleepOff": "Off",
+  "@playerSleepOff": {"description":"Sleep timer off."},
+  "playerSleepMinutes": "{minutes} min",
+  "@playerSleepMinutes": {"description":"Sleep timer choice.","placeholders":{"minutes":{"type":"String"}}},
+  "playerSleepUntil": "Playback stops at {time}",
+  "@playerSleepUntil": {"description":"When the sleep timer ends.","placeholders":{"time":{"type":"String"}}},
+  "playerBack": "Back 10 seconds",
+  "@playerBack": {"description":"Seek back."},
+  "playerForward": "Forward 10 seconds",
+  "@playerForward": {"description":"Seek forward."}
 }

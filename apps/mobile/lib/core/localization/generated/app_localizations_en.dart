@@ -1484,4 +1484,29 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reminderFastBody => 'A reminder for anyone who wishes to fast.';
+
+  @override
+  String get playerSpeed => 'Speed';
+
+  @override
+  String get playerSleep => 'Sleep timer';
+
+  @override
+  String get playerSleepOff => 'Off';
+
+  @override
+  String playerSleepMinutes(String minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String playerSleepUntil(String time) {
+    return 'Playback stops at $time';
+  }
+
+  @override
+  String get playerBack => 'Back 10 seconds';
+
+  @override
+  String get playerForward => 'Forward 10 seconds';
 }
