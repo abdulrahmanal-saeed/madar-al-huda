@@ -1700,10 +1700,10 @@ abstract class AppLocalizations {
   /// **'This recording has no timing for the selected verse.'**
   String get readerVerseAudioUnavailable;
 
-  /// Reading sources
+  /// Mushaf overflow menu.
   ///
   /// In en, this message translates to:
-  /// **'Reading sources'**
+  /// **'More options'**
   String get readerSources;
 
   /// Continue reading
@@ -3607,6 +3607,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} recorded on this phone'**
   String errorReportCount(String count);
+
+  /// Downloads tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Stories'**
+  String get downloadsStoriesTab;
+
+  /// Downloads tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Library'**
+  String get downloadsLibraryTab;
 }
 
 class _AppLocalizationsDelegate

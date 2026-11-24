@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/localization/l10n_extension.dart';
 import '../../../core/theme/app_theme.dart';
@@ -33,12 +32,6 @@ class DhikrContent extends ConsumerWidget {
     final translation = english && !hasDraft
         ? ref.watch(hadithDetailProvider((language: 'en', id: '$hadith')))
         : null;
-    final source = hadith == 65913
-        ? Uri.https('sunnah.com', '/bukhari:6324')
-        : Uri.https(
-            'hadeethenc.com',
-            '/${context.adhkarLanguage}/browse/hadith/$hadith',
-          );
 
     final verses = entry?.verses ?? const <VerseRange>[];
     final edition = verses.isEmpty ? null : ref.watch(mushafEditionProvider);
@@ -121,17 +114,16 @@ class DhikrContent extends ConsumerWidget {
               if (translation != null)
                 _narration(context, translation, ref, 'en', reading),
             ],
-            Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: TextButton.icon(
-                onPressed: () =>
-                    launchUrl(source, mode: LaunchMode.inAppWebView),
-                icon: const Icon(Icons.open_in_new, size: 18),
-                label: Text(
-                  hadith == 65913 ? l10n.adhkarBukhari6324 : 'HadeethEnc',
+            // The book reference stays (part of the narration); the website
+            // it came from is credited on the licences page only.
+            if (hadith == 65913)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(
+                  l10n.adhkarBukhari6324,
+                  style: Theme.of(context).textTheme.bodySmall,
                 ),
               ),
-            ),
           ],
         ),
       ),

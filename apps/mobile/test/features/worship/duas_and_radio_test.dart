@@ -75,37 +75,27 @@ void main() {
     );
   });
 
-  testWidgets(
-    'radio opens the official player in the app before offering the browser fallback',
-    (tester) async {
-      const channel = MethodChannel('plugins.flutter.io/url_launcher');
-      final messenger =
-          TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
-      final launches = <Map<Object?, Object?>>[];
-      messenger.setMockMethodCallHandler(channel, (call) async {
-        expect(call.method, 'launch');
-        launches.add(call.arguments as Map<Object?, Object?>);
-        return launches.length > 1;
-      });
-      addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
-      await pumpMadarApp(tester, initialLocation: AppRoutes.worship);
-      final l10n = lookupAppLocalizations(const Locale('en'));
-      final radio = find.text(l10n.radioTitle);
-      await tester.scrollUntilVisible(radio, 160);
-      await tester.tap(radio);
-      await tester.pumpAndSettle();
-      await tester.tap(find.text(l10n.radioOpen));
-      await tester.pumpAndSettle();
-      expect(launches.single['url'], 'https://misrquran.gov.eg/home');
-      expect(launches.single['useWebView'], isTrue);
-      expect(launches.single['enableJavaScript'], isTrue);
-
-      await tester.tap(
-        find.widgetWithText(TextButton, l10n.radioOpenInBrowser),
-      );
-      await tester.pumpAndSettle();
-      expect(launches.last['url'], launches.first['url']);
-      expect(launches.last['useWebView'], isFalse);
-    },
-  );
+  testWidgets('radio plays the live stream inside the app', (tester) async {
+    const channel = MethodChannel('plugins.flutter.io/url_launcher');
+    final messenger =
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+    final launches = <Map<Object?, Object?>>[];
+    messenger.setMockMethodCallHandler(channel, (call) async {
+      expect(call.method, 'launch');
+      launches.add(call.arguments as Map<Object?, Object?>);
+      return launches.length > 1;
+    });
+    addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
+    await pumpMadarApp(tester, initialLocation: AppRoutes.worship);
+    final l10n = lookupAppLocalizations(const Locale('en'));
+    final radio = find.text(l10n.radioTitle);
+    await tester.scrollUntilVisible(radio, 160);
+    await tester.tap(radio);
+    await tester.pumpAndSettle();
+    // The station plays inside the app: a play button, no web page.
+    expect(find.text(l10n.radioPlay), findsOneWidget);
+    expect(find.text(l10n.radioOpen), findsNothing);
+    expect(find.text(l10n.radioOpenInBrowser), findsNothing);
+    expect(launches, isEmpty);
+  });
 }

@@ -902,7 +902,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'This recording has no timing for the selected verse.';
 
   @override
-  String get readerSources => 'Reading sources';
+  String get readerSources => 'More options';
 
   @override
   String get homeContinueReading => 'Continue reading';
@@ -2016,4 +2016,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String errorReportCount(String count) {
     return '$count recorded on this phone';
   }
+
+  @override
+  String get downloadsStoriesTab => 'Stories';
+
+  @override
+  String get downloadsLibraryTab => 'Library';
 }

@@ -14,7 +14,16 @@ if (!defined('MADAR_ADMIN')) {
       <label class="check"><input type="checkbox" data-complete-only="reader-select"> المصحف كاملًا فقط (١١٤ سورة)</label>
       <label>القارئ
         <select name="reader" id="reader-select" required size="8">
-          <?php foreach (availableReaders() as $choice): ?>
+          <?php
+            // A reciter is either chosen (below) or offered here, never both:
+            // the same name from another source counts as already chosen.
+            $chosenReaders = array_filter($draft['reciters'] ?? defaultReaders(), static fn (array $r): bool => !empty($r['enabled']));
+            $chosenIds = array_column($chosenReaders, 'id');
+            $chosenNames = array_map(static fn (array $r): string => trim((string) $r['ar']), $chosenReaders);
+            $offered = array_filter(availableReaders(), static fn (array $c): bool => !in_array($c['id'], $chosenIds, true) && !in_array(trim((string) $c['ar']), $chosenNames, true));
+          ?>
+          <?php if ($offered === []): ?><option disabled>كل القراء المتاحين مختارون بالفعل</option><?php endif; ?>
+          <?php foreach ($offered as $choice): ?>
             <option value="<?= e($choice['id']) ?>" data-complete="<?= !isset($choice['chapters']) || count($choice['chapters']) >= 114 ? '1' : '0' ?>"><?= e($choice['ar']) ?> · <?= e($choice['source']) ?><?= isset($choice['chapters']) ? ' · ' . count($choice['chapters']) . ' سورة' : '' ?></option>
           <?php endforeach; ?>
         </select>

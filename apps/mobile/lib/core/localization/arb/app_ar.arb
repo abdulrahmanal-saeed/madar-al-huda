@@ -277,7 +277,7 @@
   "readerListenChapter": "استمع للسورة",
   "readerListenFromVerse": "استمع من هنا",
   "readerVerseAudioUnavailable": "التوقيت غير متاح لهذه الآية في هذه التلاوة.",
-  "readerSources": "مصادر القراءة",
+  "readerSources": "خيارات أخرى",
   "homeContinueReading": "استكمل القراءة",
   "homeOpenPage": "افتح الصفحة {number}",
   "homeReadQuran": "افتح المصحف",
@@ -595,5 +595,7 @@
   "errorReportPrivacy": "محفوظ على هاتفك فقط. شاركه مع المطوّر إن أردت؛ لا يُرسل شيء تلقائيًا.",
   "errorReportShare": "مشاركة التقرير",
   "errorReportClear": "مسح",
-  "errorReportCount": "{count} مسجّلة على هاتفك"
+  "errorReportCount": "{count} مسجّلة على هاتفك",
+  "downloadsStoriesTab": "القصص",
+  "downloadsLibraryTab": "المكتبة"
 }

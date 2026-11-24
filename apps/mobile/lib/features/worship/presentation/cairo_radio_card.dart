@@ -211,12 +211,16 @@ class _CairoRadioScreenState extends ConsumerState<CairoRadioScreen> {
             const SizedBox(height: AppSpacing.lg),
             if (stream != null) ...[
               _radioControls(stream),
-              TextButton(
-                onPressed: _opening
-                    ? null
-                    : () => _open(LaunchMode.inAppWebView),
-                child: Text(l10n.radioOpen),
-              ),
+              // The station's website only if the stream itself fails.
+              if (ref.watch(audioPlaybackProvider).failedId ==
+                  cairoRadioMediaId)
+                TextButton.icon(
+                  onPressed: _opening
+                      ? null
+                      : () => _open(LaunchMode.externalApplication),
+                  icon: const Icon(Icons.open_in_new),
+                  label: Text(l10n.radioOpenInBrowser),
+                ),
             ] else ...[
               FilledButton.icon(
                 onPressed: _opening

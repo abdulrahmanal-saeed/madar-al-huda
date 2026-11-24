@@ -890,7 +890,7 @@ class AppLocalizationsAr extends AppLocalizations {
       'التوقيت غير متاح لهذه الآية في هذه التلاوة.';
 
   @override
-  String get readerSources => 'مصادر القراءة';
+  String get readerSources => 'خيارات أخرى';
 
   @override
   String get homeContinueReading => 'استكمل القراءة';
@@ -2005,4 +2005,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String errorReportCount(String count) {
     return '$count مسجّلة على هاتفك';
   }
+
+  @override
+  String get downloadsStoriesTab => 'القصص';
+
+  @override
+  String get downloadsLibraryTab => 'المكتبة';
 }
