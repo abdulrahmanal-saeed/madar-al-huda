@@ -3403,6 +3403,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'tasbih in all'**
   String get statsTasbihTotal;
+
+  /// Zakat screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Zakat calculator'**
+  String get zakatTitle;
+
+  /// Library tile.
+  ///
+  /// In en, this message translates to:
+  /// **'An estimate for money, gold and trade'**
+  String get zakatSubtitle;
+
+  /// Missing price.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the price of a gram to work out the nisab'**
+  String get zakatNeedPrice;
+
+  /// Result label.
+  ///
+  /// In en, this message translates to:
+  /// **'Zakat due (2.5%)'**
+  String get zakatDue;
+
+  /// Result label.
+  ///
+  /// In en, this message translates to:
+  /// **'Below the nisab: no zakat due'**
+  String get zakatBelowNisab;
+
+  /// Group.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s prices and nisab'**
+  String get zakatPrices;
+
+  /// Basis.
+  ///
+  /// In en, this message translates to:
+  /// **'Gold nisab (85 g)'**
+  String get zakatBasisGold;
+
+  /// Basis.
+  ///
+  /// In en, this message translates to:
+  /// **'Silver nisab (595 g)'**
+  String get zakatBasisSilver;
+
+  /// Field.
+  ///
+  /// In en, this message translates to:
+  /// **'Price of 1 g of 24k gold'**
+  String get zakatGoldPrice;
+
+  /// Field.
+  ///
+  /// In en, this message translates to:
+  /// **'Price of 1 g of silver'**
+  String get zakatSilverPrice;
+
+  /// Group.
+  ///
+  /// In en, this message translates to:
+  /// **'What you own'**
+  String get zakatAssets;
+
+  /// Field.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash and bank balances'**
+  String get zakatCash;
+
+  /// Hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Held for a full lunar year'**
+  String get zakatCashHint;
+
+  /// Field.
+  ///
+  /// In en, this message translates to:
+  /// **'Silver (grams)'**
+  String get zakatSilver;
+
+  /// Field.
+  ///
+  /// In en, this message translates to:
+  /// **'Trade goods'**
+  String get zakatTrade;
+
+  /// Hint.
+  ///
+  /// In en, this message translates to:
+  /// **'At today\'s selling value'**
+  String get zakatTradeHint;
+
+  /// Field.
+  ///
+  /// In en, this message translates to:
+  /// **'Money owed to you, expected back'**
+  String get zakatOwed;
+
+  /// Group.
+  ///
+  /// In en, this message translates to:
+  /// **'What you owe'**
+  String get zakatLiabilities;
+
+  /// Field.
+  ///
+  /// In en, this message translates to:
+  /// **'Debts due now'**
+  String get zakatDebts;
+
+  /// Hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Deducted from your wealth'**
+  String get zakatDebtsHint;
+
+  /// Disclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'A simplified estimate, not a fatwa. Scholars differ on details such as worn jewellery and the nisab; ask a scholar you trust about your case. Nothing you type is saved.'**
+  String get zakatDisclaimer;
+
+  /// Zakat.
+  ///
+  /// In en, this message translates to:
+  /// **'Zakatable wealth: {amount}'**
+  String zakatWealth(String amount);
+
+  /// Zakat.
+  ///
+  /// In en, this message translates to:
+  /// **'Nisab: {amount}'**
+  String zakatNisab(String amount);
+
+  /// Zakat.
+  ///
+  /// In en, this message translates to:
+  /// **'Gold {karat}k (grams)'**
+  String zakatGold(String karat);
 }
 
 class _AppLocalizationsDelegate

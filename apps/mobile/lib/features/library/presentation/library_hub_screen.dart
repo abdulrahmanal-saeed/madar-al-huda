@@ -56,6 +56,15 @@ class LibraryHubScreen extends ConsumerWidget {
     );
     final tiles = [
       for (final entry in entries) ?_tile(context, entry, feed),
+      _LibraryTile(
+        key: const ValueKey('library-zakat'),
+        route: AppRoutes.zakat,
+        push: true,
+        icon: Icons.calculate_outlined,
+        title: l10n.zakatTitle,
+        subtitle: l10n.zakatSubtitle,
+        tone: 1,
+      ),
       if (managedReleaseEnabled)
         _LibraryTile(
           key: const ValueKey('library-downloads'),
