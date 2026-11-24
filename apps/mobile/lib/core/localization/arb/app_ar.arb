@@ -622,5 +622,13 @@
   "feedbackDone": "تم",
   "feedbackTooShort": "اكتب تفاصيل أكثر قليلًا أولًا.",
   "feedbackTooMany": "أرسلت عدة رسائل مؤخرًا. حاول مرة أخرى بعد ساعة.",
-  "feedbackFailed": "تعذّر الإرسال. تحقق من الاتصال وحاول مرة أخرى."
+  "feedbackFailed": "تعذّر الإرسال. تحقق من الاتصال وحاول مرة أخرى.",
+  "namesTitle": "أسماء الله الحسنى",
+  "namesSubtitle": "الأسماء ومعانيها وأدلتها",
+  "namesSearch": "ابحث عن اسم أو معنى",
+  "namesComingSoon": "سيُضاف شرح الأسماء الحسنى قريبًا.",
+  "namesVerseReference": "الأعراف ١٨٠",
+  "namesMeaning": "المعنى",
+  "namesEvidence": "الدليل",
+  "namesSource": "المصدر"
 }

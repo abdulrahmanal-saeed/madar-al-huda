@@ -3769,6 +3769,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn\'t send. Check the connection and try again.'**
   String get feedbackFailed;
+
+  /// Names screen title.
+  ///
+  /// In en, this message translates to:
+  /// **'The Beautiful Names of Allah'**
+  String get namesTitle;
+
+  /// Library tile subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The names, their meanings and evidence'**
+  String get namesSubtitle;
+
+  /// Search hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search a name or a meaning'**
+  String get namesSearch;
+
+  /// Empty state.
+  ///
+  /// In en, this message translates to:
+  /// **'The names and their explanation will be added soon.'**
+  String get namesComingSoon;
+
+  /// Verse reference.
+  ///
+  /// In en, this message translates to:
+  /// **'Al-A\'raf 7:180'**
+  String get namesVerseReference;
+
+  /// Detail heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Meaning'**
+  String get namesMeaning;
+
+  /// Detail heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Evidence'**
+  String get namesEvidence;
+
+  /// Source link.
+  ///
+  /// In en, this message translates to:
+  /// **'Source'**
+  String get namesSource;
 }
 
 class _AppLocalizationsDelegate

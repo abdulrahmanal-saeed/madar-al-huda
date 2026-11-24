@@ -2092,4 +2092,28 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get feedbackFailed => 'تعذّر الإرسال. تحقق من الاتصال وحاول مرة أخرى.';
+
+  @override
+  String get namesTitle => 'أسماء الله الحسنى';
+
+  @override
+  String get namesSubtitle => 'الأسماء ومعانيها وأدلتها';
+
+  @override
+  String get namesSearch => 'ابحث عن اسم أو معنى';
+
+  @override
+  String get namesComingSoon => 'سيُضاف شرح الأسماء الحسنى قريبًا.';
+
+  @override
+  String get namesVerseReference => 'الأعراف ١٨٠';
+
+  @override
+  String get namesMeaning => 'المعنى';
+
+  @override
+  String get namesEvidence => 'الدليل';
+
+  @override
+  String get namesSource => 'المصدر';
 }
