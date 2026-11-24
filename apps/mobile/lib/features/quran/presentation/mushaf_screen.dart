@@ -22,6 +22,7 @@ import '../data/chapter_reciters.dart';
 import '../data/local_quran_bookmarks.dart';
 import '../data/mushaf_edition.dart';
 import '../data/quran_services.dart';
+import '../data/verse_timings.dart';
 import '../domain/quran_storage_contracts.dart';
 import 'mushaf_index.dart';
 import 'mushaf_page_view.dart';
@@ -239,6 +240,38 @@ class _ReaderState extends ConsumerState<_Reader> {
     });
   }
 
+  /// Follows the reciter: marks the verse being recited and brings it into
+  /// view only when it is off screen, so reading along stays steady.
+  void _follow(RecitedVerse recited) {
+    if (!mounted || recited.surah > widget.edition.surahs.length) return;
+    final verse = AyahRef(
+      editionId: MushafEdition.id,
+      surah: recited.surah,
+      ayah: recited.ayah,
+    );
+    if (!widget.edition.contains(verse) || verse == _selected) return;
+    _settle?.cancel();
+    final page = widget.edition.pageOf(verse);
+    if (_pageKeys[page]?.currentState == null && _scroll.isAttached) {
+      _scroll.jumpTo(index: page ~/ _spread);
+    }
+    setState(() {
+      _current = verse;
+      _selected = verse;
+    });
+    final jump = ++_jump;
+    _navigating = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || jump != _jump) return;
+      _pageKeys[page]?.currentState?.reveal(verse);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && jump == _jump) _navigating = false;
+      });
+      WidgetsBinding.instance.ensureVisualUpdate();
+    });
+    unawaited(_save(verse));
+  }
+
   void _navigate(AyahRef verse) {
     _settle?.cancel();
     final page = widget.edition.pageOf(verse);
@@ -378,6 +411,9 @@ class _ReaderState extends ConsumerState<_Reader> {
     // Tablets and wide windows read a two-page spread.
     final spread = MediaQuery.sizeOf(context).width >= 840 ? 2 : 1;
     _spread = spread;
+    ref.listen<RecitedVerse?>(recitedVerseProvider, (_, recited) {
+      if (recited != null) _follow(recited);
+    });
     // Keeps the bookmark list loaded for the index sheet without rebuilding
     // the whole reader on every bookmark change; the page header that shows
     // the bookmark state watches it itself.
