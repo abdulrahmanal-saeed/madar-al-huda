@@ -183,6 +183,13 @@ class _EpisodeSeriesScreenState extends ConsumerState<EpisodeSeriesScreen> {
                     ),
                   ],
                 ),
+                if (series.description case final description?) ...[
+                  const SizedBox(height: AppSpacing.md),
+                  Text(
+                    localizedIn(description, language),
+                    style: theme.textTheme.bodyMedium?.copyWith(height: 1.6),
+                  ),
+                ],
                 const SizedBox(height: AppSpacing.lg),
                 if (series.episodes.isEmpty)
                   Card(
@@ -295,7 +302,11 @@ class _EpisodeSeriesScreenState extends ConsumerState<EpisodeSeriesScreen> {
               ? const Icon(Icons.graphic_eq)
               : Text(numbers.format(episode.number)),
         ),
-        title: Text(l10n.learningEpisodeNumber(numbers.format(episode.number))),
+        title: Text(
+          episode.title == null
+              ? l10n.learningEpisodeNumber(numbers.format(episode.number))
+              : localizedIn(episode.title!, language),
+        ),
         subtitle: Row(
           children: [
             Icon(

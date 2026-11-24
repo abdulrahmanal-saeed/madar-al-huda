@@ -7,6 +7,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../core/content/app_settings.dart';
 import '../../../core/content/feature_preview.dart';
 import '../../../core/localization/l10n_extension.dart';
 import '../../../core/localization/numbers.dart';
@@ -451,14 +452,17 @@ class _ReaderState extends ConsumerState<_Reader> {
                         ? context.push(AppRoutes.memorize)
                         : launchUrl(uri),
                     itemBuilder: (_) => [
-                      PopupMenuItem(
-                        value: Uri(scheme: 'madar', path: 'memorize'),
-                        child: ListTile(
-                          contentPadding: EdgeInsets.zero,
-                          leading: const Icon(Icons.psychology_outlined),
-                          title: Text(l10n.memorizeTitle),
+                      if (ref
+                          .watch(appSettingsProvider)
+                          .shows(AppFeature.memorize))
+                        PopupMenuItem(
+                          value: Uri(scheme: 'madar', path: 'memorize'),
+                          child: ListTile(
+                            contentPadding: EdgeInsets.zero,
+                            leading: const Icon(Icons.psychology_outlined),
+                            title: Text(l10n.memorizeTitle),
+                          ),
                         ),
-                      ),
                       PopupMenuItem(
                         value: null,
                         child: ListTile(

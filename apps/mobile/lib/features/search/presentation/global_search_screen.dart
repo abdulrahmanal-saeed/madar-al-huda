@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../../core/content/app_settings.dart';
 import '../../../core/localization/app_locales.dart';
 import '../../../core/localization/l10n_extension.dart';
 import '../../../core/localization/numbers.dart';
@@ -179,9 +180,10 @@ class _GlobalSearchScreenState extends ConsumerState<GlobalSearchScreen> {
     MushafEdition? edition,
     AdhkarCatalog? adhkar,
     HadithCatalog? hadith,
+    AppSettings settings,
   ) {
     if (edition == null) return null;
-    final key = (edition, adhkar, hadith);
+    final key = (edition, adhkar, hadith, settings.hidden.join());
     if (key != _indexKey) {
       final names = [
         lookupAppLocalizations(const Locale('ar')),
@@ -193,7 +195,9 @@ class _GlobalSearchScreenState extends ConsumerState<GlobalSearchScreen> {
         hadith: hadith,
         shortcuts: [
           for (final place in _places)
-            (id: place.id, names: [for (final l in names) place.label(l)]),
+            if (_featureOf(place.id) case final feature
+                when feature == null || settings.shows(feature))
+              (id: place.id, names: [for (final l in names) place.label(l)]),
         ],
       );
       _indexKey = key;
@@ -211,10 +215,16 @@ class _GlobalSearchScreenState extends ConsumerState<GlobalSearchScreen> {
     final scheme = theme.colorScheme;
     final language = Localizations.localeOf(context).languageCode;
     final numbers = decimalFormat(language);
+    final settings = ref.watch(appSettingsProvider);
     final edition = ref.watch(mushafEditionProvider).asData?.value;
     final adhkar = ref.watch(adhkarCatalogProvider).asData?.value;
     final hadith = ref.watch(hadithCatalogProvider(language)).asData?.value;
-    final index = _indexFor(edition, adhkar, hadith);
+    final index = _indexFor(
+      edition,
+      adhkar,
+      settings.shows(AppFeature.hadith) ? hadith : null,
+      settings,
+    );
     final results = index?.search(_query, verseLimit: _allVerses ? 300 : 20);
 
     Widget header(String title, IconData icon, [int? count]) => Padding(
@@ -465,3 +475,18 @@ class _Suggestions extends StatelessWidget {
     );
   }
 }
+
+/// The dashboard switch that hides a search shortcut, if any.
+AppFeature? _featureOf(String place) => switch (place) {
+  'qibla' => AppFeature.qibla,
+  'wird' => AppFeature.khatma,
+  'tasbih' => AppFeature.tasbih,
+  'radio' => AppFeature.radio,
+  'hadith' => AppFeature.hadith,
+  'stories' => AppFeature.stories,
+  'ramadan' => AppFeature.ramadan,
+  'memorize' => AppFeature.memorize,
+  'stats' => AppFeature.stats,
+  'zakat' => AppFeature.zakat,
+  _ => null,
+};

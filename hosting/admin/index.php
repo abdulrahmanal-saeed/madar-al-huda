@@ -16,6 +16,7 @@ require __DIR__ . '/apk-signature.php';
 require __DIR__ . '/releases.php';
 require __DIR__ . '/account.php';
 require __DIR__ . '/diff.php';
+require __DIR__ . '/manage.php';
 
 try {
     $db = database();
@@ -117,7 +118,8 @@ $sections = [
     'fiqh' => 'الفقه المقارن', 'articles' => 'المقالات',
     'lessons' => 'الدروس والاختبارات', 'reciters' => 'القراء',
     'appearance' => 'الثيم والألوان', 'library_sections' => 'أقسام المكتبة',
-    'releases' => 'إصدارات التطبيق', 'account' => 'حسابي',
+    'releases' => 'إصدارات التطبيق', 'app_settings' => 'إعدادات التطبيق',
+    'story_titles' => 'عناوين القصص', 'adhkar_groups' => 'مجموعات الأذكار', 'account' => 'حسابي',
 ];
 $section = $_GET['section'] ?? 'daily';
 if (!is_string($section) || !isset($sections[$section])) {
@@ -313,7 +315,7 @@ if ($active) {
     }
     $rows = in_array($section, BOOK_SECTIONS, true)
         ? ($draft['library'][$section] ?? [])
-        : (in_array($section, ['stories', 'history', 'reciters', 'releases', 'appearance', 'library_sections', 'account'], true)
+        : (in_array($section, ['stories', 'history', 'reciters', 'releases', 'appearance', 'library_sections', 'account', 'app_settings', 'story_titles', 'adhkar_groups'], true)
             ? [] : contentRows($draft, $section, $topic));
     $current = null;
     foreach ($rows as $index => $row) {
@@ -420,6 +422,9 @@ if ($active) {
     <?php if ($section === 'account'): ?>
       <?php require __DIR__ . '/account-view.php'; ?>
     <?php endif; ?>
+    <?php if (in_array($section, ['app_settings', 'story_titles', 'adhkar_groups'], true)): ?>
+      <?php require __DIR__ . '/manage-view.php'; ?>
+    <?php endif; ?>
     <?php if ($section === 'stories'): ?>
       <section class="panel">
         <h2>رفع تسجيلات</h2>
@@ -481,6 +486,8 @@ if ($active) {
       </section>
     <?php elseif (in_array($section, BOOK_SECTIONS, true) || $section === 'reciters'): ?>
       <?php require __DIR__ . '/advanced-view.php'; ?>
+    <?php elseif (in_array($section, ['account', 'app_settings', 'story_titles', 'adhkar_groups'], true)): ?>
+      <?php /* Drawn above. */ ?>
     <?php else: ?>
       <?php if ($section === 'duas'): ?>
         <nav class="topics" aria-label="موضوعات الدعاء">

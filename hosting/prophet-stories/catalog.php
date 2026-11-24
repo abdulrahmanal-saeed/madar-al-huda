@@ -79,8 +79,33 @@ foreach ($files as $file) {
     }
 }
 
+// Titles, descriptions and hidden stories edited in the dashboard, from the
+// published library (read-only; the catalogue still works without it).
+$edited = [];
+try {
+    $database = dirname(__DIR__, 2) . '/.madar-admin/library.sqlite3';
+    if (is_file($database)) {
+        $db = new PDO('sqlite:' . $database, null, null, [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::SQLITE_ATTR_OPEN_FLAGS => PDO::SQLITE_OPEN_READONLY,
+        ]);
+        $published = $db->query('SELECT published FROM library WHERE id = 1')->fetchColumn();
+        $library = is_string($published) ? json_decode($published, true) : null;
+        if (is_array($library['stories'] ?? null)) {
+            $edited = $library['stories'];
+        }
+    }
+} catch (Throwable) {
+    $edited = [];
+}
+$text = static fn (mixed $value): string => is_string($value) ? trim($value) : '';
+
 $series = [];
 foreach ($prophets as [$id, $arabic, $english]) {
+    $meta = is_array($edited[$id] ?? null) ? $edited[$id] : [];
+    if (!empty($meta['hidden'])) {
+        continue;
+    }
     $matches = $recordings[$id] ?? [];
     if ($matches === [] && $id !== 'adam' && $id !== 'idris') {
         continue;
@@ -88,14 +113,26 @@ foreach ($prophets as [$id, $arabic, $english]) {
     ksort($matches, SORT_NUMERIC);
     $episodes = [];
     foreach ($matches as $number => $media) {
-        $episodes[] = ['number' => $number, 'media' => $media];
+        $episode = ['number' => $number, 'media' => $media];
+        $title = $meta['episodes'][(string) $number] ?? null;
+        if (is_array($title) && $text($title['ar'] ?? null) !== '') {
+            $episode['title'] = ['ar' => $text($title['ar']), 'en' => $text($title['en'] ?? null) ?: $text($title['ar'])];
+        }
+        $episodes[] = $episode;
     }
-    $series[] = [
+    $entry = [
         'id' => $id,
-        'ar' => 'سيدنا ' . $arabic . ($id === 'muhammad' ? ' صلى الله عليه وسلم' : ' عليه السلام'),
-        'en' => $english . ', peace be upon him',
+        'ar' => $text($meta['ar'] ?? null) ?: 'سيدنا ' . $arabic . ($id === 'muhammad' ? ' صلى الله عليه وسلم' : ' عليه السلام'),
+        'en' => $text($meta['en'] ?? null) ?: $english . ', peace be upon him',
         'episodes' => $episodes,
     ];
+    if ($text($meta['descriptionAr'] ?? null) !== '') {
+        $entry['description'] = [
+            'ar' => $text($meta['descriptionAr']),
+            'en' => $text($meta['descriptionEn'] ?? null) ?: $text($meta['descriptionAr']),
+        ];
+    }
+    $series[] = $entry;
 }
 
 $json = json_encode(['version' => 1, 'series' => $series], JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);

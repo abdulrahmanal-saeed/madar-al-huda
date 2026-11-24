@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../../core/content/app_settings.dart';
 import '../../../core/content/feature_preview.dart';
 import '../../../core/content/managed_library.dart';
 import '../../../core/localization/l10n_extension.dart';
@@ -51,20 +52,27 @@ class LibraryHubScreen extends ConsumerWidget {
     // Order and visibility come from the dashboard's «أقسام المكتبة» page;
     // the app's own order applies until then.
     final entries = ref.watch(librarySectionsProvider);
-    final radio = entries.any(
-      (entry) => entry is BuiltinEntry && entry.id == 'radio',
-    );
+    final radio =
+        ref.watch(appSettingsProvider).shows(AppFeature.radio) &&
+        entries.any((entry) => entry is BuiltinEntry && entry.id == 'radio');
+    final settings = ref.watch(appSettingsProvider);
     final tiles = [
-      for (final entry in entries) ?_tile(context, entry, feed),
-      _LibraryTile(
-        key: const ValueKey('library-zakat'),
-        route: AppRoutes.zakat,
-        push: true,
-        icon: Icons.calculate_outlined,
-        title: l10n.zakatTitle,
-        subtitle: l10n.zakatSubtitle,
-        tone: 1,
-      ),
+      for (final entry in entries)
+        if (!(entry is BuiltinEntry &&
+            ((entry.id == 'hadith' && !settings.shows(AppFeature.hadith)) ||
+                (entry.id == 'stories' &&
+                    !settings.shows(AppFeature.stories)))))
+          ?_tile(context, entry, feed),
+      if (settings.shows(AppFeature.zakat))
+        _LibraryTile(
+          key: const ValueKey('library-zakat'),
+          route: AppRoutes.zakat,
+          push: true,
+          icon: Icons.calculate_outlined,
+          title: l10n.zakatTitle,
+          subtitle: l10n.zakatSubtitle,
+          tone: 1,
+        ),
       if (managedReleaseEnabled)
         _LibraryTile(
           key: const ValueKey('library-downloads'),
