@@ -99,7 +99,7 @@ summary { cursor: pointer; }
 .color-row { display: flex; align-items: center; gap: .6rem; }
 .color-row input { width: 3rem; height: 2.6rem; padding: .15rem; }
 .preview-wrap { position: sticky; top: 1rem; display: grid; gap: .6rem; justify-items: center; }
-.phone { width: 18rem; height: 34rem; border-radius: 2.4rem; background: #12332F; padding: .6rem; }
+.phone { --p-primary: #0F4A43; --p-gold: #B8893A; --p-background: #F5F0E6; --p-ink: #12332F; --p-radius: 22px; --p-radius-small: 16px; --p-scale: 1; width: 18rem; height: 34rem; border-radius: 2.4rem; background: #12332F; padding: .6rem; }
 .phone-screen { height: 100%; border-radius: 1.9rem; overflow: hidden; display: flex; flex-direction: column; gap: .6rem; padding: .9rem .75rem 0; background: var(--p-background); color: var(--p-ink); font-size: calc(1rem * var(--p-scale)); }
 .phone-brand { color: var(--p-primary); font-weight: 750; font-size: 1.15em; }
 .phone-hero { display: grid; gap: .35rem; border-radius: var(--p-radius); background: var(--p-primary); color: #F5F0E6; padding: .9rem; }
@@ -163,3 +163,11 @@ label.check { display: flex; align-items: center; gap: .4rem; }
 .help summary { cursor: pointer; font-weight: 600; }
 .help ol { margin: .6rem 0 0; padding-inline-start: 1.4rem; line-height: 1.9; }
 .hint { font-size: .85rem; color: var(--muted); margin: -.3rem 0 .6rem; }
+/* Content preview in a phone frame */
+.app-preview { margin-top: 1rem; }
+.app-preview summary { cursor: pointer; font-weight: 600; margin-bottom: .5rem; }
+.app-preview .phone { margin-inline: auto; height: auto; min-height: 22rem; }
+.app-preview .phone-screen { padding-bottom: .9rem; }
+.phone-reading p { margin: 0; line-height: 1.9; font-family: "Amiri", serif; font-size: 1.05em; }
+.phone-center { text-align: center; justify-items: center; }
+.phone-name { font-size: 2em !important; font-family: "Amiri", serif; }

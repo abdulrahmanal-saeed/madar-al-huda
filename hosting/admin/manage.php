@@ -22,8 +22,16 @@ function appSettings(array $draft): array
         $features[$key] = ($app['features'][$key] ?? true) !== false;
     }
     $announcement = is_array($app['announcement'] ?? null) ? $app['announcement'] : [];
+    $verses = [];
+    foreach ($app['prayer_verses'] ?? [] as $range) {
+        if (is_array($range) && count($range) === 3) {
+            $verses[] = $range[1] === $range[2] ? "{$range[0]}:{$range[1]}" : "{$range[0]}:{$range[1]}-{$range[2]}";
+        }
+    }
     return [
         'features' => $features,
+        'radio_url' => (string) ($app['radio_url'] ?? ''),
+        'prayer_verses' => implode("\n", $verses),
         'announcement' => [
             'ar' => (string) ($announcement['ar'] ?? ''),
             'en' => (string) ($announcement['en'] ?? ''),
@@ -33,8 +41,26 @@ function appSettings(array $draft): array
     ];
 }
 
-function changeAppSettings(array $content): array
+function changeAppSettings(array $content, array $ayahCounts): array
 {
+    $radio = field('radio_url');
+    if ($radio !== '' && (!preg_match('~\Ahttps://[^\s]+\z~', $radio) || mb_strlen($radio) > 500)) {
+        throw new InvalidArgumentException('رابط بث الإذاعة يجب أن يبدأ بـ https://');
+    }
+    $verses = [];
+    foreach (preg_split('/\R/u', field('prayer_verses')) as $line) {
+        $line = trim(strtr($line, ['٠' => '0', '١' => '1', '٢' => '2', '٣' => '3', '٤' => '4', '٥' => '5', '٦' => '6', '٧' => '7', '٨' => '8', '٩' => '9', '–' => '-']));
+        if ($line === '') {
+            continue;
+        }
+        if (!preg_match('/\A(\d{1,3})\s*:\s*(\d{1,3})(?:\s*-\s*(\d{1,3}))?\z/', $line, $parts)) {
+            throw new InvalidArgumentException("اكتب كل آية في سطر بصيغة سورة:آية أو سورة:من-إلى. السطر: {$line}");
+        }
+        $verses[] = verseRange((int) $parts[1], (int) $parts[2], (int) ($parts[3] ?? $parts[2]), $ayahCounts);
+    }
+    if (count($verses) > 60) {
+        throw new InvalidArgumentException('٦٠ آية على الأكثر في تنبيهات الصلاة.');
+    }
     $features = [];
     foreach (APP_FEATURES as $key => $_) {
         $features[$key] = isset($_POST['feature'][$key]);
@@ -58,27 +84,58 @@ function changeAppSettings(array $content): array
     }
     // Builds older than this keep their last library instead of this one.
     $content['minAppVersion'] = (int) $minimum;
-    $content['app'] = [
+    $content['app'] = array_filter([
         'features' => $features,
         'announcement' => ['ar' => $ar, 'en' => $en, 'link' => $link, 'until' => $until],
-    ];
+        // Empty values keep the app's own defaults.
+        'radio_url' => $radio,
+        'prayer_verses' => $verses,
+    ], static fn ($value) => $value !== '' && $value !== []);
     return $content;
 }
 
-/** Prophets in the stories catalog, in order: id => [Arabic, English]. */
-function storyProphets(): array
+/**
+ * Prophets in the stories catalog, in order: id => [Arabic, English,
+ * aliases]. The dashboard's list, when it has one, replaces the default.
+ */
+function storyProphets(?array $content = null): array
 {
+    $custom = [];
+    foreach (($content['storyProphets'] ?? []) as $row) {
+        if (is_array($row) && is_string($row[0] ?? null) && is_string($row[1] ?? null) && is_string($row[2] ?? null)) {
+            $custom[$row[0]] = [$row[1], $row[2], is_array($row[3] ?? null) ? $row[3] : []];
+        }
+    }
+    if ($custom !== []) {
+        return $custom;
+    }
+    // Same list and file-name aliases as prophet-stories/catalog.php.
     return [
-        'adam' => ['آدم', 'Adam'], 'idris' => ['إدريس', 'Idris'], 'nuh' => ['نوح', 'Nuh'],
-        'hud' => ['هود', 'Hud'], 'salih' => ['صالح', 'Salih'], 'ibrahim' => ['إبراهيم', 'Ibrahim'],
-        'lut' => ['لوط', 'Lut'], 'ismail' => ['إسماعيل', 'Ismail'], 'ishaq' => ['إسحاق', 'Ishaq'],
-        'yaqub' => ['يعقوب', 'Yaqub'], 'yusuf' => ['يوسف', 'Yusuf'], 'ayyub' => ['أيوب', 'Ayyub'],
-        'shuayb' => ['شعيب', 'Shuayb'], 'musa' => ['موسى', 'Musa'], 'harun' => ['هارون', 'Harun'],
-        'dhulkifl' => ['ذو الكفل', 'Dhul-Kifl'], 'dawud' => ['داود', 'Dawud'],
-        'sulayman' => ['سليمان', 'Sulayman'], 'ilyas' => ['إلياس', 'Ilyas'],
-        'alyasa' => ['اليسع', 'Al-Yasa'], 'yunus' => ['يونس', 'Yunus'],
-        'zakariya' => ['زكريا', 'Zakariya'], 'yahya' => ['يحيى', 'Yahya'], 'isa' => ['عيسى', 'Isa'],
-        'muhammad' => ['محمد', 'Muhammad'],
+        'adam' => ['آدم', 'Adam', []],
+        'idris' => ['إدريس', 'Idris', []],
+        'nuh' => ['نوح', 'Nuh', ['noah']],
+        'hud' => ['هود', 'Hud', []],
+        'salih' => ['صالح', 'Salih', ['saleh']],
+        'ibrahim' => ['إبراهيم', 'Ibrahim', ['abraham', 'ibraheem']],
+        'lut' => ['لوط', 'Lut', ['lot']],
+        'ismail' => ['إسماعيل', 'Ismail', ['ishmael']],
+        'ishaq' => ['إسحاق', 'Ishaq', ['isaac']],
+        'yaqub' => ['يعقوب', 'Yaqub', ['jacob', 'yaqoob']],
+        'yusuf' => ['يوسف', 'Yusuf', ['joseph', 'yousef']],
+        'ayyub' => ['أيوب', 'Ayyub', ['job', 'ayoub']],
+        'shuayb' => ['شعيب', 'Shuayb', ['shuaib', 'shoaib']],
+        'musa' => ['موسى', 'Musa', ['moses', 'mousa']],
+        'harun' => ['هارون', 'Harun', ['aaron', 'haroon']],
+        'dhulkifl' => ['ذو الكفل', 'Dhul-Kifl', ['dhul-kifl', 'dhualkifl', 'dhu-al-kifl']],
+        'dawud' => ['داود', 'Dawud', ['david', 'dawood']],
+        'sulayman' => ['سليمان', 'Sulayman', ['solomon', 'sulaiman']],
+        'ilyas' => ['إلياس', 'Ilyas', ['elijah', 'elias']],
+        'alyasa' => ['اليسع', 'Al-Yasa', ['al-yasa', 'elisha']],
+        'yunus' => ['يونس', 'Yunus', ['jonah', 'younes']],
+        'zakariya' => ['زكريا', 'Zakariya', ['zechariah', 'zakaria']],
+        'yahya' => ['يحيى', 'Yahya', ['john']],
+        'isa' => ['عيسى', 'Isa', ['jesus', 'eesa']],
+        'muhammad' => ['محمد', 'Muhammad', ['mohamed', 'mohammed']],
     ];
 }
 
@@ -109,10 +166,43 @@ function parseEpisodeTitles(string $text): array
     return $episodes;
 }
 
+/** «id | الاسم | English | alias, alias» lines into the prophets list. */
+function changeStoryProphets(array $content): array
+{
+    $rows = [];
+    $tokens = [];
+    foreach (preg_split('/\R/u', field('prophets')) as $line) {
+        if (trim($line) === '') {
+            continue;
+        }
+        [$id, $ar, $en, $aliases] = array_map('trim', array_pad(explode('|', $line, 4), 4, ''));
+        $id = strtolower($id);
+        $aliases = array_values(array_filter(array_map(static fn ($a) => strtolower(trim($a)), explode(',', $aliases))));
+        if (!preg_match('/\A[a-z][a-z-]{1,30}\z/', $id) || $ar === '' || $en === '' || mb_strlen($ar) > 40 || mb_strlen($en) > 60) {
+            throw new InvalidArgumentException("اكتب كل نبي في سطر: المعرّف | الاسم | English | أسماء ملفات بديلة. السطر: {$line}");
+        }
+        foreach ([$id, ...$aliases] as $token) {
+            if (!preg_match('/\A[a-z][a-z-]{1,30}\z/', $token) || isset($tokens[$token])) {
+                throw new InvalidArgumentException("الاسم «{$token}» مكرر أو غير صالح؛ استخدم حروفًا إنجليزية صغيرة وشرطة.");
+            }
+            $tokens[$token] = true;
+        }
+        $rows[] = [$id, $ar, $en, $aliases];
+    }
+    if ($rows === [] || count($rows) > 60) {
+        throw new InvalidArgumentException('أضف نبيًا واحدًا على الأقل (٦٠ على الأكثر).');
+    }
+    $content['storyProphets'] = $rows;
+    return $content;
+}
+
 function changeStoryTitles(array $content): array
 {
+    if (isset($_POST['prophets'])) {
+        return changeStoryProphets($content);
+    }
     $id = field('story');
-    if (!isset(storyProphets()[$id])) {
+    if (!isset(storyProphets($content)[$id])) {
         throw new InvalidArgumentException('اختر قصة صالحة.');
     }
     $entry = [

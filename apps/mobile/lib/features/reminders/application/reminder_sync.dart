@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../app/app_router.dart';
+import '../../../core/content/app_settings.dart';
 import '../../../core/localization/app_locales.dart';
 import '../../../core/localization/l10n_extension.dart';
 import '../../../core/localization/numbers.dart';
@@ -87,14 +88,21 @@ class _ReminderSyncState extends ConsumerState<ReminderSync> {
     final settings = ref.watch(reminderSettingsProvider);
     final place = ref.watch(prayerPlaceProvider);
     final hanafi = ref.watch(hanafiAsrProvider);
-    final edition = settings.dailyDua || settings.duaEveryHours > 0
+    // Prayer notifications show a verse too, so they need the Mushaf text.
+    final edition =
+        settings.dailyDua ||
+            settings.duaEveryHours > 0 ||
+            settings.adhan ||
+            settings.beforePrayer
         ? ref.watch(mushafEditionProvider).asData?.value
         : null;
+    final verseRefs = ref.watch(appSettingsProvider).prayerVerses;
     final duaIndex = ref.watch(quranDuaIndexProvider).asData?.value;
     final l10n = context.l10n;
     final language = Localizations.localeOf(context).languageCode;
     final signature = [
       settings.encode(),
+      '$verseRefs',
       place?.point.latitude,
       place?.point.longitude,
       place?.timeZone,
@@ -130,7 +138,11 @@ class _ReminderSyncState extends ConsumerState<ReminderSync> {
                       ),
                 prayerVerses: edition == null
                     ? const []
-                    : prayerVerses(edition, language),
+                    : prayerVerses(
+                        edition,
+                        language,
+                        refs: verseRefs.isEmpty ? prayerVerseRefs : verseRefs,
+                      ),
               );
         try {
           await ref.read(reminderSchedulerProvider).replaceAll(reminders);
@@ -164,24 +176,34 @@ const prayerVerseRefs = [
 
 /// The text of [prayerVerseRefs] from the bundled Mushaf, without the
 /// basmala that opens a surah's first verse in this text.
-List<ReminderDua> prayerVerses(MushafEdition edition, String language) {
+List<ReminderDua> prayerVerses(
+  MushafEdition edition,
+  String language, {
+  List<(int, int, int)> refs = prayerVerseRefs,
+}) {
   final number = decimalFormat(language).format;
   final basmala = edition.surahs.first.verses.first;
   return [
-    for (final (surah, first, last) in prayerVerseRefs)
-      (
-        text: edition.surahs[surah - 1].verses
-            .sublist(first - 1, last)
-            .map(
-              (verse) => verse.startsWith('$basmala ')
-                  ? verse.substring(basmala.length + 1)
-                  : verse,
-            )
-            .join(' '),
-        source:
-            '${edition.surahs[surah - 1].name(language)} ${number(first)}'
-            '${last == first ? '' : '–${number(last)}'}',
-      ),
+    for (final (surah, first, last) in refs)
+      // The dashboard checks ranges too; skip any this text cannot show.
+      if (surah >= 1 &&
+          surah <= edition.surahs.length &&
+          first >= 1 &&
+          last >= first &&
+          last <= edition.surahs[surah - 1].verses.length)
+        (
+          text: edition.surahs[surah - 1].verses
+              .sublist(first - 1, last)
+              .map(
+                (verse) => verse.startsWith('$basmala ')
+                    ? verse.substring(basmala.length + 1)
+                    : verse,
+              )
+              .join(' '),
+          source:
+              '${edition.surahs[surah - 1].name(language)} ${number(first)}'
+              '${last == first ? '' : '–${number(last)}'}',
+        ),
   ];
 }
 

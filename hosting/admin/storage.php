@@ -213,7 +213,7 @@ function updateLibrary(PDO $db, string $action, array $seed, string $section, st
                 $action === 'review_approve' => approveFiqh($content, $user ?? []),
                 $section === 'reciters' => changeReaders($content, $delete),
                 $section === 'appearance' => changeAppearance($content, $delete),
-                $section === 'app_settings' => changeAppSettings($content),
+                $section === 'app_settings' => changeAppSettings($content, $seed['ayahCounts']),
                 $section === 'story_titles' => changeStoryTitles($content),
                 $section === 'adhkar_groups' => changeAdhkarGroups($content),
                 $section === 'library_sections' => changeSections($content, $delete),
