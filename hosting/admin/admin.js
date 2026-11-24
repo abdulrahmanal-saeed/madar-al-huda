@@ -197,3 +197,39 @@
     });
   }
 })();
+
+// Searching long lists: a box with data-filter-select="id" narrows that
+// select's options; data-complete-only="id" keeps complete reciters only;
+// data-filter-list="selector" hides list items that do not match.
+(() => {
+  const fold = (text) =>
+    text
+      .toLowerCase()
+      .normalize('NFKD')
+      .replace(/[ً-ْٰـ]/g, '')
+      .replace(/[أإآٱ]/g, 'ا')
+      .replace(/ة/g, 'ه')
+      .replace(/ى/g, 'ي');
+
+  const refresh = (select) => {
+    const query = fold(document.querySelector(`[data-filter-select="${select.id}"]`)?.value || '');
+    const completeOnly = document.querySelector(`[data-complete-only="${select.id}"]`)?.checked;
+    for (const option of select.options) {
+      option.hidden =
+        (query && !fold(option.textContent).includes(query)) ||
+        (completeOnly && option.dataset.complete !== '1');
+    }
+  };
+  for (const input of document.querySelectorAll('[data-filter-select], [data-complete-only]')) {
+    const select = document.getElementById(input.dataset.filterSelect || input.dataset.completeOnly);
+    if (select) input.addEventListener('input', () => refresh(select));
+  }
+  for (const input of document.querySelectorAll('[data-filter-list]')) {
+    input.addEventListener('input', () => {
+      const query = fold(input.value);
+      for (const item of document.querySelectorAll(input.dataset.filterList)) {
+        item.hidden = query !== '' && !fold(item.textContent).includes(query);
+      }
+    });
+  }
+})();

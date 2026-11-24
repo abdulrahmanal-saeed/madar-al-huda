@@ -140,3 +140,15 @@ button[disabled] { opacity: .4; cursor: not-allowed; }
 .upload.failed .upload-status { color: #b3261e; }
 .upload.overall { background: #f3eee2; }
 #drive-form textarea { width: 100%; font-family: monospace; }
+
+/* Changes before publishing */
+.changes summary { cursor: pointer; font-weight: 600; margin-top: .5rem; }
+.diff { list-style: none; padding: 0; display: grid; gap: .35rem; max-height: 22rem; overflow: auto; }
+.diff li { display: grid; grid-template-columns: auto 1fr; gap: .2rem .6rem; padding: .4rem .6rem; border-radius: 8px; background: #f6f2e7; }
+.diff li bdi { grid-column: 2; overflow-wrap: anywhere; font-size: .9rem; }
+.diff-added strong { color: #0f6b3a; }
+.diff-removed strong { color: #b3261e; }
+.diff-changed strong { color: #8a5a00; }
+.secret { font-size: 1.1rem; letter-spacing: .08em; }
+label.check { display: flex; align-items: center; gap: .4rem; }
+[hidden] { display: none !important; }

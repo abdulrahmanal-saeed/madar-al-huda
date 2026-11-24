@@ -8,10 +8,14 @@ if (!defined('MADAR_ADMIN')) {
     <h2>اختيار قارئ من المصادر</h2>
     <form method="post" class="inline">
       <?php controls('save', $revision); ?>
+      <label>ابحث عن قارئ
+        <input type="search" data-filter-select="reader-select" placeholder="اكتب جزءًا من الاسم">
+      </label>
+      <label class="check"><input type="checkbox" data-complete-only="reader-select"> المصحف كاملًا فقط (١١٤ سورة)</label>
       <label>القارئ
-        <select name="reader" required>
+        <select name="reader" id="reader-select" required size="8">
           <?php foreach (availableReaders() as $choice): ?>
-            <option value="<?= e($choice['id']) ?>"><?= e($choice['ar']) ?> · <?= e($choice['source']) ?><?= isset($choice['chapters']) ? ' · ' . count($choice['chapters']) . ' سورة' : '' ?></option>
+            <option value="<?= e($choice['id']) ?>" data-complete="<?= !isset($choice['chapters']) || count($choice['chapters']) >= 114 ? '1' : '0' ?>"><?= e($choice['ar']) ?> · <?= e($choice['source']) ?><?= isset($choice['chapters']) ? ' · ' . count($choice['chapters']) . ' سورة' : '' ?></option>
           <?php endforeach; ?>
         </select>
       </label>
