@@ -1,12 +1,15 @@
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:just_audio_background/just_audio_background.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'app/app.dart';
 import 'app/first_run.dart';
+import 'core/audio/audio_handler.dart';
+import 'core/audio/audio_playback.dart';
 import 'core/auth/google_account.dart';
 import 'core/diagnostics/error_log.dart';
 import 'core/storage/key_value_store.dart';
@@ -33,14 +36,24 @@ Future<void> main() async {
   captureErrors(errorLog);
   _registerFontLicense();
 
+  // One player for recitation, lessons and radio; on Android its media
+  // session (notification, lock screen, headset) runs through audio_service.
+  final player = AudioPlayer();
+  MadarAudioHandler? audioHandler;
   if (defaultTargetPlatform == TargetPlatform.android) {
     try {
-      await JustAudioBackground.init(
-        androidNotificationChannelId: 'com.abdulrahmanalsaeed.madar.recitation',
-        androidNotificationChannelName: 'Madar Al-Huda audio',
-        androidNotificationOngoing: true,
+      audioHandler = await AudioService.init(
+        builder: () => MadarAudioHandler(player),
+        config: const AudioServiceConfig(
+          androidNotificationChannelId:
+              'com.abdulrahmanalsaeed.madar.recitation',
+          androidNotificationChannelName: 'Madar Al-Huda audio',
+          androidNotificationOngoing: true,
+          androidStopForegroundOnPause: true,
+        ),
       );
     } catch (error, stack) {
+      // Playback still works, without the notification.
       FlutterError.reportError(
         FlutterErrorDetails(exception: error, stack: stack),
       );
@@ -55,6 +68,8 @@ Future<void> main() async {
         keyValueStoreProvider.overrideWithValue(store),
         googleAuthProvider.overrideWithValue(googleAuth),
         errorLogProvider.overrideWithValue(errorLog),
+        audioPlayerProvider.overrideWithValue(player),
+        audioHandlerProvider.overrideWithValue(audioHandler),
         if (defaultTargetPlatform == TargetPlatform.android)
           reminderSchedulerProvider.overrideWithValue(LocalReminderScheduler()),
         if (defaultTargetPlatform == TargetPlatform.android)

@@ -1,5 +1,5 @@
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:just_audio_background/just_audio_background.dart';
 import 'package:madar_al_huda/core/audio/audio_playback.dart';
 import 'package:madar_al_huda/core/routing/app_routes.dart';
 import 'package:material_ui/material_ui.dart';
