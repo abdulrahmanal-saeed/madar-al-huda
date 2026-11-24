@@ -1387,5 +1387,7 @@
   "playerBack": "Back 10 seconds",
   "@playerBack": {"description":"Seek back."},
   "playerForward": "Forward 10 seconds",
-  "@playerForward": {"description":"Seek forward."}
+  "@playerForward": {"description":"Seek forward."},
+  "readerShareImage": "Share as image",
+  "@readerShareImage": {"description":"Shares the verse as a picture."}
 }

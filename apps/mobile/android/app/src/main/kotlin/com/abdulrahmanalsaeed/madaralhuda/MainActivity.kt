@@ -13,6 +13,8 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.view.Surface
+import java.io.File
+import androidx.core.content.FileProvider
 import com.ryanheise.audioservice.AudioServiceActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.EventChannel
@@ -51,18 +53,40 @@ class MainActivity : AudioServiceActivity() {
         }
         EventChannel(messenger, "madar/compass").setStreamHandler(compass)
         MethodChannel(messenger, "madar/share").setMethodCallHandler { call, result ->
-            val text = call.arguments as? String
-            if (call.method != "shareText") {
-                result.notImplemented()
-            } else if (text.isNullOrBlank()) {
-                result.error("empty_text", "No text to share", null)
-            } else {
-                val send = Intent(Intent.ACTION_SEND).apply {
-                    type = "text/plain"
-                    putExtra(Intent.EXTRA_TEXT, text)
+            when (call.method) {
+                "shareText" -> {
+                    val text = call.arguments as? String
+                    if (text.isNullOrBlank()) {
+                        result.error("empty_text", "No text to share", null)
+                    } else {
+                        val send = Intent(Intent.ACTION_SEND).apply {
+                            type = "text/plain"
+                            putExtra(Intent.EXTRA_TEXT, text)
+                        }
+                        startActivity(Intent.createChooser(send, null))
+                        result.success(null)
+                    }
                 }
-                startActivity(Intent.createChooser(send, null))
-                result.success(null)
+                "shareImage" -> {
+                    // Only PNGs the app wrote to cache/shared/ can be shared.
+                    val shared = File(cacheDir, "shared").canonicalFile
+                    val file = call.argument<String>("path")?.let { File(it).canonicalFile }
+                    if (file == null || file.parentFile != shared ||
+                        !file.isFile || !file.name.endsWith(".png")) {
+                        result.error("image", "Invalid image", null)
+                    } else {
+                        val uri = FileProvider.getUriForFile(this, "$packageName.share", file)
+                        val send = Intent(Intent.ACTION_SEND).apply {
+                            type = "image/png"
+                            putExtra(Intent.EXTRA_STREAM, uri)
+                            call.argument<String>("text")?.let { putExtra(Intent.EXTRA_TEXT, it) }
+                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        }
+                        startActivity(Intent.createChooser(send, null))
+                        result.success(null)
+                    }
+                }
+                else -> result.notImplemented()
             }
         }
         MethodChannel(messenger, "madar/geomagnetic").setMethodCallHandler { call, result ->

@@ -1492,4 +1492,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get playerForward => 'تقديم ١٠ ثوانٍ';
+
+  @override
+  String get readerShareImage => 'مشاركة كصورة';
 }

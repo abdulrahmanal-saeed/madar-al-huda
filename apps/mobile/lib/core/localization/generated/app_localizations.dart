@@ -2767,6 +2767,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Forward 10 seconds'**
   String get playerForward;
+
+  /// Shares the verse as a picture.
+  ///
+  /// In en, this message translates to:
+  /// **'Share as image'**
+  String get readerShareImage;
 }
 
 class _AppLocalizationsDelegate
