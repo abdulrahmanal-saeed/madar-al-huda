@@ -165,17 +165,24 @@ function library(PDO $db): array
     return $row;
 }
 
-function updateLibrary(PDO $db, string $action, array $seed, string $section, string $topic): void
+function updateLibrary(PDO $db, string $action, array $seed, string $section, string $topic, ?array $user = null): void
 {
     $revision = integer(field('revision'), 1, PHP_INT_MAX);
-    locked($db, function () use ($db, $revision, $action, $seed, $section, $topic): void {
+    locked($db, function () use ($db, $revision, $action, $seed, $section, $topic, $user): void {
         $row = library($db);
         if ((int) $row['revision'] !== $revision) {
             throw new InvalidArgumentException('تغيّرت المسودة. أعِد فتح العنصر ثم احفظ التعديل.');
         }
         $draft = $row['draft'];
         if ($action === 'publish') {
-            assertReadableTheme(json_decode($draft, true, 64, JSON_THROW_ON_ERROR));
+            $payload = json_decode($draft, true, 64, JSON_THROW_ON_ERROR);
+            assertReadableTheme($payload);
+            // Fiqh goes out only as a scholarly reviewer approved it.
+            $pending = unreviewedFiqh($payload);
+            if ($pending !== []) {
+                throw new InvalidArgumentException('مسائل فقه تحتاج اعتمادًا شرعيًا قبل النشر: '
+                    . implode('، ', array_map(fn ($item) => $item['title']['ar'] ?? $item['id'], $pending)) . '.');
+            }
             if (strlen($draft) > FEED_MAX_BYTES) {
                 throw new InvalidArgumentException('حجم المكتبة ' . feedSizeLabel(strlen($draft)) .
                     ' ويتجاوز الحد الذي يقبله التطبيق (' . feedSizeLabel(FEED_MAX_BYTES) . '). احذف أو اختصر بعض المحتوى ثم انشر.');
@@ -197,6 +204,7 @@ function updateLibrary(PDO $db, string $action, array $seed, string $section, st
             $content = json_decode($draft, true, 64, JSON_THROW_ON_ERROR);
             $delete = $action === 'delete';
             $draft = encode(match (true) {
+                $action === 'review_approve' => approveFiqh($content, $user ?? []),
                 $section === 'reciters' => changeReaders($content, $delete),
                 $section === 'appearance' => changeAppearance($content, $delete),
                 $section === 'app_settings' => changeAppSettings($content),
