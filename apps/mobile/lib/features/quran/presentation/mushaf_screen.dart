@@ -114,10 +114,30 @@ class _ReaderState extends ConsumerState<_Reader> {
     if (_selected != null) _scheduleReveal(_current);
   }
 
+  late final ReadingFocus _focus = ref.read(readingFocusProvider.notifier);
+
+  bool _focusOn = false;
+
+  void _setFocus(bool on) {
+    _focusOn = on;
+    _focus.set(on);
+    unawaited(
+      SystemChrome.setEnabledSystemUIMode(
+        on ? SystemUiMode.immersiveSticky : SystemUiMode.edgeToEdge,
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _settle?.cancel();
     _positions.itemPositions.removeListener(_trackPosition);
+    // Leaving the reader always brings the bars back.
+    if (_focusOn) {
+      final focus = _focus;
+      Future.microtask(() => focus.set(false));
+      unawaited(SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge));
+    }
     super.dispose();
   }
 
@@ -340,143 +360,173 @@ class _ReaderState extends ConsumerState<_Reader> {
     final numbers = decimalFormat(language);
     final edition = widget.edition;
     final reading = ref.watch(readingPreferencesProvider);
-    return Scaffold(
-      appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(surah.name(language)),
-            Text(
-              l10n.readerPageMeta(
-                l10n.readerJuzLabel(
-                  numbers.format(edition.juzOf(_current) + 1),
+    final focused = ref.watch(readingFocusProvider);
+    return PopScope(
+      canPop: !focused,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop && focused) _setFocus(false);
+      },
+      child: Scaffold(
+        appBar: focused
+            ? null
+            : AppBar(
+                title: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(surah.name(language)),
+                    Text(
+                      l10n.readerPageMeta(
+                        l10n.readerJuzLabel(
+                          numbers.format(edition.juzOf(_current) + 1),
+                        ),
+                        l10n.readerHizbLabel(
+                          numbers.format(edition.hizbOf(_current) + 1),
+                        ),
+                        l10n.readerPageLabel(
+                          numbers.format(edition.pageOf(_current) + 1),
+                        ),
+                        numbers.format(edition.pageStarts.length),
+                      ),
+                      style: Theme.of(context).textTheme.labelSmall,
+                      maxLines: 1,
+                      overflow: TextOverflow.fade,
+                      softWrap: false,
+                    ),
+                  ],
                 ),
-                l10n.readerHizbLabel(
-                  numbers.format(edition.hizbOf(_current) + 1),
+                actions: [
+                  IconButton(
+                    key: const ValueKey('reader-fullscreen'),
+                    tooltip: l10n.readerFullscreen,
+                    onPressed: () => _setFocus(true),
+                    icon: const Icon(Icons.fullscreen),
+                  ),
+                  IconButton(
+                    key: const ValueKey('reader-appearance'),
+                    tooltip: l10n.readerAppearance,
+                    onPressed: () => showReadingSettings(context),
+                    icon: const Icon(Icons.text_fields),
+                  ),
+                  IconButton(
+                    tooltip: l10n.readerGoToVerse,
+                    onPressed: _chooseAyah,
+                    icon: const Icon(Icons.tag),
+                  ),
+                  IconButton(
+                    tooltip: l10n.readerIndex,
+                    onPressed: _chooseIndex,
+                    icon: const Icon(Icons.list_alt),
+                  ),
+                  PopupMenuButton<Uri?>(
+                    tooltip: l10n.readerSources,
+                    onSelected: (uri) => uri == null
+                        ? showRecitationDownloads(context, edition)
+                        : launchUrl(uri),
+                    itemBuilder: (_) => [
+                      PopupMenuItem(
+                        value: null,
+                        child: ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: const Icon(Icons.file_download_outlined),
+                          title: Text(l10n.recitationDownloads),
+                        ),
+                      ),
+                      const PopupMenuDivider(),
+                      PopupMenuItem(
+                        value: Uri.https('tanzil.net'),
+                        child: Text(l10n.readerTanzil),
+                      ),
+                      PopupMenuItem(
+                        value: Uri.https('mp3quran.net', '/ar/privacy/'),
+                        child: const Text('MP3Quran'),
+                      ),
+                      if (matched &&
+                          (data!.tafsirs.isNotEmpty ||
+                              verifiedReciters.isNotEmpty))
+                        PopupMenuItem(
+                          value: Uri.https('quran.foundation'),
+                          child: Text(l10n.readerQuranFoundation),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.startTop,
+        floatingActionButton: focused
+            ? Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: IconButton.filledTonal(
+                  key: const ValueKey('reader-exit-fullscreen'),
+                  tooltip: l10n.readerExitFullscreen,
+                  onPressed: () => _setFocus(false),
+                  icon: const Icon(Icons.fullscreen_exit),
                 ),
-                l10n.readerPageLabel(
-                  numbers.format(edition.pageOf(_current) + 1),
-                ),
-                numbers.format(edition.pageStarts.length),
-              ),
-              style: Theme.of(context).textTheme.labelSmall,
-              maxLines: 1,
-              overflow: TextOverflow.fade,
-              softWrap: false,
-            ),
-          ],
-        ),
-        actions: [
-          IconButton(
-            key: const ValueKey('reader-appearance'),
-            tooltip: l10n.readerAppearance,
-            onPressed: () => showReadingSettings(context),
-            icon: const Icon(Icons.text_fields),
-          ),
-          IconButton(
-            tooltip: l10n.readerGoToVerse,
-            onPressed: _chooseAyah,
-            icon: const Icon(Icons.tag),
-          ),
-          IconButton(
-            tooltip: l10n.readerIndex,
-            onPressed: _chooseIndex,
-            icon: const Icon(Icons.list_alt),
-          ),
-          PopupMenuButton<Uri?>(
-            tooltip: l10n.readerSources,
-            onSelected: (uri) => uri == null
-                ? showRecitationDownloads(context, edition)
-                : launchUrl(uri),
-            itemBuilder: (_) => [
-              PopupMenuItem(
-                value: null,
-                child: ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: const Icon(Icons.file_download_outlined),
-                  title: Text(l10n.recitationDownloads),
+              )
+            : null,
+        body: SafeArea(
+          child: Column(
+            children: [
+              Expanded(
+                child: ScrollablePositionedList.builder(
+                  initialScrollIndex: _initialPage,
+                  itemScrollController: _scroll,
+                  itemPositionsListener: _positions,
+                  itemCount: widget.edition.pageStarts.length,
+                  itemBuilder: (context, index) => MushafPageView(
+                    key: _pageKeys.putIfAbsent(
+                      index,
+                      GlobalKey<MushafPageViewState>.new,
+                    ),
+                    edition: widget.edition,
+                    index: index,
+                    selected: _selected,
+                    onVerse: (verse) => _openTafsir(verse, data),
+                    onChooseVerse: () => _choosePageVerse(index, data),
+                    preferences: reading,
+                  ),
                 ),
               ),
-              const PopupMenuDivider(),
-              PopupMenuItem(
-                value: Uri.https('tanzil.net'),
-                child: Text(l10n.readerTanzil),
-              ),
-              PopupMenuItem(
-                value: Uri.https('mp3quran.net', '/ar/privacy/'),
-                child: const Text('MP3Quran'),
-              ),
-              if (matched &&
-                  (data!.tafsirs.isNotEmpty || verifiedReciters.isNotEmpty))
-                PopupMenuItem(
-                  value: Uri.https('quran.foundation'),
-                  child: Text(l10n.readerQuranFoundation),
+              if (!focused &&
+                  !catalog.isLoading &&
+                  verifiedReciters.isEmpty &&
+                  (!matched || data!.tafsirs.isEmpty))
+                Material(
+                  color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                  child: Padding(
+                    padding: const EdgeInsetsDirectional.only(start: 16),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.cloud_off_outlined,
+                          size: 16,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            data?.isPreview == true && !matched
+                                ? l10n.readerPreliveCoverage
+                                : l10n.readerTafsirUnavailable,
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () =>
+                              ref.invalidate(quranCatalogProvider(language)),
+                          child: Text(l10n.readerRetry),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              if (!focused)
+                RecitationPlayer(
+                  edition: edition,
+                  surah: surah,
+                  reciters: reciters,
                 ),
             ],
           ),
-        ],
-      ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: ScrollablePositionedList.builder(
-                initialScrollIndex: _initialPage,
-                itemScrollController: _scroll,
-                itemPositionsListener: _positions,
-                itemCount: widget.edition.pageStarts.length,
-                itemBuilder: (context, index) => MushafPageView(
-                  key: _pageKeys.putIfAbsent(
-                    index,
-                    GlobalKey<MushafPageViewState>.new,
-                  ),
-                  edition: widget.edition,
-                  index: index,
-                  selected: _selected,
-                  onVerse: (verse) => _openTafsir(verse, data),
-                  onChooseVerse: () => _choosePageVerse(index, data),
-                  preferences: reading,
-                ),
-              ),
-            ),
-            if (!catalog.isLoading &&
-                verifiedReciters.isEmpty &&
-                (!matched || data!.tafsirs.isEmpty))
-              Material(
-                color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                child: Padding(
-                  padding: const EdgeInsetsDirectional.only(start: 16),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.cloud_off_outlined,
-                        size: 16,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          data?.isPreview == true && !matched
-                              ? l10n.readerPreliveCoverage
-                              : l10n.readerTafsirUnavailable,
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () =>
-                            ref.invalidate(quranCatalogProvider(language)),
-                        child: Text(l10n.readerRetry),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            RecitationPlayer(
-              edition: edition,
-              surah: surah,
-              reciters: reciters,
-            ),
-          ],
         ),
       ),
     );

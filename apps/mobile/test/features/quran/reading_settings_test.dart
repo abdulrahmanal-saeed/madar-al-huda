@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:madar_al_huda/app/app_shell.dart';
 import 'package:madar_al_huda/core/localization/app_locales.dart';
 import 'package:madar_al_huda/core/routing/app_routes.dart';
 import 'package:madar_al_huda/features/quran/application/reading_preferences.dart';
@@ -32,6 +33,23 @@ void main() {
       store.getString(ReadingPreferencesController.key)!,
     ) as Map<String, Object?>;
     expect(saved, {'fontSize': defaultReadingFontSize + 2, 'paper': 'warm'});
+  });
+
+  testWidgets('full screen hides the bars and the tab bar until exited', (
+    tester,
+  ) async {
+    await pumpMadarApp(tester, initialLocation: AppRoutes.quran);
+    expect(find.byKey(AppShell.navigationBarKey), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('reader-fullscreen')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(AppShell.navigationBarKey), findsNothing);
+    expect(find.byKey(const ValueKey('reader-appearance')), findsNothing);
+    expect(find.byType(MushafPageView), findsWidgets);
+
+    await tester.tap(find.byKey(const ValueKey('reader-exit-fullscreen')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(AppShell.navigationBarKey), findsOneWidget);
+    expect(find.byKey(const ValueKey('reader-appearance')), findsOneWidget);
   });
 
   test('every page background keeps the verses readable', () {

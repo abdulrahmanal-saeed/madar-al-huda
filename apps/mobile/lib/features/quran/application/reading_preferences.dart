@@ -6,7 +6,7 @@ import 'package:material_ui/material_ui.dart';
 import '../../../core/storage/storage_providers.dart';
 
 /// Background of the Mushaf page, independent of the app theme.
-enum ReadingPaper { auto, light, warm, night }
+enum ReadingPaper { auto, light, warm, night, amber }
 
 typedef ReadingPreferences = ({double fontSize, ReadingPaper paper});
 
@@ -39,6 +39,13 @@ PaperColors paperColors(ReadingPaper paper, ThemeData theme) {
       border: const Color(0xff34473f),
       banner: const Color(0xff223631),
     ),
+    // Warm amber text on brown: dimmer than [night] for reading in the dark.
+    ReadingPaper.amber => (
+      paper: const Color(0xff1d1711),
+      ink: const Color(0xffe9d3a6),
+      border: const Color(0xff4a3a26),
+      banner: const Color(0xff2c2218),
+    ),
     ReadingPaper.auto =>
       dark
           ? (
@@ -49,6 +56,18 @@ PaperColors paperColors(ReadingPaper paper, ThemeData theme) {
             )
           : paperColors(ReadingPaper.light, theme),
   };
+}
+
+/// Full-screen reading: the Mushaf hides its bars and the tab bar.
+final readingFocusProvider = NotifierProvider<ReadingFocus, bool>(
+  ReadingFocus.new,
+);
+
+class ReadingFocus extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  void set(bool value) => state = value;
 }
 
 final readingPreferencesProvider =

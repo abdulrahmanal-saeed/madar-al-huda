@@ -3127,6 +3127,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Today: {target} pages · read {read}'**
   String khatmaToday(String target, String read);
+
+  /// Amber on brown page.
+  ///
+  /// In en, this message translates to:
+  /// **'Warm night'**
+  String get readerPaperAmber;
+
+  /// Enters full-screen reading.
+  ///
+  /// In en, this message translates to:
+  /// **'Full screen'**
+  String get readerFullscreen;
+
+  /// Leaves full-screen reading.
+  ///
+  /// In en, this message translates to:
+  /// **'Exit full screen'**
+  String get readerExitFullscreen;
 }
 
 class _AppLocalizationsDelegate

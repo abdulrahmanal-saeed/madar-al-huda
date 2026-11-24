@@ -1741,4 +1741,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String khatmaToday(String target, String read) {
     return 'ورد اليوم: $target صفحة · قرأت $read';
   }
+
+  @override
+  String get readerPaperAmber => 'ليلي دافئ';
+
+  @override
+  String get readerFullscreen => 'ملء الشاشة';
+
+  @override
+  String get readerExitFullscreen => 'الخروج من ملء الشاشة';
 }

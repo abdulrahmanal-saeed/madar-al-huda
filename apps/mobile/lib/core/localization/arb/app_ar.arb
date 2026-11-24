@@ -515,5 +515,8 @@
   "khatmaDays": "{count, plural, =1{يوم واحد} =2{يومان} few{{n} أيام} other{{n} يومًا}}",
   "khatmaStreak": "{count, plural, =1{يوم واحد متواصل} =2{يومان متتاليان} few{{n} أيام متتالية} other{{n} يومًا متتاليًا}}",
   "khatmaEndsOn": "تختم بإذن الله يوم {date}",
-  "khatmaToday": "ورد اليوم: {target} صفحة · قرأت {read}"
+  "khatmaToday": "ورد اليوم: {target} صفحة · قرأت {read}",
+  "readerPaperAmber": "ليلي دافئ",
+  "readerFullscreen": "ملء الشاشة",
+  "readerExitFullscreen": "الخروج من ملء الشاشة"
 }

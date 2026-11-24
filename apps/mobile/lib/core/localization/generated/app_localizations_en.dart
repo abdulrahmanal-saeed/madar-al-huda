@@ -1750,4 +1750,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String khatmaToday(String target, String read) {
     return 'Today: $target pages · read $read';
   }
+
+  @override
+  String get readerPaperAmber => 'Warm night';
+
+  @override
+  String get readerFullscreen => 'Full screen';
+
+  @override
+  String get readerExitFullscreen => 'Exit full screen';
 }

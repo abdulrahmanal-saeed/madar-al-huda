@@ -30,6 +30,7 @@ class ReadingSettingsSheet extends ConsumerWidget {
       ReadingPaper.light: l10n.readerPaperLight,
       ReadingPaper.warm: l10n.readerPaperWarm,
       ReadingPaper.night: l10n.readerPaperNight,
+      ReadingPaper.amber: l10n.readerPaperAmber,
     };
     return SafeArea(
       child: Padding(
@@ -79,16 +80,43 @@ class ReadingSettingsSheet extends ConsumerWidget {
             const SizedBox(height: AppSpacing.md),
             Text(l10n.readerPaper, style: theme.textTheme.titleSmall),
             const SizedBox(height: AppSpacing.sm),
-            SegmentedButton<ReadingPaper>(
+            Wrap(
               key: const ValueKey('reader-paper'),
-              showSelectedIcon: false,
-              segments: [
+              spacing: AppSpacing.sm,
+              runSpacing: AppSpacing.sm,
+              children: [
                 for (final entry in papers.entries)
-                  ButtonSegment(value: entry.key, label: Text(entry.value)),
+                  Builder(
+                    builder: (context) {
+                      final colors = paperColors(entry.key, theme);
+                      final selected = preferences.paper == entry.key;
+                      return ChoiceChip(
+                        showCheckmark: false,
+                        selected: selected,
+                        avatar: Container(
+                          width: 22,
+                          height: 22,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: colors.paper,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: colors.border, width: 2),
+                          ),
+                          child: Text(
+                            'ب',
+                            style: TextStyle(
+                              color: colors.ink,
+                              fontSize: 12,
+                              height: 1,
+                            ),
+                          ),
+                        ),
+                        label: Text(entry.value),
+                        onSelected: (_) => controller.setPaper(entry.key),
+                      );
+                    },
+                  ),
               ],
-              selected: {preferences.paper},
-              onSelectionChanged: (selection) =>
-                  controller.setPaper(selection.first),
             ),
           ],
         ),
