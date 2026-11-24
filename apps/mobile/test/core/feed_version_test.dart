@@ -12,9 +12,11 @@ void main() {
       }, build: 40),
       isTrue,
     );
+    // Shape 2 adds dashboard-written adhkar.
+    expect(ManagedFeedVersion.accepts({'schemaVersion': 2}, build: 40), isTrue);
     // A shape this build does not know.
     expect(
-      ManagedFeedVersion.accepts({'schemaVersion': 2}, build: 40),
+      ManagedFeedVersion.accepts({'schemaVersion': 3}, build: 40),
       isFalse,
     );
     // The dashboard asks for a newer build.

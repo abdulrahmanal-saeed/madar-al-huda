@@ -111,14 +111,19 @@ List<T> _list<T>(Object? value) => (value as List<Object?>).cast<T>();
 
 class DhikrVariant {
   DhikrVariant.fromJson(Map<String, Object?> data)
-    : hadith = data['hadith'] as int,
+    : hadith = data['hadith'] as int?,
       steps = [
         for (final step in _list<Map<String, Object?>>(data['repeat'] ?? []))
           (unit: step['unit'] as String, count: step['count'] as int),
       ];
 
-  final int hadith;
+  /// The HadeethEnc narration, or null for a dhikr written on the
+  /// dashboard with its own text.
+  final int? hadith;
   final List<DhikrStep> steps;
+
+  /// Stable part of progress keys: the hadith number, or `own`.
+  String get key => hadith == null ? 'own' : '$hadith';
 
   int get goal =>
       steps.isEmpty ? 1 : steps.fold(0, (total, step) => total + step.count);
@@ -154,7 +159,17 @@ class DhikrEntry {
       wording = (data['wording'] as Map<String, Object?>?)?['ar'] as String?,
       draftMeaning =
           (data['wording'] as Map<String, Object?>?)?['draftMeaningEn']
-              as String?;
+              as String?,
+      meaning = (data['wording'] as Map<String, Object?>?)?['en'] as String?,
+      source = _source(data['source']);
+
+  static LocalizedLabel? _source(Object? value) {
+    if (value is! Map<String, Object?>) return null;
+    final ar = '${value['ar'] ?? ''}'.trim();
+    final en = '${value['en'] ?? ''}'.trim();
+    if (ar.isEmpty && en.isEmpty) return null;
+    return (ar: ar.isEmpty ? en : ar, en: en.isEmpty ? ar : en);
+  }
 
   final String id;
   final LocalizedLabel title;
@@ -162,6 +177,16 @@ class DhikrEntry {
   final List<VerseRange> verses;
   final String? wording;
   final String? draftMeaning;
+
+  /// The English meaning written on the dashboard for an own-text dhikr.
+  final String? meaning;
+
+  /// Where an own-text dhikr comes from, e.g. «رواه مسلم».
+  final LocalizedLabel? source;
+
+  /// Favourites key: the narration, or this entry for an own-text dhikr.
+  String savedKey(DhikrVariant variant) =>
+      variant.hadith == null ? 'own:$id' : 'hadith:${variant.hadith}';
 }
 
 class DhikrGroup {
@@ -183,11 +208,18 @@ class HisnTopic {
   HisnTopic.fromJson(Map<String, Object?> data)
     : title = _label(data['title']),
       chapters = _list<int>(data['chapterIds']),
-      hadiths = _list<int>(data['hadiths'] ?? []);
+      hadiths = _list<int>(data['hadiths'] ?? []),
+      entries = [
+        for (final entry in _list<Map<String, Object?>>(data['entries'] ?? []))
+          DhikrEntry.fromJson(entry),
+      ];
 
   final LocalizedLabel title;
   final List<int> chapters;
   final List<int> hadiths;
+
+  /// Adhkar and supplications written on the dashboard for this topic.
+  final List<DhikrEntry> entries;
 }
 
 class AdhkarCatalog {

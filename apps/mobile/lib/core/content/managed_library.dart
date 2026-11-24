@@ -51,7 +51,7 @@ final managedLibraryProvider =
 abstract final class ManagedFeedVersion {
   /// The newest feed shape this build understands (FEED_SCHEMA_VERSION on
   /// the server).
-  static const schema = 1;
+  static const schema = 2;
 
   /// This build's number, set by the release build; 0 in local builds,
   /// which then accept any minimum.

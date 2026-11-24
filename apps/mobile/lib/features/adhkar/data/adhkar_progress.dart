@@ -42,8 +42,10 @@ class AdhkarProgress {
 
   int count(String day, DhikrGroup group, DhikrEntry entry) {
     final variant = entry.variants[variantIndex(day, group, entry)];
-    return (counts['${entryKey(day, group, entry)}/${variant.hadith}'] ?? 0)
-        .clamp(0, variant.goal);
+    return (counts['${entryKey(day, group, entry)}/${variant.key}'] ?? 0).clamp(
+      0,
+      variant.goal,
+    );
   }
 
   bool complete(String day, DhikrGroup group, DhikrEntry entry) =>
@@ -133,7 +135,7 @@ class AdhkarProgressController extends Notifier<AdhkarProgress> {
   Future<void> advance(String day, DhikrGroup group, DhikrEntry entry) =>
       _save((current) {
         final variant = entry.variants[current.variantIndex(day, group, entry)];
-        final path = '${current.entryKey(day, group, entry)}/${variant.hadith}';
+        final path = '${current.entryKey(day, group, entry)}/${variant.key}';
         final count = (current.count(day, group, entry) + 1).clamp(
           0,
           variant.goal,
@@ -148,7 +150,7 @@ class AdhkarProgressController extends Notifier<AdhkarProgress> {
   Future<void> reset(String day, DhikrGroup group, DhikrEntry entry) =>
       _save((current) {
         final variant = entry.variants[current.variantIndex(day, group, entry)];
-        final path = '${current.entryKey(day, group, entry)}/${variant.hadith}';
+        final path = '${current.entryKey(day, group, entry)}/${variant.key}';
         return _copy(
           current,
           counts: {...current.counts, path: 0},

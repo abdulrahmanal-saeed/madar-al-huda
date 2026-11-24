@@ -529,6 +529,32 @@ if ($active) {
           <?php foreach (topics() as $key => $name): ?><a href="<?= e(route($section, $key)) ?>" <?= $topic === $key ? 'aria-current="page"' : '' ?>><?= e($name) ?></a><?php endforeach; ?>
         </nav>
       <?php endif; ?>
+      <details class="panel help">
+        <summary>كيف أضيف أو أحذف؟</summary>
+        <?php if ($section === 'duas'): ?>
+          <ol>
+            <li>اختر الموضوع من الشريط أعلاه، ثم اضغط «إضافة».</li>
+            <li>اختر السورة واكتب رقم أول آية وآخر آية، ثم «حفظ في المسودة».</li>
+            <li>للحذف: افتح الدعاء من القائمة، ثم «حذف من المسودة».</li>
+            <li>لا يظهر شيء في التطبيق حتى تضغط «نشر المسودة للتطبيق» أعلى الصفحة.</li>
+          </ol>
+        <?php elseif ($section === 'hisn'): ?>
+          <ol>
+            <li>اضغط «إضافة» لموضوع جديد، أو افتح موضوعًا موجودًا.</li>
+            <li>اكتب أذكارك في مربع «أذكار وأدعية خاصة»: كل ذكر فقرة، وبين كل ذكرين سطر فيه <bdi>---</bdi>. يمكنك إضافة «العنوان:» و«المصدر:» في أول أو آخر الفقرة.</li>
+            <li>أرقام الأبواب والأحاديث اختيارية؛ امسح أي رقم منها لحذف ما جاء من المصدر.</li>
+            <li>لحذف موضوع كامل: افتحه ثم «حذف من المسودة». ثم «نشر المسودة للتطبيق».</li>
+          </ol>
+        <?php else: ?>
+          <ol>
+            <li>اضغط «إضافة»، واكتب العنوان بالعربية والإنجليزية ومعرّفًا بحروف إنجليزية صغيرة (مثل <bdi>my-dua-1</bdi>).</li>
+            <li>اكتب <strong>نص الذكر بالعربية</strong> بنفسك، والمعنى بالإنجليزية والمصدر إن أردت، واترك رقم الحديث فارغًا. أو اكتب رقم حديث من HadeethEnc ليُجلب نصه تلقائيًا.</li>
+            <?php if ($section === 'daily'): ?><li>اختر مجموعة واحدة على الأقل (الصباح، المساء…) ليظهر فيها الذكر.</li><?php endif; ?>
+            <li>كل عنصر في القائمة يمكن حذفه، سواء أضفته أنت أو جاء من المصدر: افتحه ثم «حذف من المسودة».</li>
+            <li>لا يتغيّر التطبيق حتى تضغط «نشر المسودة للتطبيق» أعلى الصفحة. وتظهر الأذكار التي كتبتها بنفسك في نسخ التطبيق الحديثة فقط.</li>
+          </ol>
+        <?php endif; ?>
+      </details>
       <div class="editor-grid">
         <section class="panel">
           <div class="row head"><h2>العناصر</h2><a class="button quiet" href="<?= e(route($section, $topic, 'new')) ?>">إضافة</a></div>
@@ -563,11 +589,21 @@ if ($active) {
               <label>العنوان بالعربية<input name="ar" value="<?= e($current['title']['ar'] ?? '') ?>" required></label>
               <label>العنوان بالإنجليزية<input name="en" dir="ltr" value="<?= e($current['title']['en'] ?? '') ?>" required></label>
               <?php if ($section === 'hisn'): ?>
-                <label>أرقام أبواب حصن المسلم<input name="chapters" dir="ltr" value="<?= e(implode(', ', $current['chapterIds'] ?? [])) ?>"></label>
-                <label>أرقام أحاديث HadeethEnc<input name="hadiths" dir="ltr" value="<?= e(implode(', ', $current['hadiths'] ?? [])) ?>"></label>
+                <label>أذكار وأدعية خاصة بهذا الموضوع
+                  <textarea name="own_items" rows="10" placeholder="العنوان: دعاء الكرب&#10;لا إله إلا الله العظيم الحليم...&#10;المصدر: متفق عليه&#10;---&#10;النص التالي..."><?= e(hisnOwnText($current['entries'] ?? [])) ?></textarea>
+                </label>
+                <p class="hint">افصل بين كل ذكر والذي يليه بسطر فيه <bdi>---</bdi>. السطور التي تبدأ بـ «العنوان:» و«المصدر:» و<bdi>Title:</bdi> و<bdi>Source:</bdi> و<bdi>English:</bdi> اختيارية، وكل سطر غيرها هو نص الذكر. احذف الفقرة لحذف الذكر.</p>
+                <label>أرقام أبواب حصن المسلم (اختياري)<input name="chapters" dir="ltr" value="<?= e(implode(', ', $current['chapterIds'] ?? [])) ?>"></label>
+                <label>أرقام أحاديث HadeethEnc (اختياري)<input name="hadiths" dir="ltr" value="<?= e(implode(', ', $current['hadiths'] ?? [])) ?>"></label>
               <?php else: ?>
                 <?php if ($current === null): ?><label>معرّف الذكر بالإنجليزية<input name="id" dir="ltr" pattern="[a-z0-9][a-z0-9-]{0,63}" required></label><?php endif; ?>
-                <label>رقم الحديث في HadeethEnc<input name="hadith" type="number" min="1" value="<?= e($current['hadith'] ?? '') ?>"></label>
+                <label>نص الذكر بالعربية<textarea name="wording" rows="5"><?= e($current['wording']['ar'] ?? '') ?></textarea></label>
+                <label>المعنى بالإنجليزية (اختياري)<textarea name="meaning" dir="ltr" rows="3"><?= e($current['wording']['en'] ?? $current['wording']['draftMeaningEn'] ?? '') ?></textarea></label>
+                <div class="fields">
+                  <label>المصدر (اختياري)<input name="source_ar" value="<?= e($current['source']['ar'] ?? '') ?>" placeholder="رواه مسلم"></label>
+                  <label>Source (optional)<input name="source_en" dir="ltr" value="<?= e($current['source']['en'] ?? '') ?>" placeholder="Muslim"></label>
+                </div>
+                <label>رقم الحديث في HadeethEnc (اتركه فارغًا إن كتبت النص بنفسك)<input name="hadith" type="number" min="1" value="<?= e($current['hadith'] ?? '') ?>"></label>
                 <?php if ($section === 'daily'): ?>
                   <fieldset><legend>مجموعات الذكر</legend>
                   <?php foreach ($draft['adhkar']['daily']['groups'] as $group): ?>
@@ -576,9 +612,7 @@ if ($active) {
                   </fieldset>
                 <?php endif; ?>
                 <details>
-                  <summary>النص والمراجع والتكرار</summary>
-                  <label>نص الذكر بالعربية<textarea name="wording"><?= e($current['wording']['ar'] ?? '') ?></textarea></label>
-                  <label>المعنى بالإنجليزية<textarea name="meaning" dir="ltr"><?= e($current['wording']['draftMeaningEn'] ?? '') ?></textarea></label>
+                  <summary>المراجع والتكرار (متقدم)</summary>
                   <label>مراجع الآيات <span dir="ltr">[[2,255,255]]</span><textarea name="quran" dir="ltr"><?= e(fieldValue($current['quran'] ?? [])) ?></textarea></label>
                   <label>خطوات التكرار <span dir="ltr">[{"unit":"tasbih","count":33}]</span><textarea name="repeat" dir="ltr"><?= e(fieldValue($current['repeat'] ?? [])) ?></textarea></label>
                   <label>صيغ بديلة للذكر <span dir="ltr">[{"hadith":5490}]</span><textarea name="variants" dir="ltr"><?= e(fieldValue($current['variants'] ?? [])) ?></textarea></label>
