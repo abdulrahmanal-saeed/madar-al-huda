@@ -114,6 +114,18 @@ class _ReaderState extends ConsumerState<_Reader> {
     _selected = saved == null ? null : _current;
     _positions.itemPositions.addListener(_trackPosition);
     if (_selected != null) _scheduleReveal(_current);
+    // Leaving the app right after a scroll would skip the delayed save;
+    // keep the place the reader is looking at now.
+    _lifecycle = AppLifecycleListener(onInactive: _saveNow, onHide: _saveNow);
+  }
+
+  late final AppLifecycleListener _lifecycle;
+
+  void _saveNow() {
+    if (_settle?.isActive ?? false) {
+      _settle!.cancel();
+      _settledPosition();
+    }
   }
 
   late final ReadingFocus _focus = ref.read(readingFocusProvider.notifier);
@@ -132,6 +144,7 @@ class _ReaderState extends ConsumerState<_Reader> {
 
   @override
   void dispose() {
+    _lifecycle.dispose();
     _settle?.cancel();
     _positions.itemPositions.removeListener(_trackPosition);
     // Leaving the reader always brings the bars back.
@@ -146,7 +159,11 @@ class _ReaderState extends ConsumerState<_Reader> {
   void _trackPosition() {
     if (_navigating) return;
     _settle?.cancel();
-    _settle = Timer(const Duration(milliseconds: 180), () {
+    _settle = Timer(const Duration(milliseconds: 180), _settledPosition);
+  }
+
+  void _settledPosition() {
+    {
       final visible =
           _positions.itemPositions.value
               .where(
@@ -174,12 +191,14 @@ class _ReaderState extends ConsumerState<_Reader> {
               .catchError((Object _) {}),
         );
       }
-      setState(() {
-        _current = first;
-        _selected = null;
-      });
+      if (mounted) {
+        setState(() {
+          _current = first;
+          _selected = null;
+        });
+      }
       unawaited(_save(first));
-    });
+    }
   }
 
   Future<void> _save(AyahRef verse) async {

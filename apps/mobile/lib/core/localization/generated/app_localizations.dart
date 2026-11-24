@@ -3547,6 +3547,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Gold {karat}k (grams)'**
   String zakatGold(String karat);
+
+  /// Countdown label.
+  ///
+  /// In en, this message translates to:
+  /// **'Time left'**
+  String get prayerRemaining;
+
+  /// Relative prayer time.
+  ///
+  /// In en, this message translates to:
+  /// **'in {time}'**
+  String prayerIn(String time);
+
+  /// Relative prayer time.
+  ///
+  /// In en, this message translates to:
+  /// **'{time} ago'**
+  String prayerSince(String time);
 }
 
 class _AppLocalizationsDelegate

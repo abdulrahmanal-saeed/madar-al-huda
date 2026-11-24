@@ -1,7 +1,10 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:madar_al_huda/core/routing/app_routes.dart';
 import 'package:madar_al_huda/features/prayer/domain/prayer_schedule.dart';
 import 'package:madar_al_huda/features/qibla/domain/qibla_bearing.dart';
+import 'package:madar_al_huda/features/quran/data/mushaf_edition.dart';
+import 'package:madar_al_huda/features/reminders/application/reminder_sync.dart';
 import 'package:madar_al_huda/features/reminders/domain/reminder_plan.dart';
 import 'package:madar_al_huda/features/reminders/domain/reminder_settings.dart';
 
@@ -55,6 +58,7 @@ PrayerSchedule _dubai(DateTime day) => PrayerSchedule.calculate(
 );
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   // Monday 23 November 2026, 07:00 in Dubai (03:00 UTC).
   final now = DateTime.utc(2026, 11, 23, 3);
   const duas = [
@@ -90,6 +94,39 @@ void main() {
     final dhuhr = today.today.firstWhere((e) => e.slot == PrayerSlot.dhuhr);
     expect(reminders.first.time, dhuhr.time);
     expect(reminders.every((r) => r.route == AppRoutes.prayerTimes), isTrue);
+  });
+
+  test('prayer reminders carry a verse under the prayer title', () {
+    final reminders = planReminders(
+      settings: const ReminderSettings(adhan: true, beforePrayer: true),
+      scheduleOn: _dubai,
+      now: now,
+      texts: TestReminderTexts(),
+      prayerVerses: const [
+        (text: 'verse one', source: 'S 1'),
+        (text: 'verse two', source: 'S 2'),
+      ],
+      days: 1,
+    );
+    expect(reminders, isNotEmpty);
+    for (final reminder in reminders) {
+      expect(reminder.title, isNot(contains('verse')));
+      expect(reminder.body, matches(RegExp(r'^﴿verse (one|two)﴾ S [12]$')));
+    }
+    // Without the Mushaf, the plain line stays.
+    expect(
+      plan(const ReminderSettings(adhan: true), days: 1).first.body,
+      'body dhuhr',
+    );
+  });
+
+  test('prayer verses come from the Mushaf without the basmala', () async {
+    final edition = await MushafEdition.load(rootBundle);
+    final verses = prayerVerses(edition, 'ar');
+    expect(verses, hasLength(prayerVerseRefs.length));
+    final believers = verses.firstWhere((v) => v.source.startsWith('المؤمنون'));
+    expect(believers.text, startsWith('قَدْ'));
+    expect(believers.source, 'المؤمنون ١–٢');
   });
 
   test('ids stay unique and stable across a week', () {
