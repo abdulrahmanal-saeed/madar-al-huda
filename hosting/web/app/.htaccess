@@ -1,0 +1,11 @@
+# Links shared from the app (/app/quran?surah=2&ayah=255 …). Android opens
+# them in the app; everywhere else they land on this page.
+Options -Indexes
+DirectoryIndex index.html
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^ index.html [L]
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set Cache-Control "no-cache"
+</IfModule>

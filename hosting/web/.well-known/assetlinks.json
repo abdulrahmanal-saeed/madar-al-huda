@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.abdulrahmanalsaeed.madaralhuda.dev",
+      "sha256_cert_fingerprints": [
+        "6C:70:46:D0:F4:77:91:45:2D:A9:55:C3:9B:17:10:AD:DD:2F:A0:42:37:3C:29:78:2E:69:2A:08:04:2F:3E:E3"
+      ]
+    }
+  }
+]
