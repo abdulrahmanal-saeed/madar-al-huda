@@ -152,3 +152,6 @@ button[disabled] { opacity: .4; cursor: not-allowed; }
 .secret { font-size: 1.1rem; letter-spacing: .08em; }
 label.check { display: flex; align-items: center; gap: .4rem; }
 [hidden] { display: none !important; }
+
+/* Review state */
+.badge.warn { background: #fdecc8; color: #7a4a00; }

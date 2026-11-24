@@ -45,6 +45,7 @@ if (!defined('MADAR_ADMIN')) {
     <?php foreach ($rows as $row): ?>
       <a class="entry" href="<?= e(route($section, '', $row['id'])) ?>">
         <strong><?= e($row['title']['ar']) ?></strong>
+        <?php if ($section === 'fiqh'): ?><span class="badge<?= reviewCurrent($row) ? '' : ' warn' ?>"><?= reviewCurrent($row) ? 'معتمد شرعيًا' : 'بانتظار المراجعة' ?></span><?php endif; ?>
         <span dir="ltr"><?= e($row['title']['en']) ?></span>
       </a>
     <?php endforeach; ?>
@@ -52,6 +53,16 @@ if (!defined('MADAR_ADMIN')) {
   <?php if ($current !== null || $edit === 'new'): ?>
   <section class="panel">
     <h2><?= $current !== null ? 'تعديل العنصر' : 'إضافة عنصر' ?></h2>
+    <?php if ($section === 'fiqh' && $current !== null): ?>
+      <?php if (reviewCurrent($current)): ?>
+        <p class="alert">اعتمدها <bdi dir="ltr"><?= e($current['review']['by']) ?></bdi> في <?= e(publishedLabel((int) $current['review']['at'])) ?>. أي تعديل يلغي الاعتماد.</p>
+      <?php else: ?>
+        <p class="alert error">لم تُعتمد شرعيًا بعد، ولن تُنشر حتى يعتمدها مراجع.</p>
+        <?php if (allowedAction($user, 'review_approve', $section)): ?>
+          <form method="post"><?php controls('review_approve', $revision); ?><input type="hidden" name="item" value="<?= e($current['id']) ?>"><button class="primary">اعتماد شرعي</button></form>
+        <?php endif; ?>
+      <?php endif; ?>
+    <?php endif; ?>
     <form method="post">
       <?php controls('save', $revision); ?>
       <input type="hidden" name="original" value="<?= e($current['id'] ?? '') ?>">

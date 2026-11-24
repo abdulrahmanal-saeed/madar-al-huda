@@ -17,6 +17,7 @@ require __DIR__ . '/releases.php';
 require __DIR__ . '/account.php';
 require __DIR__ . '/diff.php';
 require __DIR__ . '/manage.php';
+require __DIR__ . '/governance.php';
 
 try {
     $db = database();
@@ -119,7 +120,8 @@ $sections = [
     'lessons' => 'الدروس والاختبارات', 'reciters' => 'القراء',
     'appearance' => 'الثيم والألوان', 'library_sections' => 'أقسام المكتبة',
     'releases' => 'إصدارات التطبيق', 'app_settings' => 'إعدادات التطبيق',
-    'story_titles' => 'عناوين القصص', 'adhkar_groups' => 'مجموعات الأذكار', 'account' => 'حسابي',
+    'story_titles' => 'عناوين القصص', 'adhkar_groups' => 'مجموعات الأذكار',
+    'users' => 'المستخدمون', 'audit' => 'سجل التعديلات', 'account' => 'حسابي',
 ];
 $section = $_GET['section'] ?? 'daily';
 if (!is_string($section) || !isset($sections[$section])) {
@@ -153,12 +155,17 @@ if ($active) {
 }
 $setup = accountPassword($db) === false;
 usersTable($db);
+auditTable($db);
 $user = $active ? userById($db, (int) ($_SESSION['user'] ?? 1)) : null;
 if ($active && $user === null) {
     // The account was disabled or removed: end this session.
-    $_SESSION = [];
+    $_SESSION = ['csrf' => bin2hex(random_bytes(32))];
     $active = false;
 }
+if ($user !== null && !canSee($user, $section)) {
+    $section = 'daily';
+}
+$signedIn = null;
 $error = null;
 $confirming = null;
 const CONFIRMATIONS = [
@@ -210,6 +217,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif (!$active) {
             http_response_code(403);
             throw new InvalidArgumentException('سجّل الدخول لإدارة المكتبة.');
+        } elseif (!allowedAction($user, $action, $section)) {
+            http_response_code(403);
+            throw new InvalidArgumentException('صلاحيات حسابك لا تسمح بهذا الإجراء. اطلبه من المالك.');
         } elseif (isset(CONFIRMATIONS[$action]) && field('confirmed') !== 'yes') {
             // Irreversible actions show a confirmation page first; the CSP
             // blocks scripts, so the check happens on the server.
@@ -223,13 +233,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif ($action === 'logout') {
             $_SESSION = [];
             session_destroy();
-        } elseif (in_array($action, ['save', 'delete', 'publish', 'restore'], true)) {
+        } elseif (in_array($action, ['save', 'delete', 'publish', 'restore', 'review_approve'], true)) {
             $seed = require __DIR__ . '/seed.php';
-            updateLibrary($db, $action, $seed, $section, $topic);
+            updateLibrary($db, $action, $seed, $section, $topic, $user);
             $_SESSION['notice'] = match ($action) {
                 'publish' => 'تم نشر تحديث المكتبة.',
                 'restore' => 'استُعيد الإصدار إلى المسودة.',
                 'delete' => 'حُذف العنصر من المسودة.',
+                'review_approve' => 'اعتُمدت المسألة شرعيًا ويمكن نشرها.',
                 default => 'حُفظت المسودة.',
             };
         } elseif ($action === 'drive_import') {
@@ -262,6 +273,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'archive_story' => 'أُرشف التسجيل وأُخفي من الفهرس.',
                 default => 'استُعيد التسجيل إلى الفهرس.',
             };
+        } elseif (in_array($action, ['user_add', 'user_role', 'user_disable', 'user_enable', 'user_reset'], true)) {
+            $_SESSION['notice'] = changeUsers($db, $user, $action);
         } elseif (in_array($action, ['password_change', 'totp_enable', 'totp_disable'], true)) {
             $_SESSION['notice'] = changeAccount($db, $user, $action);
         } elseif (in_array($action, ['release_upload', 'release_publish', 'release_notify', 'release_withdraw'], true)) {
@@ -269,6 +282,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['notice'] = changeRelease($db, $action);
         } else {
             throw new InvalidArgumentException('الإجراء غير متاح.');
+        }
+        if ($confirming === null && $action !== 'setup') {
+            $who = $signedIn['username'] ?? $user['username'] ?? '?';
+            audit($db, $who, $action, $section, auditDetail($action));
         }
         if ($confirming === null && wantsJson()) {
             header('Content-Type: application/json; charset=utf-8');
@@ -315,7 +332,7 @@ if ($active) {
     }
     $rows = in_array($section, BOOK_SECTIONS, true)
         ? ($draft['library'][$section] ?? [])
-        : (in_array($section, ['stories', 'history', 'reciters', 'releases', 'appearance', 'library_sections', 'account', 'app_settings', 'story_titles', 'adhkar_groups'], true)
+        : (in_array($section, ['stories', 'history', 'reciters', 'releases', 'appearance', 'library_sections', 'account', 'app_settings', 'story_titles', 'adhkar_groups', 'users', 'audit'], true)
             ? [] : contentRows($draft, $section, $topic));
     $current = null;
     foreach ($rows as $index => $row) {
@@ -369,6 +386,7 @@ if ($active) {
 <div class="layout">
   <nav aria-label="أقسام الإدارة">
     <?php foreach ($sections as $key => $name): ?>
+      <?php if (!canSee($user, $key)) continue; ?>
       <a href="<?= e(route($key)) ?>" <?= $section === $key ? 'aria-current="page"' : '' ?>><?= e($name) ?></a>
     <?php endforeach; ?>
   </nav>
@@ -378,7 +396,9 @@ if ($active) {
         <?php if (!in_array($section, ['stories', 'releases'], true)): ?><p><?= $dirty ? 'تغييرات في المسودة' : 'المكتبة محدثة' ?> · الحجم <?= e(feedSizeLabel(strlen($state['draft']))) ?></p><?php endif; ?>
       </div>
       <?php if ($dirty && !in_array($section, ['stories', 'releases'], true)): ?>
+        <?php if (allowedAction($user, 'publish', $section)): ?>
         <form method="post"><?php controls('publish', $revision); ?><button class="primary">نشر المسودة للتطبيق</button></form>
+        <?php else: ?><p>النشر للمراجع الشرعي أو المالك.</p><?php endif; ?>
         <?php $changes = libraryDiff(json_decode($state['published'] ?? 'null', true), $draft); ?>
         <details class="changes">
           <summary>عرض التغييرات قبل النشر (<?= e(arabicDigits((string) count($changes))) ?>)</summary>
@@ -424,6 +444,9 @@ if ($active) {
     <?php endif; ?>
     <?php if (in_array($section, ['app_settings', 'story_titles', 'adhkar_groups'], true)): ?>
       <?php require __DIR__ . '/manage-view.php'; ?>
+    <?php endif; ?>
+    <?php if (in_array($section, ['users', 'audit'], true)): ?>
+      <?php require __DIR__ . '/governance-view.php'; ?>
     <?php endif; ?>
     <?php if ($section === 'stories'): ?>
       <section class="panel">
@@ -486,7 +509,7 @@ if ($active) {
       </section>
     <?php elseif (in_array($section, BOOK_SECTIONS, true) || $section === 'reciters'): ?>
       <?php require __DIR__ . '/advanced-view.php'; ?>
-    <?php elseif (in_array($section, ['account', 'app_settings', 'story_titles', 'adhkar_groups'], true)): ?>
+    <?php elseif (in_array($section, ['account', 'app_settings', 'story_titles', 'adhkar_groups', 'users', 'audit'], true)): ?>
       <?php /* Drawn above. */ ?>
     <?php else: ?>
       <?php if ($section === 'duas'): ?>
