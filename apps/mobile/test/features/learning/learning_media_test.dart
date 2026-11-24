@@ -49,7 +49,7 @@ void main() {
     );
   });
 
-  test('story badges show the prophet's name alone', () {
+  test("story badges show the prophet's name alone", () {
     expect(prophetShortName('سيدنا آدم عليه السلام'), 'آدم');
     expect(prophetShortName('سيدنا إدريس عليه السلام'), 'إدريس');
     expect(prophetShortName('Adam, peace be upon him'), 'Adam');
