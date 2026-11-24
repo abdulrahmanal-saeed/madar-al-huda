@@ -89,6 +89,16 @@ class AgentError extends RuntimeException
 {
 }
 
+/**
+ * How ChatGPT publishes: 'chat' - a publish tool that ChatGPT confirms with
+ * the owner every time (Always ask); 'dashboard' - only a request the owner
+ * approves on the «ChatGPT» page.
+ */
+function agentPublishMode(PDO $db): string
+{
+    return adminSetting($db, 'agent_publish_mode') === 'dashboard' ? 'dashboard' : 'chat';
+}
+
 function agentTables(PDO $db): void
 {
     $db->exec('CREATE TABLE IF NOT EXISTS agent_keys (
@@ -100,6 +110,7 @@ function agentTables(PDO $db): void
         id INTEGER PRIMARY KEY, key_id INTEGER NOT NULL, at INTEGER NOT NULL,
         tool TEXT NOT NULL, ok INTEGER NOT NULL, detail TEXT NOT NULL DEFAULT \'\'
     )');
+    $db->exec('CREATE TABLE IF NOT EXISTS admin_settings (key TEXT PRIMARY KEY, value TEXT NOT NULL)');
     $db->exec('CREATE TABLE IF NOT EXISTS publish_requests (
         id INTEGER PRIMARY KEY, at INTEGER NOT NULL, key_id INTEGER NOT NULL, label TEXT NOT NULL,
         note TEXT NOT NULL DEFAULT \'\', revision INTEGER NOT NULL, status TEXT NOT NULL DEFAULT \'pending\',
@@ -212,7 +223,7 @@ function agentChange(PDO $db, array $key, string $action, string $section, strin
     audit($db, agentActor($key), $action, $section, (string) ($fields['original'] ?? $fields['id'] ?? $fields['ar'] ?? ''));
 }
 
-function agentTools(): array
+function agentTools(string $mode = 'chat'): array
 {
     $sectionProp = ['type' => 'string', 'enum' => array_keys(AGENT_SECTIONS)];
     $topicProp = ['type' => 'string', 'enum' => array_keys(topics()), 'description' => 'duas only.'];
@@ -261,7 +272,14 @@ function agentTools(): array
             'inputSchema' => ['type' => 'object', 'properties' => new stdClass(), 'required' => []],
             'annotations' => ['readOnlyHint' => true],
         ],
-        [
+        $mode === 'chat' ? [
+            'name' => 'publish',
+            'description' => "Publish the draft to the app, for every user. Right before calling: call draft_changes, show the owner the list of changes in the chat, and get an explicit yes for publishing. Never publish as part of another request, and never without that yes. The owner keeps this tool on Always ask.",
+            'inputSchema' => ['type' => 'object', 'properties' => [
+                'summary' => ['type' => 'string', 'description' => 'One or two lines on what is being published, for the audit log.'],
+            ], 'required' => ['summary']],
+            'annotations' => ['readOnlyHint' => false, 'destructiveHint' => true, 'openWorldHint' => true, 'title' => 'Publish to the app'],
+        ] : [
             'name' => 'request_publish',
             'description' => "Ask the owner to publish the draft to the app. This does NOT publish: it creates a request the owner approves or rejects on the ChatGPT page of the dashboard, every time. Tell the owner to open the link that comes back.",
             'inputSchema' => ['type' => 'object', 'properties' => ['note' => ['type' => 'string', 'description' => 'A short summary of what changed, for the owner.']], 'required' => []],
@@ -330,6 +348,26 @@ function agentCall(PDO $db, array $key, string $tool, array $args): array
         case 'draft_changes':
             $changes = libraryDiff(json_decode($state['published'] ?? 'null', true), $draft);
             return ['changes' => count($changes), 'lines' => array_slice($changes, 0, 80)];
+        case 'publish':
+            if (agentPublishMode($db) !== 'chat') {
+                throw new AgentError('Publishing from ChatGPT is turned off. Use request_publish; the owner approves it in the dashboard.');
+            }
+            if ($state['published'] === $state['draft']) {
+                throw new AgentError('The draft has no changes to publish.');
+            }
+            $count = count(libraryDiff(json_decode($state['published'] ?? 'null', true), $draft));
+            $_POST = ['revision' => (string) $state['revision']];
+            try {
+                updateLibrary($db, 'publish', require __DIR__ . '/seed.php', 'daily', 'forgiveness',
+                    ['id' => 0, 'username' => agentActor($key), 'role' => 'editor']);
+            } catch (InvalidArgumentException $failure) {
+                throw new AgentError($failure->getMessage());
+            } finally {
+                $_POST = [];
+            }
+            audit($db, agentActor($key), 'publish', 'chatgpt', mb_substr(trim((string) ($args['summary'] ?? '')), 0, 200));
+            $db->prepare("UPDATE publish_requests SET status = 'superseded' WHERE status = 'pending'")->execute();
+            return ['published' => true, 'changes' => $count, 'note' => 'Published. The app picks it up on its next refresh.'];
         case 'request_publish':
             if ($state['published'] === $state['draft']) {
                 throw new AgentError('The draft has no changes to publish.');
@@ -394,7 +432,10 @@ function serveMcp(PDO $db, string $secret): never
                 'serverInfo' => ['name' => 'Madar Al-Huda dashboard', 'version' => '1.0.0'],
                 'instructions' => 'Edit the content of the Madar Al-Huda app (adhkar, duas, Hisn al-Muslim, Names of Allah, articles, lessons, fiqh). '
                     . 'Call list_sections first. Every change goes to the DRAFT only. Before save_item or delete_item, show the owner exactly what you will write and wait for approval. '
-                    . 'To put changes in the app, call request_publish: the owner approves it in the dashboard; you can never publish yourself. Speak Egyptian Arabic unless the owner writes in English.',
+                    . (agentPublishMode($db) === 'chat'
+                        ? 'To put changes in the app, call draft_changes, show the owner the changes, ask whether to publish, and call publish only after an explicit yes. Every publish needs its own yes. '
+                        : 'To put changes in the app, call request_publish: the owner approves it in the dashboard; you cannot publish yourself. ')
+                    . 'Speak Egyptian Arabic unless the owner writes in English.',
             ]]);
         case 'notifications/initialized':
         case 'notifications/cancelled':
@@ -403,7 +444,7 @@ function serveMcp(PDO $db, string $secret): never
         case 'ping':
             $reply($id, ['result' => new stdClass()]);
         case 'tools/list':
-            $reply($id, ['result' => ['tools' => agentTools()]]);
+            $reply($id, ['result' => ['tools' => agentTools(agentPublishMode($db))]]);
         case 'tools/call':
             $tool = (string) ($params['name'] ?? '');
             $args = is_array($params['arguments'] ?? null) ? $params['arguments'] : [];
@@ -448,6 +489,13 @@ function changeAgent(PDO $db, array $user, string $action): string
         // Shown once, on the next page load only.
         $_SESSION['agent_url'] = 'https://' . $host . '/admin/mcp/' . $raw;
         return 'أُنشئ رابط جديد. انسخه الآن، فلن يظهر مرة أخرى.';
+    }
+    if ($action === 'agent_publish_mode') {
+        $mode = field('mode') === 'dashboard' ? 'dashboard' : 'chat';
+        setAdminSetting($db, 'agent_publish_mode', $mode);
+        return $mode === 'chat'
+            ? 'ChatGPT ينشر بعد تأكيدك في المحادثة كل مرة.'
+            : 'النشر من ChatGPT يحتاج موافقتك من هذه الصفحة.';
     }
     if ($action === 'agent_key_revoke') {
         $db->prepare('UPDATE agent_keys SET revoked_at = ? WHERE id = ? AND revoked_at IS NULL')

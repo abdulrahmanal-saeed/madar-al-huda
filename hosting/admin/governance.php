@@ -41,6 +41,7 @@ const ACTION_ROLES = [
     'agent_key_revoke' => ['owner'],
     'agent_publish_approve' => ['owner'],
     'agent_publish_reject' => ['owner'],
+    'agent_publish_mode' => ['owner'],
 ];
 
 function canSee(array $user, string $section): bool
@@ -93,6 +94,7 @@ const AUDIT_ACTIONS = [
     'report_delete' => 'حذف بلاغ',
     'agent_key_create' => 'إنشاء رابط ChatGPT', 'agent_key_revoke' => 'إلغاء رابط ChatGPT',
     'agent_publish_approve' => 'موافقة على نشر من ChatGPT', 'agent_publish_reject' => 'رفض نشر من ChatGPT',
+    'agent_publish_mode' => 'طريقة النشر من ChatGPT',
 ];
 
 /** What the audit line says about a request, without secrets. */

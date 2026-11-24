@@ -289,7 +289,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['notice'] = changeUsers($db, $user, $action);
         } elseif (in_array($action, ['password_change', 'totp_enable', 'totp_disable'], true)) {
             $_SESSION['notice'] = changeAccount($db, $user, $action);
-        } elseif (in_array($action, ['agent_key_create', 'agent_key_revoke', 'agent_publish_approve', 'agent_publish_reject'], true)) {
+        } elseif (in_array($action, ['agent_key_create', 'agent_key_revoke', 'agent_publish_approve', 'agent_publish_reject', 'agent_publish_mode'], true)) {
             $_SESSION['notice'] = changeAgent($db, $user, $action);
         } elseif (in_array($action, ['report_settings', 'report_done', 'report_open', 'report_delete'], true)) {
             $_SESSION['notice'] = changeReports($db, $action);

@@ -35,7 +35,16 @@ $activity = $db->query('SELECT l.*, k.label FROM agent_log l LEFT JOIN agent_key
 <?php endif; ?>
 <section class="panel">
   <h2>ربط ChatGPT بلوحة الإدارة</h2>
-  <p>يستطيع ChatGPT من خلال هذا الرابط قراءة المحتوى وإضافته وتعديله وحذفه <strong>في المسودة فقط</strong>. لا يستطيع النشر: يرسل طلب نشر يظهر هنا، ولا يصل شيء للتطبيق حتى تضغط «موافقة». ولا يصل إلى المستخدمين أو كلمات المرور أو الإصدارات.</p>
+  <p>يستطيع ChatGPT من خلال هذا الرابط قراءة المحتوى وإضافته وتعديله وحذفه في المسودة، ثم النشر بالطريقة المختارة أدناه. ولا يصل إلى المستخدمين أو كلمات المرور أو الإصدارات.</p>
+  <form method="post" class="editor">
+    <?php controls('agent_publish_mode'); ?>
+    <fieldset>
+      <legend>النشر من ChatGPT</legend>
+      <label class="check"><input type="radio" name="mode" value="chat" <?= agentPublishMode($db) === 'chat' ? 'checked' : '' ?>> ينشر بعد أن يسألك في المحادثة كل مرة (اترك أداة <bdi>publish</bdi> على <bdi>Always ask</bdi> في ChatGPT)</label>
+      <label class="check"><input type="radio" name="mode" value="dashboard" <?= agentPublishMode($db) === 'dashboard' ? 'checked' : '' ?>> يرسل طلب نشر فقط، وتوافق أنت من هذه الصفحة</label>
+    </fieldset>
+    <button class="quiet">حفظ</button>
+  </form>
   <?php if (is_string($newUrl)): ?>
     <div class="alert">
       <p><strong>انسخ هذا الرابط الآن، فلن يظهر مرة أخرى:</strong></p>
@@ -54,6 +63,7 @@ $activity = $db->query('SELECT l.*, k.label FROM agent_log l LEFT JOIN agent_key
       <li>اضغط <strong>Create</strong> (أو Add custom connector)، واكتب الاسم «مدار الهدى»، والصق الرابط في <strong>MCP Server URL</strong>.</li>
       <li>في <strong>Authentication</strong> اختر <strong>No authentication</strong>، ثم وافق وأنشئ.</li>
       <li>في أي محادثة: اضغط <strong>+</strong> واختر «مدار الهدى» لتفعيله فيها، ثم اطلب مثلًا: «ضيف ذكر جديد لأذكار الصباح».</li>
+      <li>أول مرة يطلب النشر، يسألك ChatGPT عن الإذن: اختر <strong>Always ask</strong> (اسأل دائمًا) وليس «Always allow»، فيسألك قبل كل نشر.</li>
     </ol>
     <p class="hint">الرابط هو كلمة السر: لا تشاركه. إن شككت أنه تسرّب، ألغِه من القائمة أدناه وأنشئ غيره.</p>
   </details>
