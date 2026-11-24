@@ -159,7 +159,7 @@ class QiblaScreen extends ConsumerWidget {
                       ),
                       textAlign: TextAlign.center,
                     ),
-                  if (location.devicePoint == null)
+                  if (!location.fromDevice)
                     Text(
                       l10n.cityBearingApproximate,
                       textAlign: TextAlign.center,

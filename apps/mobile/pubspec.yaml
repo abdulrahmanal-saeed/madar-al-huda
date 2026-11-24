@@ -76,7 +76,7 @@ flutter:
     - assets/fonts/amiri/OFL.txt
     - assets/fonts/amiri_quran/OFL.txt
     - assets/fonts/reem_kufi/OFL.txt
-    - assets/location/countries.json
+    - assets/location/cities.json
     - assets/quran/uthmani.txt
     - assets/quran/metadata.xml
     - assets/fonts/ibm_plex_sans_arabic/OFL.txt

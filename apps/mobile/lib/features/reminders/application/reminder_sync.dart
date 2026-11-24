@@ -85,7 +85,7 @@ class _ReminderSyncState extends ConsumerState<ReminderSync> {
   @override
   Widget build(BuildContext context) {
     final settings = ref.watch(reminderSettingsProvider);
-    final location = ref.watch(worshipLocationProvider);
+    final place = ref.watch(prayerPlaceProvider);
     final hanafi = ref.watch(hanafiAsrProvider);
     final edition = settings.dailyDua || settings.duaEveryHours > 0
         ? ref.watch(mushafEditionProvider).asData?.value
@@ -93,13 +93,12 @@ class _ReminderSyncState extends ConsumerState<ReminderSync> {
     final duaIndex = ref.watch(quranDuaIndexProvider).asData?.value;
     final l10n = context.l10n;
     final language = Localizations.localeOf(context).languageCode;
-    final point = location.point;
-    final country = location.country;
     final signature = [
       settings.encode(),
-      point?.latitude,
-      point?.longitude,
-      country?.name,
+      place?.point.latitude,
+      place?.point.longitude,
+      place?.timeZone,
+      place?.method.name,
       hanafi,
       language,
       edition != null,
@@ -111,13 +110,12 @@ class _ReminderSyncState extends ConsumerState<ReminderSync> {
       _debounce = Timer(const Duration(seconds: 1), () async {
         await _started;
         if (!mounted) return;
-        final reminders = point == null || country == null
+        final reminders = place == null
             ? const <PlannedReminder>[]
             : planReminders(
                 settings: settings,
                 scheduleOn: (day) => PrayerSchedule.calculate(
-                  location: point,
-                  country: country,
+                  place: place,
                   now: day,
                   hanafi: hanafi,
                 ),

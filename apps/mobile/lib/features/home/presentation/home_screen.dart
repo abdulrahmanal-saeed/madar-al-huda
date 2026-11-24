@@ -65,19 +65,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final now = widget.clock();
     final location = ref.watch(worshipLocationProvider);
     final hanafi = ref.watch(hanafiAsrProvider);
-    final point = location.point;
-    final country = location.country;
+    final place = ref.watch(prayerPlaceProvider);
     final showPrayer =
         !AppSection.prayerTimes.status.isGated || managedReleaseEnabled;
     final showMushaf =
         !AppSection.mushaf.status.isGated || managedReleaseEnabled;
-    final schedule = showPrayer && point != null && country != null
-        ? PrayerSchedule.calculate(
-            location: point,
-            country: country,
-            now: now,
-            hanafi: hanafi,
-          )
+    final schedule = showPrayer && place != null
+        ? PrayerSchedule.calculate(place: place, now: now, hanafi: hanafi)
         : null;
     final date = schedule?.today.first.time ?? now;
     final hijri = civilHijriDate(date, locale.languageCode);
@@ -118,9 +112,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     schedule: schedule,
                     now: now,
                     showOverview: true,
-                    location: location.devicePoint == null
-                        ? location.city!.label(l10n)
-                        : l10n.deviceLocation,
+                    location:
+                        location.place?.label(locale.languageCode) ??
+                        l10n.deviceLocation,
                   )
                 else
                   Card(

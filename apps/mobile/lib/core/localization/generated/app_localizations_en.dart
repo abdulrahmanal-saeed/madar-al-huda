@@ -488,10 +488,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Location is unavailable. Check location services or choose a city.';
 
   @override
-  String get locationOutside =>
-      'Device location is supported in Egypt and the UAE. Choose a city to continue.';
-
-  @override
   String get locationLoading => 'Finding your location…';
 
   @override
@@ -1508,4 +1504,70 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get readerShareImage => 'Share as image';
+
+  @override
+  String get locationChange => 'Change';
+
+  @override
+  String get locationChooseTitle => 'Choose your location';
+
+  @override
+  String get locationChooseHint =>
+      'Prayer times and the Qibla follow it, anywhere in the world.';
+
+  @override
+  String get locationFromDevice => 'Your current location';
+
+  @override
+  String get locationChosenCity => 'City you chose';
+
+  @override
+  String get locationSearchHint => 'Search for a city or country';
+
+  @override
+  String get locationNoResults => 'No city matches that name.';
+
+  @override
+  String get locationLargestWorld => 'Largest cities';
+
+  @override
+  String get locationCitiesLoading => 'Loading cities…';
+
+  @override
+  String get prayerMethodAuto => 'Automatic for your country';
+
+  @override
+  String get prayerMethodPick => 'Calculation method';
+
+  @override
+  String locationCountryCities(String country) {
+    return 'Cities in $country';
+  }
+
+  @override
+  String prayerMethodName(String method) {
+    String _temp0 = intl.Intl.selectLogic(method, {
+      'egyptian': 'Egyptian General Authority of Survey',
+      'ummAlQura': 'Umm al-Qura, Makkah',
+      'dubai': 'Dubai',
+      'qatar': 'Qatar',
+      'kuwait': 'Kuwait',
+      'gulfRegion': 'Gulf region',
+      'jordan': 'Jordan\'s Ministry of Awqaf',
+      'morocco': 'Morocco\'s Ministry of Habous',
+      'algerian': 'Algeria\'s Ministry of Religious Affairs',
+      'tunisia': 'Tunisia\'s Ministry of Religious Affairs',
+      'turkiye': 'Diyanet, Türkiye',
+      'karachi': 'University of Islamic Sciences, Karachi',
+      'singapore': 'Singapore and Malaysia',
+      'indonesian': 'Indonesia\'s Ministry of Religious Affairs',
+      'northAmerica': 'Islamic Society of North America',
+      'moonsightingCommittee': 'Moonsighting Committee',
+      'france': 'France (12°)',
+      'russia': 'Spiritual Administration of Muslims of Russia',
+      'muslimWorldLeague': 'Muslim World League',
+      'other': 'Muslim World League',
+    });
+    return '$_temp0';
+  }
 }

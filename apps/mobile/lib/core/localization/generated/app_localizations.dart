@@ -962,12 +962,6 @@ abstract class AppLocalizations {
   /// **'Location is unavailable. Check location services or choose a city.'**
   String get locationUnavailable;
 
-  /// Device location is supported in Egypt and the UAE. Choose a city to continue.
-  ///
-  /// In en, this message translates to:
-  /// **'Device location is supported in Egypt and the UAE. Choose a city to continue.'**
-  String get locationOutside;
-
   /// Finding your location…
   ///
   /// In en, this message translates to:
@@ -2773,6 +2767,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Share as image'**
   String get readerShareImage;
+
+  /// Opens the location picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get locationChange;
+
+  /// Title when no location is set.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your location'**
+  String get locationChooseTitle;
+
+  /// Explains why a location is needed.
+  ///
+  /// In en, this message translates to:
+  /// **'Prayer times and the Qibla follow it, anywhere in the world.'**
+  String get locationChooseHint;
+
+  /// The place comes from GPS.
+  ///
+  /// In en, this message translates to:
+  /// **'Your current location'**
+  String get locationFromDevice;
+
+  /// The place was picked from the list.
+  ///
+  /// In en, this message translates to:
+  /// **'City you chose'**
+  String get locationChosenCity;
+
+  /// City search field.
+  ///
+  /// In en, this message translates to:
+  /// **'Search for a city or country'**
+  String get locationSearchHint;
+
+  /// Empty search.
+  ///
+  /// In en, this message translates to:
+  /// **'No city matches that name.'**
+  String get locationNoResults;
+
+  /// List header before searching.
+  ///
+  /// In en, this message translates to:
+  /// **'Largest cities'**
+  String get locationLargestWorld;
+
+  /// City list loading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading cities…'**
+  String get locationCitiesLoading;
+
+  /// Method follows the country.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic for your country'**
+  String get prayerMethodAuto;
+
+  /// Method sheet title.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculation method'**
+  String get prayerMethodPick;
+
+  /// List header for the current country.
+  ///
+  /// In en, this message translates to:
+  /// **'Cities in {country}'**
+  String locationCountryCities(String country);
+
+  /// A prayer calculation authority.
+  ///
+  /// In en, this message translates to:
+  /// **'{method, select, egyptian{Egyptian General Authority of Survey}ummAlQura{Umm al-Qura, Makkah}dubai{Dubai}qatar{Qatar}kuwait{Kuwait}gulfRegion{Gulf region}jordan{Jordan\'s Ministry of Awqaf}morocco{Morocco\'s Ministry of Habous}algerian{Algeria\'s Ministry of Religious Affairs}tunisia{Tunisia\'s Ministry of Religious Affairs}turkiye{Diyanet, Türkiye}karachi{University of Islamic Sciences, Karachi}singapore{Singapore and Malaysia}indonesian{Indonesia\'s Ministry of Religious Affairs}northAmerica{Islamic Society of North America}moonsightingCommittee{Moonsighting Committee}france{France (12°)}russia{Spiritual Administration of Muslims of Russia}muslimWorldLeague{Muslim World League}other{Muslim World League}}'**
+  String prayerMethodName(String method);
 }
 
 class _AppLocalizationsDelegate

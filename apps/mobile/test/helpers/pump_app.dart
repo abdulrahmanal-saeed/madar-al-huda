@@ -16,7 +16,10 @@ import 'package:madar_al_huda/features/adhkar/data/quran_dua_index.dart';
 import 'package:madar_al_huda/features/quran/data/mushaf_edition.dart';
 import 'package:madar_al_huda/features/quran/data/quran_services.dart';
 import 'package:madar_al_huda/features/worship/application/cairo_radio_stream.dart';
+import 'package:madar_al_huda/features/worship/application/worship_location.dart';
 import 'package:material_ui/material_ui.dart';
+
+import 'places.dart';
 
 /// Phone-sized logical viewport (Pixel-class device).
 const Size phoneSize = Size(412, 915);
@@ -66,6 +69,7 @@ Future<InMemoryKeyValueStore> pumpMadarApp(
         adhkarCatalogProvider.overrideWith((_) => _testAdhkar!),
         quranDuaIndexProvider.overrideWith((_) => quranDuaIndex),
         managedLibraryProvider.overrideWith((_) => null),
+        worldCitiesProvider.overrideWith((_) => testCities()),
         if (quranApi != null) quranApiProvider.overrideWithValue(quranApi),
         if (audioPlayer != null)
           audioPlayerProvider.overrideWithValue(audioPlayer),

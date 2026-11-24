@@ -23,19 +23,13 @@ final ramadanDaysProvider = Provider.autoDispose
     .family<List<RamadanDay>?, DateTime>((ref, now) {
       final dates = ramadanDates(now);
       if (dates == null) return null;
-      final location = ref.watch(worshipLocationProvider);
-      final point = location.point;
-      final country = location.country;
-      if (point == null || country == null) return null;
+      final place = ref.watch(prayerPlaceProvider);
+      if (place == null) return null;
       final hanafi = ref.watch(hanafiAsrProvider);
       return imsakiya(
         dates,
-        (noon) => PrayerSchedule.calculate(
-          location: point,
-          country: country,
-          now: noon,
-          hanafi: hanafi,
-        ),
+        (noon) =>
+            PrayerSchedule.calculate(place: place, now: noon, hanafi: hanafi),
       );
     });
 

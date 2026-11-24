@@ -1,9 +1,15 @@
-# Offline country boundaries
+# Offline city list
 
-`countries.json` contains the Egypt and United Arab Emirates geometries from
-Natural Earth Admin 0 Countries at 1:10m (v5.1.2), under its public-domain
-[terms of use](https://www.naturalearthdata.com/about/terms-of-use/).
-The variants were extracted by ISO A2 code from the
-[source collection](https://github.com/nvkelso/natural-earth-vector/blob/v5.1.2/geojson/ne_10m_admin_0_countries.geojson).
-These polygons assign a location to a supported prayer-time region. At the
-border or outside coverage, users can still choose one of the four cities.
+`cities.json` lists every place of 15,000+ people (and every capital) from
+[GeoNames](https://www.geonames.org) `cities15000`, under
+[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Arabic country
+names come from Unicode CLDR. The app uses it, on the device only, to search
+cities and to name a GPS position and pick its time zone.
+
+Format: `zones` (IANA names), `countries` (`code: [English, Arabic]`) and
+`cities` rows, largest first:
+`[geonameId, name, asciiName or "", arabicName or "", country, lat, lng, zoneIndex, thousandsOfPeople]`.
+
+Regenerate with `tool/build_cities.py <geonames folder> assets/location/cities.json`
+after downloading `cities15000.zip` and `countryInfo.txt` from
+https://download.geonames.org/export/dump/ (needs `pip install babel`).

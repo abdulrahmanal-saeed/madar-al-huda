@@ -478,10 +478,6 @@ class AppLocalizationsAr extends AppLocalizations {
       'تعذّر تحديد الموقع. تحقق من خدمة الموقع أو اختر مدينة.';
 
   @override
-  String get locationOutside =>
-      'موقع الجهاز مدعوم داخل مصر والإمارات. اختر مدينة للمتابعة.';
-
-  @override
   String get locationLoading => 'جارٍ تحديد موقعك…';
 
   @override
@@ -1491,4 +1487,70 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get readerShareImage => 'مشاركة كصورة';
+
+  @override
+  String get locationChange => 'تغيير';
+
+  @override
+  String get locationChooseTitle => 'اختر موقعك';
+
+  @override
+  String get locationChooseHint =>
+      'تُحسب مواقيت الصلاة والقبلة حسبه، في أي مكان في العالم.';
+
+  @override
+  String get locationFromDevice => 'موقعك الحالي';
+
+  @override
+  String get locationChosenCity => 'مدينة اخترتها';
+
+  @override
+  String get locationSearchHint => 'ابحث عن مدينة أو دولة';
+
+  @override
+  String get locationNoResults => 'لا توجد مدينة بهذا الاسم.';
+
+  @override
+  String get locationLargestWorld => 'أكبر المدن';
+
+  @override
+  String get locationCitiesLoading => 'جارٍ تحميل المدن…';
+
+  @override
+  String get prayerMethodAuto => 'تلقائي حسب بلدك';
+
+  @override
+  String get prayerMethodPick => 'طريقة الحساب';
+
+  @override
+  String locationCountryCities(String country) {
+    return 'مدن $country';
+  }
+
+  @override
+  String prayerMethodName(String method) {
+    String _temp0 = intl.Intl.selectLogic(method, {
+      'egyptian': 'الهيئة المصرية العامة للمساحة',
+      'ummAlQura': 'تقويم أم القرى بمكة المكرمة',
+      'dubai': 'دبي',
+      'qatar': 'قطر',
+      'kuwait': 'الكويت',
+      'gulfRegion': 'منطقة الخليج',
+      'jordan': 'وزارة الأوقاف الأردنية',
+      'morocco': 'وزارة الأوقاف المغربية',
+      'algerian': 'وزارة الشؤون الدينية الجزائرية',
+      'tunisia': 'وزارة الشؤون الدينية التونسية',
+      'turkiye': 'رئاسة الشؤون الدينية التركية',
+      'karachi': 'جامعة العلوم الإسلامية بكراتشي',
+      'singapore': 'سنغافورة وماليزيا',
+      'indonesian': 'وزارة الشؤون الدينية الإندونيسية',
+      'northAmerica': 'الجمعية الإسلامية لأمريكا الشمالية',
+      'moonsightingCommittee': 'لجنة رؤية الهلال',
+      'france': 'فرنسا (١٢°)',
+      'russia': 'الإدارة الدينية لمسلمي روسيا',
+      'muslimWorldLeague': 'رابطة العالم الإسلامي',
+      'other': 'رابطة العالم الإسلامي',
+    });
+    return '$_temp0';
+  }
 }

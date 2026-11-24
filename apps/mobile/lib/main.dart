@@ -61,6 +61,8 @@ Future<KeyValueStore> _openPreferences() async {
       allowList: {
         ...SettingsRepository.keys,
         WorshipLocationController.cityKey,
+        WorshipLocationController.placeKey,
+        PrayerMethodChoice.key,
         WorshipLocationController.deviceLocationKey,
         WorshipLocationController.lastDevicePointKey,
         ReminderSettingsController.key,
@@ -105,5 +107,12 @@ void _registerFontLicense() {
     yield LicenseEntryWithLineBreaks([
       'Amiri',
     ], await rootBundle.loadString('assets/fonts/amiri/OFL.txt'));
+    yield const LicenseEntryWithLineBreaks(
+      ['GeoNames'],
+      'City names, positions and time zones: GeoNames (geonames.org), '
+      'licensed under Creative Commons Attribution 4.0 '
+      '(creativecommons.org/licenses/by/4.0). Arabic country names: '
+      'Unicode CLDR, under the Unicode License.',
+    );
   });
 }
