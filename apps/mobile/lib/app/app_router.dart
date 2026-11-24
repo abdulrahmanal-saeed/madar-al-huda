@@ -18,6 +18,7 @@ import '../features/prayer/presentation/prayer_times_screen.dart';
 import '../features/qibla/presentation/qibla_screen.dart';
 import '../features/quran/data/mushaf_edition.dart';
 import '../features/quran/domain/quran_storage_contracts.dart';
+import '../features/quran/presentation/memorize_screen.dart';
 import '../features/quran/presentation/mushaf_screen.dart';
 import '../features/ramadan/presentation/ramadan_screen.dart';
 import '../features/reminders/presentation/reminder_settings_screen.dart';
@@ -204,6 +205,11 @@ GoRouter buildAppRouter({String initialLocation = AppRoutes.home}) {
         path: AppRoutes.cairoRadio,
         parentNavigatorKey: rootNavigatorKey,
         builder: (_, _) => const CairoRadioScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.memorize,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (_, _) => const MemorizeScreen(),
       ),
       GoRoute(
         path: AppRoutes.search,

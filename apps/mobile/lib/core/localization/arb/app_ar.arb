@@ -529,5 +529,20 @@
   "searchVerses": "الآيات",
   "searchHadithTopics": "موضوعات الحديث",
   "searchVerseCount": "{count} آية",
-  "searchShowAll": "عرض الكل ({count})"
+  "searchShowAll": "عرض الكل ({count})",
+  "memorizeTitle": "التحفيظ",
+  "memorizeIntro": "اختر سورة ومقطعًا، كرّر كل آية، ثم أخفِ النص وسمّع من حفظك.",
+  "memorizeFindSurah": "ابحث عن سورة",
+  "memorizeFrom": "من آية",
+  "memorizeTo": "إلى",
+  "memorizeShow": "إظهار",
+  "memorizeFirstWord": "أول كلمة",
+  "memorizeHide": "إخفاء",
+  "memorizeRepeatEach": "كرّر كل آية",
+  "memorizeTapToReveal": "سمّعها ثم اضغط للتأكد",
+  "memorizeDone": "حفظتها",
+  "memorizeMarkRange": "تعليم المقطع كمحفوظ",
+  "memorizeClearRange": "إلغاء تعليم المقطع",
+  "memorizeOverall": "حفظت {done} من {total} آية",
+  "memorizeRepeated": "كرّرتها {count} من {target}"
 }

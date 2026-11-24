@@ -12,6 +12,7 @@ import 'features/adhkar/data/adhkar_progress.dart';
 import 'features/hadith/data/hadith_favorites.dart';
 import 'features/prayer/application/prayer_preferences.dart';
 import 'features/prayer/application/prayer_widget_sync.dart';
+import 'features/quran/application/memorization.dart';
 import 'features/quran/application/reading_preferences.dart';
 import 'features/quran/data/local_quran_bookmarks.dart';
 import 'features/reminders/application/reminder_settings_controller.dart';
@@ -80,6 +81,7 @@ Future<KeyValueStore> _openPreferences() async {
         AdhkarProgressController.key,
         DailyReadingPlanController.key,
         ReadingLog.key,
+        Memorized.key,
         KhatmaGoalController.key,
         'quran.reciter.v1',
       },

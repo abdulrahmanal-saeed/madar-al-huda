@@ -3211,6 +3211,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Show all {count}'**
   String searchShowAll(String count);
+
+  /// Memorization.
+  ///
+  /// In en, this message translates to:
+  /// **'Memorize'**
+  String get memorizeTitle;
+
+  /// Memorize intro.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a surah and a range, repeat each verse, then hide the text and recite it from memory.'**
+  String get memorizeIntro;
+
+  /// Surah search.
+  ///
+  /// In en, this message translates to:
+  /// **'Find a surah'**
+  String get memorizeFindSurah;
+
+  /// Range start.
+  ///
+  /// In en, this message translates to:
+  /// **'From verse'**
+  String get memorizeFrom;
+
+  /// Range end.
+  ///
+  /// In en, this message translates to:
+  /// **'to'**
+  String get memorizeTo;
+
+  /// Full text.
+  ///
+  /// In en, this message translates to:
+  /// **'Show'**
+  String get memorizeShow;
+
+  /// Prompt only.
+  ///
+  /// In en, this message translates to:
+  /// **'First word'**
+  String get memorizeFirstWord;
+
+  /// Hidden text.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide'**
+  String get memorizeHide;
+
+  /// Repeat target.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat each verse'**
+  String get memorizeRepeatEach;
+
+  /// Reveal hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Recite it, then tap to check'**
+  String get memorizeTapToReveal;
+
+  /// Mark memorized.
+  ///
+  /// In en, this message translates to:
+  /// **'Memorized'**
+  String get memorizeDone;
+
+  /// Bulk mark.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark the range memorized'**
+  String get memorizeMarkRange;
+
+  /// Bulk clear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear the range'**
+  String get memorizeClearRange;
+
+  /// Progress.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} of {total} verses memorized'**
+  String memorizeOverall(String done, String total);
+
+  /// Progress.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeated {count} of {target}'**
+  String memorizeRepeated(String count, String target);
 }
 
 class _AppLocalizationsDelegate

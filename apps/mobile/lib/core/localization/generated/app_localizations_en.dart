@@ -1797,4 +1797,54 @@ class AppLocalizationsEn extends AppLocalizations {
   String searchShowAll(String count) {
     return 'Show all $count';
   }
+
+  @override
+  String get memorizeTitle => 'Memorize';
+
+  @override
+  String get memorizeIntro =>
+      'Choose a surah and a range, repeat each verse, then hide the text and recite it from memory.';
+
+  @override
+  String get memorizeFindSurah => 'Find a surah';
+
+  @override
+  String get memorizeFrom => 'From verse';
+
+  @override
+  String get memorizeTo => 'to';
+
+  @override
+  String get memorizeShow => 'Show';
+
+  @override
+  String get memorizeFirstWord => 'First word';
+
+  @override
+  String get memorizeHide => 'Hide';
+
+  @override
+  String get memorizeRepeatEach => 'Repeat each verse';
+
+  @override
+  String get memorizeTapToReveal => 'Recite it, then tap to check';
+
+  @override
+  String get memorizeDone => 'Memorized';
+
+  @override
+  String get memorizeMarkRange => 'Mark the range memorized';
+
+  @override
+  String get memorizeClearRange => 'Clear the range';
+
+  @override
+  String memorizeOverall(String done, String total) {
+    return '$done of $total verses memorized';
+  }
+
+  @override
+  String memorizeRepeated(String count, String target) {
+    return 'Repeated $count of $target';
+  }
 }

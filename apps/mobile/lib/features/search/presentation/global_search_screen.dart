@@ -89,6 +89,13 @@ final List<_Place> _places = [
     label: (l) => l.duaTitle,
   ),
   (
+    id: 'memorize',
+    route: AppRoutes.memorize,
+    push: true,
+    icon: Icons.psychology_outlined,
+    label: (l) => l.memorizeTitle,
+  ),
+  (
     id: 'ramadan',
     route: AppRoutes.ramadan,
     push: true,
