@@ -4,6 +4,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
 import 'package:just_audio/just_audio.dart';
 import 'package:madar_al_huda/app/app.dart';
 import 'package:madar_al_huda/app/app_router.dart';
@@ -13,6 +14,7 @@ import 'package:madar_al_huda/core/storage/key_value_store.dart';
 import 'package:madar_al_huda/core/storage/storage_providers.dart';
 import 'package:madar_al_huda/features/adhkar/data/adhkar_catalog.dart';
 import 'package:madar_al_huda/features/adhkar/data/quran_dua_index.dart';
+import 'package:madar_al_huda/features/hadith/data/hadeeth_enc.dart';
 import 'package:madar_al_huda/features/quran/data/mushaf_edition.dart';
 import 'package:madar_al_huda/features/quran/data/quran_services.dart';
 import 'package:madar_al_huda/features/worship/application/cairo_radio_stream.dart';
@@ -20,6 +22,20 @@ import 'package:madar_al_huda/features/worship/application/worship_location.dart
 import 'package:material_ui/material_ui.dart';
 
 import 'places.dart';
+
+/// HadeethEnc without network or disk: tests that show hadiths override
+/// the hadith providers themselves.
+class OfflineHadeethEnc extends HadeethEnc {
+  OfflineHadeethEnc()
+    : super(http.Client(), () async => throw UnsupportedError('no disk'));
+
+  @override
+  Future<Object?> get(
+    String path,
+    Map<String, String> fields, {
+    Duration fresh = Duration.zero,
+  }) async => throw StateError('HadeethEnc unavailable in tests');
+}
 
 /// Phone-sized logical viewport (Pixel-class device).
 const Size phoneSize = Size(412, 915);
@@ -70,6 +86,7 @@ Future<InMemoryKeyValueStore> pumpMadarApp(
         quranDuaIndexProvider.overrideWith((_) => quranDuaIndex),
         managedLibraryProvider.overrideWith((_) => null),
         worldCitiesProvider.overrideWith((_) => testCities()),
+        hadeethEncProvider.overrideWithValue(OfflineHadeethEnc()),
         if (quranApi != null) quranApiProvider.overrideWithValue(quranApi),
         if (audioPlayer != null)
           audioPlayerProvider.overrideWithValue(audioPlayer),
