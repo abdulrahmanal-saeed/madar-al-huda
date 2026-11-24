@@ -141,8 +141,8 @@ const _contentSources = [
   ),
   (
     'MP3Quran',
-    'Recitations: MP3Quran (mp3quran.net), and recordings published by '
-        'Yousef Heiba.',
+    'Recitations and verse timings: MP3Quran (mp3quran.net), and '
+        'recordings published by Yousef Heiba.',
   ),
   (
     'HadeethEnc',

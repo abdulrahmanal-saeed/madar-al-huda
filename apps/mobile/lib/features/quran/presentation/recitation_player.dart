@@ -15,6 +15,7 @@ import '../data/chapter_reciters.dart';
 import '../data/mushaf_edition.dart';
 import '../data/offline_recitations.dart';
 import '../data/quran_services.dart';
+import '../data/verse_timings.dart';
 import '../domain/quran_storage_contracts.dart';
 
 String _recitationId(int surah, ChapterReciter reader) =>
@@ -50,13 +51,25 @@ Future<void> playRecitation(
     final foundation = reader.foundationId;
     final api = foundation == null ? null : ref.read(quranApiProvider);
 
-    MediaItem track(MushafSurah item, {bool fromFoundation = false}) =>
-        MediaItem(
-          id: _recitationId(item.id, reader),
-          title: item.name(language),
-          artist: reader.name(language),
-          album: reader.name(language),
-        );
+    MediaItem track(MushafSurah item, {bool fromFoundation = false}) {
+      final folder = reader.audioFolder;
+      // Where the Mushaf finds when each verse starts, to follow the reciter.
+      final timing = fromFoundation && foundation != null
+          ? foundationTiming(foundation)
+          : folder == null
+          ? null
+          : mp3QuranTiming(folder);
+      return MediaItem(
+        id: _recitationId(item.id, reader),
+        title: item.name(language),
+        artist: reader.name(language),
+        album: reader.name(language),
+        extras: {
+          ...recitationExtras(item.id, timing),
+          if (verse != null && item.id == surah.id) 'fromAyah': verse.ayah,
+        },
+      );
+    }
 
     if (!offlineOnly &&
         !reader.hasOfflineAudio &&

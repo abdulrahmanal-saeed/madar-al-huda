@@ -29,6 +29,13 @@ class ChapterReciter {
 
   bool get hasOfflineAudio => publisher != null || downloadBase != null;
 
+  /// The MP3Quran folder holding this reciter's recordings, if any.
+  Uri? get audioFolder =>
+      downloadBase ??
+      (publisher == null
+          ? null
+          : Uri.https('cdn.mp3quran.net', '/audio/$publisher/r1/'));
+
   Uri? publisherAudio(int chapter) {
     final base = downloadBase;
     if (!covers(chapter)) return null;
