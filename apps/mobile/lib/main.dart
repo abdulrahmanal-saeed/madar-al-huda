@@ -6,6 +6,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'app/app.dart';
+import 'app/first_run.dart';
 import 'core/auth/google_account.dart';
 import 'core/diagnostics/error_log.dart';
 import 'core/storage/key_value_store.dart';
@@ -64,33 +65,39 @@ Future<void> main() async {
   );
 }
 
+/// Every key the app stores. The platform store refuses any other key, so a
+/// new key must be added here (see storage_allow_list_test.dart).
+@visibleForTesting
+final Set<String> storageAllowList = {
+  ...SettingsRepository.keys,
+  WorshipLocationController.cityKey,
+  WorshipLocationController.placeKey,
+  PrayerMethodChoice.key,
+  WorshipLocationController.deviceLocationKey,
+  WorshipLocationController.lastDevicePointKey,
+  ReminderSettingsController.key,
+  HanafiAsr.key,
+  HadithFavorites.key,
+  'quran.lastRead.v1',
+  LocalQuranBookmarks.key,
+  LocalQuranBookmarks.backupKey,
+  ReadingPreferencesController.key,
+  TasbihController.key,
+  AdhkarProgressController.key,
+  DailyReadingPlanController.key,
+  ReadingLog.key,
+  Memorized.key,
+  KhatmaGoalController.key,
+  'quran.reciter.v1',
+  firstRunDoneKey,
+};
+
 /// Opens on-device preferences. If the platform store is unavailable the app
 /// still starts, with defaults kept in memory for this session.
 Future<KeyValueStore> _openPreferences() async {
   try {
     return await SharedPreferencesKeyValueStore.create(
-      allowList: {
-        ...SettingsRepository.keys,
-        WorshipLocationController.cityKey,
-        WorshipLocationController.placeKey,
-        PrayerMethodChoice.key,
-        WorshipLocationController.deviceLocationKey,
-        WorshipLocationController.lastDevicePointKey,
-        ReminderSettingsController.key,
-        HanafiAsr.key,
-        HadithFavorites.key,
-        'quran.lastRead.v1',
-        LocalQuranBookmarks.key,
-        LocalQuranBookmarks.backupKey,
-        ReadingPreferencesController.key,
-        TasbihController.key,
-        AdhkarProgressController.key,
-        DailyReadingPlanController.key,
-        ReadingLog.key,
-        Memorized.key,
-        KhatmaGoalController.key,
-        'quran.reciter.v1',
-      },
+      allowList: storageAllowList,
     );
   } catch (error, stack) {
     FlutterError.reportError(
