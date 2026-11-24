@@ -1507,5 +1507,11 @@
   "khatmaEndsOn": "You finish on {date}",
   "@khatmaEndsOn": {"description":"Goal end date.","placeholders":{"date":{"type":"String"}}},
   "khatmaToday": "Today: {target} pages · read {read}",
-  "@khatmaToday": {"description":"Today's share.","placeholders":{"target":{"type":"String"},"read":{"type":"String"}}}
+  "@khatmaToday": {"description":"Today's share.","placeholders":{"target":{"type":"String"},"read":{"type":"String"}}},
+  "readerPaperAmber": "Warm night",
+  "@readerPaperAmber": {"description":"Amber on brown page."},
+  "readerFullscreen": "Full screen",
+  "@readerFullscreen": {"description":"Enters full-screen reading."},
+  "readerExitFullscreen": "Exit full screen",
+  "@readerExitFullscreen": {"description":"Leaves full-screen reading."}
 }

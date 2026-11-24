@@ -1,9 +1,11 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../core/audio/audio_mini_player.dart';
 import '../core/localization/l10n_extension.dart';
 import '../core/theme/app_tokens.dart';
+import '../features/quran/application/reading_preferences.dart';
 
 /// Tab destination metadata, in [AppRoutes.tabs] order.
 class _Destination {
@@ -37,7 +39,7 @@ final List<_Destination> _destinations = [
 /// Five-tab shell. Each tab keeps its own navigation stack and scroll state
 /// (StatefulShellRoute.indexedStack). Uses a bottom bar on phones and a
 /// navigation rail on wider screens.
-class AppShell extends StatelessWidget {
+class AppShell extends ConsumerWidget {
   const AppShell({required this.navigationShell, super.key});
 
   final StatefulNavigationShell navigationShell;
@@ -52,9 +54,12 @@ class AppShell extends StatelessWidget {
   );
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final wide = MediaQuery.sizeOf(context).width >= AppBreakpoints.medium;
     final index = navigationShell.currentIndex;
+    if (ref.watch(readingFocusProvider)) {
+      return Scaffold(body: navigationShell);
+    }
 
     if (wide) {
       return Scaffold(
