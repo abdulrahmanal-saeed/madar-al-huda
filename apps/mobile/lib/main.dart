@@ -21,6 +21,7 @@ import 'features/prayer/application/prayer_widget_sync.dart';
 import 'features/quran/application/memorization.dart';
 import 'features/quran/application/reading_preferences.dart';
 import 'features/quran/data/local_quran_bookmarks.dart';
+import 'features/quran/data/recitation_resume.dart';
 import 'features/reminders/application/reminder_settings_controller.dart';
 import 'features/reminders/data/reminder_scheduler.dart';
 import 'features/settings/data/settings_repository.dart';
@@ -105,6 +106,7 @@ final Set<String> storageAllowList = {
   KhatmaGoalController.key,
   'quran.reciter.v1',
   firstRunDoneKey,
+  lastRecitationKey,
 };
 
 /// Opens on-device preferences. If the platform store is unavailable the app

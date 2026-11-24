@@ -15,6 +15,7 @@ import '../data/chapter_reciters.dart';
 import '../data/mushaf_edition.dart';
 import '../data/offline_recitations.dart';
 import '../data/quran_services.dart';
+import '../data/recitation_resume.dart';
 import '../data/verse_timings.dart';
 import '../domain/quran_storage_contracts.dart';
 
@@ -37,6 +38,9 @@ Future<void> playRecitation(
   required ChapterReciter reader,
   AyahRef? verse,
   bool offlineOnly = false,
+  // Continues a recitation from where it stopped (the first surah only).
+  Duration? resumeAt,
+  int? resumeAyah,
 }) async {
   try {
     final chapters = edition.surahs
@@ -67,6 +71,8 @@ Future<void> playRecitation(
         extras: {
           ...recitationExtras(item.id, timing),
           if (verse != null && item.id == surah.id) 'fromAyah': verse.ayah,
+          if (verse == null && resumeAyah != null && item.id == surah.id)
+            'fromAyah': resumeAyah,
         },
       );
     }
@@ -83,7 +89,9 @@ Future<void> playRecitation(
                 ? api.audioAtVerse(verse, foundation)
                 : (
                     url: await api.audio(item.id, foundation),
-                    start: Duration.zero,
+                    start: item.id == surah.id
+                        ? resumeAt ?? Duration.zero
+                        : Duration.zero,
                   ),
           ),
       ]);
@@ -118,7 +126,7 @@ Future<void> playRecitation(
             ? await api!.audio(surah.id, foundation)
             : firstFile ?? reader.publisherAudio(surah.id);
         if (url == null) throw StateError('Recording unavailable');
-        firstSource = (url: url, start: Duration.zero);
+        firstSource = (url: url, start: resumeAt ?? Duration.zero);
       }
       return [
         (track: first, source: firstSource),
@@ -262,6 +270,22 @@ class _RecitationPlayerState extends ConsumerState<RecitationPlayer> {
     final loading = playback.pending?.id == id;
     final downloadProgress = download?.key == key ? download : null;
     final busy = playback.pending != null;
+    // The place this reciter stopped last time, to continue from it.
+    final resume = ref.watch(savedRecitationProvider);
+    final resumeSurah =
+        resume != null &&
+            resume.reader == selected.key &&
+            resume.surah <= widget.edition.surahs.length &&
+            selected.covers(resume.surah)
+        ? widget.edition.surahs[resume.surah - 1]
+        : null;
+    final number = decimalFormat(language).format;
+    String clock(int ms) {
+      final seconds = ms ~/ 1000;
+      return '${number(seconds ~/ 60)}:'
+          '${number(seconds % 60).padLeft(2, number(0))}';
+    }
+
     return Material(
       color: scheme.surfaceContainer,
       child: Padding(
@@ -271,127 +295,167 @@ class _RecitationPlayerState extends ConsumerState<RecitationPlayer> {
           AppSpacing.sm,
           AppSpacing.sm,
         ),
-        child: Row(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Expanded(
-              child: InkWell(
-                key: const Key('reciter-picker'),
-                borderRadius: AppRadii.lgAll,
-                onTap: busy ? null : () => _pickReciter(selected),
-                child: Padding(
-                  padding: const EdgeInsets.all(AppSpacing.xs),
-                  child: Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 20,
-                        backgroundColor: scheme.primaryContainer,
-                        foregroundColor: scheme.onPrimaryContainer,
-                        child: const Icon(Icons.record_voice_over_outlined),
-                      ),
-                      const SizedBox(width: AppSpacing.sm),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              selected.name(language),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: theme.textTheme.titleSmall,
-                            ),
-                            Row(
+            if (resume != null && resumeSurah != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+                child: FilledButton.tonalIcon(
+                  key: const Key('recitation-resume'),
+                  onPressed: busy
+                      ? null
+                      : () => playRecitation(
+                          context,
+                          ref,
+                          edition: widget.edition,
+                          surah: resumeSurah,
+                          reader: selected,
+                          resumeAt: Duration(milliseconds: resume.ms),
+                          resumeAyah: resume.ayah,
+                        ),
+                  icon: const Icon(Icons.replay_rounded),
+                  label: Text(
+                    resume.ayah != null
+                        ? l10n.recitationResumeVerse(
+                            resumeSurah.name(language),
+                            number(resume.ayah),
+                          )
+                        : l10n.recitationResumeTime(
+                            resumeSurah.name(language),
+                            clock(resume.ms),
+                          ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ),
+            Row(
+              children: [
+                Expanded(
+                  child: InkWell(
+                    key: const Key('reciter-picker'),
+                    borderRadius: AppRadii.lgAll,
+                    onTap: busy ? null : () => _pickReciter(selected),
+                    child: Padding(
+                      padding: const EdgeInsets.all(AppSpacing.xs),
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 20,
+                            backgroundColor: scheme.primaryContainer,
+                            foregroundColor: scheme.onPrimaryContainer,
+                            child: const Icon(Icons.record_voice_over_outlined),
+                          ),
+                          const SizedBox(width: AppSpacing.sm),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
                               children: [
-                                Flexible(
-                                  child: Text(
-                                    widget.surah.name(language),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: theme.textTheme.bodySmall?.copyWith(
-                                      color: scheme.onSurfaceVariant,
-                                    ),
-                                  ),
+                                Text(
+                                  selected.name(language),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: theme.textTheme.titleSmall,
                                 ),
-                                if (saved) ...[
-                                  const SizedBox(width: AppSpacing.xs),
-                                  Icon(
-                                    Icons.offline_pin,
-                                    size: 14,
-                                    color: scheme.primary,
-                                    semanticLabel: l10n.recitationPlayOffline,
-                                  ),
-                                ],
+                                Row(
+                                  children: [
+                                    Flexible(
+                                      child: Text(
+                                        widget.surah.name(language),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: theme.textTheme.bodySmall
+                                            ?.copyWith(
+                                              color: scheme.onSurfaceVariant,
+                                            ),
+                                      ),
+                                    ),
+                                    if (saved) ...[
+                                      const SizedBox(width: AppSpacing.xs),
+                                      Icon(
+                                        Icons.offline_pin,
+                                        size: 14,
+                                        color: scheme.primary,
+                                        semanticLabel:
+                                            l10n.recitationPlayOffline,
+                                      ),
+                                    ],
+                                  ],
+                                ),
                               ],
                             ),
-                          ],
-                        ),
+                          ),
+                          Icon(
+                            Icons.unfold_more,
+                            size: 20,
+                            color: scheme.onSurfaceVariant,
+                          ),
+                        ],
                       ),
-                      Icon(
-                        Icons.unfold_more,
-                        size: 20,
-                        color: scheme.onSurfaceVariant,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            if (downloadProgress != null)
-              Padding(
-                padding: const EdgeInsets.all(AppSpacing.md),
-                child: SizedBox.square(
-                  dimension: 22,
-                  child: CircularProgressIndicator(
-                    value: downloadProgress.progress,
-                    semanticsLabel: l10n.recitationDownloading,
-                    strokeWidth: 2,
-                  ),
-                ),
-              )
-            else if (selected.hasOfflineAudio)
-              IconButton(
-                tooltip: saved
-                    ? l10n.recitationRemoveDownload
-                    : l10n.recitationDownload,
-                onPressed: batch || download != null || busy
-                    ? null
-                    : saved
-                    ? () => _removeDownload(
-                        context,
-                        ref,
-                        selected,
-                        widget.surah.id,
-                      )
-                    : () => _download(selected),
-                icon: Icon(
-                  saved ? Icons.download_done : Icons.download_outlined,
-                ),
-              ),
-            const SizedBox(width: AppSpacing.xs),
-            IconButton.filled(
-              key: const Key('recitation-play'),
-              tooltip: saved
-                  ? l10n.recitationPlayOffline
-                  : l10n.readerListenChapter,
-              iconSize: 30,
-              onPressed: busy
-                  ? null
-                  : () => playRecitation(
-                      context,
-                      ref,
-                      edition: widget.edition,
-                      surah: widget.surah,
-                      reader: selected,
                     ),
-              icon: loading
-                  ? SizedBox.square(
+                  ),
+                ),
+                if (downloadProgress != null)
+                  Padding(
+                    padding: const EdgeInsets.all(AppSpacing.md),
+                    child: SizedBox.square(
                       dimension: 22,
                       child: CircularProgressIndicator(
+                        value: downloadProgress.progress,
+                        semanticsLabel: l10n.recitationDownloading,
                         strokeWidth: 2,
-                        color: scheme.onPrimary,
                       ),
-                    )
-                  : const Icon(Icons.play_arrow_rounded),
+                    ),
+                  )
+                else if (selected.hasOfflineAudio)
+                  IconButton(
+                    tooltip: saved
+                        ? l10n.recitationRemoveDownload
+                        : l10n.recitationDownload,
+                    onPressed: batch || download != null || busy
+                        ? null
+                        : saved
+                        ? () => _removeDownload(
+                            context,
+                            ref,
+                            selected,
+                            widget.surah.id,
+                          )
+                        : () => _download(selected),
+                    icon: Icon(
+                      saved ? Icons.download_done : Icons.download_outlined,
+                    ),
+                  ),
+                const SizedBox(width: AppSpacing.xs),
+                IconButton.filled(
+                  key: const Key('recitation-play'),
+                  tooltip: saved
+                      ? l10n.recitationPlayOffline
+                      : l10n.readerListenChapter,
+                  iconSize: 30,
+                  onPressed: busy
+                      ? null
+                      : () => playRecitation(
+                          context,
+                          ref,
+                          edition: widget.edition,
+                          surah: widget.surah,
+                          reader: selected,
+                        ),
+                  icon: loading
+                      ? SizedBox.square(
+                          dimension: 22,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: scheme.onPrimary,
+                          ),
+                        )
+                      : const Icon(Icons.play_arrow_rounded),
+                ),
+              ],
             ),
           ],
         ),

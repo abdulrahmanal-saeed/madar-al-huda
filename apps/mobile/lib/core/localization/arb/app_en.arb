@@ -1743,5 +1743,9 @@
   "namesImpact": "Living by this name",
   "@namesImpact": {"description":"Detail heading."},
   "namesDua": "Supplication",
-  "@namesDua": {"description":"Detail heading."}
+  "@namesDua": {"description":"Detail heading."},
+  "recitationResumeVerse": "Continue {surah} from verse {ayah}",
+  "@recitationResumeVerse": {"description": "Resume button.", "placeholders": {"surah": {"type": "String"}, "ayah": {"type": "String"}}},
+  "recitationResumeTime": "Continue {surah} from {time}",
+  "@recitationResumeTime": {"description": "Resume button.", "placeholders": {"surah": {"type": "String"}, "time": {"type": "String"}}}
 }

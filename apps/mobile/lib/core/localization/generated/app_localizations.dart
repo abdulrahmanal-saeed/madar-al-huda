@@ -3835,6 +3835,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Supplication'**
   String get namesDua;
+
+  /// Resume button.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue {surah} from verse {ayah}'**
+  String recitationResumeVerse(String surah, String ayah);
+
+  /// Resume button.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue {surah} from {time}'**
+  String recitationResumeTime(String surah, String time);
 }
 
 class _AppLocalizationsDelegate

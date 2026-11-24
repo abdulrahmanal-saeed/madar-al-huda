@@ -633,5 +633,7 @@
   "namesSource": "المصدر",
   "namesDescription": "الشرح",
   "namesImpact": "أثر الإيمان بالاسم",
-  "namesDua": "الدعاء"
+  "namesDua": "الدعاء",
+  "recitationResumeVerse": "أكمل سورة {surah} من الآية {ayah}",
+  "recitationResumeTime": "أكمل سورة {surah} من {time}"
 }
