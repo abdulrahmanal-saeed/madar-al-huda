@@ -428,8 +428,18 @@ class _ReaderState extends ConsumerState<_Reader> {
                     tooltip: l10n.readerSources,
                     onSelected: (uri) => uri == null
                         ? showRecitationDownloads(context, edition)
+                        : uri.scheme == 'madar'
+                        ? context.push(AppRoutes.memorize)
                         : launchUrl(uri),
                     itemBuilder: (_) => [
+                      PopupMenuItem(
+                        value: Uri(scheme: 'madar', path: 'memorize'),
+                        child: ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: const Icon(Icons.psychology_outlined),
+                          title: Text(l10n.memorizeTitle),
+                        ),
+                      ),
                       PopupMenuItem(
                         value: null,
                         child: ListTile(

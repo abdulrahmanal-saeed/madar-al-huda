@@ -1788,4 +1788,54 @@ class AppLocalizationsAr extends AppLocalizations {
   String searchShowAll(String count) {
     return 'عرض الكل ($count)';
   }
+
+  @override
+  String get memorizeTitle => 'التحفيظ';
+
+  @override
+  String get memorizeIntro =>
+      'اختر سورة ومقطعًا، كرّر كل آية، ثم أخفِ النص وسمّع من حفظك.';
+
+  @override
+  String get memorizeFindSurah => 'ابحث عن سورة';
+
+  @override
+  String get memorizeFrom => 'من آية';
+
+  @override
+  String get memorizeTo => 'إلى';
+
+  @override
+  String get memorizeShow => 'إظهار';
+
+  @override
+  String get memorizeFirstWord => 'أول كلمة';
+
+  @override
+  String get memorizeHide => 'إخفاء';
+
+  @override
+  String get memorizeRepeatEach => 'كرّر كل آية';
+
+  @override
+  String get memorizeTapToReveal => 'سمّعها ثم اضغط للتأكد';
+
+  @override
+  String get memorizeDone => 'حفظتها';
+
+  @override
+  String get memorizeMarkRange => 'تعليم المقطع كمحفوظ';
+
+  @override
+  String get memorizeClearRange => 'إلغاء تعليم المقطع';
+
+  @override
+  String memorizeOverall(String done, String total) {
+    return 'حفظت $done من $total آية';
+  }
+
+  @override
+  String memorizeRepeated(String count, String target) {
+    return 'كرّرتها $count من $target';
+  }
 }

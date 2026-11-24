@@ -1,0 +1,11 @@
+# gitleaks: the default rules, plus one narrow exception.
+[extend]
+useDefault = true
+
+# On-device storage slot names such as 'quran.memorized.v1' sit next to a
+# `key` constant and trip generic-api-key; they are dotted lowercase words
+# ending in a version, never secrets.
+[[allowlists]]
+description = "Versioned SharedPreferences slot names"
+regexTarget = "secret"
+regexes = ['''^[a-z]+(\.[A-Za-z0-9]+)*\.v[0-9]+$''']
