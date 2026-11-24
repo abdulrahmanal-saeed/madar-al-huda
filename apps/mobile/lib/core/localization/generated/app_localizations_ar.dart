@@ -2011,4 +2011,37 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get downloadsLibraryTab => 'المكتبة';
+
+  @override
+  String get firstRunLookTitle => 'اختر اللغة والمظهر';
+
+  @override
+  String get firstRunNext => 'التالي';
+
+  @override
+  String get firstRunNotificationsTitle => 'التنبيهات';
+
+  @override
+  String get firstRunNotificationsBody =>
+      'يذكّرك «مدار الهدى» بمواقيت الصلاة وأذكار الصباح والمساء والأدعية التي تختارها. التنبيهات تُجهَّز على هاتفك ولا يُرسل منها شيء لأي جهة.';
+
+  @override
+  String get firstRunNotificationsAllow => 'السماح بالتنبيهات';
+
+  @override
+  String get firstRunLocationBody =>
+      'موقعك يعطيك مواقيت صلاة دقيقة واتجاه القبلة أينما كنت، ويبقى على هاتفك فقط. ويمكنك اختيار مدينة لاحقًا بدلًا منه.';
+
+  @override
+  String get firstRunRemindersBody =>
+      'اختر التذكيرات التي تريدها، ويمكنك تغييرها في أي وقت من الإعدادات.';
+
+  @override
+  String get firstRunSelectAll => 'تحديد الكل';
+
+  @override
+  String get firstRunClearAll => 'إلغاء الكل';
+
+  @override
+  String get firstRunStart => 'ابدأ';
 }
