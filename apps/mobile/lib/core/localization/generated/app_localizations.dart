@@ -3145,6 +3145,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Exit full screen'**
   String get readerExitFullscreen;
+
+  /// Opens app search.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get searchTitle;
+
+  /// Search field.
+  ///
+  /// In en, this message translates to:
+  /// **'Search the Quran, adhkar, hadith…'**
+  String get searchHint;
+
+  /// Search intro.
+  ///
+  /// In en, this message translates to:
+  /// **'Search surahs and verses, adhkar, hadith topics and the app\'s sections, even without internet. Type 2:255 to open a verse.'**
+  String get searchIntro;
+
+  /// Suggestions header.
+  ///
+  /// In en, this message translates to:
+  /// **'Try'**
+  String get searchTry;
+
+  /// No results.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing matches that. Try another word.'**
+  String get searchNoResults;
+
+  /// Sections header.
+  ///
+  /// In en, this message translates to:
+  /// **'In the app'**
+  String get searchSections;
+
+  /// Surahs header.
+  ///
+  /// In en, this message translates to:
+  /// **'Surahs'**
+  String get searchSurahs;
+
+  /// Verses header.
+  ///
+  /// In en, this message translates to:
+  /// **'Verses'**
+  String get searchVerses;
+
+  /// Hadith header.
+  ///
+  /// In en, this message translates to:
+  /// **'Hadith topics'**
+  String get searchHadithTopics;
+
+  /// Count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} verses'**
+  String searchVerseCount(String count);
+
+  /// Count.
+  ///
+  /// In en, this message translates to:
+  /// **'Show all {count}'**
+  String searchShowAll(String count);
 }
 
 class _AppLocalizationsDelegate

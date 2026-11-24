@@ -1759,4 +1759,42 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get readerExitFullscreen => 'Exit full screen';
+
+  @override
+  String get searchTitle => 'Search';
+
+  @override
+  String get searchHint => 'Search the Quran, adhkar, hadith…';
+
+  @override
+  String get searchIntro =>
+      'Search surahs and verses, adhkar, hadith topics and the app\'s sections, even without internet. Type 2:255 to open a verse.';
+
+  @override
+  String get searchTry => 'Try';
+
+  @override
+  String get searchNoResults => 'Nothing matches that. Try another word.';
+
+  @override
+  String get searchSections => 'In the app';
+
+  @override
+  String get searchSurahs => 'Surahs';
+
+  @override
+  String get searchVerses => 'Verses';
+
+  @override
+  String get searchHadithTopics => 'Hadith topics';
+
+  @override
+  String searchVerseCount(String count) {
+    return '$count verses';
+  }
+
+  @override
+  String searchShowAll(String count) {
+    return 'Show all $count';
+  }
 }
