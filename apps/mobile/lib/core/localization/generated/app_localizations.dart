@@ -575,14 +575,14 @@ abstract class AppLocalizations {
   /// Number of episodes in a learning series.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =1{1 episode} other{{count} episodes}}'**
-  String learningEpisodeCount(int count);
+  /// **'{count, plural, =1{1 episode} other{{countText} episodes}}'**
+  String learningEpisodeCount(String countText, int count);
 
   /// Title for a numbered episode.
   ///
   /// In en, this message translates to:
   /// **'Episode {number}'**
-  String learningEpisodeNumber(int number);
+  String learningEpisodeNumber(String number);
 
   /// Empty state for a series that has no episodes yet.
   ///
@@ -1116,7 +1116,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'Enter a verse number from 1 to {count}.'**
-  String readerVerseInvalid(int count);
+  String readerVerseInvalid(String count);
 
   /// Go
   ///
@@ -1140,7 +1140,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'Tafsir · verse {verse}'**
-  String readerTafsirFor(int verse);
+  String readerTafsirFor(String verse);
 
   /// Reciter
   ///
@@ -1914,7 +1914,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'Download surahs ({count})'**
-  String recitationDownloadSurahs(int count);
+  String recitationDownloadSurahs(String count);
 
   /// Downloading recitation
   ///

@@ -7,6 +7,7 @@ import 'package:material_ui/material_ui.dart';
 import '../../../core/audio/audio_playback.dart';
 import '../../../core/content/collection_downloads.dart';
 import '../../../core/localization/l10n_extension.dart';
+import '../../../core/localization/numbers.dart';
 import '../../../core/storage/storage_providers.dart';
 import '../data/chapter_reciters.dart';
 import '../data/mushaf_edition.dart';
@@ -433,7 +434,13 @@ class _RecitationDownloadsState extends ConsumerState<_RecitationDownloads> {
                 ),
                 FilledButton.icon(
                   icon: const Icon(Icons.download_for_offline_outlined),
-                  label: Text(l10n.recitationDownloadSurahs(covered.length)),
+                  label: Text(
+                    l10n.recitationDownloadSurahs(
+                      decimalFormat(
+                        Localizations.localeOf(context).languageCode,
+                      ).format(covered.length),
+                    ),
+                  ),
                   onPressed: busy || remaining.isEmpty || library.isLoading
                       ? null
                       : () {

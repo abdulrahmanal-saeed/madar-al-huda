@@ -1,8 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart' show DateFormat, NumberFormat;
+import 'package:intl/intl.dart' show DateFormat;
 import 'package:material_ui/material_ui.dart';
 
 import '../../../core/localization/l10n_extension.dart';
+import '../../../core/localization/numbers.dart';
 import '../data/adhkar_catalog.dart';
 import '../data/adhkar_progress.dart';
 import 'adhkar_widgets.dart';
@@ -30,7 +31,7 @@ class AdhkarHub extends ConsumerWidget {
       orElse: () => catalog.groups.first,
     );
     final groups = catalog.groups;
-    final number = NumberFormat.decimalPattern(language).format;
+    final number = decimalFormat(language).format;
     final selected = groups.where(
       (group) => progress.groups.contains(group.id),
     );
@@ -190,7 +191,7 @@ class AdhkarRoutine extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final catalog = this.catalog;
     final language = context.adhkarLanguage;
-    final number = NumberFormat.decimalPattern(language).format;
+    final number = decimalFormat(language).format;
     final l10n = context.l10n;
     final date = DateTime.now();
     final day = adhkarDayKey(date);
@@ -310,7 +311,7 @@ class _PrayerSessions extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final locale = context.adhkarLanguage;
-    final number = NumberFormat.decimalPattern(locale).format;
+    final number = decimalFormat(locale).format;
     final names = [
       l10n.prayerFajr,
       l10n.prayerDhuhr,

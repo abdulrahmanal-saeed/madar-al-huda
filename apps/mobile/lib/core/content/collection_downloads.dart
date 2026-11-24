@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../localization/numbers.dart';
+
 typedef DownloadCollection = ({
   String label,
   int completed,
@@ -59,7 +61,11 @@ class CollectionDownloadStatus extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final progress = ref.watch(collectionDownloadsProvider);
-    if (progress == null) return const SizedBox.shrink();
+    // A finished download says nothing more; only progress and an
+    // interrupted run need a line.
+    if (progress == null || (!progress.running && !progress.interrupted)) {
+      return const SizedBox.shrink();
+    }
     final ar = Localizations.localeOf(context).languageCode == 'ar';
     return ListTile(
       title: Text(progress.label),
@@ -68,7 +74,10 @@ class CollectionDownloadStatus extends ConsumerWidget {
             ? (ar
                   ? 'توقّف التنزيل. أعد التشغيل لاستكمال الملفات.'
                   : 'Download stopped. Start it again to resume.')
-            : '${progress.completed} / ${progress.total}',
+            : localizedDigits(
+                '${progress.completed} / ${progress.total}',
+                Localizations.localeOf(context).languageCode,
+              ),
       ),
       leading: progress.running
           ? CircularProgressIndicator(

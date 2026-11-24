@@ -188,7 +188,7 @@ void main() {
       );
       await tester.tap(find.text(l10n.recitationDownloadMushaf));
       await tester.pumpAndSettle();
-      await tester.tap(find.text(l10n.recitationDownloadSurahs(114)));
+      await tester.tap(find.text(l10n.recitationDownloadSurahs('114')));
       await tester.pumpAndSettle();
       expect(downloads.requested, [
         for (var chapter = 1; chapter <= 114; chapter++) '159:$chapter',

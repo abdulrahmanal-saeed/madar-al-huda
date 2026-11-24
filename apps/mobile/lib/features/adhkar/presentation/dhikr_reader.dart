@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart' show NumberFormat;
 import 'package:material_ui/material_ui.dart';
 
 import '../../../core/localization/l10n_extension.dart';
+import '../../../core/localization/numbers.dart';
 import '../data/adhkar_catalog.dart';
 import '../data/adhkar_progress.dart';
 import 'adhkar_widgets.dart';
@@ -57,7 +57,7 @@ class _DhikrReaderState extends ConsumerState<DhikrReader> {
     final saved = progress.saved.contains('hadith:${variant.hadith}');
     final shownCount = progress.count(day, group, entry);
     final complete = shownCount == variant.goal;
-    final number = NumberFormat.decimalPattern(language).format;
+    final number = decimalFormat(language).format;
     final l10n = context.l10n;
     return AdhkarPage(
       title: group.title.inLanguage(language),

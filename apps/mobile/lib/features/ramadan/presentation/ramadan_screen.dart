@@ -2,10 +2,11 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart' show DateFormat, NumberFormat;
+import 'package:intl/intl.dart' show DateFormat;
 import 'package:material_ui/material_ui.dart';
 
 import '../../../core/localization/l10n_extension.dart';
+import '../../../core/localization/numbers.dart';
 import '../../../core/routing/app_routes.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_tokens.dart';
@@ -63,7 +64,7 @@ class RamadanHomeCard extends ConsumerWidget {
     final l10n = context.l10n;
     final theme = Theme.of(context);
     final language = Localizations.localeOf(context).languageCode;
-    final number = NumberFormat.decimalPattern(language).format;
+    final number = decimalFormat(language).format;
     final time = DateFormat.jm(language);
     final left = state.at.difference(now);
     final scheme = theme.colorScheme;
@@ -140,7 +141,7 @@ class _RamadanScreenState extends ConsumerState<RamadanScreen> {
     final l10n = context.l10n;
     final theme = Theme.of(context);
     final language = Localizations.localeOf(context).languageCode;
-    final number = NumberFormat.decimalPattern(language).format;
+    final number = decimalFormat(language).format;
     final time = DateFormat.jm(language);
     final now = widget.clock();
     final today = DateTime(now.year, now.month, now.day);
@@ -308,7 +309,7 @@ class _Khatma extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final language = Localizations.localeOf(context).languageCode;
-    final number = NumberFormat.decimalPattern(language).format;
+    final number = decimalFormat(language).format;
     final juz = day.clamp(1, edition.juzStarts.length);
     final start = edition.verses[edition.juzStarts[juz - 1]].ref;
     return Card(
@@ -335,7 +336,7 @@ class _LastTen extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final language = Localizations.localeOf(context).languageCode;
-    final number = NumberFormat.decimalPattern(language).format;
+    final number = decimalFormat(language).format;
     final inLastTen = day >= 20;
     // Al-Qadr 97:3, from the verified bundled edition.
     final verse = edition.surahs[96].verses[2];

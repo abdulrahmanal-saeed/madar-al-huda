@@ -5,6 +5,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:video_player/video_player.dart';
 
 import '../../../core/localization/l10n_extension.dart';
+import '../../../core/localization/numbers.dart';
 import '../../../core/theme/app_tokens.dart';
 import '../../../core/widgets/responsive_content.dart';
 import '../data/learning_catalog.dart';
@@ -117,7 +118,11 @@ class _EpisodeVideoScreenState extends State<EpisodeVideoScreen> {
                 children: [
                   const SizedBox(height: AppSpacing.md),
                   Text(
-                    l10n.learningEpisodeNumber(widget.queue[_index].number),
+                    l10n.learningEpisodeNumber(
+                      decimalFormat(
+                        Localizations.localeOf(context).languageCode,
+                      ).format(widget.queue[_index].number),
+                    ),
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: AppSpacing.sm),
@@ -185,7 +190,13 @@ class _EpisodeVideoScreenState extends State<EpisodeVideoScreen> {
                   ],
                   for (final (position, episode) in widget.queue.indexed)
                     ListTile(
-                      title: Text(l10n.learningEpisodeNumber(episode.number)),
+                      title: Text(
+                        l10n.learningEpisodeNumber(
+                          decimalFormat(
+                            Localizations.localeOf(context).languageCode,
+                          ).format(episode.number),
+                        ),
+                      ),
                       selected: position == _index,
                       leading: const Icon(Icons.play_circle_outline),
                       onTap: _loading || position == _index

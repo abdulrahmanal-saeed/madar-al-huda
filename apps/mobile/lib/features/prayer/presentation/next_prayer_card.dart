@@ -3,6 +3,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../../core/localization/app_locales.dart';
 import '../../../core/localization/l10n_extension.dart';
+import '../../../core/localization/numbers.dart';
 import '../../../core/theme/app_tokens.dart';
 import '../../../core/theme/brand_colors.dart';
 import '../domain/prayer_schedule.dart';
@@ -34,7 +35,7 @@ class NextPrayerCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final locale = Localizations.localeOf(context).toLanguageTag();
     final clock = DateFormat.jm(locale);
-    final number = NumberFormat.decimalPattern(locale);
+    final number = decimalFormat(locale);
     final l10n = context.l10n;
     final text = Theme.of(context).textTheme;
     final minutes = (schedule.next.time.difference(now).inSeconds / 60).ceil();

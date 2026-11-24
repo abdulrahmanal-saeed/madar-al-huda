@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart' show NumberFormat;
 import 'package:material_ui/material_ui.dart';
 
 import '../../../core/localization/l10n_extension.dart';
+import '../../../core/localization/numbers.dart';
 import '../../../core/routing/app_routes.dart';
 import '../../../core/theme/app_tokens.dart';
 import '../../adhkar/data/adhkar_catalog.dart';
@@ -39,7 +39,7 @@ class WorshipNowCard extends ConsumerWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final language = Localizations.localeOf(context).languageCode;
-    final number = NumberFormat.decimalPattern(language).format;
+    final number = decimalFormat(language).format;
     final progress = ref.watch(adhkarProgressProvider);
     final day = adhkarDayKey(now);
     final done = progress.completedInGroup(day, group);

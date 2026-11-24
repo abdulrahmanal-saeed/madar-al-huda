@@ -2,6 +2,8 @@ import 'dart:math' as math;
 
 import 'package:intl/intl.dart';
 
+import 'numbers.dart';
+
 const _englishMonths = [
   'Muharram',
   'Safar',
@@ -52,7 +54,7 @@ String? civilHijriDate(DateTime date, String language) {
   if (hijri == null) return null;
   final (:year, :month, day: dayOfMonth) = hijri;
   final monthIndex = month - 1;
-  final numbers = NumberFormat('0', language);
+  final numbers = NumberFormat('0', numberLocale(language));
   final name = (language == 'ar' ? _arabicMonths : _englishMonths)[monthIndex];
   final era = language == 'ar' ? 'هـ' : 'AH';
   return '${numbers.format(dayOfMonth)} $name ${numbers.format(year)} $era';

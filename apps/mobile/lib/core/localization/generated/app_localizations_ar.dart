@@ -260,12 +260,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get sectionStoriesSubtitle => 'من القرآن والسنة مع ذكر المصادر';
 
   @override
-  String learningEpisodeCount(int count) {
+  String learningEpisodeCount(String countText, int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count حلقة',
-      few: '$count حلقات',
+      other: '$countText حلقة',
+      few: '$countText حلقات',
       two: 'حلقتان',
       one: 'حلقة واحدة',
     );
@@ -273,7 +273,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String learningEpisodeNumber(int number) {
+  String learningEpisodeNumber(String number) {
     return 'الحلقة $number';
   }
 
@@ -558,7 +558,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get readerVerseNumber => 'رقم الآية';
 
   @override
-  String readerVerseInvalid(int count) {
+  String readerVerseInvalid(String count) {
     return 'أدخل رقم آية من ١ إلى $count.';
   }
 
@@ -572,7 +572,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get readerTafsir => 'التفسير';
 
   @override
-  String readerTafsirFor(int verse) {
+  String readerTafsirFor(String verse) {
     return 'التفسير · الآية $verse';
   }
 
@@ -1003,12 +1003,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get recitationDownloadAvailable => 'تنزيل كل السور المتاحة';
 
   @override
-  String recitationDownloadSurahs(int count) {
-    final intl.NumberFormat countNumberFormat =
-        intl.NumberFormat.decimalPattern(localeName);
-    final String countString = countNumberFormat.format(count);
-
-    return 'تنزيل السور ($countString)';
+  String recitationDownloadSurahs(String count) {
+    return 'تنزيل السور ($count)';
   }
 
   @override

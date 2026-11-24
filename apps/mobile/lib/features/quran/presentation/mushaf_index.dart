@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:intl/intl.dart' show NumberFormat;
 import 'package:material_ui/material_ui.dart';
 
 import '../../../core/localization/l10n_extension.dart';
+import '../../../core/localization/numbers.dart';
 import '../data/mushaf_edition.dart';
 import '../domain/quran_search_text.dart';
 import '../domain/quran_storage_contracts.dart';
@@ -116,7 +116,7 @@ class _MushafIndexState extends State<MushafIndex> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final language = Localizations.localeOf(context).languageCode;
-    final numbers = NumberFormat.decimalPattern(language);
+    final numbers = decimalFormat(language);
     final edition = widget.edition;
     final options = {
       _Index.surahs: l10n.readerSurahs,

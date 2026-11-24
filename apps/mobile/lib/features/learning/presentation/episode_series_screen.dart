@@ -4,6 +4,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../../core/audio/audio_playback.dart';
 import '../../../core/localization/l10n_extension.dart';
+import '../../../core/localization/numbers.dart';
 import '../../../core/theme/app_tokens.dart';
 import '../../../core/widgets/responsive_content.dart';
 import '../data/learning_catalog.dart';
@@ -59,7 +60,10 @@ class _EpisodeSeriesScreenState extends ConsumerState<EpisodeSeriesScreen> {
           for (final episode in queue)
             MediaItem(
               id: series.trackId(episode),
-              title: l10n.learningEpisodeNumber(episode.number),
+              title: l10n.learningEpisodeNumber(
+                decimalFormat(Localizations.localeOf(context).languageCode)
+                    .format(episode.number),
+              ),
               artist: title,
             ),
         ];
@@ -149,6 +153,9 @@ class _EpisodeSeriesScreenState extends ConsumerState<EpisodeSeriesScreen> {
                       for (final format in LessonFormat.values)
                         if (series.queue(format, 1).isNotEmpty)
                           ChoiceChip(
+                            // The format icon already marks the choice; a
+                            // checkmark on top of it hid the icon.
+                            showCheckmark: false,
                             avatar: Icon(
                               format == LessonFormat.audio
                                   ? Icons.headphones_outlined
@@ -213,7 +220,12 @@ class _EpisodeSeriesScreenState extends ConsumerState<EpisodeSeriesScreen> {
               ? Icons.play_circle_outline
               : Icons.headphones_outlined,
         ),
-        title: Text(l10n.learningEpisodeNumber(episode.number)),
+        title: Text(
+          l10n.learningEpisodeNumber(
+            decimalFormat(Localizations.localeOf(context).languageCode)
+                .format(episode.number),
+          ),
+        ),
         subtitle: saved ? Text(l10n.learningDownloaded) : null,
         onTap:
             (!available && !saved) || _openingVideo || playback.pending != null

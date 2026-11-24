@@ -1,12 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart' show NumberFormat;
 import 'package:material_ui/material_ui.dart';
 
 import '../../../app/app_router.dart';
 import '../../../core/localization/app_locales.dart';
 import '../../../core/localization/l10n_extension.dart';
+import '../../../core/localization/numbers.dart';
 import '../../adhkar/data/adhkar_catalog.dart';
 import '../../adhkar/data/quran_dua_index.dart';
 import '../../prayer/application/prayer_preferences.dart';
@@ -153,7 +153,7 @@ List<ReminderDua> remindersDuas(
   Map<DuaTopic, List<DuaRange>> index,
   String language,
 ) {
-  final number = NumberFormat.decimalPattern(language).format;
+  final number = decimalFormat(language).format;
   final ranges = {for (final group in index.values) ...group};
   return [
     for (final range in ranges)
@@ -172,7 +172,7 @@ List<ReminderDua> remindersDuas(
 
 class L10nReminderTexts implements ReminderTexts {
   L10nReminderTexts(this.l10n, String language)
-    : _number = NumberFormat.decimalPattern(language).format;
+    : _number = decimalFormat(language).format;
 
   final AppLocalizations l10n;
   final String Function(num) _number;

@@ -1,9 +1,9 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
-import 'package:intl/intl.dart' show NumberFormat;
 import 'package:material_ui/material_ui.dart';
 
 import '../../../core/localization/l10n_extension.dart';
+import '../../../core/localization/numbers.dart';
 import '../../../core/theme/app_theme.dart';
 import '../application/reading_preferences.dart';
 import '../data/mushaf_edition.dart';
@@ -99,7 +99,7 @@ class MushafPageViewState extends State<MushafPageView> {
     Color highlight,
     Color numberColor,
   ) {
-    final numbers = NumberFormat.decimalPattern('ar');
+    final numbers = decimalFormat('ar');
     final spans = <InlineSpan>[];
     final basmala = widget.edition.surahs.first.verses.first;
     var index = 0;
@@ -164,7 +164,7 @@ class MushafPageViewState extends State<MushafPageView> {
     }
     _ranges.clear();
     final locale = Localizations.localeOf(context).languageCode;
-    final numbers = NumberFormat.decimalPattern(locale);
+    final numbers = decimalFormat(locale);
     final first = verses.first.ref;
     final juz = numbers.format(widget.edition.juzOf(first) + 1);
     final lastJuz = numbers.format(widget.edition.juzOf(verses.last.ref) + 1);

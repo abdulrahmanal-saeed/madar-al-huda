@@ -1,7 +1,7 @@
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:intl/intl.dart' show NumberFormat;
 import 'package:madar_al_huda/core/localization/app_locales.dart';
+import 'package:madar_al_huda/core/localization/numbers.dart';
 import 'package:madar_al_huda/features/quran/presentation/verse_image.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -40,7 +40,7 @@ void main() {
     await open(tester, const Locale('ar'));
     expect(find.byKey(const ValueKey('verse-card')), findsOneWidget);
     expect(find.text(verse), findsOneWidget);
-    final ayah = NumberFormat.decimalPattern('ar').format(201);
+    final ayah = decimalFormat('ar').format(201);
     expect(find.text('البقرة $ayah'), findsOneWidget);
     expect(find.text('مدار الهدى'), findsOneWidget);
     expect(find.byKey(const ValueKey('verse-image-share')), findsOneWidget);

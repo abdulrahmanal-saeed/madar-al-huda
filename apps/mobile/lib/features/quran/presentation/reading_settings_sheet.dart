@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart' show NumberFormat;
 import 'package:material_ui/material_ui.dart';
 
 import '../../../core/localization/l10n_extension.dart';
+import '../../../core/localization/numbers.dart';
 import '../../../core/theme/app_tokens.dart';
 import '../application/reading_preferences.dart';
 
@@ -22,7 +22,7 @@ class ReadingSettingsSheet extends ConsumerWidget {
     final l10n = context.l10n;
     final theme = Theme.of(context);
     final language = Localizations.localeOf(context).languageCode;
-    final number = NumberFormat.decimalPattern(language).format;
+    final number = decimalFormat(language).format;
     final preferences = ref.watch(readingPreferencesProvider);
     final controller = ref.read(readingPreferencesProvider.notifier);
     final papers = {
