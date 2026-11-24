@@ -43,13 +43,15 @@ $excerpt = static fn (string $text, int $limit): string => mb_strlen($text) > $l
       <?php elseif ($section === 'names'): ?>
         <div class="phone-hero phone-center">
           <span class="phone-chip"><?= e(arabicDigits((string) ($item['number'] ?? ''))) ?></span>
-          <strong class="phone-name"><?= e($ar($item['title'])) ?></strong>
+          <strong class="phone-name"><?= e(($item['vocalized'] ?? '') ?: $ar($item['title'])) ?></strong>
           <span dir="ltr"><?= e($item['title']['en'] ?? '') ?></span>
         </div>
         <div class="phone-card"><span class="gold">المعنى</span><span><?= e($excerpt($ar($item['body'] ?? null), 260)) ?></span></div>
-        <?php if ($ar($item['evidence'] ?? null) !== ''): ?>
-          <div class="phone-card"><span class="gold">الدليل</span><span><?= e($excerpt($ar($item['evidence']), 160)) ?></span></div>
-        <?php endif; ?>
+        <?php foreach (NAME_TEXTS as $key => $label): ?>
+          <?php if ($ar($item[$key] ?? null) !== ''): ?>
+            <div class="phone-card"><span class="gold"><?= e($label) ?></span><span><?= e($excerpt($ar($item[$key]), 160)) ?></span></div>
+          <?php endif; ?>
+        <?php endforeach; ?>
       <?php elseif ($section === 'duas'): ?>
         <span class="phone-brand">الأدعية القرآنية</span>
         <div class="phone-card"><span class="gold"><?= e(verseRangeLabel($item)) ?></span><span class="muted">يظهر هنا نص الآيات من المصحف المضمّن.</span></div>

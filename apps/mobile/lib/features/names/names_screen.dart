@@ -12,6 +12,11 @@ import '../../core/widgets/orbit_motif.dart';
 import '../../core/widgets/responsive_content.dart';
 import '../quran/data/mushaf_edition.dart';
 
+/// A text written on the dashboard in Arabic and, optionally, English.
+typedef NameText = ({String ar, String en});
+
+const NameText _noText = (ar: '', en: '');
+
 /// One of the Names of Allah as written on the dashboard
 /// («أسماء الله الحسنى»).
 class DivineName {
@@ -22,24 +27,45 @@ class DivineName {
     required this.transliteration,
     required this.meaningAr,
     required this.meaningEn,
-    this.evidence = '',
+    this.vocalized = '',
+    this.description = _noText,
+    this.evidence = _noText,
+    this.impact = _noText,
+    this.dua = _noText,
     this.source,
   });
 
   final String id;
   final int number;
+
+  /// The name without vowel marks, as typed and searched.
   final String name;
+
+  /// The name with its vowel marks, shown when written.
+  final String vocalized;
   final String transliteration;
   final String meaningAr;
   final String meaningEn;
 
-  /// A verse or narration the name comes from, as written on the dashboard.
-  final String evidence;
+  /// The detailed explanation.
+  final NameText description;
+
+  /// A verse or narration the name comes from.
+  final NameText evidence;
+
+  /// What believing in the name brings to a believer's life.
+  final NameText impact;
+  final NameText dua;
   final Uri? source;
+
+  String get display => vocalized.isNotEmpty ? vocalized : name;
 
   String meaning(String language) =>
       language == 'en' && meaningEn.isNotEmpty ? meaningEn : meaningAr;
 }
+
+NameText _pair(Object? value) =>
+    (ar: _text(value, 'ar'), en: _text(value, 'en'));
 
 String _text(Object? value, String key) {
   if (value is! Map) return '';
@@ -66,7 +92,13 @@ List<DivineName> divineNamesFrom(Map<String, Object?>? feed) {
         transliteration: _text(row['title'], 'en'),
         meaningAr: meaning,
         meaningEn: _text(row['body'], 'en'),
-        evidence: _text(row['evidence'], 'ar'),
+        vocalized: row['vocalized'] is String
+            ? (row['vocalized']! as String).trim()
+            : '',
+        description: _pair(row['description']),
+        evidence: _pair(row['evidence']),
+        impact: _pair(row['impact']),
+        dua: _pair(row['dua']),
         source: source != null && source.scheme == 'https' ? source : null,
       ),
     );
@@ -312,10 +344,10 @@ class _NameCard extends StatelessWidget {
               FittedBox(
                 fit: BoxFit.scaleDown,
                 child: Text(
-                  name.name,
+                  name.display,
                   textDirection: TextDirection.rtl,
                   style: TextStyle(
-                    fontFamily: AppTheme.readingFontFamily,
+                    fontFamily: AppTheme.quranFontFamily,
                     fontSize: 30,
                     height: 1.4,
                     color: scheme.primary,
@@ -420,12 +452,12 @@ class NameDetailScreen extends StatelessWidget {
                                 ),
                               ),
                               Text(
-                                name.name,
+                                name.display,
                                 key: const Key('name-detail-title'),
                                 textAlign: TextAlign.center,
                                 textDirection: TextDirection.rtl,
                                 style: const TextStyle(
-                                  fontFamily: AppTheme.readingFontFamily,
+                                  fontFamily: AppTheme.quranFontFamily,
                                   fontSize: 52,
                                   height: 1.5,
                                   color: BrandColors.ivory,
@@ -455,8 +487,24 @@ class NameDetailScreen extends StatelessWidget {
                     name.meaningEn,
                     direction: TextDirection.ltr,
                   ),
-                if (name.evidence.isNotEmpty)
-                  block(l10n.namesEvidence, name.evidence),
+                // Explanations follow the reader's language; the evidence
+                // and the supplication keep their Arabic wording too.
+                for (final (title, text, keepArabic) in [
+                  (l10n.namesDescription, name.description, false),
+                  (l10n.namesEvidence, name.evidence, true),
+                  (l10n.namesImpact, name.impact, false),
+                  (l10n.namesDua, name.dua, true),
+                ])
+                  if (text.ar.isNotEmpty || text.en.isNotEmpty)
+                    if (language == 'en' && text.en.isNotEmpty)
+                      block(
+                        title,
+                        keepArabic && text.ar.isNotEmpty
+                            ? '${text.ar}\n\n${text.en}'
+                            : text.en,
+                      )
+                    else
+                      block(title, text.ar.isNotEmpty ? text.ar : text.en),
                 if (name.source case final source?)
                   Align(
                     alignment: AlignmentDirectional.centerStart,

@@ -32,9 +32,27 @@ void main() {
     );
     expect(names.single.name, 'الرحمن');
     expect(names.single.meaning('en'), 'Test meaning');
-    expect(names.single.evidence, 'دليل تجريبي');
+    expect(names.single.evidence.ar, 'دليل تجريبي');
     expect(names.single.source, Uri.https('example.com', '/a'));
     expect(divineNamesFrom(null), isEmpty);
+    final full = divineNamesFrom(
+      feedWith([
+        {
+          'id': 'c',
+          'title': {'ar': 'الرحمن', 'en': 'Ar-Rahman'},
+          'body': {'ar': 'معنى'},
+          'vocalized': 'الرَّحْمَٰنُ',
+          'description': {'ar': 'شرح', 'en': 'Explanation'},
+          'impact': {'ar': 'أثر'},
+          'dua': {'ar': 'دعاء', 'en': 'Supplication'},
+        },
+      ]),
+    ).single;
+    expect(full.display, 'الرَّحْمَٰنُ');
+    expect(full.description, (ar: 'شرح', en: 'Explanation'));
+    expect(full.impact, (ar: 'أثر', en: ''));
+    expect(full.dua.en, 'Supplication');
+    expect(full.evidence, (ar: '', en: ''));
   });
 
   testWidgets('lists the names, searches, and opens one', (tester) async {

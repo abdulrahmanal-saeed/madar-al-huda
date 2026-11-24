@@ -2116,4 +2116,13 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get namesSource => 'المصدر';
+
+  @override
+  String get namesDescription => 'الشرح';
+
+  @override
+  String get namesImpact => 'أثر الإيمان بالاسم';
+
+  @override
+  String get namesDua => 'الدعاء';
 }

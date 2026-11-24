@@ -2130,4 +2130,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get namesSource => 'Source';
+
+  @override
+  String get namesDescription => 'Explanation';
+
+  @override
+  String get namesImpact => 'Living by this name';
+
+  @override
+  String get namesDua => 'Supplication';
 }

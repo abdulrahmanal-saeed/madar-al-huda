@@ -1737,5 +1737,11 @@
   "namesEvidence": "Evidence",
   "@namesEvidence": {"description":"Detail heading."},
   "namesSource": "Source",
-  "@namesSource": {"description":"Source link."}
+  "@namesSource": {"description":"Source link."},
+  "namesDescription": "Explanation",
+  "@namesDescription": {"description":"Detail heading."},
+  "namesImpact": "Living by this name",
+  "@namesImpact": {"description":"Detail heading."},
+  "namesDua": "Supplication",
+  "@namesDua": {"description":"Detail heading."}
 }
