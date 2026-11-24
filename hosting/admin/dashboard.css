@@ -172,3 +172,6 @@ label.check { display: flex; align-items: center; gap: .4rem; }
 .phone-center { text-align: center; justify-items: center; }
 .phone-name { font-size: 2em !important; font-family: "Amiri", serif; }
 .fields-order { columns: 2; font-size: .9rem; margin: .4rem 0 .8rem; padding-inline-start: 1.4rem; }
+/* ChatGPT connector page */
+.secret-url { display: block; overflow-wrap: anywhere; user-select: all; padding: .5rem; background: rgba(0,0,0,.05); border-radius: .4rem; }
+.help-steps { line-height: 1.9; padding-inline-start: 1.4rem; }

@@ -19,11 +19,16 @@ require __DIR__ . '/diff.php';
 require __DIR__ . '/manage.php';
 require __DIR__ . '/governance.php';
 require __DIR__ . '/reports.php';
+require __DIR__ . '/agent.php';
 
 try {
     $db = database();
     if (($_GET['feed'] ?? '') === 'library') {
         serveFeed($db);
+    }
+    // The ChatGPT connector (/admin/mcp/<secret>, see .htaccess).
+    if (is_string($_GET['mcp'] ?? null)) {
+        serveMcp($db, $_GET['mcp']);
     }
     if (isset($_GET['report'])) {
         reportsTable($db);
@@ -126,7 +131,7 @@ $sections = [
     'appearance' => 'الثيم والألوان', 'library_sections' => 'أقسام المكتبة',
     'releases' => 'إصدارات التطبيق', 'app_settings' => 'إعدادات التطبيق',
     'story_titles' => 'عناوين القصص', 'adhkar_groups' => 'مجموعات الأذكار',
-    'reports' => 'البلاغات والاقتراحات',
+    'reports' => 'البلاغات والاقتراحات', 'chatgpt' => 'ChatGPT',
     'users' => 'المستخدمون', 'audit' => 'سجل التعديلات', 'account' => 'حسابي',
 ];
 $section = $_GET['section'] ?? 'daily';
@@ -284,6 +289,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['notice'] = changeUsers($db, $user, $action);
         } elseif (in_array($action, ['password_change', 'totp_enable', 'totp_disable'], true)) {
             $_SESSION['notice'] = changeAccount($db, $user, $action);
+        } elseif (in_array($action, ['agent_key_create', 'agent_key_revoke', 'agent_publish_approve', 'agent_publish_reject'], true)) {
+            $_SESSION['notice'] = changeAgent($db, $user, $action);
         } elseif (in_array($action, ['report_settings', 'report_done', 'report_open', 'report_delete'], true)) {
             $_SESSION['notice'] = changeReports($db, $action);
         } elseif (in_array($action, ['release_upload', 'release_publish', 'release_notify', 'release_withdraw'], true)) {
@@ -341,7 +348,7 @@ if ($active) {
     }
     $rows = in_array($section, BOOK_SECTIONS, true)
         ? ($draft['library'][$section] ?? [])
-        : (in_array($section, ['stories', 'history', 'reciters', 'releases', 'appearance', 'library_sections', 'account', 'app_settings', 'story_titles', 'adhkar_groups', 'users', 'audit', 'reports'], true)
+        : (in_array($section, ['stories', 'history', 'reciters', 'releases', 'appearance', 'library_sections', 'account', 'app_settings', 'story_titles', 'adhkar_groups', 'users', 'audit', 'reports', 'chatgpt'], true)
             ? [] : contentRows($draft, $section, $topic));
     $current = null;
     foreach ($rows as $index => $row) {
@@ -396,15 +403,15 @@ if ($active) {
   <nav aria-label="أقسام الإدارة">
     <?php foreach ($sections as $key => $name): ?>
       <?php if (!canSee($user, $key)) continue; ?>
-      <a href="<?= e(route($key)) ?>" <?= $section === $key ? 'aria-current="page"' : '' ?>><?= e($name) ?></a>
+      <a href="<?= e(route($key)) ?>" <?= $section === $key ? 'aria-current="page"' : '' ?>><?= e($name) ?><?php if ($key === 'chatgpt' && agentPendingCount($db) > 0): ?> <span class="badge warn">طلب نشر</span><?php endif; ?></a>
     <?php endforeach; ?>
   </nav>
   <main>
     <header class="section-head">
       <div><h1><?= e($sections[$section]) ?></h1>
-        <?php if (!in_array($section, ['stories', 'releases', 'reports'], true)): ?><p><?= $dirty ? 'تغييرات في المسودة' : 'المكتبة محدثة' ?> · الحجم <?= e(feedSizeLabel(strlen($state['draft']))) ?></p><?php endif; ?>
+        <?php if (!in_array($section, ['stories', 'releases', 'reports', 'chatgpt'], true)): ?><p><?= $dirty ? 'تغييرات في المسودة' : 'المكتبة محدثة' ?> · الحجم <?= e(feedSizeLabel(strlen($state['draft']))) ?></p><?php endif; ?>
       </div>
-      <?php if ($dirty && !in_array($section, ['stories', 'releases', 'reports'], true)): ?>
+      <?php if ($dirty && !in_array($section, ['stories', 'releases', 'reports', 'chatgpt'], true)): ?>
         <?php if (allowedAction($user, 'publish', $section)): ?>
         <form method="post"><?php controls('publish', $revision); ?><button class="primary">نشر المسودة للتطبيق</button></form>
         <?php else: ?><p>النشر للمراجع الشرعي أو المالك.</p><?php endif; ?>
@@ -459,6 +466,9 @@ if ($active) {
     <?php endif; ?>
     <?php if ($section === 'reports'): ?>
       <?php require __DIR__ . '/reports-view.php'; ?>
+    <?php endif; ?>
+    <?php if ($section === 'chatgpt'): ?>
+      <?php require __DIR__ . '/agent-view.php'; ?>
     <?php endif; ?>
     <?php if ($section === 'stories'): ?>
       <section class="panel">
@@ -521,7 +531,7 @@ if ($active) {
       </section>
     <?php elseif (in_array($section, BOOK_SECTIONS, true) || $section === 'reciters'): ?>
       <?php require __DIR__ . '/advanced-view.php'; ?>
-    <?php elseif (in_array($section, ['account', 'app_settings', 'story_titles', 'adhkar_groups', 'users', 'audit', 'reports'], true)): ?>
+    <?php elseif (in_array($section, ['account', 'app_settings', 'story_titles', 'adhkar_groups', 'users', 'audit', 'reports', 'chatgpt'], true)): ?>
       <?php /* Drawn above. */ ?>
     <?php else: ?>
       <?php if ($section === 'duas'): ?>

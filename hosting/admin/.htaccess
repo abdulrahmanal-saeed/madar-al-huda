@@ -1,6 +1,12 @@
 # Madar Al-Huda admin: only index.php is a public entry point.
 Options -Indexes
 
+# The ChatGPT connector: /admin/mcp/<secret> → index.php?mcp=<secret>
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^mcp/([0-9a-fA-F]{64})/?$ index.php?mcp=$1 [L,QSA]
+</IfModule>
+
 <FilesMatch "^(?!index\.php$).+\.php$">
     Require all denied
 </FilesMatch>
