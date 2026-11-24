@@ -1,7 +1,7 @@
 import 'dart:async';
 
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:just_audio_background/just_audio_background.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../core/audio/audio_playback.dart';

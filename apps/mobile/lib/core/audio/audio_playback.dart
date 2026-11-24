@@ -1,8 +1,10 @@
 import 'dart:async';
 
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:just_audio_background/just_audio_background.dart';
+
+import 'audio_handler.dart';
 
 typedef PlaybackSource = ({Uri url, Duration? start});
 typedef QueuedAudio = ({MediaItem track, PlaybackSource source});
@@ -38,6 +40,11 @@ class AudioPlayback extends Notifier<Playback> {
 
   @override
   Playback build() {
+    // Stop in the notification ends the session here too.
+    final stopped = ref.read(audioHandlerProvider)?.stopped.listen((_) {
+      if (state.track != null || state.pending != null) unawaited(stop());
+    });
+    ref.onDispose(() => unawaited(stopped?.cancel()));
     ref.onDispose(() => unawaited(_errors?.cancel()));
     ref.onDispose(() => unawaited(_positions?.cancel()));
     ref.onDispose(() => unawaited(_completion?.cancel()));
