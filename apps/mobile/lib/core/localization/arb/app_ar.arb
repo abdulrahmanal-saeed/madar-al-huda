@@ -506,5 +506,14 @@
   "qiblaPhoneLabel": "اتجاه الهاتف",
   "qiblaKilometres": "{km} كم",
   "libraryBrowse": "تصفّح المكتبة",
-  "libraryLive": "بث مباشر"
+  "libraryLive": "بث مباشر",
+  "khatmaGoalTitle": "هدف الختمة",
+  "khatmaGoalHint": "اختر عدد الأيام التي تختم فيها القرآن، ويُحسب وردك اليومي تلقائيًا.",
+  "khatmaCancel": "إلغاء الهدف",
+  "khatmaTodayDone": "أتممت ورد اليوم، بارك الله فيك.",
+  "khatmaNoStreak": "اقرأ صفحة اليوم لتبدأ سلسلة أيامك",
+  "khatmaDays": "{count, plural, =1{يوم واحد} =2{يومان} few{{n} أيام} other{{n} يومًا}}",
+  "khatmaStreak": "{count, plural, =1{يوم واحد متواصل} =2{يومان متتاليان} few{{n} أيام متتالية} other{{n} يومًا متتاليًا}}",
+  "khatmaEndsOn": "تختم بإذن الله يوم {date}",
+  "khatmaToday": "ورد اليوم: {target} صفحة · قرأت {read}"
 }

@@ -2,7 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart' show NumberFormat;
+import 'package:intl/intl.dart' show DateFormat, NumberFormat;
 import 'package:material_ui/material_ui.dart';
 
 import '../../../core/content/feature_preview.dart';
@@ -14,6 +14,7 @@ import '../../../core/widgets/section_detail_scaffold.dart';
 import '../../quran/data/mushaf_edition.dart';
 import '../../quran/domain/quran_search_text.dart';
 import '../data/daily_reading_plan.dart';
+import '../data/khatma.dart';
 
 class DailyReadingCard extends StatelessWidget {
   const DailyReadingCard({super.key});
@@ -157,6 +158,8 @@ class _DailyReadingScreenState extends ConsumerState<DailyReadingScreen> {
               ),
             ),
             const SizedBox(height: 12),
+            const KhatmaCard(),
+            const SizedBox(height: 12),
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(16),
@@ -248,6 +251,195 @@ class _DailyReadingScreenState extends ConsumerState<DailyReadingScreen> {
                 child: Text(l10n.dailyReadingMarkRead),
               ),
             ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// The khatma goal, today's share of it and the reading streak.
+class KhatmaCard extends ConsumerWidget {
+  const KhatmaCard({super.key, this.clock = DateTime.now});
+
+  final DateTime Function() clock;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final locale = Localizations.localeOf(context);
+    final numbers = decimalFormat(locale.languageCode);
+    final now = clock();
+    final goal = ref.watch(khatmaGoalProvider);
+    final plan = ref.watch(dailyReadingPlanProvider);
+    final log = ref.watch(readingLogProvider);
+    final today = log.pagesOn(now);
+    final streak = log.streak(now);
+    final week = log.lastDays(now, 7);
+    final highest = week.fold<int>(1, math.max);
+
+    Future<void> choose(int days) async {
+      try {
+        await ref.read(khatmaGoalProvider.notifier).choose(days, now: now);
+      } on Object {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text(l10n.localSaveFailed)));
+        }
+      }
+    }
+
+    final target = goal?.todayTarget(
+      pagesRead: plan.pagesRead,
+      readToday: today,
+      now: now,
+    );
+    return Card(
+      key: const Key('khatma-card'),
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.flag_outlined, color: scheme.primary),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    l10n.khatmaGoalTitle,
+                    style: theme.textTheme.titleMedium,
+                  ),
+                ),
+                if (goal != null)
+                  TextButton(
+                    onPressed: () async {
+                      try {
+                        await ref.read(khatmaGoalProvider.notifier).clear();
+                      } on Object {
+                        // Keeps the goal; nothing to undo.
+                      }
+                    },
+                    child: Text(l10n.khatmaCancel),
+                  ),
+              ],
+            ),
+            if (goal == null) ...[
+              Text(l10n.khatmaGoalHint),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (final days in KhatmaGoalController.choices)
+                    ActionChip(
+                      key: ValueKey('khatma-$days'),
+                      label: Text(l10n.khatmaDays(numbers.format(days), days)),
+                      onPressed: () => choose(days),
+                    ),
+                ],
+              ),
+            ] else ...[
+              Text(
+                l10n.khatmaEndsOn(
+                  DateFormat.yMMMMEEEEd(locale.toLanguageTag())
+                      .format(goal.end),
+                ),
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: scheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 12),
+              if (target == 0 || (target != null && today >= target))
+                Row(
+                  children: [
+                    Icon(Icons.check_circle, color: scheme.primary),
+                    const SizedBox(width: 8),
+                    Expanded(child: Text(l10n.khatmaTodayDone)),
+                  ],
+                )
+              else if (target != null) ...[
+                Text(
+                  l10n.khatmaToday(
+                    numbers.format(target),
+                    numbers.format(today),
+                  ),
+                  style: theme.textTheme.titleSmall,
+                ),
+                const SizedBox(height: 6),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(6),
+                  child: LinearProgressIndicator(
+                    value: target == 0 ? 1 : today / target,
+                    minHeight: 8,
+                  ),
+                ),
+              ],
+            ],
+            const Divider(height: 28),
+            Row(
+              children: [
+                Icon(
+                  Icons.local_fire_department,
+                  color: streak > 0 ? Colors.deepOrange : scheme.outline,
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    streak == 0
+                        ? l10n.khatmaNoStreak
+                        : l10n.khatmaStreak(numbers.format(streak), streak),
+                    style: theme.textTheme.titleSmall,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              height: 104,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  for (final (index, pages) in week.indexed)
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          if (pages > 0)
+                            Text(
+                              numbers.format(pages),
+                              style: theme.textTheme.labelSmall,
+                            ),
+                          const SizedBox(height: 2),
+                          Container(
+                            height: 4 + 44 * pages / highest,
+                            margin: const EdgeInsets.symmetric(horizontal: 6),
+                            decoration: BoxDecoration(
+                              color: index == 6
+                                  ? scheme.primary
+                                  : scheme.primary.withValues(alpha: 0.35),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            DateFormat(
+                              'EEEEE',
+                              locale.toLanguageTag(),
+                            ).format(now.subtract(Duration(days: 6 - index))),
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              color: scheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
