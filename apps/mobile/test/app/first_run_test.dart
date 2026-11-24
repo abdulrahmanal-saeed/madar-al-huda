@@ -46,9 +46,9 @@ void main() {
     await tester.tap(find.byKey(const Key('first-run-select-all')));
     await tester.pumpAndSettle();
     expect(
-      tester.widgetList<SwitchListTile>(find.byType(SwitchListTile)).every(
-        (tile) => tile.value,
-      ),
+      tester
+          .widgetList<SwitchListTile>(find.byType(SwitchListTile))
+          .every((tile) => tile.value),
       isTrue,
     );
     expect(find.text(arabic.firstRunClearAll), findsOneWidget);
