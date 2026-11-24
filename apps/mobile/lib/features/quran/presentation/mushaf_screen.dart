@@ -471,22 +471,6 @@ class _ReaderState extends ConsumerState<_Reader> {
                           title: Text(l10n.recitationDownloads),
                         ),
                       ),
-                      const PopupMenuDivider(),
-                      PopupMenuItem(
-                        value: Uri.https('tanzil.net'),
-                        child: Text(l10n.readerTanzil),
-                      ),
-                      PopupMenuItem(
-                        value: Uri.https('mp3quran.net', '/ar/privacy/'),
-                        child: const Text('MP3Quran'),
-                      ),
-                      if (matched &&
-                          (data!.tafsirs.isNotEmpty ||
-                              verifiedReciters.isNotEmpty))
-                        PopupMenuItem(
-                          value: Uri.https('quran.foundation'),
-                          child: Text(l10n.readerQuranFoundation),
-                        ),
                     ],
                   ),
                 ],
@@ -876,11 +860,6 @@ class _TafsirSheetState extends ConsumerState<_TafsirSheet> {
               ),
             ],
           ),
-          if (!_showMeaning && _resource != null)
-            TextButton(
-              onPressed: () => launchUrl(Uri.https('quran.foundation')),
-              child: Text(l10n.readerQuranFoundation),
-            ),
         ],
       ),
     );

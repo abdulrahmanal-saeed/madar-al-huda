@@ -1,7 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/localization/app_locales.dart';
 import '../../../core/localization/l10n_extension.dart';
@@ -90,7 +89,6 @@ class _QuranDuasState extends ConsumerState<QuranDuas> {
 
   Widget _list(MushafEdition edition, Map<DuaTopic, List<DuaRange>> index) {
     final l10n = context.l10n;
-    final language = Localizations.localeOf(context).languageCode;
     final bookmarks = {
       for (final item
           in ref.watch(quranBookmarkListProvider).asData?.value ??
@@ -153,20 +151,6 @@ class _QuranDuasState extends ConsumerState<QuranDuas> {
                         padding: const EdgeInsets.all(16),
                         child: Text(l10n.duaNoResults),
                       ),
-                    TextButton(
-                      onPressed: () => launchUrl(
-                        Uri.https(
-                          'quran.com',
-                          language == 'ar' ? '/ar/duas' : '/duas',
-                        ),
-                        mode: LaunchMode.inAppBrowserView,
-                      ),
-                      child: Text(l10n.duaQuranCom),
-                    ),
-                    TextButton(
-                      onPressed: () => launchUrl(Uri.https('tanzil.net')),
-                      child: Text(l10n.readerTanzil),
-                    ),
                   ],
                 );
               }

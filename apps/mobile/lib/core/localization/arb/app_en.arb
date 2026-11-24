@@ -928,9 +928,9 @@
   "@readerVerseAudioUnavailable": {
     "description": "This recording has no timing for the selected verse."
   },
-  "readerSources": "Reading sources",
+  "readerSources": "More options",
   "@readerSources": {
-    "description": "Reading sources"
+    "description": "Mushaf overflow menu."
   },
   "homeContinueReading": "Continue reading",
   "@homeContinueReading": {
@@ -1667,5 +1667,9 @@
   "errorReportClear": "Clear",
   "@errorReportClear": {"description":"Clear."},
   "errorReportCount": "{count} recorded on this phone",
-  "@errorReportCount": {"description":"Error count.","placeholders":{"count":{"type":"String"}}}
+  "@errorReportCount": {"description":"Error count.","placeholders":{"count":{"type":"String"}}},
+  "downloadsStoriesTab": "Stories",
+  "@downloadsStoriesTab": {"description":"Downloads tab."},
+  "downloadsLibraryTab": "Library",
+  "@downloadsLibraryTab": {"description":"Downloads tab."}
 }

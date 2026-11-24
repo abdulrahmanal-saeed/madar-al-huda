@@ -24,7 +24,11 @@ typedef Announcement = ({String ar, String en, Uri? link});
 /// announcement. Everything stays on until the dashboard says otherwise, so
 /// an old or missing feed never hides anything.
 class AppSettings {
-  const AppSettings({this.hidden = const {}, this.announcement});
+  const AppSettings({
+    this.hidden = const {},
+    this.announcement,
+    this.radioStream,
+  });
 
   factory AppSettings.fromFeed(Map<String, Object?>? feed, DateTime today) {
     final app = feed?['app'];
@@ -55,11 +59,25 @@ class AppSettings {
         );
       }
     }
-    return AppSettings(hidden: hidden, announcement: announcement);
+    final radio = Uri.tryParse('${app['radio_url'] ?? ''}'.trim());
+    return AppSettings(
+      hidden: hidden,
+      announcement: announcement,
+      radioStream:
+          radio != null &&
+              radio.scheme == 'https' &&
+              radio.host.isNotEmpty &&
+              radio.userInfo.isEmpty
+          ? radio
+          : null,
+    );
   }
 
   final Set<AppFeature> hidden;
   final Announcement? announcement;
+
+  /// The radio stream set in the dashboard, when there is one.
+  final Uri? radioStream;
 
   bool shows(AppFeature feature) => !hidden.contains(feature);
 }

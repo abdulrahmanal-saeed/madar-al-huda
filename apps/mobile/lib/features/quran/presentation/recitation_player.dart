@@ -55,7 +55,7 @@ Future<void> playRecitation(
           id: _recitationId(item.id, reader),
           title: item.name(language),
           artist: reader.name(language),
-          album: fromFoundation ? 'Quran Foundation' : 'MP3Quran',
+          album: reader.name(language),
         );
 
     if (!offlineOnly &&
@@ -242,8 +242,10 @@ class _RecitationPlayerState extends ConsumerState<RecitationPlayer> {
         ref.watch(offlineAudioLibraryProvider).asData?.value.contains(key) ==
         true;
     final id = _recitationId(widget.surah.id, selected);
-    // While this surah plays, the shared mini player below takes over.
-    if (playback.track?.id == id) return const SizedBox.shrink();
+    // One player at a time: while anything is loaded (this surah, another
+    // one, a lesson or the radio) the shared mini player below is the only
+    // player on screen. Stopping it brings this bar back.
+    if (playback.track != null) return const SizedBox.shrink();
     final loading = playback.pending?.id == id;
     final downloadProgress = download?.key == key ? download : null;
     final busy = playback.pending != null;
@@ -647,7 +649,7 @@ class _RecitationDownloadsState extends ConsumerState<_RecitationDownloads> {
                   return ListTile(
                     leading: const Icon(Icons.play_circle_outline),
                     title: Text(surah.name(language)),
-                    subtitle: Text('${reader.name(language)} · MP3Quran'),
+                    subtitle: Text(reader.name(language)),
                     onTap: () => playRecitation(
                       context,
                       ref,

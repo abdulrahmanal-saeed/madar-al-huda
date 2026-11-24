@@ -92,11 +92,12 @@ void main() {
     await tester.tap(find.text(l10n.radioPlay));
     await tester.pumpAndSettle();
     expect(find.text(l10n.radioStreamFailed), findsOneWidget);
-    expect(find.text(l10n.radioOpen), findsOneWidget);
+    expect(find.text(l10n.radioOpenInBrowser), findsOneWidget);
 
     await tester.tap(find.text(l10n.radioPlay));
     await tester.pumpAndSettle();
     expect(find.text(l10n.radioStreamFailed), findsNothing);
+    expect(find.text(l10n.radioOpenInBrowser), findsNothing);
     expect(find.text(l10n.radioLive), findsOneWidget);
 
     await tester.tap(find.text(l10n.radioStop));

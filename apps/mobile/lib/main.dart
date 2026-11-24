@@ -106,6 +106,40 @@ Future<KeyValueStore> _openPreferences() async {
 }
 
 /// Shows the bundled font's OFL licence on the licences page.
+const _contentSources = [
+  (
+    'Tanzil Project',
+    'Quran text: Tanzil Project (tanzil.net), used under its terms: the '
+        'text is reproduced verbatim with no changes.',
+  ),
+  (
+    'Quran Foundation',
+    'Tafsir, translations and some recitations: Quran Foundation '
+        '(quran.foundation) Content API, under its terms of use.',
+  ),
+  (
+    'MP3Quran',
+    'Recitations: MP3Quran (mp3quran.net), and recordings published by '
+        'Yousef Heiba.',
+  ),
+  (
+    'HadeethEnc',
+    'Hadiths, grades and explanations: the Encyclopedia of Translated '
+        'Prophetic Hadiths (hadeethenc.com).',
+  ),
+  (
+    'Hisn al-Muslim',
+    "Adhkar and supplications: Hisn al-Muslim by Sa'id ibn Ali ibn Wahf "
+        'Al-Qahtani, with narrations from HadeethEnc and Sunnah.com.',
+  ),
+  ('Quran.com', 'Quranic supplication topics: Quran.com.'),
+  (
+    'Egyptian Radio',
+    'Holy Quran Radio from Cairo: the National Media Authority of Egypt '
+        '(misrquran.gov.eg).',
+  ),
+];
+
 void _registerFontLicense() {
   LicenseRegistry.addLicense(() async* {
     final text = await rootBundle.loadString(
@@ -128,5 +162,9 @@ void _registerFontLicense() {
       '(creativecommons.org/licenses/by/4.0). Arabic country names: '
       'Unicode CLDR, under the Unicode License.',
     );
+    // Content sources are credited here only, not on the reading screens.
+    for (final (name, credit) in _contentSources) {
+      yield LicenseEntryWithLineBreaks([name], credit);
+    }
   });
 }

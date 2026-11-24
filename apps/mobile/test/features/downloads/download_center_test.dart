@@ -89,7 +89,13 @@ void main() {
       ),
       findsOneWidget,
     );
+    // Library content and online-only items sit in their own tab.
+    expect(find.text(l10n.downloadsOnlineOnlyBody), findsNothing);
+    await tester.tap(find.text(l10n.downloadsLibraryTab));
+    await tester.pumpAndSettle();
     expect(find.text(l10n.downloadsOnlineOnlyBody), findsNWidgets(2));
+    await tester.tap(find.text(l10n.downloadsRecitations).first);
+    await tester.pumpAndSettle();
 
     await tester.tap(
       find.descendant(of: row, matching: find.byIcon(Icons.delete_outline)),

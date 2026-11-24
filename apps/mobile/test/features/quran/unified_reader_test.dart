@@ -101,18 +101,8 @@ void main() {
         await tester.pump(const Duration(milliseconds: 100));
         await tester.pumpAndSettle();
         final l10n = lookupAppLocalizations(locale);
-        await tester.tap(find.byTooltip(l10n.readerSources));
-        await tester.pumpAndSettle();
-        expect(
-          find.text(l10n.readerQuranFoundation),
-          findsOneWidget,
-          reason: '$requested',
-        );
-        tester
-            .element(find.text(l10n.readerQuranFoundation))
-            .findAncestorStateOfType<NavigatorState>()!
-            .pop();
-        await tester.pumpAndSettle();
+        // Source names live on the licences page only.
+        expect(find.text('Quran Foundation'), findsNothing);
         final edition = await tester.runAsync(
           () => MushafEdition.load(rootBundle),
         );

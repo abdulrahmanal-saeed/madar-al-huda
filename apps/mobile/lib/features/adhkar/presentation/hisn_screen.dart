@@ -74,7 +74,6 @@ class _HisnScreenState extends ConsumerState<HisnScreen> {
           entry?.title.inLanguage(language) ?? l10n.adhkarHadithNumber('$id');
       return ListTile(
         title: Text(title),
-        subtitle: const Text('HadeethEnc'),
         trailing: const Icon(Icons.chevron_right),
         onTap: () => openAdhkarPage(
           context,

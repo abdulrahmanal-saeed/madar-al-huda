@@ -1,7 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/content/feature_preview.dart';
 import '../../../core/localization/l10n_extension.dart';
@@ -152,19 +151,8 @@ class _HadithScreenState extends ConsumerState<HadithScreen> {
                         ),
                       ),
                     ),
-                  SliverResponsiveContent(
-                    sliver: SliverToBoxAdapter(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: AppSpacing.xl,
-                        ),
-                        child: Text(
-                          l10n.hadithSourceNote,
-                          textAlign: TextAlign.center,
-                          style: theme.textTheme.bodySmall,
-                        ),
-                      ),
-                    ),
+                  const SliverToBoxAdapter(
+                    child: SizedBox(height: AppSpacing.xl),
                   ),
                 ],
               );
@@ -950,17 +938,6 @@ class _HadithBody extends ConsumerWidget {
                       ],
                     ),
                   ),
-                const SizedBox(height: AppSpacing.md),
-                TextButton.icon(
-                  onPressed: () => launchUrl(
-                    Uri.https(
-                      'hadeethenc.com',
-                      '/$language/browse/hadith/${hadith.id}',
-                    ),
-                  ),
-                  icon: const Icon(Icons.open_in_new, size: 18),
-                  label: Text(l10n.hadithOpenSource),
-                ),
               ],
             ),
           ),
