@@ -1427,13 +1427,13 @@ abstract class AppLocalizations {
   /// Previous page
   ///
   /// In en, this message translates to:
-  /// **'Previous page'**
+  /// **'Previous hadith'**
   String get hadithPrevious;
 
   /// Next page
   ///
   /// In en, this message translates to:
-  /// **'Next page'**
+  /// **'Next hadith'**
   String get hadithNext;
 
   /// Grade from HadeethEnc · {grade}
@@ -2845,6 +2845,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{method, select, egyptian{Egyptian General Authority of Survey}ummAlQura{Umm al-Qura, Makkah}dubai{Dubai}qatar{Qatar}kuwait{Kuwait}gulfRegion{Gulf region}jordan{Jordan\'s Ministry of Awqaf}morocco{Morocco\'s Ministry of Habous}algerian{Algeria\'s Ministry of Religious Affairs}tunisia{Tunisia\'s Ministry of Religious Affairs}turkiye{Diyanet, Türkiye}karachi{University of Islamic Sciences, Karachi}singapore{Singapore and Malaysia}indonesian{Indonesia\'s Ministry of Religious Affairs}northAmerica{Islamic Society of North America}moonsightingCommittee{Moonsighting Committee}france{France (12°)}russia{Spiritual Administration of Muslims of Russia}muslimWorldLeague{Muslim World League}other{Muslim World League}}'**
   String prayerMethodName(String method);
+
+  /// Header above the main hadith topics.
+  ///
+  /// In en, this message translates to:
+  /// **'Topics'**
+  String get hadithTopicsTitle;
+
+  /// Header above a topic's subtopics.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtopics'**
+  String get hadithSubtopics;
+
+  /// Benefits section.
+  ///
+  /// In en, this message translates to:
+  /// **'Lessons from the hadith'**
+  String get hadithBenefits;
+
+  /// Glossary section.
+  ///
+  /// In en, this message translates to:
+  /// **'Word meanings'**
+  String get hadithWords;
+
+  /// Translated text heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Translation'**
+  String get hadithTranslation;
+
+  /// Copies the hadith.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get hadithCopy;
+
+  /// After copying.
+  ///
+  /// In en, this message translates to:
+  /// **'Hadith copied'**
+  String get hadithCopied;
+
+  /// Shares the hadith.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get hadithShare;
+
+  /// Opens the publisher page.
+  ///
+  /// In en, this message translates to:
+  /// **'View on HadeethEnc'**
+  String get hadithOpenSource;
+
+  /// Credits the publisher.
+  ///
+  /// In en, this message translates to:
+  /// **'From the Encyclopedia of Translated Prophetic Hadiths (HadeethEnc)'**
+  String get hadithSourceNote;
+
+  /// Paging error.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load more hadiths.'**
+  String get hadithLoadMoreFailed;
+
+  /// Topic search field.
+  ///
+  /// In en, this message translates to:
+  /// **'Search topics, e.g. prayer, fasting, manners'**
+  String get hadithSearchHint;
+
+  /// How many hadiths a topic has.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 hadith} other{{countText} hadiths}}'**
+  String hadithCount(String countText, int count);
+
+  /// Opens every hadith of a topic.
+  ///
+  /// In en, this message translates to:
+  /// **'All hadiths in “{topic}”'**
+  String hadithAllIn(String topic);
+
+  /// Place of a hadith in its list.
+  ///
+  /// In en, this message translates to:
+  /// **'{index} of {total}'**
+  String hadithPosition(String index, String total);
 }
 
 class _AppLocalizationsDelegate

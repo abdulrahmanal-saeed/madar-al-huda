@@ -727,10 +727,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get hadithNoTopics => 'لا توجد موضوعات مطابقة';
 
   @override
-  String get hadithPrevious => 'الصفحة السابقة';
+  String get hadithPrevious => 'الحديث السابق';
 
   @override
-  String get hadithNext => 'الصفحة التالية';
+  String get hadithNext => 'الحديث التالي';
 
   @override
   String hadithProviderGrade(String grade) {
@@ -1552,5 +1552,67 @@ class AppLocalizationsAr extends AppLocalizations {
       'other': 'رابطة العالم الإسلامي',
     });
     return '$_temp0';
+  }
+
+  @override
+  String get hadithTopicsTitle => 'الموضوعات';
+
+  @override
+  String get hadithSubtopics => 'الموضوعات الفرعية';
+
+  @override
+  String get hadithBenefits => 'من فوائد الحديث';
+
+  @override
+  String get hadithWords => 'معاني الكلمات';
+
+  @override
+  String get hadithTranslation => 'الترجمة';
+
+  @override
+  String get hadithCopy => 'نسخ';
+
+  @override
+  String get hadithCopied => 'تم نسخ الحديث';
+
+  @override
+  String get hadithShare => 'مشاركة';
+
+  @override
+  String get hadithOpenSource => 'عرض في موسوعة الأحاديث';
+
+  @override
+  String get hadithSourceNote =>
+      'من موسوعة الأحاديث النبوية المترجمة (HadeethEnc)';
+
+  @override
+  String get hadithLoadMoreFailed => 'تعذّر تحميل المزيد من الأحاديث.';
+
+  @override
+  String get hadithSearchHint =>
+      'ابحث في الموضوعات، مثل: الصلاة، الصيام، الأخلاق';
+
+  @override
+  String hadithCount(String countText, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countText حديثًا',
+      few: '$countText أحاديث',
+      two: 'حديثان',
+      one: 'حديث واحد',
+      zero: 'لا أحاديث',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String hadithAllIn(String topic) {
+    return 'كل أحاديث «$topic»';
+  }
+
+  @override
+  String hadithPosition(String index, String total) {
+    return '$index من $total';
   }
 }

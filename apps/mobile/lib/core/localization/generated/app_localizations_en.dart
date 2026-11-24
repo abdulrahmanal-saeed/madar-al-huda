@@ -739,10 +739,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get hadithNoTopics => 'No matching topics';
 
   @override
-  String get hadithPrevious => 'Previous page';
+  String get hadithPrevious => 'Previous hadith';
 
   @override
-  String get hadithNext => 'Next page';
+  String get hadithNext => 'Next hadith';
 
   @override
   String hadithProviderGrade(String grade) {
@@ -1569,5 +1569,63 @@ class AppLocalizationsEn extends AppLocalizations {
       'other': 'Muslim World League',
     });
     return '$_temp0';
+  }
+
+  @override
+  String get hadithTopicsTitle => 'Topics';
+
+  @override
+  String get hadithSubtopics => 'Subtopics';
+
+  @override
+  String get hadithBenefits => 'Lessons from the hadith';
+
+  @override
+  String get hadithWords => 'Word meanings';
+
+  @override
+  String get hadithTranslation => 'Translation';
+
+  @override
+  String get hadithCopy => 'Copy';
+
+  @override
+  String get hadithCopied => 'Hadith copied';
+
+  @override
+  String get hadithShare => 'Share';
+
+  @override
+  String get hadithOpenSource => 'View on HadeethEnc';
+
+  @override
+  String get hadithSourceNote =>
+      'From the Encyclopedia of Translated Prophetic Hadiths (HadeethEnc)';
+
+  @override
+  String get hadithLoadMoreFailed => 'Couldn\'t load more hadiths.';
+
+  @override
+  String get hadithSearchHint => 'Search topics, e.g. prayer, fasting, manners';
+
+  @override
+  String hadithCount(String countText, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countText hadiths',
+      one: '1 hadith',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String hadithAllIn(String topic) {
+    return 'All hadiths in “$topic”';
+  }
+
+  @override
+  String hadithPosition(String index, String total) {
+    return '$index of $total';
   }
 }
