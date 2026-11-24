@@ -3,9 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:path_provider/path_provider.dart';
 
 import 'app/app.dart';
 import 'core/auth/google_account.dart';
+import 'core/diagnostics/error_log.dart';
 import 'core/storage/key_value_store.dart';
 import 'core/storage/storage_providers.dart';
 import 'features/adhkar/data/adhkar_progress.dart';
@@ -25,6 +27,9 @@ import 'features/worship/data/khatma.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Errors are kept on the phone only; Settings shows them for sharing.
+  final errorLog = ErrorLog(getApplicationSupportDirectory);
+  captureErrors(errorLog);
   _registerFontLicense();
 
   if (defaultTargetPlatform == TargetPlatform.android) {
@@ -48,6 +53,7 @@ Future<void> main() async {
       overrides: [
         keyValueStoreProvider.overrideWithValue(store),
         googleAuthProvider.overrideWithValue(googleAuth),
+        errorLogProvider.overrideWithValue(errorLog),
         if (defaultTargetPlatform == TargetPlatform.android)
           reminderSchedulerProvider.overrideWithValue(LocalReminderScheduler()),
         if (defaultTargetPlatform == TargetPlatform.android)

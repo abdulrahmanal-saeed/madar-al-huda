@@ -1981,4 +1981,28 @@ class AppLocalizationsAr extends AppLocalizations {
   String prayerSince(String time) {
     return 'منذ $time';
   }
+
+  @override
+  String get offlineBanner => 'أنت غير متصل. المحتوى المحفوظ يعمل كالمعتاد.';
+
+  @override
+  String get errorReportTitle => 'تقرير الأخطاء';
+
+  @override
+  String get errorReportNone => 'لم تُسجَّل أخطاء';
+
+  @override
+  String get errorReportPrivacy =>
+      'محفوظ على هاتفك فقط. شاركه مع المطوّر إن أردت؛ لا يُرسل شيء تلقائيًا.';
+
+  @override
+  String get errorReportShare => 'مشاركة التقرير';
+
+  @override
+  String get errorReportClear => 'مسح';
+
+  @override
+  String errorReportCount(String count) {
+    return '$count مسجّلة على هاتفك';
+  }
 }

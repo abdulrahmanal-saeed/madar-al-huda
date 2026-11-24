@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../core/audio/audio_mini_player.dart';
+import '../core/connectivity/offline_banner.dart';
 import '../core/localization/l10n_extension.dart';
 import '../core/theme/app_tokens.dart';
 import '../features/quran/application/reading_preferences.dart';
@@ -89,6 +90,7 @@ class AppShell extends ConsumerWidget {
               child: Column(
                 children: [
                   Expanded(child: navigationShell),
+                  const OfflineBanner(),
                   const AudioMiniPlayer(),
                 ],
               ),
@@ -103,6 +105,7 @@ class AppShell extends ConsumerWidget {
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          const OfflineBanner(),
           const AudioMiniPlayer(),
           NavigationBar(
             key: navigationBarKey,
