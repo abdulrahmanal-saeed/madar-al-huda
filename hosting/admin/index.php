@@ -14,6 +14,8 @@ require __DIR__ . '/storage.php';
 require __DIR__ . '/stories.php';
 require __DIR__ . '/apk-signature.php';
 require __DIR__ . '/releases.php';
+require __DIR__ . '/account.php';
+require __DIR__ . '/diff.php';
 
 try {
     $db = database();
@@ -115,7 +117,7 @@ $sections = [
     'fiqh' => 'الفقه المقارن', 'articles' => 'المقالات',
     'lessons' => 'الدروس والاختبارات', 'reciters' => 'القراء',
     'appearance' => 'الثيم والألوان', 'library_sections' => 'أقسام المكتبة',
-    'releases' => 'إصدارات التطبيق',
+    'releases' => 'إصدارات التطبيق', 'account' => 'حسابي',
 ];
 $section = $_GET['section'] ?? 'daily';
 if (!is_string($section) || !isset($sections[$section])) {
@@ -148,6 +150,13 @@ if ($active) {
     }
 }
 $setup = accountPassword($db) === false;
+usersTable($db);
+$user = $active ? userById($db, (int) ($_SESSION['user'] ?? 1)) : null;
+if ($active && $user === null) {
+    // The account was disabled or removed: end this session.
+    $_SESSION = [];
+    $active = false;
+}
 $error = null;
 $confirming = null;
 const CONFIRMATIONS = [
@@ -157,6 +166,8 @@ const CONFIRMATIONS = [
     'archive_story' => 'سيُخفى هذا التسجيل من التطبيق وينتقل إلى الأرشيف. هل تريد المتابعة؟',
     'release_publish' => 'سيصبح هذا الإصدار متاحًا للتنزيل لكل مستخدمي القناة. هل تريد المتابعة؟',
     'release_notify' => 'سيظهر إشعار التحديث على أجهزة المستخدمين. هل تريد المتابعة؟',
+    'release_withdraw' => 'سيُسحب هذا الإصدار ويعود الإصدار السابق هو المتاح للتنزيل. الأجهزة التي حدّثت بالفعل لن تعود للإصدار السابق. هل تريد المتابعة؟',
+    'totp_disable' => 'سيُوقف التحقق بخطوتين، ويكفي بعدها كلمة المرور للدخول. هل تريد المتابعة؟',
 ];
 $notice = $_SESSION['notice'] ?? null;
 unset($_SESSION['notice']);
@@ -177,11 +188,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 : 'انتهت صلاحية صفحة الدخول. أدخل كلمة المرور مرة أخرى.');
         }
         if ($action === 'setup' || $action === 'login') {
-            $seed = $action === 'setup' ? require __DIR__ . '/seed.php' : [];
-            if (!authorize($db, $action, $seed)) {
-                throw new InvalidArgumentException('بيانات الدخول غير صالحة أو تجاوزت عدد المحاولات.');
+            if ($action === 'setup') {
+                if (!authorize($db, $action, require __DIR__ . '/seed.php')) {
+                    throw new InvalidArgumentException('بيانات الدخول غير صالحة أو تجاوزت عدد المحاولات.');
+                }
+                usersTable($db);
+                $signedIn = userById($db, 1);
+            } else {
+                $signedIn = signIn($db);
+            }
+            if ($signedIn === null) {
+                throw new InvalidArgumentException('بيانات الدخول أو رمز التحقق غير صحيحة، أو تجاوزت عدد المحاولات.');
             }
             session_regenerate_id(true);
+            $_SESSION['user'] = (int) $signedIn['id'];
             $_SESSION['signed_at'] = time();
             $_SESSION['seen_at'] = time();
             $_SESSION['csrf'] = bin2hex(random_bytes(32));
@@ -240,7 +260,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'archive_story' => 'أُرشف التسجيل وأُخفي من الفهرس.',
                 default => 'استُعيد التسجيل إلى الفهرس.',
             };
-        } elseif (in_array($action, ['release_upload', 'release_publish', 'release_notify'], true)) {
+        } elseif (in_array($action, ['password_change', 'totp_enable', 'totp_disable'], true)) {
+            $_SESSION['notice'] = changeAccount($db, $user, $action);
+        } elseif (in_array($action, ['release_upload', 'release_publish', 'release_notify', 'release_withdraw'], true)) {
             releaseTable($db);
             $_SESSION['notice'] = changeRelease($db, $action);
         } else {
@@ -291,7 +313,7 @@ if ($active) {
     }
     $rows = in_array($section, BOOK_SECTIONS, true)
         ? ($draft['library'][$section] ?? [])
-        : (in_array($section, ['stories', 'history', 'reciters', 'releases', 'appearance', 'library_sections'], true)
+        : (in_array($section, ['stories', 'history', 'reciters', 'releases', 'appearance', 'library_sections', 'account'], true)
             ? [] : contentRows($draft, $section, $topic));
     $current = null;
     foreach ($rows as $index => $row) {
@@ -323,7 +345,13 @@ if ($active) {
       <?php if ($setup): ?>
         <label>مفتاح الإعداد<input type="password" name="setup_code" required autocomplete="off"></label>
       <?php endif; ?>
+      <?php if (!$setup): ?>
+        <label>اسم المستخدم<input name="username" dir="ltr" autocomplete="username" placeholder="owner"></label>
+      <?php endif; ?>
       <label>كلمة المرور<input type="password" name="password" required <?= $setup ? 'minlength="12" autocomplete="new-password"' : 'autocomplete="current-password"' ?>></label>
+      <?php if (!$setup): ?>
+        <label>رمز التحقق (إن فعّلته)<input name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="8" dir="ltr"></label>
+      <?php endif; ?>
       <?php if ($setup): ?>
         <label>تأكيد كلمة المرور<input type="password" name="confirm_password" required minlength="12" autocomplete="new-password"></label>
       <?php endif; ?>
@@ -333,7 +361,7 @@ if ($active) {
 </main>
 <?php else: ?>
 <header class="top">
-  <div><p class="brand">مدار الهدى</p><p>إدارة المكتبة</p></div>
+  <div><p class="brand">مدار الهدى</p><p>إدارة المكتبة · <bdi><?= e($user['username']) ?></bdi> (<?= e(ROLES[$user['role']] ?? $user['role']) ?>)</p></div>
   <form method="post"><?php controls('logout'); ?><button class="quiet">خروج</button></form>
 </header>
 <div class="layout">
@@ -349,6 +377,11 @@ if ($active) {
       </div>
       <?php if ($dirty && !in_array($section, ['stories', 'releases'], true)): ?>
         <form method="post"><?php controls('publish', $revision); ?><button class="primary">نشر المسودة للتطبيق</button></form>
+        <?php $changes = libraryDiff(json_decode($state['published'] ?? 'null', true), $draft); ?>
+        <details class="changes">
+          <summary>عرض التغييرات قبل النشر (<?= e(arabicDigits((string) count($changes))) ?>)</summary>
+          <?php require __DIR__ . '/diff-view.php'; ?>
+        </details>
       <?php endif; ?>
     </header>
     <?php if ($notice): ?><p class="alert" role="status"><?= e($notice) ?></p><?php endif; ?>
@@ -363,6 +396,11 @@ if ($active) {
       <section class="panel confirm" aria-labelledby="confirm-title">
         <h2 id="confirm-title">تأكيد الإجراء</h2>
         <p><?= e($confirming['message']) ?></p>
+        <?php if ($confirming['action'] === 'publish'): ?>
+          <?php $changes = libraryDiff(json_decode($state['published'] ?? 'null', true), $draft); ?>
+          <h3>ما سيتغيّر في التطبيق</h3>
+          <?php require __DIR__ . '/diff-view.php'; ?>
+        <?php endif; ?>
         <div class="row">
           <form method="post">
             <?php foreach ($_POST as $name => $value): ?>
@@ -379,6 +417,9 @@ if ($active) {
       </section>
     <?php endif; ?>
 
+    <?php if ($section === 'account'): ?>
+      <?php require __DIR__ . '/account-view.php'; ?>
+    <?php endif; ?>
     <?php if ($section === 'stories'): ?>
       <section class="panel">
         <h2>رفع تسجيلات</h2>
@@ -518,6 +559,6 @@ if ($active) {
   </main>
 </div>
 <?php endif; ?>
-<script src="uploads.js" defer></script>
+<script src="admin.js" defer></script>
 </body>
 </html>

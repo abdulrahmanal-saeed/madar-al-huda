@@ -25,7 +25,7 @@ if (!defined('MADAR_ADMIN')) {
     <?php foreach ($list as $item): ?>
       <div class="row">
         <div><bdi><?= e($item['name']) ?></bdi> · <?= e($item['published'] ? 'منشور' : 'مسودة') ?><br>
-          <small dir="ltr"><?= e($item['sha256']) ?></small>
+          <small>الحجم <?= e(feedSizeLabel((int) $item['bytes'])) ?> · <span dir="ltr" title="<?= e($item['sha256']) ?>">SHA-256 <?= e(substr($item['sha256'], 0, 12)) ?>…</span></small>
         </div>
         <?php $isActive = $activeRelease !== null && $item['code'] === $activeRelease['code']; ?>
         <?php if (!$item['published'] && ($activeRelease === null || $item['code'] > $activeRelease['code'])): ?>
@@ -41,6 +41,13 @@ if (!defined('MADAR_ADMIN')) {
             <button class="quiet">إشعار المستخدمين</button>
           </form>
         <?php elseif ($isActive): ?><span>الإشعار مفعّل</span><?php endif; ?>
+        <?php if ($isActive): ?>
+          <form method="post"><?php controls('release_withdraw'); ?>
+            <input type="hidden" name="channel" value="<?= e($channel) ?>">
+            <input type="hidden" name="code" value="<?= e($item['code']) ?>">
+            <button class="quiet danger">سحب الإصدار</button>
+          </form>
+        <?php endif; ?>
       </div>
     <?php endforeach; ?>
   </section>

@@ -145,6 +145,17 @@ function changeRelease(PDO $db, string $action): string
     }
     return locked($db, function () use ($db, $action, $channel, $code): string {
         $active = currentRelease($db, $channel);
+        if ($action === 'release_withdraw') {
+            if ($active === null || (int) $active['code'] !== $code) {
+                throw new InvalidArgumentException('يمكن سحب الإصدار المنشور الحالي فقط.');
+            }
+            $db->prepare('UPDATE app_releases SET published = 0, notify = 0 WHERE channel = ? AND code = ?')
+                ->execute([$channel, $code]);
+            $previous = currentRelease($db, $channel);
+            return $previous === null
+                ? 'سُحب الإصدار. لا يوجد إصدار منشور في هذه القناة الآن.'
+                : 'سُحب الإصدار، والمتاح الآن ' . $previous['name'] . '.';
+        }
         if ($action === 'release_notify') {
             if ($active === null || (int) $active['code'] !== $code) {
                 throw new InvalidArgumentException('الإشعار متاح لآخر إصدار منشور.');
