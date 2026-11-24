@@ -64,3 +64,14 @@ Then check:
 ## Tests
 
 CI lints every PHP file and runs `hosting/tests/apk_signature_test.php`, which checks the APK signer pin against synthetic signing blocks.
+
+## Automatic dev releases
+
+After each dev build, `.github/workflows/dev-release.yml` posts the signed APK
+to `admin/?ci=release` with the `MADAR_ADMIN_RELEASE_TOKEN` secret. The server
+keeps only that token's SHA-256 in `.madar-admin/ci-release-token.sha256`;
+without the file the endpoint answers 404. The APK must pass the same checks
+as a manual upload (signed APK, the dev channel's key, `x.y.z-dev.N` matching
+build N, N above the published build) and is then published with an update
+notice. To rotate the token, set a new secret and replace the hash file.
+

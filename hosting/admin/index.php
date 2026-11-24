@@ -20,6 +20,10 @@ try {
     if (($_GET['feed'] ?? '') === 'library') {
         serveFeed($db);
     }
+    if (($_GET['ci'] ?? '') === 'release') {
+        releaseTable($db);
+        receiveCiRelease($db);
+    }
     if (($_GET['feed'] ?? '') === 'updates' || isset($_GET['apk']) || isset($_GET['updates'])) {
         releaseTable($db);
         if (($_GET['feed'] ?? '') === 'updates') {

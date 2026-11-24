@@ -215,3 +215,100 @@ function serveApk(PDO $db, mixed $id): never
     }
     exit;
 }
+
+/**
+ * Publishes a dev build sent by the release workflow. The request carries a
+ * token whose SHA-256 is kept in private storage (ci-release-token.sha256);
+ * without that file the endpoint does not exist. The APK passes the same
+ * checks as a manual upload: signed APK, the dev channel's signing key, a
+ * matching name and a build number above the published one.
+ */
+function receiveCiRelease(PDO $db): never
+{
+    header('Content-Type: application/json; charset=utf-8');
+    header('Cache-Control: no-store');
+    $respond = static function (int $status, string $message): never {
+        http_response_code($status);
+        echo encode(['message' => $message]);
+        exit;
+    };
+    $tokenFile = storage() . '/ci-release-token.sha256';
+    $expected = is_file($tokenFile) ? trim((string) file_get_contents($tokenFile)) : '';
+    if (!preg_match('/\A[0-9a-f]{64}\z/D', $expected)) {
+        $respond(404, 'not found');
+    }
+    if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
+        header('Allow: POST');
+        $respond(405, 'POST only');
+    }
+    $token = $_SERVER['HTTP_X_MADAR_TOKEN'] ?? '';
+    if (!is_string($token) || strlen($token) < 32 || !hash_equals($expected, hash('sha256', $token))) {
+        sleep(1);
+        $respond(403, 'forbidden');
+    }
+    $channel = 'dev';
+    $code = (int) ($_SERVER['HTTP_X_RELEASE_CODE'] ?? 0);
+    $name = (string) ($_SERVER['HTTP_X_RELEASE_NAME'] ?? '');
+    if ($code < 1 || $code > 2100000000 ||
+        !preg_match('/\A\d+\.\d+\.\d+-dev\.' . $code . '\z/D', $name)) {
+        $respond(422, 'name and code do not match');
+    }
+    $notes = ['ar' => 'تحديث تجريبي جديد من مدار الهدى.', 'en' => 'New development build of Madar Al-Huda.'];
+    $sent = base64_decode((string) ($_SERVER['HTTP_X_RELEASE_NOTES'] ?? ''), true);
+    if ($sent !== false && $sent !== '') {
+        $decoded = json_decode($sent, true);
+        if (is_array($decoded)) {
+            foreach (['ar', 'en'] as $language) {
+                if (is_string($decoded[$language] ?? null) && trim($decoded[$language]) !== '') {
+                    $notes[$language] = mb_substr(trim($decoded[$language]), 0, 1000);
+                }
+            }
+        }
+    }
+
+    $folder = storage() . '/apk';
+    if ((!is_dir($folder) && !@mkdir($folder, 0700) && !is_dir($folder)) || is_link($folder)) {
+        $respond(500, 'storage unavailable');
+    }
+    $temporary = $folder . '/incoming-' . bin2hex(random_bytes(8)) . '.apk';
+    // exit skips finally blocks; this removes a rejected upload either way.
+    register_shutdown_function(static function () use ($temporary): void {
+        if (is_file($temporary)) {
+            @unlink($temporary);
+        }
+    });
+    $in = fopen('php://input', 'rb');
+    $out = fopen($temporary, 'xb');
+    if ($in === false || $out === false) {
+        $respond(500, 'cannot read upload');
+    }
+    $size = stream_copy_to_stream($in, $out, MAX_APK_BYTES + 1);
+    fclose($in);
+    fclose($out);
+    chmod($temporary, 0600);
+    if ($size === false || $size < 1024 || $size > MAX_APK_BYTES || !verifiedApkFile($temporary, $size)) {
+        $respond(422, 'not a signed APK');
+    }
+    if (!apkMatchesChannelSigner($temporary, $channel)) {
+        $respond(422, 'signed with a different key than the dev channel');
+    }
+    $sha = hash_file('sha256', $temporary);
+    $target = releaseFile($channel, $code);
+    $published = locked($db, function () use ($db, $channel, $code, $name, $size, $sha, $notes, $temporary, $target): ?int {
+        $current = currentRelease($db, $channel);
+        if ($current !== null && (int) $current['code'] >= $code) {
+            return (int) $current['code'];
+        }
+        if (!rename($temporary, $target)) {
+            throw new RuntimeException('Cannot store APK');
+        }
+        $db->prepare('INSERT OR REPLACE INTO app_releases
+            (channel, code, name, bytes, sha256, notes, published, notify) VALUES (?, ?, ?, ?, ?, ?, 1, 1)')
+            ->execute([$channel, $code, $name, $size, $sha, encode($notes)]);
+        return null;
+    });
+    if ($published !== null) {
+        $respond(409, "build $published is already published");
+    }
+    $respond(201, "published $name");
+}

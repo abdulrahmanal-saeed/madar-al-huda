@@ -155,6 +155,33 @@ jobs:
             --notes-file "$RUNNER_TEMP/notes.md" \
             --prerelease
 
+      - name: Publish to the app's update channel
+        # Sends the same verified APK to the admin, which checks the signer
+        # and build number again before offering it to installed apps.
+        env:
+          ADMIN_TOKEN: ${{ secrets.MADAR_ADMIN_RELEASE_TOKEN }}
+          APK: ${{ steps.verify.outputs.file }}
+          CODE: ${{ steps.version.outputs.code }}
+          NAME: ${{ steps.version.outputs.name }}
+        run: |
+          if [[ -z "$ADMIN_TOKEN" ]]; then
+            echo "MADAR_ADMIN_RELEASE_TOKEN is not set; skipping."
+            exit 0
+          fi
+          subject=$(git log -1 --format=%s "$COMMIT_SHA" 2>/dev/null || true)
+          notes=$(SUBJECT="$subject" python3 -c 'import base64, json, os; print(base64.b64encode(json.dumps({"ar": "تحديث تجريبي جديد من مدار الهدى.", "en": os.environ["SUBJECT"] or "New development build."}).encode()).decode())')
+          status=$(curl -sS --retry 3 --max-time 600 -o "$RUNNER_TEMP/admin.json" -w '%{http_code}' \
+            -X POST "https://quran.abdulrahmanalsaeed.com/admin/?ci=release" \
+            -H "X-Madar-Token: $ADMIN_TOKEN" \
+            -H "X-Release-Code: $CODE" \
+            -H "X-Release-Name: $NAME" \
+            -H "X-Release-Notes: $notes" \
+            -H "Content-Type: application/vnd.android.package-archive" \
+            --data-binary @"$APK")
+          cat "$RUNNER_TEMP/admin.json"; echo
+          # 409: this build (or a newer one) is already on the channel.
+          [[ "$status" == 201 || "$status" == 409 ]]
+
       - name: Keep only the newest dev releases
         env:
           GH_TOKEN: ${{ github.token }}
