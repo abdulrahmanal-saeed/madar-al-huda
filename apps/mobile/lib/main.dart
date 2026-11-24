@@ -11,6 +11,7 @@ import 'core/storage/storage_providers.dart';
 import 'features/adhkar/data/adhkar_progress.dart';
 import 'features/hadith/data/hadith_favorites.dart';
 import 'features/prayer/application/prayer_preferences.dart';
+import 'features/prayer/application/prayer_widget_sync.dart';
 import 'features/quran/application/reading_preferences.dart';
 import 'features/quran/data/local_quran_bookmarks.dart';
 import 'features/reminders/application/reminder_settings_controller.dart';
@@ -47,6 +48,8 @@ Future<void> main() async {
         googleAuthProvider.overrideWithValue(googleAuth),
         if (defaultTargetPlatform == TargetPlatform.android)
           reminderSchedulerProvider.overrideWithValue(LocalReminderScheduler()),
+        if (defaultTargetPlatform == TargetPlatform.android)
+          prayerWidgetProvider.overrideWithValue(HomePrayerWidget()),
       ],
       child: const MadarApp(),
     ),

@@ -4,4 +4,7 @@
     <string name="update_notifications_channel">تحديثات التطبيق</string>
     <string name="update_notification_title">تحديث مدار الهدى</string>
     <string name="update_notification_body">الإصدار %1$s متاح للتنزيل.</string>
+    <string name="widget_next_prayer">الصلاة القادمة</string>
+    <string name="widget_description">الصلاة القادمة مع عدّاد تنازلي</string>
+    <string name="widget_open_app">افتح التطبيق لتحديد موقعك</string>
 </resources>
