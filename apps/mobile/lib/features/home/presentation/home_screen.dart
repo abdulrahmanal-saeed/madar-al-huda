@@ -2,12 +2,13 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart' show DateFormat, NumberFormat;
+import 'package:intl/intl.dart' show DateFormat;
 import 'package:material_ui/material_ui.dart';
 
 import '../../../core/content/feature_preview.dart';
 import '../../../core/localization/civil_hijri_date.dart';
 import '../../../core/localization/l10n_extension.dart';
+import '../../../core/localization/numbers.dart';
 import '../../../core/routing/app_routes.dart';
 import '../../../core/routing/app_sections.dart';
 import '../../../core/theme/app_theme.dart';
@@ -219,7 +220,7 @@ class _ContinueReading extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final locale = Localizations.localeOf(context).languageCode;
-    final number = NumberFormat.decimalPattern(locale).format;
+    final number = decimalFormat(locale).format;
     final book = edition;
     final position = book == null
         ? null
@@ -301,7 +302,7 @@ class _DuaOfDay extends ConsumerWidget {
     final range = duaForCivilDay(day, index.values);
     if (range == null) return const SizedBox.shrink();
     final locale = Localizations.localeOf(context).languageCode;
-    final numbers = NumberFormat.decimalPattern(locale);
+    final numbers = decimalFormat(locale);
     final surah = edition.surahs[range.surah - 1];
     final l10n = context.l10n;
     return Card(

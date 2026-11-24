@@ -1,10 +1,10 @@
 import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart' show NumberFormat;
 import 'package:material_ui/material_ui.dart';
 
 import '../../../core/localization/l10n_extension.dart';
+import '../../../core/localization/numbers.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_tokens.dart';
 import '../application/tasbih_controller.dart';
@@ -20,7 +20,7 @@ class TasbihScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final language = Localizations.localeOf(context).languageCode;
-    final number = NumberFormat.decimalPattern(language).format;
+    final number = decimalFormat(language).format;
     final state = ref.watch(tasbihProvider);
     final controller = ref.read(tasbihProvider.notifier);
     final phrase = tasbihPhrases[state.phrase];

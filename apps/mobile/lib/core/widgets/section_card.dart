@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../content/feature_preview.dart';
 import '../localization/l10n_extension.dart';
 import '../routing/app_sections.dart';
 import '../theme/app_tokens.dart';
@@ -49,8 +50,12 @@ class SectionCard extends StatelessWidget {
                           color: scheme.onSurfaceVariant,
                         ),
                       ),
-                      const SizedBox(height: AppSpacing.sm),
-                      StatusPill(status: section.status),
+                      // Builds that already show the content don't label it
+                      // as awaiting review.
+                      if (!managedReleaseEnabled) ...[
+                        const SizedBox(height: AppSpacing.sm),
+                        StatusPill(status: section.status),
+                      ],
                     ],
                   ),
                 ),

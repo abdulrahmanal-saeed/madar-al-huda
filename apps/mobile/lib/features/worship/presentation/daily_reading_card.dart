@@ -7,6 +7,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../../core/content/feature_preview.dart';
 import '../../../core/localization/l10n_extension.dart';
+import '../../../core/localization/numbers.dart';
 import '../../../core/routing/app_routes.dart';
 import '../../../core/routing/app_sections.dart';
 import '../../../core/widgets/section_detail_scaffold.dart';
@@ -114,9 +115,7 @@ class _DailyReadingScreenState extends ConsumerState<DailyReadingScreen> {
     final controller = ref.read(dailyReadingPlanProvider.notifier);
     const total = DailyReadingPlanController.totalPages;
     final l10n = context.l10n;
-    final numbers = NumberFormat.decimalPattern(
-      Localizations.localeOf(context).languageCode,
-    );
+    final numbers = decimalFormat(Localizations.localeOf(context).languageCode);
     final completed = plan.pagesRead == total;
     final progress = l10n.dailyReadingProgress(
       numbers.format(plan.pagesRead),

@@ -1,11 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart' show NumberFormat;
 import 'package:material_ui/material_ui.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/localization/app_locales.dart';
 import '../../../core/localization/l10n_extension.dart';
+import '../../../core/localization/numbers.dart';
 import '../../../core/routing/app_routes.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../quran/data/local_quran_bookmarks.dart';
@@ -253,7 +253,7 @@ class _DuaCardState extends State<_DuaCard> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final language = Localizations.localeOf(context).languageCode;
-    final numbers = NumberFormat.decimalPattern(language);
+    final numbers = decimalFormat(language);
     final range = widget.range;
     final surah = widget.edition.surahs[range.surah - 1];
     final first = numbers.format(range.first);

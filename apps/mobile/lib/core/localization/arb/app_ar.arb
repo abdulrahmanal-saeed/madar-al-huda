@@ -86,7 +86,7 @@
   "sectionLessonsSubtitle": "مسارات متدرجة في الفقه والعقيدة والسيرة",
   "sectionStoriesTitle": "قصص الأنبياء",
   "sectionStoriesSubtitle": "من القرآن والسنة مع ذكر المصادر",
-  "learningEpisodeCount": "{count, plural, =1{حلقة واحدة} =2{حلقتان} few{{count} حلقات} other{{count} حلقة}}",
+  "learningEpisodeCount": "{count, plural, =1{حلقة واحدة} =2{حلقتان} few{{countText} حلقات} other{{countText} حلقة}}",
   "learningEpisodeNumber": "الحلقة {number}",
   "learningNoEpisodes": "هتظهر الحلقات هنا عند إضافتها.",
   "learningFormatAudio": "صوت",

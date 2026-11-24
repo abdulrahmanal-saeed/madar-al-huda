@@ -4,6 +4,7 @@ import 'package:material_ui/material_ui.dart';
 import '../../../core/content/collection_downloads.dart';
 import '../../../core/content/feature_preview.dart';
 import '../../../core/localization/l10n_extension.dart';
+import '../../../core/localization/numbers.dart';
 import '../../../core/routing/app_sections.dart';
 import '../../../core/theme/app_tokens.dart';
 import '../../../core/widgets/responsive_content.dart';
@@ -105,6 +106,10 @@ class ProphetStoriesScreen extends ConsumerWidget {
                             story.episodes.isEmpty
                                 ? l10n.learningNoEpisodes
                                 : l10n.learningEpisodeCount(
+                                    decimalFormat(
+                                      Localizations.localeOf(context)
+                                          .languageCode,
+                                    ).format(story.episodes.length),
                                     story.episodes.length,
                                   ),
                           ),

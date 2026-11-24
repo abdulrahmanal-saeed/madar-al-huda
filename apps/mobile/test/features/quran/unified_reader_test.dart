@@ -5,8 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:intl/intl.dart' show NumberFormat;
 import 'package:madar_al_huda/core/localization/app_locales.dart';
+import 'package:madar_al_huda/core/localization/numbers.dart';
 import 'package:madar_al_huda/core/routing/app_routes.dart';
 import 'package:madar_al_huda/core/storage/key_value_store.dart';
 import 'package:madar_al_huda/features/quran/data/mushaf_edition.dart';
@@ -38,7 +38,7 @@ void main() {
     await tester.enterText(number, '٦٠٤');
     await tester.tap(find.widgetWithText(FilledButton, l10n.readerGo));
     await tester.pumpAndSettle();
-    final lastPage = NumberFormat.decimalPattern('ar').format(604);
+    final lastPage = decimalFormat('ar').format(604);
     expect(find.textContaining(l10n.readerPageLabel(lastPage)), findsWidgets);
     expect(tester.takeException(), isNull);
   });
@@ -132,7 +132,11 @@ void main() {
         );
         await tester.pumpAndSettle();
         expect(
-          find.textContaining(l10n.readerTafsirFor(255)),
+          find.textContaining(
+            l10n.readerTafsirFor(
+              decimalFormat(locale.languageCode).format(255),
+            ),
+          ),
           findsOneWidget,
           reason: '$requested',
         );

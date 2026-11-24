@@ -17,7 +17,7 @@ import '../../helpers/pump_app.dart';
 
 /// Lets real file I/O finish between frames; widget tests run on fake time.
 Future<void> _settleIo(WidgetTester tester) async {
-  for (var i = 0; i < 12; i++) {
+  for (var i = 0; i < 40; i++) {
     await tester.runAsync(
       () => Future<void>.delayed(const Duration(milliseconds: 25)),
     );

@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:intl/intl.dart' show NumberFormat;
 import 'package:madar_al_huda/core/localization/app_locales.dart';
+import 'package:madar_al_huda/core/localization/numbers.dart';
 import 'package:madar_al_huda/core/routing/app_routes.dart';
 import 'package:madar_al_huda/features/quran/data/mushaf_edition.dart';
 import 'package:madar_al_huda/features/quran/presentation/mushaf_screen.dart';
@@ -15,7 +15,7 @@ void main() {
       '${locale.languageCode}: changing the daily goal preserves saved progress',
       (tester) async {
         final l10n = lookupAppLocalizations(locale);
-        final numbers = NumberFormat.decimalPattern(locale.languageCode);
+        final numbers = decimalFormat(locale.languageCode);
         final card = find.text(l10n.dailyReadingTitle).hitTestable();
         final store = await pumpMadarApp(
           tester,

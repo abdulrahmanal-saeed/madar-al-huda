@@ -1,11 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart' show NumberFormat;
 import 'package:just_audio/just_audio.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../localization/l10n_extension.dart';
+import '../localization/numbers.dart';
 import '../theme/app_tokens.dart';
 import 'audio_playback.dart';
 
@@ -72,7 +72,7 @@ class AudioFullPlayer extends ConsumerWidget {
     final l10n = context.l10n;
     final theme = Theme.of(context);
     final language = Localizations.localeOf(context).languageCode;
-    final number = NumberFormat.decimalPattern(language).format;
+    final number = decimalFormat(language).format;
     if (track == null) return const SizedBox.shrink();
     final live = track.isLive == true;
 

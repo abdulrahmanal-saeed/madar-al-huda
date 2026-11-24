@@ -2,13 +2,13 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart' show NumberFormat;
 import 'package:material_ui/material_ui.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/content/feature_preview.dart';
 import '../../../core/localization/l10n_extension.dart';
+import '../../../core/localization/numbers.dart';
 import '../../../core/routing/app_sections.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/section_detail_scaffold.dart';
@@ -245,7 +245,7 @@ class _ReaderState extends ConsumerState<_Reader> {
   Future<void> _choosePageVerse(int index, QuranCatalog? catalog) async {
     final verses = widget.edition.page(index);
     final language = Localizations.localeOf(context).languageCode;
-    final numbers = NumberFormat.decimalPattern(language);
+    final numbers = decimalFormat(language);
     final selected = await showModalBottomSheet<AyahRef>(
       context: context,
       isScrollControlled: true,
@@ -337,7 +337,7 @@ class _ReaderState extends ConsumerState<_Reader> {
       published: selection.active,
       configured: selection.configured,
     );
-    final numbers = NumberFormat.decimalPattern(language);
+    final numbers = decimalFormat(language);
     final edition = widget.edition;
     final reading = ref.watch(readingPreferencesProvider);
     return Scaffold(
@@ -504,7 +504,10 @@ class _VerseDialogState extends State<_VerseDialog> {
             final verse = _parse(value ?? '');
             return verse != null && verse >= 1 && verse <= widget.count
                 ? null
-                : l10n.readerVerseInvalid(widget.count);
+                : l10n.readerVerseInvalid(
+                    decimalFormat(Localizations.localeOf(context).languageCode)
+                        .format(widget.count),
+                  );
           },
         ),
       ),
@@ -618,14 +621,18 @@ class _TafsirSheetState extends ConsumerState<_TafsirSheet> {
             children: [
               Expanded(
                 child: Text(
-                  '${widget.surahName} · ${l10n.readerTafsirFor(verse.ayah)}',
+                  '${widget.surahName} · ${l10n.readerTafsirFor(decimalFormat(Localizations.localeOf(context).languageCode).format(verse.ayah))}',
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
               ),
               if (Localizations.localeOf(context).languageCode == 'en')
                 IconButton(
                   tooltip: _showMeaning
-                      ? l10n.readerTafsirFor(verse.ayah)
+                      ? l10n.readerTafsirFor(
+                          decimalFormat(
+                            Localizations.localeOf(context).languageCode,
+                          ).format(verse.ayah),
+                        )
                       : l10n.readerEnglishMeaning,
                   onPressed: () => setState(() => _showMeaning = !_showMeaning),
                   icon: const Icon(Icons.translate),

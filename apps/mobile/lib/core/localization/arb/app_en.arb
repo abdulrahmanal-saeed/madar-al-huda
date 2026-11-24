@@ -164,10 +164,10 @@
   "sectionStoriesTitle": "Stories of the Prophets",
   "@sectionStoriesTitle": {"description": "Prophet stories section title."},
   "sectionStoriesSubtitle": "Told from the Quran and Sunnah, with sources",
-  "learningEpisodeCount": "{count, plural, =1{1 episode} other{{count} episodes}}",
-  "@learningEpisodeCount": {"description":"Number of episodes in a learning series.","placeholders":{"count":{"type":"int"}}},
+  "learningEpisodeCount": "{count, plural, =1{1 episode} other{{countText} episodes}}",
+  "@learningEpisodeCount": {"description":"Number of episodes in a learning series.","placeholders":{"countText":{"type":"String"},"count":{"type":"int"}}},
   "learningEpisodeNumber": "Episode {number}",
-  "@learningEpisodeNumber": {"description":"Title for a numbered episode.","placeholders":{"number":{"type":"int"}}},
+  "@learningEpisodeNumber": {"description":"Title for a numbered episode.","placeholders":{"number":{"type":"String"}}},
   "learningNoEpisodes": "Episodes will appear here when they’re added.",
   "@learningNoEpisodes": {"description":"Empty state for a series that has no episodes yet."},
   "learningFormatAudio": "Audio",
@@ -432,7 +432,7 @@
     "description": "Enter a verse number from 1 to {count}.",
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -453,7 +453,7 @@
     "description": "Tafsir · verse {verse}",
     "placeholders": {
       "verse": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -1083,7 +1083,7 @@
   "recitationDownloadSurahs": "Download surahs ({count})",
   "@recitationDownloadSurahs": {
     "description": "Download action with the total number of available recordings.",
-    "placeholders": {"count": {"type": "int", "format": "decimalPattern"}}
+    "placeholders": {"count": {"type": "String"}}
   },
   "@recitationDownload": {
     "description": "Download recitation"
