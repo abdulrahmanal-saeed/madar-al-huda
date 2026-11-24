@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:just_audio/just_audio.dart';
 import 'package:madar_al_huda/app/app.dart';
 import 'package:madar_al_huda/app/app_router.dart';
+import 'package:madar_al_huda/app/deep_links.dart';
 import 'package:madar_al_huda/core/audio/audio_playback.dart';
 import 'package:madar_al_huda/core/connectivity/offline_banner.dart';
 import 'package:madar_al_huda/core/content/managed_library.dart';
@@ -90,6 +91,8 @@ Future<InMemoryKeyValueStore> pumpMadarApp(
         worldCitiesProvider.overrideWith((_) => testCities()),
         offlineProvider.overrideWith((_) => Stream.value(offline)),
         hadeethEncProvider.overrideWithValue(OfflineHadeethEnc()),
+        // No platform link plugin in widget tests.
+        appLinkStreamProvider.overrideWithValue(const Stream.empty()),
         if (quranApi != null) quranApiProvider.overrideWithValue(quranApi),
         if (audioPlayer != null)
           audioPlayerProvider.overrideWithValue(audioPlayer),

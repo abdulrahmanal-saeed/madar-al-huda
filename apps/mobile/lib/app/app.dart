@@ -16,6 +16,7 @@ import '../features/reminders/application/reminder_sync.dart';
 import '../features/settings/application/settings_controller.dart';
 import '../features/worship/application/worship_location.dart';
 import 'app_router.dart';
+import 'deep_links.dart';
 import 'first_run.dart';
 import 'startup_splash.dart';
 
@@ -73,7 +74,9 @@ class MadarApp extends ConsumerWidget {
                 child: child!,
               )
             : child!;
-        final synced = ReminderSync(child: PrayerWidgetSync(child: content));
+        final synced = DeepLinks(
+          child: ReminderSync(child: PrayerWidgetSync(child: content)),
+        );
         if (!showStartupSplash) return synced;
         // First launch: the first-run steps (language, theme, permissions,
         // reminders) wait under the splash. Later launches only refresh

@@ -7,6 +7,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../app/deep_links.dart';
 import '../../../core/content/app_settings.dart';
 import '../../../core/content/feature_preview.dart';
 import '../../../core/localization/l10n_extension.dart';
@@ -95,7 +96,6 @@ class _Reader extends ConsumerStatefulWidget {
 
 class _ReaderState extends ConsumerState<_Reader> {
   late AyahRef _current;
-  late int _initialPage;
   AyahRef? _selected;
   final _scroll = ItemScrollController();
   final _positions = ItemPositionsListener.create();
@@ -104,6 +104,9 @@ class _ReaderState extends ConsumerState<_Reader> {
   var _jump = 0;
   var _navigating = false;
 
+  /// Pages per list item: two side by side on tablets, one on phones.
+  var _spread = 1;
+
   @override
   void initState() {
     super.initState();
@@ -111,7 +114,6 @@ class _ReaderState extends ConsumerState<_Reader> {
     _current = saved != null && widget.edition.contains(saved)
         ? saved
         : widget.edition.verses.first.ref;
-    _initialPage = widget.edition.pageOf(_current);
     _selected = saved == null ? null : _current;
     _positions.itemPositions.addListener(_trackPosition);
     if (_selected != null) _scheduleReveal(_current);
@@ -170,7 +172,17 @@ class _ReaderState extends ConsumerState<_Reader> {
               .where(
                 (item) => item.itemTrailingEdge > 0 && item.itemLeadingEdge < 1,
               )
-              .map((item) => item.index)
+              .expand(
+                (item) => [
+                  for (
+                    var page = item.index * _spread;
+                    page < (item.index + 1) * _spread &&
+                        page < widget.edition.pageStarts.length;
+                    page++
+                  )
+                    page,
+                ],
+              )
               .toList()
             ..sort();
       if (visible.isEmpty) return;
@@ -231,7 +243,7 @@ class _ReaderState extends ConsumerState<_Reader> {
     _settle?.cancel();
     final page = widget.edition.pageOf(verse);
     _scheduleReveal(verse);
-    if (_scroll.isAttached) _scroll.jumpTo(index: page);
+    if (_scroll.isAttached) _scroll.jumpTo(index: page ~/ _spread);
     setState(() {
       _current = verse;
       _selected = verse;
@@ -363,6 +375,9 @@ class _ReaderState extends ConsumerState<_Reader> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final language = Localizations.localeOf(context).languageCode;
+    // Tablets and wide windows read a two-page spread.
+    final spread = MediaQuery.sizeOf(context).width >= 840 ? 2 : 1;
+    _spread = spread;
     // Keeps the bookmark list loaded for the index sheet without rebuilding
     // the whole reader on every bookmark change; the page header that shows
     // the bookmark state watches it itself.
@@ -492,22 +507,51 @@ class _ReaderState extends ConsumerState<_Reader> {
             children: [
               Expanded(
                 child: ScrollablePositionedList.builder(
-                  initialScrollIndex: _initialPage,
+                  // A new list when the spread changes (rotation), opened
+                  // where the reader is.
+                  key: ValueKey(spread),
+                  initialScrollIndex: widget.edition.pageOf(_current) ~/ spread,
                   itemScrollController: _scroll,
                   itemPositionsListener: _positions,
-                  itemCount: widget.edition.pageStarts.length,
-                  itemBuilder: (context, index) => MushafPageView(
-                    key: _pageKeys.putIfAbsent(
-                      index,
-                      GlobalKey<MushafPageViewState>.new,
-                    ),
-                    edition: widget.edition,
-                    index: index,
-                    selected: _selected,
-                    onVerse: (verse) => _openTafsir(verse, data),
-                    onChooseVerse: () => _choosePageVerse(index, data),
-                    preferences: reading,
-                  ),
+                  itemCount:
+                      (widget.edition.pageStarts.length + spread - 1) ~/ spread,
+                  itemBuilder: (context, index) {
+                    Widget page(int number) => MushafPageView(
+                      key: _pageKeys.putIfAbsent(
+                        number,
+                        GlobalKey<MushafPageViewState>.new,
+                      ),
+                      edition: widget.edition,
+                      index: number,
+                      selected: _selected,
+                      onVerse: (verse) => _openTafsir(verse, data),
+                      onChooseVerse: () => _choosePageVerse(number, data),
+                      preferences: reading,
+                    );
+                    if (spread == 1) return page(index);
+                    final first = index * 2;
+                    final pages = widget.edition.pageStarts.length;
+                    // A printed Mushaf spread: the earlier page on the right.
+                    return IntrinsicHeight(
+                      child: Row(
+                        key: ValueKey('mushaf-spread-$index'),
+                        textDirection: TextDirection.rtl,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Expanded(child: page(first)),
+                          VerticalDivider(
+                            width: 1,
+                            color: Theme.of(context).colorScheme.outlineVariant,
+                          ),
+                          Expanded(
+                            child: first + 1 < pages
+                                ? page(first + 1)
+                                : const SizedBox.shrink(),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
               ),
               if (!focused &&
@@ -668,7 +712,8 @@ class _TafsirSheetState extends ConsumerState<_TafsirSheet> {
     try {
       await const MethodChannel('madar/share').invokeMethod<void>(
         'shareText',
-        '${widget.verseText}\n${widget.surahName} ${widget.verse.surah}:${widget.verse.ayah}',
+        '${widget.verseText}\n${widget.surahName} ${widget.verse.surah}:${widget.verse.ayah}\n'
+            '${appLinkFor(AppRoutes.verse(widget.verse.surah, widget.verse.ayah))}',
       );
     } on Exception {
       if (mounted) {
