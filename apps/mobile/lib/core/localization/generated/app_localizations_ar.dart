@@ -1689,4 +1689,56 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get libraryLive => 'بث مباشر';
+
+  @override
+  String get khatmaGoalTitle => 'هدف الختمة';
+
+  @override
+  String get khatmaGoalHint =>
+      'اختر عدد الأيام التي تختم فيها القرآن، ويُحسب وردك اليومي تلقائيًا.';
+
+  @override
+  String get khatmaCancel => 'إلغاء الهدف';
+
+  @override
+  String get khatmaTodayDone => 'أتممت ورد اليوم، بارك الله فيك.';
+
+  @override
+  String get khatmaNoStreak => 'اقرأ صفحة اليوم لتبدأ سلسلة أيامك';
+
+  @override
+  String khatmaDays(String n, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n يومًا',
+      few: '$n أيام',
+      two: 'يومان',
+      one: 'يوم واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String khatmaStreak(String n, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n يومًا متتاليًا',
+      few: '$n أيام متتالية',
+      two: 'يومان متتاليان',
+      one: 'يوم واحد متواصل',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String khatmaEndsOn(String date) {
+    return 'تختم بإذن الله يوم $date';
+  }
+
+  @override
+  String khatmaToday(String target, String read) {
+    return 'ورد اليوم: $target صفحة · قرأت $read';
+  }
 }

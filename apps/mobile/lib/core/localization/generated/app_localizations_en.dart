@@ -1702,4 +1702,52 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get libraryLive => 'Live';
+
+  @override
+  String get khatmaGoalTitle => 'Khatma goal';
+
+  @override
+  String get khatmaGoalHint =>
+      'Choose how many days to finish the Quran in; the daily wird follows.';
+
+  @override
+  String get khatmaCancel => 'Remove goal';
+
+  @override
+  String get khatmaTodayDone => 'Today\'s share is done. May Allah bless you.';
+
+  @override
+  String get khatmaNoStreak => 'Read a page today to start a streak';
+
+  @override
+  String khatmaDays(String n, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n days',
+      one: '1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String khatmaStreak(String n, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$n days in a row',
+      one: '1 day in a row',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String khatmaEndsOn(String date) {
+    return 'You finish on $date';
+  }
+
+  @override
+  String khatmaToday(String target, String read) {
+    return 'Today: $target pages · read $read';
+  }
 }

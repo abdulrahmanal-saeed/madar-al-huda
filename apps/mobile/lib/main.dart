@@ -20,6 +20,7 @@ import 'features/settings/data/settings_repository.dart';
 import 'features/tasbih/application/tasbih_controller.dart';
 import 'features/worship/application/worship_location.dart';
 import 'features/worship/data/daily_reading_plan.dart';
+import 'features/worship/data/khatma.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -78,6 +79,8 @@ Future<KeyValueStore> _openPreferences() async {
         TasbihController.key,
         AdhkarProgressController.key,
         DailyReadingPlanController.key,
+        ReadingLog.key,
+        KhatmaGoalController.key,
         'quran.reciter.v1',
       },
     );

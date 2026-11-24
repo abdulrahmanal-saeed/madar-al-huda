@@ -3073,6 +3073,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Live'**
   String get libraryLive;
+
+  /// Khatma card title.
+  ///
+  /// In en, this message translates to:
+  /// **'Khatma goal'**
+  String get khatmaGoalTitle;
+
+  /// Khatma hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose how many days to finish the Quran in; the daily wird follows.'**
+  String get khatmaGoalHint;
+
+  /// Removes the goal.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove goal'**
+  String get khatmaCancel;
+
+  /// Done for today.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s share is done. May Allah bless you.'**
+  String get khatmaTodayDone;
+
+  /// No streak.
+  ///
+  /// In en, this message translates to:
+  /// **'Read a page today to start a streak'**
+  String get khatmaNoStreak;
+
+  /// A number of days.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 day} other{{n} days}}'**
+  String khatmaDays(String n, int count);
+
+  /// Reading streak.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 day in a row} other{{n} days in a row}}'**
+  String khatmaStreak(String n, int count);
+
+  /// Goal end date.
+  ///
+  /// In en, this message translates to:
+  /// **'You finish on {date}'**
+  String khatmaEndsOn(String date);
+
+  /// Today's share.
+  ///
+  /// In en, this message translates to:
+  /// **'Today: {target} pages · read {read}'**
+  String khatmaToday(String target, String read);
 }
 
 class _AppLocalizationsDelegate

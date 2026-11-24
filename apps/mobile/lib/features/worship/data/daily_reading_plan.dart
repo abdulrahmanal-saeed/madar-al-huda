@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/storage/storage_providers.dart';
 import '../../quran/data/mushaf_edition.dart';
+import 'khatma.dart';
 
 final dailyReadingPlanProvider =
     NotifierProvider<DailyReadingPlanController, DailyReadingPlan>(
@@ -70,8 +71,9 @@ class DailyReadingPlanController extends Notifier<DailyReadingPlan> {
 
   Future<void> _save(DailyReadingPlan Function(DailyReadingPlan) update) {
     final operation = _writes.then((_) async {
-      final plan = update(state);
-      if (plan == state) return;
+      final before = state;
+      final plan = update(before);
+      if (plan == before) return;
       await ref
           .read(keyValueStoreProvider)
           .setString(
@@ -79,6 +81,14 @@ class DailyReadingPlanController extends Notifier<DailyReadingPlan> {
             '${MushafEdition.id}|${plan.pagesPerSession}|${plan.pagesRead}',
           );
       state = plan;
+      // Pages moved forward count toward today's reading and the streak.
+      final read = plan.pagesRead - before.pagesRead;
+      if (read > 0) {
+        await ref
+            .read(readingLogProvider.notifier)
+            .record(read)
+            .catchError((Object _) {});
+      }
     });
     _writes = operation.then<void>(
       (_) {},

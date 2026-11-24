@@ -27,9 +27,24 @@ void main() {
         await tester.tap(card);
         await tester.pumpAndSettle();
 
+        await tester.scrollUntilVisible(
+          find.text(l10n.dailyReadingMarkRead),
+          200,
+          scrollable: find.byType(Scrollable).last,
+        );
+        await tester.pumpAndSettle();
         await tester.tap(find.text(l10n.dailyReadingMarkRead));
         await tester.pumpAndSettle();
-        await tester.tap(find.widgetWithText(TextButton, numbers.format(20)));
+        // Reading the session counts toward today's streak.
+        expect(find.text(l10n.khatmaStreak(numbers.format(1), 1)), findsOne);
+        final pace = find.widgetWithText(TextButton, numbers.format(20));
+        await tester.scrollUntilVisible(
+          pace,
+          200,
+          scrollable: find.byType(Scrollable).last,
+        );
+        await tester.pumpAndSettle();
+        await tester.tap(pace);
         await tester.pumpAndSettle();
         await tester.enterText(find.byType(TextFormField), numbers.format(7));
         await tester.tap(find.text(l10n.dailyReadingSave));
@@ -55,6 +70,12 @@ void main() {
           ),
           findsOneWidget,
         );
+        await tester.scrollUntilVisible(
+          find.text(l10n.dailyReadingNextPage(numbers.format(21))),
+          200,
+          scrollable: find.byType(Scrollable).last,
+        );
+        await tester.pumpAndSettle();
         await tester.tap(
           find.text(l10n.dailyReadingNextPage(numbers.format(21))),
         );
