@@ -19,8 +19,15 @@ import '../features/worship/application/worship_location.dart';
 /// Set once the first-run steps are finished or skipped.
 const firstRunDoneKey = 'app.firstRunDone.v1';
 
-bool firstRunDone(KeyValueStore store) =>
-    store.getBool(firstRunDoneKey) ?? false;
+/// Whether the first-run steps are done. A store that cannot answer never
+/// blocks the app: it opens normally.
+bool firstRunDone(KeyValueStore store) {
+  try {
+    return store.getBool(firstRunDoneKey) ?? false;
+  } on Object {
+    return true;
+  }
+}
 
 /// The first launch, right after the splash: language and theme, then why
 /// the app asks for notifications and location (one screen each), then
