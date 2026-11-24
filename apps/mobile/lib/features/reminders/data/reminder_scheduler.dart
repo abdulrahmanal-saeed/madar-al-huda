@@ -70,6 +70,8 @@ final class LocalReminderScheduler implements ReminderScheduler {
     importance: Importance.high,
     priority: Priority.high,
     category: AndroidNotificationCategory.reminder,
+    // The verse under the title opens in full.
+    styleInformation: BigTextStyleInformation(''),
   );
   static const _adhkar = AndroidNotificationDetails(
     'madar.reminders.adhkar',

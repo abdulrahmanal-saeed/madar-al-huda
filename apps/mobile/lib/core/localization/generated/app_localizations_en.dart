@@ -1979,4 +1979,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String zakatGold(String karat) {
     return 'Gold ${karat}k (grams)';
   }
+
+  @override
+  String get prayerRemaining => 'Time left';
+
+  @override
+  String prayerIn(String time) {
+    return 'in $time';
+  }
+
+  @override
+  String prayerSince(String time) {
+    return '$time ago';
+  }
 }

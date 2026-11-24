@@ -31,6 +31,11 @@ class AudioPlayback extends Notifier<Playback> {
   List<QueuedAudio> _queue = const [];
   DeferredAudio? Function()? _nextDeferred;
 
+  /// Changes only when a new queue starts or playback stops, unlike
+  /// [_request], which pausing also moves.
+  int _session = 0;
+  bool _prefetching = false;
+
   @override
   Playback build() {
     ref.onDispose(() => unawaited(_errors?.cancel()));
@@ -76,6 +81,7 @@ class AudioPlayback extends Notifier<Playback> {
   }) async {
     if (state.pending != null) return;
     final request = ++_request;
+    final session = ++_session;
     state = (track: state.track, pending: track, failedId: null);
     try {
       final queue = await resolve();
@@ -94,23 +100,15 @@ class AudioPlayback extends Notifier<Playback> {
         _positions ??= player.currentIndexStream.listen(_updateQueueTrack);
       }
       if (nextDeferred != null) {
+        // The next track is normally queued ahead (see [_prefetch]); this
+        // only catches a queue that ran out before it was ready.
         _completion ??= player.processingStateStream.listen((processing) {
-          final next = _nextDeferred;
-          if (processing != ProcessingState.completed ||
-              next == null ||
-              !ref.mounted ||
-              !player.playing ||
-              state.pending != null ||
-              state.track == null ||
-              state.failedId != null) {
-            return;
-          }
-          _nextDeferred = null;
-          final following = next();
-          if (following != null) {
-            unawaited(
-              _startDeferred(following, next).catchError((Object _) {}),
-            );
+          if (processing == ProcessingState.completed &&
+              ref.mounted &&
+              _nextDeferred != null &&
+              state.pending == null &&
+              state.failedId == null) {
+            unawaited(_prefetch(_session));
           }
         });
       }
@@ -142,6 +140,10 @@ class AudioPlayback extends Notifier<Playback> {
       _nextDeferred = nextDeferred;
       state = (track: track, pending: null, failedId: null);
       _play(track, player, request);
+      // Queue the next surah now, so the player moves on by itself even
+      // with the app in the background, where waiting for the end of this
+      // one would let Android stop the playback service first.
+      if (nextDeferred != null) unawaited(_prefetch(session));
     } catch (_) {
       if (!_isCurrent(request)) return;
       state = (track: state.track, pending: null, failedId: track.id);
@@ -150,6 +152,41 @@ class AudioPlayback extends Notifier<Playback> {
   }
 
   bool _isCurrent(int request) => ref.mounted && request == _request;
+
+  /// Resolves the next deferred track and appends it to the native queue.
+  Future<void> _prefetch(int session) async {
+    final next = _nextDeferred;
+    if (next == null || _prefetching || session != _session) return;
+    _prefetching = true;
+    try {
+      final following = next();
+      if (following == null) {
+        _nextDeferred = null;
+        return;
+      }
+      final source = await following.resolve();
+      if (!ref.mounted || session != _session) return;
+      final player = ref.read(audioPlayerProvider);
+      _positions ??= player.currentIndexStream.listen(_updateQueueTrack);
+      final ended = player.processingState == ProcessingState.completed;
+      await player.addAudioSource(
+        AudioSource.uri(source.url, tag: following.track),
+      );
+      _queue = [..._queue, (track: following.track, source: source)];
+      if (ended && ref.mounted && session == _session) {
+        await player.seek(
+          source.start ?? Duration.zero,
+          index: _queue.length - 1,
+        );
+        _play(following.track, player, _request);
+      }
+    } on Object {
+      // A track that cannot be resolved ends the queue where it is.
+      if (session == _session) _nextDeferred = null;
+    } finally {
+      _prefetching = false;
+    }
+  }
 
   void _updateQueueTrack(int? index) {
     if (state.track == null ||
@@ -163,6 +200,8 @@ class AudioPlayback extends Notifier<Playback> {
     if (state.track?.id != current.id) {
       state = (track: current, pending: null, failedId: null);
     }
+    // Keep one track queued ahead of the one playing.
+    if (index == _queue.length - 1) unawaited(_prefetch(_session));
   }
 
   void _play(MediaItem track, AudioPlayer player, int request) {
@@ -220,6 +259,7 @@ class AudioPlayback extends Notifier<Playback> {
 
   Future<void> stop() async {
     final request = ++_request;
+    _session++;
     _nextDeferred = null;
     try {
       if (state.track != null || state.pending != null) {

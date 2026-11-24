@@ -1647,5 +1647,11 @@
   "zakatNisab": "Nisab: {amount}",
   "@zakatNisab": {"description":"Zakat.","placeholders":{"amount":{"type":"String"}}},
   "zakatGold": "Gold {karat}k (grams)",
-  "@zakatGold": {"description":"Zakat.","placeholders":{"karat":{"type":"String"}}}
+  "@zakatGold": {"description":"Zakat.","placeholders":{"karat":{"type":"String"}}},
+  "prayerRemaining": "Time left",
+  "@prayerRemaining": {"description":"Countdown label."},
+  "prayerIn": "in {time}",
+  "@prayerIn": {"description":"Relative prayer time.","placeholders":{"time":{"type":"String"}}},
+  "prayerSince": "{time} ago",
+  "@prayerSince": {"description":"Relative prayer time.","placeholders":{"time":{"type":"String"}}}
 }

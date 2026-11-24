@@ -117,6 +117,7 @@ List<PlannedReminder> planReminders({
   required DateTime now,
   required ReminderTexts texts,
   List<ReminderDua> duas = const [],
+  List<ReminderDua> prayerVerses = const [],
   int days = 7,
 }) {
   final planned = <PlannedReminder>[];
@@ -169,6 +170,14 @@ List<PlannedReminder> planReminders({
       }
     }
 
+    // A verse about prayer under the title, different for each reminder;
+    // without the Mushaf, a line that opens the prayer times.
+    String prayerBody(String name, int seed) {
+      if (prayerVerses.isEmpty) return texts.adhanBody(name);
+      final verse = prayerVerses[seed % prayerVerses.length];
+      return '﴿${verse.text}﴾ ${verse.source}';
+    }
+
     for (var i = 0; i < _obligatory.length; i++) {
       final slot = _obligatory[i];
       final name = texts.prayerName(slot);
@@ -179,7 +188,7 @@ List<PlannedReminder> planReminders({
           time,
           ReminderKind.adhan,
           texts.adhanTitle(name),
-          texts.adhanBody(name),
+          prayerBody(name, day * 5 + i),
           AppRoutes.prayerTimes,
         );
       }
@@ -189,7 +198,7 @@ List<PlannedReminder> planReminders({
           time.subtract(Duration(minutes: settings.beforePrayerMinutes)),
           ReminderKind.beforePrayer,
           texts.beforePrayerTitle(name, settings.beforePrayerMinutes),
-          texts.adhanBody(name),
+          prayerBody(name, day * 5 + i + 3),
           AppRoutes.prayerTimes,
         );
       }

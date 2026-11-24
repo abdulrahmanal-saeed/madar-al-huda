@@ -63,9 +63,14 @@ class _EpisodeVideoScreenState extends State<EpisodeVideoScreen> {
       final media = widget.queue[index].media[LessonFormat.video]!;
       final uri = await widget.files.playable(media);
       if (!mounted) return;
+      // The sound keeps going when the app is in the background.
+      final options = VideoPlayerOptions(allowBackgroundPlayback: true);
       final player = uri.scheme == 'file'
-          ? VideoPlayerController.file(File.fromUri(uri))
-          : VideoPlayerController.networkUrl(uri);
+          ? VideoPlayerController.file(
+              File.fromUri(uri),
+              videoPlayerOptions: options,
+            )
+          : VideoPlayerController.networkUrl(uri, videoPlayerOptions: options);
       _controller = player;
       await player.initialize().timeout(const Duration(seconds: 25));
       if (!mounted) return;

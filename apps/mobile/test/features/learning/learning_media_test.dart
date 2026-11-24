@@ -123,7 +123,7 @@ void main() {
     },
   );
 
-  test('a deferred queue resolves the next track only on completion', () async {
+  test('a deferred queue keeps the next track queued ahead', () async {
     final player = _QueuePlayer();
     final container = ProviderContainer(
       overrides: [audioPlayerProvider.overrideWithValue(player)],
@@ -148,15 +148,59 @@ void main() {
           },
         ),
     ]);
-    expect(resolutions, [112]);
-    player.processing.add(ProcessingState.completed);
-    await Future<void>.delayed(Duration.zero);
+    await pumpEventQueue();
+    // The next surah is already in the native queue while 112 plays, so
+    // the player moves on by itself in the background.
     expect(resolutions, [112, 113]);
+    expect(player.ids, ['112', '113']);
+
+    player.positions.add(1);
+    await pumpEventQueue();
     expect(container.read(audioPlaybackProvider).track?.id, '113');
+    expect(player.ids, ['112', '113', '114']);
+
     await playback.stop();
-    player.processing.add(ProcessingState.completed);
-    expect(resolutions, [112, 113]);
+    player.positions.add(2);
+    await pumpEventQueue();
+    expect(resolutions, [112, 113, 114]);
   });
+
+  test(
+    'a queue that ran out before the next track was ready continues',
+    () async {
+      final player = _QueuePlayer();
+      final container = ProviderContainer(
+        overrides: [audioPlayerProvider.overrideWithValue(player)],
+      );
+      addTearDown(() async {
+        container.dispose();
+        await player.positions.close();
+        await player.processing.close();
+      });
+      final gate = Completer<void>();
+      final playback = container.read(audioPlaybackProvider.notifier);
+      await playback.startDeferredQueue([
+        for (final chapter in [1, 2])
+          (
+            track: MediaItem(id: '$chapter', title: '$chapter'),
+            resolve: () async {
+              if (chapter == 2) await gate.future;
+              return (
+                url: Uri.https('media.example.test', '/$chapter.mp3'),
+                start: null,
+              );
+            },
+          ),
+      ]);
+      player.state = ProcessingState.completed;
+      player.playing = false;
+      gate.complete();
+      await pumpEventQueue();
+      expect(player.ids, ['1', '2']);
+      expect(player.seekedTo, 1);
+      expect(player.playing, isTrue);
+    },
+  );
 }
 
 class _QueuePlayer extends Fake implements AudioPlayer {
@@ -203,6 +247,22 @@ class _QueuePlayer extends Fake implements AudioPlayer {
         .toList();
     startedAt = initialIndex;
     return null;
+  }
+
+  ProcessingState state = ProcessingState.ready;
+  int? seekedTo;
+
+  @override
+  ProcessingState get processingState => state;
+
+  @override
+  Future<void> addAudioSource(AudioSource audioSource) async {
+    ids = [...ids, ((audioSource as IndexedAudioSource).tag as MediaItem).id];
+  }
+
+  @override
+  Future<void> seek(Duration? position, {int? index}) async {
+    seekedTo = index;
   }
 
   @override

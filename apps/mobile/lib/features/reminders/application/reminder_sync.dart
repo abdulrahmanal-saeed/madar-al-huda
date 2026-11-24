@@ -128,6 +128,9 @@ class _ReminderSyncState extends ConsumerState<ReminderSync> {
                         duaIndex ?? quranDuaIndex,
                         language,
                       ),
+                prayerVerses: edition == null
+                    ? const []
+                    : prayerVerses(edition, language),
               );
         try {
           await ref.read(reminderSchedulerProvider).replaceAll(reminders);
@@ -142,6 +145,44 @@ class _ReminderSyncState extends ConsumerState<ReminderSync> {
     }
     return widget.child;
   }
+}
+
+/// Verses on prayer shown in prayer notifications: (surah, first, last).
+const prayerVerseRefs = [
+  (2, 238, 238),
+  (4, 103, 103),
+  (29, 45, 45),
+  (20, 14, 14),
+  (2, 45, 45),
+  (11, 114, 114),
+  (17, 78, 78),
+  (14, 40, 40),
+  (20, 132, 132),
+  (23, 1, 2),
+  (2, 153, 153),
+];
+
+/// The text of [prayerVerseRefs] from the bundled Mushaf, without the
+/// basmala that opens a surah's first verse in this text.
+List<ReminderDua> prayerVerses(MushafEdition edition, String language) {
+  final number = decimalFormat(language).format;
+  final basmala = edition.surahs.first.verses.first;
+  return [
+    for (final (surah, first, last) in prayerVerseRefs)
+      (
+        text: edition.surahs[surah - 1].verses
+            .sublist(first - 1, last)
+            .map(
+              (verse) => verse.startsWith('$basmala ')
+                  ? verse.substring(basmala.length + 1)
+                  : verse,
+            )
+            .join(' '),
+        source:
+            '${edition.surahs[surah - 1].name(language)} ${number(first)}'
+            '${last == first ? '' : '–${number(last)}'}',
+      ),
+  ];
 }
 
 /// Every Quranic supplication in the catalog, with its verse text and a
