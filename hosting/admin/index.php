@@ -43,7 +43,7 @@ try {
 }
 
 header('Cache-Control: no-store');
-header("Content-Security-Policy: default-src 'none'; style-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'");
+header("Content-Security-Policy: default-src 'none'; style-src 'self'; script-src 'self'; connect-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'");
 header('Strict-Transport-Security: max-age=31536000');
 // Sessions live in the private storage folder with the same lifetime as a
 // sign-in, so shared-hosting cleanup cannot end them early and an open login
@@ -97,6 +97,12 @@ function controls(string $action, ?int $revision = null): void
     }
 }
 
+/** Requests from the upload page's script expect JSON, not a page. */
+function wantsJson(): bool
+{
+    return str_contains($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json');
+}
+
 function fieldValue(mixed $value): string
 {
     return is_array($value) && $value !== [] ? encode($value) : '';
@@ -125,6 +131,18 @@ $active = isset($_SESSION['signed_at'], $_SESSION['seen_at']) &&
     $_SESSION['seen_at'] >= time() - SESSION_IDLE;
 if ($active) {
     $_SESSION['seen_at'] = time();
+    if (is_string($_GET['job'] ?? null)) {
+        header('Content-Type: application/json; charset=utf-8');
+        header('Cache-Control: no-store');
+        try {
+            $file = driveJobFile($_GET['job']);
+            echo is_file($file) ? (string) file_get_contents($file) : encode(['state' => 'waiting']);
+        } catch (Throwable) {
+            http_response_code(400);
+            echo encode(['state' => 'failed']);
+        }
+        exit;
+    }
     if (isset($_GET['preview_css'])) {
         servePreviewCss(json_decode(library($db)['draft'], true, 64, JSON_THROW_ON_ERROR));
     }
@@ -192,6 +210,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'delete' => 'حُذف العنصر من المسودة.',
                 default => 'حُفظت المسودة.',
             };
+        } elseif ($action === 'drive_import') {
+            // The download can take minutes; release the session so the
+            // page can keep polling the progress meanwhile.
+            set_time_limit(0);
+            ignore_user_abort(true);
+            session_write_close();
+            // The page's script sends one link at a time with a job id for
+            // progress; without scripts, every line of the box is imported.
+            $lines = field('link') !== ''
+                ? [[field('link'), field('name'), field('job')]]
+                : array_map(
+                    fn (string $line) => [...array_pad(preg_split('/\s+/', trim($line), 2), 2, ''), bin2hex(random_bytes(8))],
+                    array_values(array_filter(preg_split('/\R/', field('links')), fn ($line) => trim($line) !== '')),
+                );
+            if ($lines === [] || count($lines) > 50) {
+                throw new InvalidArgumentException('الصق من رابط واحد إلى ٥٠ رابطًا.');
+            }
+            $names = [];
+            foreach ($lines as [$link, $name, $job]) {
+                $names[] = importDriveFile($link, trim($name), $job);
+            }
+            session_start();
+            $_SESSION['notice'] = 'نُقل من Google Drive: ' . implode('، ', $names) . '.';
         } elseif (in_array($action, ['upload_story', 'archive_story', 'restore_story'], true)) {
             locked($db, fn () => changeStory($action));
             $_SESSION['notice'] = match ($action) {
@@ -205,6 +246,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             throw new InvalidArgumentException('الإجراء غير متاح.');
         }
+        if ($confirming === null && wantsJson()) {
+            header('Content-Type: application/json; charset=utf-8');
+            echo encode(['ok' => true, 'message' => $_SESSION['notice'] ?? '']);
+            unset($_SESSION['notice']);
+            exit;
+        }
         if ($confirming === null) {
             // The sections page keeps an open section's link editor open.
             $keep = $section === 'library_sections' && is_string($_GET['edit'] ?? null) ? $_GET['edit'] : '';
@@ -213,11 +260,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } catch (InvalidArgumentException $failure) {
         $error = $failure->getMessage();
+        if (wantsJson()) {
+            http_response_code(http_response_code() === 200 ? 422 : http_response_code());
+            header('Content-Type: application/json; charset=utf-8');
+            echo encode(['ok' => false, 'message' => $error]);
+            exit;
+        }
     } catch (JsonException) {
         $error = 'راجع تنسيق المراجع أو التكرار.';
     } catch (Throwable $failure) {
         error_log('Madar admin: ' . $failure->getMessage());
         $error = 'تعذّر إتمام العملية. حاول مرة أخرى.';
+        if (wantsJson()) {
+            http_response_code(500);
+            header('Content-Type: application/json; charset=utf-8');
+            echo encode(['ok' => false, 'message' => $error]);
+            exit;
+        }
     }
 }
 
@@ -322,13 +381,24 @@ if ($active) {
 
     <?php if ($section === 'stories'): ?>
       <section class="panel">
-        <h2>رفع تسجيل</h2>
-        <p>استخدم اسمًا مثل <bdi>Madar-Idris-007.mp3</bdi> أو <bdi>Madar-Idris-007.mp4</bdi>. يظهر التسجيل في الفهرس بعد الرفع.</p>
-        <form method="post" enctype="multipart/form-data" class="inline">
+        <h2>رفع تسجيلات</h2>
+        <p>اختر ملفًا أو أكثر بأسماء مثل <bdi>Madar-Idris-007.mp3</bdi> أو <bdi>Madar-Idris-007.mp4</bdi>. تُرفع واحدًا بعد الآخر ويظهر تقدّم كل ملف، وتظهر في الفهرس بعد الرفع.</p>
+        <form method="post" enctype="multipart/form-data" class="inline" id="upload-form">
           <?php controls('upload_story'); ?>
-          <input type="file" name="recording" accept=".mp3,.mp4" required aria-label="ملف صوت أو فيديو">
-          <button class="primary">رفع التسجيل</button>
+          <input type="file" name="recording" accept=".mp3,.mp4" multiple required aria-label="ملفات صوت أو فيديو">
+          <button class="primary">رفع</button>
         </form>
+        <div id="upload-progress" class="uploads" hidden></div>
+      </section>
+      <section class="panel">
+        <h2>نقل من Google Drive</h2>
+        <p>الصق رابط ملف أو أكثر، كل رابط في سطر. اجعل المشاركة «أي شخص لديه الرابط». يُنزَّل الملف على الموقع مباشرة. يُستخدم اسم الملف على Drive، أو اكتب الاسم بعد الرابط بمسافة: <bdi>https://drive.google.com/file/d/… Madar-Idris-007.mp4</bdi></p>
+        <form method="post" id="drive-form">
+          <?php controls('drive_import'); ?>
+          <textarea name="links" rows="4" required dir="ltr" placeholder="https://drive.google.com/file/d/…"></textarea>
+          <button class="primary">نقل من Drive</button>
+        </form>
+        <div id="drive-progress" class="uploads" hidden></div>
       </section>
       <?php foreach (['archive_story' => ['التسجيلات الحالية', ROOT . '/Prophet Stories', 'أرشفة'], 'restore_story' => ['الأرشيف', storage() . '/stories-archive', 'استعادة']] as $action => [$heading, $folder, $verb]): ?>
         <section class="panel">
@@ -448,5 +518,6 @@ if ($active) {
   </main>
 </div>
 <?php endif; ?>
+<script src="uploads.js" defer></script>
 </body>
 </html>
