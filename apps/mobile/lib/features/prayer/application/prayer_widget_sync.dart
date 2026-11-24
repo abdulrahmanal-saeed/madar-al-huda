@@ -126,18 +126,18 @@ class _PrayerWidgetSyncState extends ConsumerState<PrayerWidgetSync> {
     final widgetTarget = ref.watch(prayerWidgetProvider);
     if (widgetTarget is NoPrayerWidget) return widget.child;
     final location = ref.watch(worshipLocationProvider);
+    final prayerPlace = ref.watch(prayerPlaceProvider);
     final hanafi = ref.watch(hanafiAsrProvider);
     final l10n = context.l10n;
     final language = Localizations.localeOf(context).languageCode;
-    final point = location.point;
-    final country = location.country;
-    final place = location.devicePoint != null
-        ? l10n.deviceLocation
-        : location.city?.label(l10n) ?? '';
+    final place =
+        location.place?.label(language) ??
+        (location.fromDevice ? l10n.deviceLocation : '');
     final signature = [
-      point?.latitude,
-      point?.longitude,
-      country?.name,
+      prayerPlace?.point.latitude,
+      prayerPlace?.point.longitude,
+      prayerPlace?.timeZone,
+      prayerPlace?.method.name,
       hanafi,
       language,
       place,
@@ -146,12 +146,11 @@ class _PrayerWidgetSyncState extends ConsumerState<PrayerWidgetSync> {
       _published = signature;
       _debounce?.cancel();
       _debounce = Timer(const Duration(seconds: 1), () async {
-        final prayers = point == null || country == null
+        final prayers = prayerPlace == null
             ? const <WidgetPrayer>[]
             : upcomingPrayers(
                 scheduleOn: (day) => PrayerSchedule.calculate(
-                  location: point,
-                  country: country,
+                  place: prayerPlace,
                   now: day,
                   hanafi: hanafi,
                 ),
