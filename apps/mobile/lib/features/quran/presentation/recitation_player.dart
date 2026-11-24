@@ -8,7 +8,9 @@ import '../../../core/audio/audio_playback.dart';
 import '../../../core/content/collection_downloads.dart';
 import '../../../core/localization/l10n_extension.dart';
 import '../../../core/localization/numbers.dart';
+import '../../../core/localization/search_text.dart';
 import '../../../core/storage/storage_providers.dart';
+import '../../../core/theme/app_tokens.dart';
 import '../data/chapter_reciters.dart';
 import '../data/mushaf_edition.dart';
 import '../data/offline_recitations.dart';
@@ -201,6 +203,25 @@ class _RecitationPlayerState extends ConsumerState<RecitationPlayer> {
     }
   }
 
+  Future<void> _pickReciter(ChapterReciter selected) async {
+    final reader = await showModalBottomSheet<ChapterReciter>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      showDragHandle: true,
+      builder: (_) => _ReciterSheet(
+        reciters: widget.reciters,
+        selected: selected,
+        onDownloads: () => showRecitationDownloads(
+          context,
+          widget.edition,
+          initialReaderKey: selected.key,
+        ),
+      ),
+    );
+    if (reader != null && mounted) unawaited(_select(reader));
+  }
+
   @override
   Widget build(BuildContext context) {
     final selected =
@@ -210,6 +231,8 @@ class _RecitationPlayerState extends ConsumerState<RecitationPlayer> {
         selectedReciter(ref, widget.reciters);
     if (selected == null) return const SizedBox.shrink();
     final l10n = context.l10n;
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     final language = Localizations.localeOf(context).languageCode;
     final playback = ref.watch(audioPlaybackProvider);
     final download = ref.watch(audioDownloadProvider);
@@ -218,119 +241,259 @@ class _RecitationPlayerState extends ConsumerState<RecitationPlayer> {
     final saved =
         ref.watch(offlineAudioLibraryProvider).asData?.value.contains(key) ==
         true;
-    final loading =
-        playback.pending?.id == _recitationId(widget.surah.id, selected);
+    final id = _recitationId(widget.surah.id, selected);
+    // While this surah plays, the shared mini player below takes over.
+    if (playback.track?.id == id) return const SizedBox.shrink();
+    final loading = playback.pending?.id == id;
     final downloadProgress = download?.key == key ? download : null;
+    final busy = playback.pending != null;
     return Material(
-      color: Theme.of(context).colorScheme.surfaceContainer,
+      color: scheme.surfaceContainer,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+        padding: const EdgeInsetsDirectional.fromSTEB(
+          AppSpacing.sm,
+          AppSpacing.sm,
+          AppSpacing.sm,
+          AppSpacing.sm,
+        ),
+        child: Row(
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: DropdownButton<ChapterReciter>(
-                    isExpanded: true,
-                    value: selected,
-                    items: [
-                      for (final reader in widget.reciters)
-                        DropdownMenuItem(
-                          value: reader,
-                          child: Text(
-                            reader.name(language),
-                            overflow: TextOverflow.ellipsis,
-                          ),
+            Expanded(
+              child: InkWell(
+                key: const Key('reciter-picker'),
+                borderRadius: AppRadii.lgAll,
+                onTap: busy ? null : () => _pickReciter(selected),
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.xs),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 20,
+                        backgroundColor: scheme.primaryContainer,
+                        foregroundColor: scheme.onPrimaryContainer,
+                        child: const Icon(Icons.record_voice_over_outlined),
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              selected.name(language),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: theme.textTheme.titleSmall,
+                            ),
+                            Row(
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    widget.surah.name(language),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: scheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                                ),
+                                if (saved) ...[
+                                  const SizedBox(width: AppSpacing.xs),
+                                  Icon(
+                                    Icons.offline_pin,
+                                    size: 14,
+                                    color: scheme.primary,
+                                    semanticLabel: l10n.recitationPlayOffline,
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ],
                         ),
+                      ),
+                      Icon(
+                        Icons.unfold_more,
+                        size: 20,
+                        color: scheme.onSurfaceVariant,
+                      ),
                     ],
-                    onChanged: playback.pending != null
-                        ? null
-                        : (reader) {
-                            if (reader != null) unawaited(_select(reader));
-                          },
                   ),
                 ),
-                IconButton(
-                  tooltip: saved
-                      ? l10n.recitationPlayOffline
-                      : l10n.readerListenChapter,
-                  onPressed: playback.pending != null
-                      ? null
-                      : () => playRecitation(
-                          context,
-                          ref,
-                          edition: widget.edition,
-                          surah: widget.surah,
-                          reader: selected,
-                        ),
-                  icon: loading
-                      ? const SizedBox.square(
-                          dimension: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : Icon(
-                          saved ? Icons.offline_pin_outlined : Icons.play_arrow,
-                        ),
+              ),
+            ),
+            if (downloadProgress != null)
+              Padding(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                child: SizedBox.square(
+                  dimension: 22,
+                  child: CircularProgressIndicator(
+                    value: downloadProgress.progress,
+                    semanticsLabel: l10n.recitationDownloading,
+                    strokeWidth: 2,
+                  ),
                 ),
-                if (downloadProgress != null)
-                  Padding(
-                    padding: const EdgeInsetsDirectional.only(
-                      start: 8,
-                      end: 12,
+              )
+            else if (selected.hasOfflineAudio)
+              IconButton(
+                tooltip: saved
+                    ? l10n.recitationRemoveDownload
+                    : l10n.recitationDownload,
+                onPressed: batch || download != null || busy
+                    ? null
+                    : saved
+                    ? () => _removeDownload(
+                        context,
+                        ref,
+                        selected,
+                        widget.surah.id,
+                      )
+                    : () => _download(selected),
+                icon: Icon(
+                  saved ? Icons.download_done : Icons.download_outlined,
+                ),
+              ),
+            const SizedBox(width: AppSpacing.xs),
+            IconButton.filled(
+              key: const Key('recitation-play'),
+              tooltip: saved
+                  ? l10n.recitationPlayOffline
+                  : l10n.readerListenChapter,
+              iconSize: 30,
+              onPressed: busy
+                  ? null
+                  : () => playRecitation(
+                      context,
+                      ref,
+                      edition: widget.edition,
+                      surah: widget.surah,
+                      reader: selected,
                     ),
-                    child: SizedBox.square(
+              icon: loading
+                  ? SizedBox.square(
                       dimension: 22,
                       child: CircularProgressIndicator(
-                        value: downloadProgress.progress,
-                        semanticsLabel: l10n.recitationDownloading,
                         strokeWidth: 2,
+                        color: scheme.onPrimary,
                       ),
-                    ),
-                  )
-                else if (selected.hasOfflineAudio)
-                  IconButton(
-                    tooltip: saved
-                        ? l10n.recitationRemoveDownload
-                        : l10n.recitationDownload,
-                    onPressed:
-                        batch || download != null || playback.pending != null
-                        ? null
-                        : saved
-                        ? () => _removeDownload(
-                            context,
-                            ref,
-                            selected,
-                            widget.surah.id,
-                          )
-                        : () => _download(selected),
-                    icon: Icon(
-                      saved ? Icons.delete_outline : Icons.download_outlined,
+                    )
+                  : const Icon(Icons.play_arrow_rounded),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Chooses a reciter from the full list, with search.
+class _ReciterSheet extends StatefulWidget {
+  const _ReciterSheet({
+    required this.reciters,
+    required this.selected,
+    required this.onDownloads,
+  });
+
+  final List<ChapterReciter> reciters;
+  final ChapterReciter selected;
+  final VoidCallback onDownloads;
+
+  @override
+  State<_ReciterSheet> createState() => _ReciterSheetState();
+}
+
+class _ReciterSheetState extends State<_ReciterSheet> {
+  String _query = '';
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
+    final language = Localizations.localeOf(context).languageCode;
+    final needle = normalizeSearch(_query);
+    final matches = needle.isEmpty
+        ? widget.reciters
+        : widget.reciters
+              .where(
+                (reader) =>
+                    normalizeSearch(reader.name('ar')).contains(needle) ||
+                    normalizeSearch(reader.name('en')).contains(needle),
+              )
+              .toList();
+    return SizedBox(
+      height: MediaQuery.sizeOf(context).height * 0.8,
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(l10n.recitationReciter, style: theme.textTheme.titleLarge),
+                const SizedBox(height: AppSpacing.sm),
+                if (widget.reciters.length > 6)
+                  TextField(
+                    key: const Key('reciter-search'),
+                    onChanged: (value) => setState(() => _query = value),
+                    decoration: InputDecoration(
+                      prefixIcon: const Icon(Icons.search),
+                      hintText: l10n.recitationSearchReciter,
+                      isDense: true,
+                      border: const OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(28)),
+                      ),
                     ),
                   ),
               ],
             ),
-            if (selected.hasOfflineAudio)
-              Align(
-                alignment: AlignmentDirectional.centerEnd,
-                child: TextButton.icon(
-                  onPressed: () => showRecitationDownloads(
-                    context,
-                    widget.edition,
-                    initialReaderKey: selected.key,
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Expanded(
+            child: ListView.builder(
+              itemCount: matches.length,
+              itemBuilder: (context, index) {
+                final reader = matches[index];
+                final selected = reader.key == widget.selected.key;
+                return ListTile(
+                  key: ValueKey('reciter-${reader.key}'),
+                  leading: Icon(
+                    selected
+                        ? Icons.radio_button_checked
+                        : Icons.radio_button_off,
+                    color: selected ? theme.colorScheme.primary : null,
                   ),
-                  icon: const Icon(Icons.download_for_offline_outlined),
-                  label: Text(
-                    widget.edition.surahs.every(
-                          (item) => selected.covers(item.id),
+                  title: Text(reader.name(language)),
+                  trailing: reader.hasOfflineAudio
+                      ? Icon(
+                          Icons.download_for_offline_outlined,
+                          size: 18,
+                          color: theme.colorScheme.onSurfaceVariant,
                         )
-                        ? l10n.recitationDownloadMushaf
-                        : l10n.recitationDownloadAvailable,
+                      : null,
+                  selected: selected,
+                  onTap: () => Navigator.of(context).pop(reader),
+                );
+              },
+            ),
+          ),
+          if (widget.selected.hasOfflineAudio)
+            SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                child: OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(48),
                   ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    widget.onDownloads();
+                  },
+                  icon: const Icon(Icons.download_for_offline_outlined),
+                  label: Text(l10n.recitationDownloads),
                 ),
               ),
-          ],
-        ),
+            ),
+        ],
       ),
     );
   }

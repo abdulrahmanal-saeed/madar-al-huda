@@ -1658,4 +1658,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String learningFileSize(String size) {
     return '$size MB';
   }
+
+  @override
+  String get recitationReciter => 'Reciter';
+
+  @override
+  String get recitationSearchReciter => 'Search reciters';
+
+  @override
+  String get homeRadio => 'Radio';
 }

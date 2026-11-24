@@ -89,16 +89,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           SliverResponsiveContent(
             sliver: SliverList.list(
               children: [
-                Text(
-                  DateFormat.yMMMMEEEEd(locale.toLanguageTag()).format(date),
-                  key: const ValueKey('home-today-date'),
-                  style: theme.textTheme.bodyMedium,
+                _HomeHeader(
+                  gregorian: DateFormat.yMMMMEEEEd(locale.toLanguageTag())
+                      .format(date),
+                  hijri: hijri,
+                  place: location.place?.label(locale.languageCode),
                 ),
-                if (hijri != null)
-                  Tooltip(
-                    message: l10n.homeApproximateHijriDate,
-                    child: Text(hijri, style: theme.textTheme.bodySmall),
-                  ),
                 const SizedBox(height: AppSpacing.md),
                 if (schedule != null &&
                     (!AppSection.adhkar.status.isGated ||
@@ -128,9 +124,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 const SizedBox(height: AppSpacing.md),
                 _ContinueReading(edition: edition),
                 const SizedBox(height: AppSpacing.lg),
-                Wrap(
-                  spacing: AppSpacing.sm,
-                  runSpacing: AppSpacing.sm,
+                Text(l10n.homeQuickAccess, style: theme.textTheme.titleMedium),
+                const SizedBox(height: AppSpacing.sm),
+                GridView.count(
+                  crossAxisCount: 4,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  mainAxisSpacing: AppSpacing.sm,
+                  crossAxisSpacing: AppSpacing.sm,
+                  childAspectRatio: 0.82,
                   children: [
                     _HomeShortcut(
                       Icons.menu_book_outlined,
@@ -144,8 +146,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       key: const ValueKey('quick-access-AppSection.qibla'),
                     ),
                     _HomeShortcut(
-                      Icons.radio,
-                      l10n.radioTitle,
+                      Icons.touch_app_outlined,
+                      l10n.tasbihTitle,
+                      AppRoutes.tasbih,
+                      key: const ValueKey('quick-access-tasbih'),
+                    ),
+                    _HomeShortcut(
+                      Icons.radio_outlined,
+                      l10n.homeRadio,
                       AppRoutes.cairoRadio,
                     ),
                     _HomeShortcut(
@@ -154,15 +162,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       AppRoutes.morningAdhkar,
                     ),
                     _HomeShortcut(
-                      Icons.touch_app_outlined,
-                      l10n.tasbihTitle,
-                      AppRoutes.tasbih,
-                      key: const ValueKey('quick-access-tasbih'),
-                    ),
-                    _HomeShortcut(
                       Icons.format_quote_outlined,
                       l10n.sectionHadithTitle,
                       AppRoutes.hadith,
+                    ),
+                    _HomeShortcut(
+                      Icons.auto_stories_outlined,
+                      l10n.sectionStoriesTitle,
+                      AppRoutes.stories,
+                    ),
+                    _HomeShortcut(
+                      Icons.notifications_none,
+                      l10n.remindersTitle,
+                      AppRoutes.reminders,
                     ),
                   ],
                 ),
@@ -182,6 +194,57 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 }
 
+class _HomeHeader extends StatelessWidget {
+  const _HomeHeader({required this.gregorian, this.hijri, this.place});
+
+  final String gregorian;
+  final String? hijri;
+  final String? place;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (hijri != null)
+                Tooltip(
+                  message: l10n.homeApproximateHijriDate,
+                  child: Text(
+                    hijri!,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: scheme.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              Text(
+                gregorian,
+                key: const ValueKey('home-today-date'),
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: scheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (place != null)
+          ActionChip(
+            avatar: Icon(Icons.place_outlined, size: 18, color: scheme.primary),
+            label: Text(place!, overflow: TextOverflow.ellipsis),
+            onPressed: () => context.go(AppRoutes.prayerTimes),
+          ),
+      ],
+    );
+  }
+}
+
 class _HomeShortcut extends StatelessWidget {
   const _HomeShortcut(this.icon, this.label, this.route, {super.key});
 
@@ -190,19 +253,52 @@ class _HomeShortcut extends StatelessWidget {
   final String route;
 
   @override
-  Widget build(BuildContext context) => ActionChip(
-    avatar: Icon(icon, size: 18),
-    label: Text(label),
-    onPressed: () {
-      if (route == AppRoutes.dailyReading ||
-          route == AppRoutes.cairoRadio ||
-          route == AppRoutes.tasbih) {
-        context.push(route);
-      } else {
-        context.go(route);
-      }
-    },
-  );
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    return Semantics(
+      button: true,
+      child: InkWell(
+        borderRadius: AppRadii.lgAll,
+        onTap: () {
+          if (route == AppRoutes.dailyReading ||
+              route == AppRoutes.cairoRadio ||
+              route == AppRoutes.tasbih ||
+              route.startsWith(AppRoutes.settings)) {
+            context.push(route);
+          } else {
+            context.go(route);
+          }
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+          child: Column(
+            children: [
+              Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  color: scheme.primaryContainer,
+                  borderRadius: AppRadii.lgAll,
+                ),
+                child: Icon(icon, color: scheme.onPrimaryContainer),
+              ),
+              const SizedBox(height: AppSpacing.xs),
+              Flexible(
+                child: Text(
+                  label,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.labelMedium,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class _ContinueReading extends ConsumerWidget {
@@ -244,13 +340,25 @@ class _ContinueReading extends ConsumerWidget {
               ),
               Text(l10n.readerJuzLabel(number(book.juzOf(verse) + 1))),
             ],
-            if (book != null)
+            if (book != null) ...[
+              const SizedBox(height: AppSpacing.sm),
+              ClipRRect(
+                borderRadius: AppRadii.smAll,
+                child: LinearProgressIndicator(
+                  value: plan.pagesRead / DailyReadingPlanController.totalPages,
+                  minHeight: 6,
+                  backgroundColor: theme.colorScheme.surface,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.xs),
               Text(
                 l10n.dailyReadingProgress(
                   number(plan.pagesRead),
                   number(DailyReadingPlanController.totalPages),
                 ),
+                style: theme.textTheme.bodySmall,
               ),
+            ],
             const SizedBox(height: AppSpacing.sm),
             FilledButton(
               onPressed: () => context.go(

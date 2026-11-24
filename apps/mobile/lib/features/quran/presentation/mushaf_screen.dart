@@ -360,7 +360,9 @@ class _ReaderState extends ConsumerState<_Reader> {
                 numbers.format(edition.pageStarts.length),
               ),
               style: Theme.of(context).textTheme.labelSmall,
-              maxLines: 2,
+              maxLines: 1,
+              overflow: TextOverflow.fade,
+              softWrap: false,
             ),
           ],
         ),
@@ -381,15 +383,21 @@ class _ReaderState extends ConsumerState<_Reader> {
             onPressed: _chooseIndex,
             icon: const Icon(Icons.list_alt),
           ),
-          IconButton(
-            tooltip: l10n.recitationDownloads,
-            onPressed: () => showRecitationDownloads(context, edition),
-            icon: const Icon(Icons.file_download_outlined),
-          ),
-          PopupMenuButton<Uri>(
+          PopupMenuButton<Uri?>(
             tooltip: l10n.readerSources,
-            onSelected: launchUrl,
+            onSelected: (uri) => uri == null
+                ? showRecitationDownloads(context, edition)
+                : launchUrl(uri),
             itemBuilder: (_) => [
+              PopupMenuItem(
+                value: null,
+                child: ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.file_download_outlined),
+                  title: Text(l10n.recitationDownloads),
+                ),
+              ),
+              const PopupMenuDivider(),
               PopupMenuItem(
                 value: Uri.https('tanzil.net'),
                 child: Text(l10n.readerTanzil),
@@ -434,23 +442,34 @@ class _ReaderState extends ConsumerState<_Reader> {
             if (!catalog.isLoading &&
                 verifiedReciters.isEmpty &&
                 (!matched || data!.tafsirs.isEmpty))
-              Row(
-                children: [
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      data?.isPreview == true && !matched
-                          ? l10n.readerPreliveCoverage
-                          : l10n.readerTafsirUnavailable,
-                    ),
+              Material(
+                color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                child: Padding(
+                  padding: const EdgeInsetsDirectional.only(start: 16),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.cloud_off_outlined,
+                        size: 16,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          data?.isPreview == true && !matched
+                              ? l10n.readerPreliveCoverage
+                              : l10n.readerTafsirUnavailable,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () =>
+                            ref.invalidate(quranCatalogProvider(language)),
+                        child: Text(l10n.readerRetry),
+                      ),
+                    ],
                   ),
-                  IconButton(
-                    tooltip: l10n.readerRetry,
-                    icon: const Icon(Icons.refresh),
-                    onPressed: () =>
-                        ref.invalidate(quranCatalogProvider(language)),
-                  ),
-                ],
+                ),
               ),
             RecitationPlayer(
               edition: edition,
