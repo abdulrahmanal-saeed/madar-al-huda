@@ -4,7 +4,8 @@ import 'package:madar_al_huda/features/prayer/domain/prayer_schedule.dart';
 import 'package:madar_al_huda/features/qibla/domain/qibla_bearing.dart';
 import 'package:madar_al_huda/features/reminders/domain/reminder_plan.dart';
 import 'package:madar_al_huda/features/reminders/domain/reminder_settings.dart';
-import 'package:madar_al_huda/features/worship/application/worship_location.dart';
+
+import '../../helpers/places.dart';
 
 final class TestReminderTexts implements ReminderTexts {
   @override
@@ -48,8 +49,7 @@ final class TestReminderTexts implements ReminderTexts {
 }
 
 PrayerSchedule _dubai(DateTime day) => PrayerSchedule.calculate(
-  location: ManualCity.dubai.center,
-  country: WorshipCountry.emirates,
+  place: placeOf(ManualCity.dubai),
   now: day,
   hanafi: false,
 );

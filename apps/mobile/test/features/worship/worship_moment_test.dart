@@ -1,14 +1,14 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:madar_al_huda/features/prayer/domain/prayer_schedule.dart';
 import 'package:madar_al_huda/features/qibla/domain/qibla_bearing.dart';
-import 'package:madar_al_huda/features/worship/application/worship_location.dart';
 import 'package:madar_al_huda/features/worship/domain/worship_moment.dart';
+
+import '../../helpers/places.dart';
 
 void main() {
   // Noon in Dubai on 23 November 2026.
   final schedule = PrayerSchedule.calculate(
-    location: ManualCity.dubai.center,
-    country: WorshipCountry.emirates,
+    place: placeOf(ManualCity.dubai),
     now: DateTime.utc(2026, 11, 23, 8),
     hanafi: false,
   );

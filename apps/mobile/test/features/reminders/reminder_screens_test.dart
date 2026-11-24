@@ -18,6 +18,7 @@ import 'package:madar_al_huda/features/reminders/domain/reminder_settings.dart';
 import 'package:madar_al_huda/features/worship/application/worship_location.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../helpers/places.dart';
 import '../../helpers/pump_app.dart';
 
 final class _FakeScheduler implements ReminderScheduler {
@@ -47,8 +48,7 @@ final class _FakeScheduler implements ReminderScheduler {
 
 void main() {
   final schedule = PrayerSchedule.calculate(
-    location: ManualCity.dubai.center,
-    country: WorshipCountry.emirates,
+    place: placeOf(ManualCity.dubai),
     now: DateTime.utc(2026, 11, 23, 8),
     hanafi: false,
   );

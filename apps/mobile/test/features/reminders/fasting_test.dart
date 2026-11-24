@@ -4,8 +4,8 @@ import 'package:madar_al_huda/features/prayer/domain/prayer_schedule.dart';
 import 'package:madar_al_huda/features/qibla/domain/qibla_bearing.dart';
 import 'package:madar_al_huda/features/reminders/domain/reminder_plan.dart';
 import 'package:madar_al_huda/features/reminders/domain/reminder_settings.dart';
-import 'package:madar_al_huda/features/worship/application/worship_location.dart';
 
+import '../../helpers/places.dart';
 import 'reminder_plan_test.dart' show TestReminderTexts;
 
 /// The Gregorian date of a civil Hijri date, found by scanning forward.
@@ -77,8 +77,7 @@ void main() {
     final reminders = planReminders(
       settings: const ReminderSettings(fastMonThu: true),
       scheduleOn: (day) => PrayerSchedule.calculate(
-        location: ManualCity.dubai.center,
-        country: WorshipCountry.emirates,
+        place: placeOf(ManualCity.dubai),
         now: day,
         hanafi: false,
       ),

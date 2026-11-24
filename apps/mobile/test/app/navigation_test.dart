@@ -183,18 +183,25 @@ void main() {
       tester,
       initialLocation: AppRoutes.prayerTimes,
     );
-    await tester.tap(find.widgetWithText(ChoiceChip, l10n.cityDubai));
+    expect(find.text(l10n.locationChooseTitle), findsOneWidget);
+    await tester.tap(find.byKey(const Key('worship-location')));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const Key('city-search')), 'دبي');
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('city-292223')));
     await tester.pumpAndSettle();
     expect(find.textContaining(l10n.nextPrayer), findsOneWidget);
-    expect(store.getString(WorshipLocationController.cityKey), 'dubai-ae');
+    expect(
+      store.getString(WorshipLocationController.placeKey),
+      contains('Asia/Dubai'),
+    );
+    expect(find.text('Dubai, UAE'), findsOneWidget);
+    // One location only: no list of other cities on the screen.
+    expect(find.text('Cairo'), findsNothing);
     await tester.tap(find.widgetWithText(TextButton, l10n.sectionQiblaTitle));
     await tester.pumpAndSettle();
-    expect(
-      tester
-          .widget<ChoiceChip>(find.widgetWithText(ChoiceChip, l10n.cityDubai))
-          .selected,
-      isTrue,
-    );
+    expect(find.text('Dubai, UAE'), findsOneWidget);
     expect(find.text(l10n.cityBearingApproximate), findsOneWidget);
     expect(tester.takeException(), isNull);
   });

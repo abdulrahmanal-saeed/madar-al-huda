@@ -17,6 +17,7 @@ import '../../worship/presentation/worship_location_picker.dart';
 import '../application/prayer_preferences.dart';
 import '../domain/prayer_schedule.dart';
 import 'next_prayer_card.dart';
+import 'prayer_method_tile.dart';
 
 class PrayerTimesScreen extends StatelessWidget {
   const PrayerTimesScreen({super.key});
@@ -75,18 +76,12 @@ class _PrayerTimesState extends ConsumerState<_PrayerTimes> {
     final l10n = context.l10n;
     final theme = Theme.of(context);
     final location = ref.watch(worshipLocationProvider);
-    final country = location.country;
-    final point = location.point;
+    final place = ref.watch(prayerPlaceProvider);
     final now = DateTime.now();
     final hanafi = ref.watch(hanafiAsrProvider);
-    final schedule = point == null || country == null
+    final schedule = place == null
         ? null
-        : PrayerSchedule.calculate(
-            location: point,
-            country: country,
-            now: now,
-            hanafi: hanafi,
-          );
+        : PrayerSchedule.calculate(place: place, now: now, hanafi: hanafi);
     final locale = Localizations.localeOf(context).toLanguageTag();
     final clock = DateFormat.jm(locale);
 
@@ -115,9 +110,11 @@ class _PrayerTimesState extends ConsumerState<_PrayerTimes> {
                   NextPrayerCard(
                     schedule: schedule,
                     now: now,
-                    location: location.devicePoint == null
-                        ? location.city!.label(l10n)
-                        : l10n.deviceLocation,
+                    location:
+                        location.place?.label(
+                          Localizations.localeOf(context).languageCode,
+                        ) ??
+                        l10n.deviceLocation,
                   ),
                   const SizedBox(height: AppSpacing.md),
                   Card(
@@ -153,15 +150,7 @@ class _PrayerTimesState extends ConsumerState<_PrayerTimes> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            l10n.prayerCalculationMethod,
-                            style: theme.textTheme.titleSmall,
-                          ),
-                          Text(
-                            country == WorshipCountry.egypt
-                                ? l10n.prayerEgyptMethod
-                                : l10n.prayerDubaiMethod,
-                          ),
+                          PrayerMethodTile(place: place!),
                           const Divider(),
                           Text(
                             l10n.prayerAsrCalculation,

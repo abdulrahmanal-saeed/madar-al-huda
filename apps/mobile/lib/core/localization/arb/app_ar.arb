@@ -154,7 +154,6 @@
   "deviceLocation": "موقع الجهاز",
   "locationDenied": "تم رفض إذن الموقع. يمكنك اختيار مدينة.",
   "locationUnavailable": "تعذّر تحديد الموقع. تحقق من خدمة الموقع أو اختر مدينة.",
-  "locationOutside": "موقع الجهاز مدعوم داخل مصر والإمارات. اختر مدينة للمتابعة.",
   "locationLoading": "جارٍ تحديد موقعك…",
   "localSaveFailed": "تعذّر الحفظ على هذا الجهاز.",
   "prayerPreview": "مواقيت محسوبة للاختبار خلال التحقق من المراجع المحلية.",
@@ -455,5 +454,18 @@
   "playerSleepUntil": "يتوقف التشغيل الساعة {time}",
   "playerBack": "رجوع ١٠ ثوانٍ",
   "playerForward": "تقديم ١٠ ثوانٍ",
-  "readerShareImage": "مشاركة كصورة"
+  "readerShareImage": "مشاركة كصورة",
+  "locationChange": "تغيير",
+  "locationChooseTitle": "اختر موقعك",
+  "locationChooseHint": "تُحسب مواقيت الصلاة والقبلة حسبه، في أي مكان في العالم.",
+  "locationFromDevice": "موقعك الحالي",
+  "locationChosenCity": "مدينة اخترتها",
+  "locationSearchHint": "ابحث عن مدينة أو دولة",
+  "locationNoResults": "لا توجد مدينة بهذا الاسم.",
+  "locationLargestWorld": "أكبر المدن",
+  "locationCitiesLoading": "جارٍ تحميل المدن…",
+  "prayerMethodAuto": "تلقائي حسب بلدك",
+  "prayerMethodPick": "طريقة الحساب",
+  "locationCountryCities": "مدن {country}",
+  "prayerMethodName": "{method, select, egyptian{الهيئة المصرية العامة للمساحة}ummAlQura{تقويم أم القرى بمكة المكرمة}dubai{دبي}qatar{قطر}kuwait{الكويت}gulfRegion{منطقة الخليج}jordan{وزارة الأوقاف الأردنية}morocco{وزارة الأوقاف المغربية}algerian{وزارة الشؤون الدينية الجزائرية}tunisia{وزارة الشؤون الدينية التونسية}turkiye{رئاسة الشؤون الدينية التركية}karachi{جامعة العلوم الإسلامية بكراتشي}singapore{سنغافورة وماليزيا}indonesian{وزارة الشؤون الدينية الإندونيسية}northAmerica{الجمعية الإسلامية لأمريكا الشمالية}moonsightingCommittee{لجنة رؤية الهلال}france{فرنسا (١٢°)}russia{الإدارة الدينية لمسلمي روسيا}muslimWorldLeague{رابطة العالم الإسلامي}other{رابطة العالم الإسلامي}}"
 }

@@ -322,10 +322,6 @@
   "@locationUnavailable": {
     "description": "Location is unavailable. Check location services or choose a city."
   },
-  "locationOutside": "Device location is supported in Egypt and the UAE. Choose a city to continue.",
-  "@locationOutside": {
-    "description": "Device location is supported in Egypt and the UAE. Choose a city to continue."
-  },
   "locationLoading": "Finding your location…",
   "@locationLoading": {
     "description": "Finding your location…"
@@ -1389,5 +1385,31 @@
   "playerForward": "Forward 10 seconds",
   "@playerForward": {"description":"Seek forward."},
   "readerShareImage": "Share as image",
-  "@readerShareImage": {"description":"Shares the verse as a picture."}
+  "@readerShareImage": {"description":"Shares the verse as a picture."},
+  "locationChange": "Change",
+  "@locationChange": {"description":"Opens the location picker."},
+  "locationChooseTitle": "Choose your location",
+  "@locationChooseTitle": {"description":"Title when no location is set."},
+  "locationChooseHint": "Prayer times and the Qibla follow it, anywhere in the world.",
+  "@locationChooseHint": {"description":"Explains why a location is needed."},
+  "locationFromDevice": "Your current location",
+  "@locationFromDevice": {"description":"The place comes from GPS."},
+  "locationChosenCity": "City you chose",
+  "@locationChosenCity": {"description":"The place was picked from the list."},
+  "locationSearchHint": "Search for a city or country",
+  "@locationSearchHint": {"description":"City search field."},
+  "locationNoResults": "No city matches that name.",
+  "@locationNoResults": {"description":"Empty search."},
+  "locationLargestWorld": "Largest cities",
+  "@locationLargestWorld": {"description":"List header before searching."},
+  "locationCitiesLoading": "Loading cities…",
+  "@locationCitiesLoading": {"description":"City list loading."},
+  "prayerMethodAuto": "Automatic for your country",
+  "@prayerMethodAuto": {"description":"Method follows the country."},
+  "prayerMethodPick": "Calculation method",
+  "@prayerMethodPick": {"description":"Method sheet title."},
+  "locationCountryCities": "Cities in {country}",
+  "@locationCountryCities": {"description":"List header for the current country.","placeholders":{"country":{"type":"String"}}},
+  "prayerMethodName": "{method, select, egyptian{Egyptian General Authority of Survey}ummAlQura{Umm al-Qura, Makkah}dubai{Dubai}qatar{Qatar}kuwait{Kuwait}gulfRegion{Gulf region}jordan{Jordan's Ministry of Awqaf}morocco{Morocco's Ministry of Habous}algerian{Algeria's Ministry of Religious Affairs}tunisia{Tunisia's Ministry of Religious Affairs}turkiye{Diyanet, Türkiye}karachi{University of Islamic Sciences, Karachi}singapore{Singapore and Malaysia}indonesian{Indonesia's Ministry of Religious Affairs}northAmerica{Islamic Society of North America}moonsightingCommittee{Moonsighting Committee}france{France (12°)}russia{Spiritual Administration of Muslims of Russia}muslimWorldLeague{Muslim World League}other{Muslim World League}}",
+  "@prayerMethodName": {"description":"A prayer calculation authority.","placeholders":{"method":{"type":"String"}}}
 }

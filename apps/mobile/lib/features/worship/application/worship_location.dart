@@ -1,54 +1,139 @@
 import 'dart:convert';
+import 'dart:isolate';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 
-import '../../../core/localization/app_locales.dart';
 import '../../../core/storage/key_value_store.dart';
 import '../../../core/storage/storage_providers.dart';
+import '../../prayer/domain/prayer_method.dart';
+import '../../prayer/domain/prayer_schedule.dart';
 import '../../qibla/domain/qibla_bearing.dart';
+import '../domain/world_cities.dart';
 
-enum WorshipCountry {
-  egypt('Africa/Cairo'),
-  emirates('Asia/Dubai');
+enum LocationProblem { denied, blocked, unavailable }
 
-  const WorshipCountry(this.timeZone);
+/// One place prayer times and the Qibla are worked out for.
+class WorshipPlace {
+  const WorshipPlace({
+    required this.point,
+    required this.timeZone,
+    required this.country,
+    this.name,
+    this.arabicName,
+    this.cityId,
+  });
+
+  WorshipPlace.city(WorldCity city)
+    : this(
+        point: city.point,
+        timeZone: city.timeZone,
+        country: city.country,
+        name: city.name,
+        arabicName: city.arabicName,
+        cityId: city.id,
+      );
+
+  /// A device position, named after (and in the time zone of) the closest
+  /// listed place.
+  WorshipPlace.near(GeoCoordinate point, WorldCity city)
+    : this(
+        point: point,
+        timeZone: city.timeZone,
+        country: city.country,
+        name: city.name,
+        arabicName: city.arabicName,
+        cityId: city.id,
+      );
+
+  final GeoCoordinate point;
   final String timeZone;
-}
 
-extension WorshipCity on ManualCity {
-  WorshipCountry get country => timeZone == 'Africa/Cairo'
-      ? WorshipCountry.egypt
-      : WorshipCountry.emirates;
+  /// ISO 3166 code, which picks the default calculation method.
+  final String country;
+  final String? name;
+  final String? arabicName;
+  final int? cityId;
 
-  String label(AppLocalizations l10n) => switch (this) {
-    ManualCity.dubai => l10n.cityDubai,
-    ManualCity.abuDhabi => l10n.cityAbuDhabi,
-    ManualCity.cairo => l10n.cityCairo,
-    ManualCity.alexandria => l10n.cityAlexandria,
+  String? label(String language) =>
+      language == 'ar' ? arabicName ?? name : name;
+
+  Map<String, Object?> toJson() => {
+    'lat': point.latitude,
+    'lng': point.longitude,
+    'tz': timeZone,
+    'cc': country,
+    if (name != null) 'name': name,
+    if (arabicName != null) 'ar': arabicName,
+    if (cityId != null) 'id': cityId,
   };
-}
 
-enum LocationProblem { denied, blocked, unavailable, outside }
+  static WorshipPlace? fromJson(Object? raw) {
+    if (raw is! Map<String, dynamic>) return null;
+    final latitude = raw['lat'];
+    final longitude = raw['lng'];
+    if (latitude is! num || longitude is! num) return null;
+    if (latitude.abs() > 90 || longitude.abs() > 180) return null;
+    // Saved before worldwide support: only Egypt and the UAE existed.
+    final legacy = switch (raw['country']) {
+      'egypt' => ('Africa/Cairo', 'EG'),
+      'emirates' => ('Asia/Dubai', 'AE'),
+      _ => null,
+    };
+    final timeZone = raw['tz'] ?? legacy?.$1;
+    final country = raw['cc'] ?? legacy?.$2;
+    if (timeZone is! String || country is! String) return null;
+    return WorshipPlace(
+      point: GeoCoordinate(latitude.toDouble(), longitude.toDouble()),
+      timeZone: timeZone,
+      country: country,
+      name: raw['name'] as String?,
+      arabicName: raw['ar'] as String?,
+      cityId: raw['id'] as int?,
+    );
+  }
+
+  /// The four cities offered before worldwide support, by their saved ids.
+  static WorshipPlace? legacyCity(String? id) {
+    final city = ManualCity.values.where((city) => city.id == id).firstOrNull;
+    if (city == null) return null;
+    final (name, arabic, country, geonameId) = switch (city) {
+      ManualCity.dubai => ('Dubai', 'دبي', 'AE', 292223),
+      ManualCity.abuDhabi => ('Abu Dhabi', 'أبوظبي', 'AE', 292968),
+      ManualCity.cairo => ('Cairo', 'القاهرة', 'EG', 360630),
+      ManualCity.alexandria => ('Alexandria', 'الإسكندرية', 'EG', 361058),
+    };
+    return WorshipPlace(
+      point: city.center,
+      timeZone: city.timeZone,
+      country: country,
+      name: name,
+      arabicName: arabic,
+      cityId: geonameId,
+    );
+  }
+}
 
 class WorshipLocation {
   const WorshipLocation({
     this.city,
-    this.devicePoint,
-    this.deviceCountry,
+    this.device,
     this.loading = false,
     this.problem,
   });
 
-  final ManualCity? city;
-  final GeoCoordinate? devicePoint;
-  final WorshipCountry? deviceCountry;
+  /// The city the user picked, used while the device position is off.
+  final WorshipPlace? city;
+
+  /// The device position, when the user chose to use it.
+  final WorshipPlace? device;
   final bool loading;
   final LocationProblem? problem;
 
-  GeoCoordinate? get point => devicePoint ?? city?.center;
-  WorshipCountry? get country => deviceCountry ?? city?.country;
+  WorshipPlace? get place => device ?? city;
+  GeoCoordinate? get point => place?.point;
+  bool get fromDevice => device != null;
 }
 
 typedef ReadDeviceLocation = Future<GeoCoordinate> Function({
@@ -81,13 +166,23 @@ final readDeviceLocationProvider = Provider<ReadDeviceLocation>(
   },
 );
 
+/// The bundled city list, parsed off the UI thread.
+final worldCitiesProvider = FutureProvider<WorldCities>((_) async {
+  final source = await rootBundle.loadString('assets/location/cities.json');
+  return Isolate.run(() => WorldCities.parse(source));
+});
+
 final worshipLocationProvider =
     NotifierProvider<WorshipLocationController, WorshipLocation>(
       WorshipLocationController.new,
     );
 
 class WorshipLocationController extends Notifier<WorshipLocation> {
+  /// The city picked before worldwide support (`cairo-eg`, …).
   static const cityKey = 'worship.manualCity';
+
+  /// The picked city as JSON.
+  static const placeKey = 'worship.city';
   static const deviceLocationKey = 'worship.useDeviceLocation';
 
   /// Last device position, kept so prayer times show immediately (and
@@ -99,48 +194,30 @@ class WorshipLocationController extends Notifier<WorshipLocation> {
   @override
   WorshipLocation build() {
     final store = ref.watch(keyValueStoreProvider);
-    final cityId = store.getString(cityKey);
-    final city = ManualCity.values
-        .where((city) => city.id == cityId)
-        .firstOrNull;
+    final city =
+        _decode(store.getString(placeKey)) ??
+        WorshipPlace.legacyCity(store.getString(cityKey));
     if (store.getBool(deviceLocationKey) == true) {
-      final saved = _readSavedPoint(store.getString(lastDevicePointKey));
-      if (saved != null) {
-        return WorshipLocation(
-          city: city,
-          devicePoint: saved.point,
-          deviceCountry: saved.country,
-        );
-      }
+      final saved = _decode(store.getString(lastDevicePointKey));
+      if (saved != null) return WorshipLocation(city: city, device: saved);
     }
     return WorshipLocation(city: city);
   }
 
-  static ({GeoCoordinate point, WorshipCountry country})? _readSavedPoint(
-    String? raw,
-  ) {
+  static WorshipPlace? _decode(String? raw) {
     if (raw == null) return null;
     try {
-      final data = jsonDecode(raw) as Map<String, dynamic>;
-      final latitude = (data['lat'] as num).toDouble();
-      final longitude = (data['lng'] as num).toDouble();
-      final country = WorshipCountry.values
-          .where((country) => country.name == data['country'])
-          .firstOrNull;
-      if (country == null || latitude.abs() > 90 || longitude.abs() > 180) {
-        return null;
-      }
-      return (point: GeoCoordinate(latitude, longitude), country: country);
+      return WorshipPlace.fromJson(jsonDecode(raw));
     } on Object {
       return null;
     }
   }
 
-  Future<void> selectCity(ManualCity city) {
+  Future<void> selectCity(WorshipPlace city) {
     ++_request;
     state = WorshipLocation(city: city);
     return _persist((store) async {
-      await store.setString(cityKey, city.id);
+      await store.setString(placeKey, jsonEncode(city.toJson()));
       await store.setBool(deviceLocationKey, value: false);
     });
   }
@@ -184,8 +261,7 @@ class WorshipLocationController extends Notifier<WorshipLocation> {
     final previous = state;
     state = WorshipLocation(
       city: previous.city,
-      devicePoint: previous.devicePoint,
-      deviceCountry: previous.deviceCountry,
+      device: previous.device,
       loading: true,
     );
     try {
@@ -193,39 +269,29 @@ class WorshipLocationController extends Notifier<WorshipLocation> {
         requestPermission: requestPermission,
       );
       if (!ref.mounted || request != _request) return;
-      final country = await ref
-          .read(countryBoundariesProvider.future)
-          .then((boundaries) => boundaries.countryAt(point));
-      if (country == null) throw LocationProblem.outside;
-      if (ref.mounted && request == _request) {
-        state = WorshipLocation(
-          city: previous.city,
-          devicePoint: point,
-          deviceCountry: country,
-        );
-        await _persist(
-          (store) => store.setString(
-            lastDevicePointKey,
-            // Rounded to about 1 km: enough for prayer times and Qibla,
-            // without keeping a precise position on the device.
-            jsonEncode({
-              'lat': (point.latitude * 100).round() / 100,
-              'lng': (point.longitude * 100).round() / 100,
-              'country': country.name,
-            }),
-          ),
-        ).then<void>((_) {}, onError: (Object _, StackTrace _) {});
-      }
+      final nearest = (await ref.read(worldCitiesProvider.future))
+          .nearest(point);
+      if (!ref.mounted || request != _request) return;
+      // Rounded to about 1 km: enough for prayer times and Qibla, without
+      // keeping a precise position on the device.
+      final device = WorshipPlace.near(
+        GeoCoordinate(
+          (point.latitude * 100).round() / 100,
+          (point.longitude * 100).round() / 100,
+        ),
+        nearest,
+      );
+      state = WorshipLocation(city: previous.city, device: device);
+      await _persist(
+        (store) =>
+            store.setString(lastDevicePointKey, jsonEncode(device.toJson())),
+      ).then<void>((_) {}, onError: (Object _, StackTrace _) {});
     } catch (error) {
       if (!ref.mounted || request != _request) return;
       // A silent refresh at start-up keeps the last saved position instead
       // of leaving prayer times empty when GPS is off or slow.
-      if (!requestPermission && previous.devicePoint != null) {
-        state = WorshipLocation(
-          city: previous.city,
-          devicePoint: previous.devicePoint,
-          deviceCountry: previous.deviceCountry,
-        );
+      if (!requestPermission && previous.device != null) {
+        state = WorshipLocation(city: previous.city, device: previous.device);
         return;
       }
       state = WorshipLocation(
@@ -236,51 +302,40 @@ class WorshipLocationController extends Notifier<WorshipLocation> {
   }
 }
 
-final countryBoundariesProvider = FutureProvider<CountryBoundaries>(
-  (_) async => CountryBoundaries(
-    jsonDecode(await rootBundle.loadString('assets/location/countries.json'))
-        as Map<String, dynamic>,
-  ),
-);
+/// Null means the country's own method ([PrayerMethod.forCountry]).
+final prayerMethodProvider =
+    NotifierProvider<PrayerMethodChoice, PrayerMethod?>(PrayerMethodChoice.new);
 
-/// Natural Earth 1:10m polygons, loaded on-device only.
-class CountryBoundaries {
-  const CountryBoundaries(this.polygons);
-  final Map<String, dynamic> polygons;
+class PrayerMethodChoice extends Notifier<PrayerMethod?> {
+  static const key = 'worship.prayerMethod';
 
-  WorshipCountry? countryAt(GeoCoordinate point) {
-    for (final (code, country) in [
-      ('EG', WorshipCountry.egypt),
-      ('AE', WorshipCountry.emirates),
-    ]) {
-      final shapes = polygons[code] as List<dynamic>;
-      for (final shape in shapes.cast<List<dynamic>>()) {
-        if (_inside(point, shape.first as List<dynamic>) &&
-            !shape
-                .skip(1)
-                .any((ring) => _inside(point, ring as List<dynamic>))) {
-          return country;
-        }
-      }
-    }
-    return null;
+  @override
+  PrayerMethod? build() {
+    final saved = ref.watch(keyValueStoreProvider).getString(key);
+    return PrayerMethod.values.where((m) => m.name == saved).firstOrNull;
   }
 
-  bool _inside(GeoCoordinate point, List<dynamic> ring) {
-    var inside = false;
-    var previous = ring.last as List<dynamic>;
-    for (final current in ring.cast<List<dynamic>>()) {
-      final x1 = previous[0] as num;
-      final y1 = previous[1] as num;
-      final x2 = current[0] as num;
-      final y2 = current[1] as num;
-      if ((y1 > point.latitude) != (y2 > point.latitude) &&
-          point.longitude <
-              x1 + (x2 - x1) * (point.latitude - y1) / (y2 - y1)) {
-        inside = !inside;
-      }
-      previous = current;
+  Future<void> select(PrayerMethod? method) async {
+    final store = ref.read(keyValueStoreProvider);
+    if (method == null) {
+      await store.remove(key);
+    } else {
+      await store.setString(key, method.name);
     }
-    return inside;
+    state = method;
   }
 }
+
+/// Everything prayer times need about where the user is, or null before a
+/// location is known.
+final prayerPlaceProvider = Provider<PrayerPlace?>((ref) {
+  final place = ref.watch(worshipLocationProvider.select((l) => l.place));
+  if (place == null) return null;
+  return PrayerPlace(
+    point: place.point,
+    timeZone: place.timeZone,
+    method:
+        ref.watch(prayerMethodProvider) ??
+        PrayerMethod.forCountry(place.country),
+  );
+});

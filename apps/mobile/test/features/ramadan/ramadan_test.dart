@@ -16,11 +16,11 @@ import 'package:madar_al_huda/features/reminders/domain/reminder_settings.dart';
 import 'package:madar_al_huda/features/worship/application/worship_location.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../helpers/places.dart';
 import '../reminders/reminder_plan_test.dart' show TestReminderTexts;
 
 PrayerSchedule _dubai(DateTime day) => PrayerSchedule.calculate(
-  location: ManualCity.dubai.center,
-  country: WorshipCountry.emirates,
+  place: placeOf(ManualCity.dubai),
   now: day,
   hanafi: false,
 );
