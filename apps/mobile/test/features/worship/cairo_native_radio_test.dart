@@ -9,7 +9,6 @@ import 'package:madar_al_huda/core/audio/audio_playback.dart';
 import 'package:madar_al_huda/core/localization/app_locales.dart';
 import 'package:madar_al_huda/core/routing/app_routes.dart';
 import 'package:madar_al_huda/features/worship/application/cairo_radio_stream.dart';
-import 'package:madar_al_huda/features/worship/presentation/cairo_radio_card.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../helpers/pump_app.dart';
@@ -25,11 +24,11 @@ void main() {
     addTearDown(audio.dispose);
     await pumpMadarApp(
       tester,
-      initialLocation: AppRoutes.cairoRadio,
+      initialLocation: AppRoutes.library,
       cairoRadioStream: live,
       audioPlayer: audio,
     );
-    final context = tester.element(find.byType(CairoRadioScreen));
+    final context = tester.element(find.byKey(const ValueKey('library-radio')));
     final controller = ProviderScope.containerOf(context)
         .read(audioPlaybackProvider.notifier);
 
@@ -42,7 +41,8 @@ void main() {
     );
 
     await startChapter();
-    await tester.tap(find.text(l10n.radioPlay));
+    // The library banner plays the radio in place: no radio page.
+    await tester.tap(find.byKey(const Key('library-radio-play')));
     await tester.pumpAndSettle();
 
     expect(audio.source, isA<HlsAudioSource>());
@@ -57,7 +57,8 @@ void main() {
         'play:$cairoRadioMediaId',
       ]),
     );
-    expect(find.text(l10n.radioLive), findsOneWidget);
+    expect(find.byKey(const ValueKey('library-radio')), findsOneWidget);
+    expect(find.byIcon(Icons.stop_rounded), findsOneWidget);
 
     GoRouter.of(context).go(AppRoutes.home);
     await tester.pumpAndSettle();
@@ -85,26 +86,31 @@ void main() {
     addTearDown(audio.dispose);
     await pumpMadarApp(
       tester,
-      initialLocation: AppRoutes.cairoRadio,
+      initialLocation: AppRoutes.home,
       cairoRadioStream: live,
       audioPlayer: audio,
     );
-    await tester.tap(find.text(l10n.radioPlay));
+    final tile = find.byKey(const ValueKey('quick-access-radio'));
+    await tester.ensureVisible(tile);
+    await tester.pumpAndSettle();
+    // From home too: a failed stream explains and offers the website.
+    await tester.tap(tile);
     await tester.pumpAndSettle();
     expect(find.text(l10n.radioStreamFailed), findsOneWidget);
     expect(find.text(l10n.radioOpenInBrowser), findsOneWidget);
-
-    await tester.tap(find.text(l10n.radioPlay));
+    ScaffoldMessenger.of(tester.element(tile)).hideCurrentSnackBar();
     await tester.pumpAndSettle();
-    expect(find.text(l10n.radioStreamFailed), findsNothing);
-    expect(find.text(l10n.radioOpenInBrowser), findsNothing);
-    expect(find.text(l10n.radioLive), findsOneWidget);
 
-    await tester.tap(find.text(l10n.radioStop));
+    await tester.tap(tile);
+    await tester.pumpAndSettle();
+    expect(audio.events.last, 'play:$cairoRadioMediaId');
+    expect(find.byIcon(Icons.stop_circle_outlined), findsOneWidget);
+
+    // The same tile stops it.
+    await tester.tap(tile);
     await tester.pumpAndSettle();
     expect(audio.events.last, 'stop:$cairoRadioMediaId');
-    expect(find.text(l10n.radioPlay), findsOneWidget);
-    expect(find.text(l10n.radioLive), findsNothing);
+    expect(find.byIcon(Icons.stop_circle_outlined), findsNothing);
   });
 }
 

@@ -90,12 +90,9 @@ void main() {
     final l10n = lookupAppLocalizations(const Locale('en'));
     final radio = find.text(l10n.radioTitle);
     await tester.scrollUntilVisible(radio, 160);
-    await tester.tap(radio);
-    await tester.pumpAndSettle();
-    // The station plays inside the app: a play button, no web page.
-    expect(find.text(l10n.radioPlay), findsOneWidget);
-    expect(find.text(l10n.radioOpen), findsNothing);
-    expect(find.text(l10n.radioOpenInBrowser), findsNothing);
+    // The radio plays in place from its card: there is no radio page.
+    expect(find.byKey(const Key('worship-radio')), findsOneWidget);
+    expect(find.byIcon(Icons.play_circle_outline), findsOneWidget);
     expect(launches, isEmpty);
   });
 }
