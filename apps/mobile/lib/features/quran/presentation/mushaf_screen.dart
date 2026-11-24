@@ -24,6 +24,7 @@ import 'mushaf_page_view.dart';
 import 'quran_meaning_view.dart';
 import 'reading_settings_sheet.dart';
 import 'recitation_player.dart';
+import 'verse_image.dart';
 
 class MushafScreen extends ConsumerWidget {
   const MushafScreen({super.key, this.initialVerse});
@@ -744,6 +745,18 @@ class _TafsirSheetState extends ConsumerState<_TafsirSheet> {
                 tooltip: l10n.readerShare,
                 onPressed: _share,
                 icon: const Icon(Icons.share_outlined),
+              ),
+              IconButton(
+                key: const ValueKey('verse-share-image'),
+                tooltip: l10n.readerShareImage,
+                onPressed: () => shareVerseImage(
+                  context,
+                  verseText: widget.verseText,
+                  surahName: widget.surahName,
+                  surah: widget.verse.surah,
+                  ayah: widget.verse.ayah,
+                ),
+                icon: const Icon(Icons.image_outlined),
               ),
             ],
           ),

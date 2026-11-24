@@ -1509,4 +1509,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get playerForward => 'Forward 10 seconds';
+
+  @override
+  String get readerShareImage => 'Share as image';
 }

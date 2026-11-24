@@ -101,4 +101,6 @@ flutter {
 
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+    // FileProvider for sharing verse images; same version the plugins use.
+    implementation("androidx.core:core:1.19.0")
 }

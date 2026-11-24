@@ -454,5 +454,6 @@
   "playerSleepMinutes": "{minutes} د",
   "playerSleepUntil": "يتوقف التشغيل الساعة {time}",
   "playerBack": "رجوع ١٠ ثوانٍ",
-  "playerForward": "تقديم ١٠ ثوانٍ"
+  "playerForward": "تقديم ١٠ ثوانٍ",
+  "readerShareImage": "مشاركة كصورة"
 }
