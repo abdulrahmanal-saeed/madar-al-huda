@@ -54,7 +54,8 @@ class _DhikrReaderState extends ConsumerState<DhikrReader> {
     final controller = ref.read(adhkarProgressProvider.notifier);
     final option = progress.variantIndex(day, group, entry);
     final variant = entry.variants[option];
-    final saved = progress.saved.contains('hadith:${variant.hadith}');
+    final savedKey = entry.savedKey(variant);
+    final saved = progress.saved.contains(savedKey);
     final shownCount = progress.count(day, group, entry);
     final complete = shownCount == variant.goal;
     final number = decimalFormat(language).format;
@@ -67,7 +68,7 @@ class _DhikrReaderState extends ConsumerState<DhikrReader> {
           icon: Icon(saved ? Icons.favorite : Icons.favorite_border),
           onPressed: () => adhkarSave(
             context,
-            controller.setSaved('hadith:${variant.hadith}', selected: !saved),
+            controller.setSaved(savedKey, selected: !saved),
           ),
         ),
       ],

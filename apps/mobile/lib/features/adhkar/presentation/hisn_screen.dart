@@ -82,6 +82,16 @@ class _HisnScreenState extends ConsumerState<HisnScreen> {
       );
     }
 
+    Widget own(DhikrEntry entry) {
+      final title = entry.title.inLanguage(language);
+      return ListTile(
+        title: Text(title),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () =>
+            openAdhkarPage(context, _HisnNarration(title: title, entry: entry)),
+      );
+    }
+
     final tiles = <Widget>[];
     for (final topic in catalog.hisnTopics) {
       final chapters = topic.chapters
@@ -91,7 +101,14 @@ class _HisnScreenState extends ConsumerState<HisnScreen> {
                 (matches(topic.title) || matches(catalog.chapterTitles[id])),
           )
           .toList();
-      if (chapters.isEmpty) continue;
+      final owned = topic.entries
+          .where(
+            (entry) =>
+                (!_favorites || saved.contains('own:${entry.id}')) &&
+                (matches(topic.title) || matches(entry.title)),
+          )
+          .toList();
+      if (chapters.isEmpty && owned.isEmpty) continue;
       tiles.add(
         Padding(
           padding: const EdgeInsets.only(bottom: 8),
@@ -101,6 +118,7 @@ class _HisnScreenState extends ConsumerState<HisnScreen> {
               title: Text(topic.title.inLanguage(language)),
               initiallyExpanded: _query.isNotEmpty || _favorites,
               children: [
+                for (final entry in owned) own(entry),
                 for (final id in chapters) chapter(id),
                 if (!_favorites && _query.isEmpty)
                   for (final id in topic.hadiths) hadith(id),
@@ -148,16 +166,18 @@ class _HisnScreenState extends ConsumerState<HisnScreen> {
 }
 
 class _HisnNarration extends ConsumerWidget {
-  const _HisnNarration({required this.title, required this.id, this.entry});
+  const _HisnNarration({required this.title, this.id, this.entry});
 
   final String title;
-  final int id;
+
+  /// The narration, or null for an own-text entry.
+  final int? id;
   final DhikrEntry? entry;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    final key = 'hadith:$id';
+    final key = id == null ? 'own:${entry?.id}' : 'hadith:$id';
     final saved = ref.watch(adhkarProgressProvider).saved.contains(key);
     return AdhkarPage(
       title: title,

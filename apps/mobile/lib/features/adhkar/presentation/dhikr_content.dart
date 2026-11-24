@@ -17,21 +17,24 @@ class DhikrContent extends ConsumerWidget {
     super.key,
   });
 
-  final int hadith;
+  /// Null for a dhikr written on the dashboard with its own text.
+  final int? hadith;
   final DhikrEntry? entry;
   final String? period;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    final arabic = ref.watch(
-      hadithDetailProvider((language: 'ar', id: '$hadith')),
-    );
+    final own = hadith == null;
+    final arabic = own
+        ? null
+        : ref.watch(hadithDetailProvider((language: 'ar', id: '$hadith')));
     final english = context.adhkarLanguage == 'en';
     final hasDraft = entry?.draftMeaning != null;
-    final translation = english && !hasDraft
+    final translation = english && !hasDraft && !own
         ? ref.watch(hadithDetailProvider((language: 'en', id: '$hadith')))
         : null;
+    final source = entry?.source;
 
     final verses = entry?.verses ?? const <VerseRange>[];
     final edition = verses.isEmpty ? null : ref.watch(mushafEditionProvider);
@@ -93,7 +96,14 @@ class DhikrContent extends ConsumerWidget {
                   '${entry!.draftMeaning!}\n${l10n.adhkarDraftMeaning}',
                 ),
               ),
-            if (verses.isNotEmpty || quotation != null)
+            if (english && own && entry?.meaning != null)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Text(entry!.meaning!),
+              ),
+            if (arabic == null)
+              ...[]
+            else if (verses.isNotEmpty || quotation != null)
               ExpansionTile(
                 tilePadding: EdgeInsets.zero,
                 title: Text(l10n.adhkarHadithSource),
@@ -114,6 +124,14 @@ class DhikrContent extends ConsumerWidget {
               if (translation != null)
                 _narration(context, translation, ref, 'en', reading),
             ],
+            if (source != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(
+                  source.inLanguage(context.adhkarLanguage),
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ),
             // The book reference stays (part of the narration); the website
             // it came from is credited on the licences page only.
             if (hadith == 65913)

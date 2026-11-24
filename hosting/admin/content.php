@@ -70,8 +70,20 @@ function dhikr(string $id, array $ayahCounts): array
     }
     $data = ['id' => $id, 'title' => label()];
     $variants = optionalJson('variants');
+    $wording = field('wording');
+    $meaning = field('meaning');
+    if (strlen($wording) > 12000 || strlen($meaning) > 12000) {
+        throw new InvalidArgumentException('اختصر نص الذكر أو الترجمة.');
+    }
+    // Without a HadeethEnc number the dhikr is the dashboard's own text.
+    $own = $variants === [] && field('hadith') === '';
+    if ($own && $wording === '') {
+        throw new InvalidArgumentException('اكتب نص الذكر بالعربية، أو رقم الحديث في HadeethEnc.');
+    }
     if ($variants === []) {
-        $data['hadith'] = integer(field('hadith'), 1, 99999999);
+        if (!$own) {
+            $data['hadith'] = integer(field('hadith'), 1, 99999999);
+        }
         $repeat = optionalJson('repeat');
         if ($repeat !== []) {
             validateRepeat($repeat);
@@ -98,17 +110,118 @@ function dhikr(string $id, array $ayahCounts): array
     if ($ranges !== []) {
         $data['quran'] = $ranges;
     }
-    $wording = field('wording');
-    $meaning = field('meaning');
-    if (strlen($wording) > 12000 || strlen($meaning) > 12000) {
-        throw new InvalidArgumentException('اختصر نص الذكر أو الترجمة.');
-    }
     if ($wording !== '' || $meaning !== '') {
+        // An own dhikr's English is its meaning; a narration's stays a draft
+        // beside the source's own translation.
         $data['wording'] = array_filter([
-            'ar' => $wording, 'draftMeaningEn' => $meaning,
+            'ar' => $wording, $own ? 'en' : 'draftMeaningEn' => $meaning,
         ], fn ($value) => $value !== '');
     }
+    $source = sourceLabel();
+    if ($source !== null) {
+        $data['source'] = $source;
+    }
     return $data;
+}
+
+/** The «المصدر» line shown under an own dhikr, e.g. «رواه مسلم». */
+function sourceLabel(): ?array
+{
+    $ar = field('source_ar');
+    $en = field('source_en');
+    if (mb_strlen($ar) > 300 || mb_strlen($en) > 300) {
+        throw new InvalidArgumentException('اختصر سطر المصدر.');
+    }
+    return $ar === '' && $en === '' ? null : array_filter(['ar' => $ar, 'en' => $en], fn ($v) => $v !== '');
+}
+
+/**
+ * Own items of a Hisn al-Muslim topic, written as blocks separated by a
+ * line «---». Inside a block: «العنوان:», «Title:», «المصدر:», «Source:»
+ * and «English:» lines; every other line is the Arabic text.
+ */
+function hisnOwnItems(string $text): array
+{
+    $items = [];
+    foreach (preg_split('/^\s*-{3,}\s*$/mu', str_replace("\r", '', $text)) as $block) {
+        $fields = ['ar' => [], 'title' => '', 'titleEn' => '', 'source' => '', 'sourceEn' => '', 'en' => []];
+        foreach (explode("\n", $block) as $line) {
+            $trimmed = trim($line);
+            if (preg_match('/\A(العنوان|Title|المصدر|Source|English)\s*:\s*(.*)\z/u', $trimmed, $match)) {
+                match ($match[1]) {
+                    'العنوان' => $fields['title'] = $match[2],
+                    'Title' => $fields['titleEn'] = $match[2],
+                    'المصدر' => $fields['source'] = $match[2],
+                    'Source' => $fields['sourceEn'] = $match[2],
+                    default => $fields['en'][] = $match[2],
+                };
+            } else {
+                $fields['ar'][] = $trimmed;
+            }
+        }
+        $arabic = trim(implode("\n", $fields['ar']));
+        if ($arabic === '') {
+            continue;
+        }
+        if (mb_strlen($arabic) > 6000 || count($items) >= 60) {
+            throw new InvalidArgumentException('اختصر الأذكار الخاصة بالموضوع (٦٠ ذكرًا على الأكثر).');
+        }
+        $words = preg_split('/\s+/u', $arabic);
+        $title = $fields['title'] !== '' ? $fields['title']
+            : implode(' ', array_slice($words, 0, 6)) . (count($words) > 6 ? '…' : '');
+        $item = [
+            'id' => 'own-' . substr(hash('sha256', $arabic), 0, 12),
+            'title' => ['ar' => $title, 'en' => $fields['titleEn'] !== '' ? $fields['titleEn'] : $title],
+            'wording' => array_filter(['ar' => $arabic, 'en' => trim(implode("\n", $fields['en']))], fn ($v) => $v !== ''),
+        ];
+        if ($fields['source'] !== '' || $fields['sourceEn'] !== '') {
+            $item['source'] = array_filter(['ar' => $fields['source'], 'en' => $fields['sourceEn']], fn ($v) => $v !== '');
+        }
+        $items[] = $item;
+    }
+    return $items;
+}
+
+/** The same items written back in the editor's text format. */
+function hisnOwnText(array $items): string
+{
+    $blocks = [];
+    foreach ($items as $item) {
+        $lines = [];
+        $lines[] = 'العنوان: ' . ($item['title']['ar'] ?? '');
+        if (($item['title']['en'] ?? '') !== ($item['title']['ar'] ?? '')) {
+            $lines[] = 'Title: ' . $item['title']['en'];
+        }
+        $lines[] = $item['wording']['ar'] ?? '';
+        if (($item['wording']['en'] ?? '') !== '') {
+            $lines[] = 'English: ' . $item['wording']['en'];
+        }
+        if (($item['source']['ar'] ?? '') !== '') {
+            $lines[] = 'المصدر: ' . $item['source']['ar'];
+        }
+        if (($item['source']['en'] ?? '') !== '') {
+            $lines[] = 'Source: ' . $item['source']['en'];
+        }
+        $blocks[] = implode("\n", $lines);
+    }
+    return implode("\n---\n", $blocks);
+}
+
+/** Whether the library holds dashboard-written adhkar (feed shape 2). */
+function hasOwnAdhkar(array $payload): bool
+{
+    $adhkar = $payload['adhkar'] ?? [];
+    foreach ([...($adhkar['daily']['entries'] ?? []), ...($adhkar['merits'] ?? [])] as $entry) {
+        if (!isset($entry['hadith']) && !isset($entry['variants'])) {
+            return true;
+        }
+    }
+    foreach ($adhkar['hisn']['topics'] ?? [] as $topic) {
+        if (($topic['entries'] ?? []) !== []) {
+            return true;
+        }
+    }
+    return false;
 }
 
 function validateRepeat(mixed $repeat): void
@@ -155,7 +268,7 @@ function changeContent(array $payload, array $ayahCounts, string $section, strin
     $position = null;
     if ($original !== '') {
         foreach ($rows as $index => $item) {
-            $key = in_array($section, ['daily', 'merits'], true) ? $item['id'] : (string) $index;
+            $key = in_array($section, ['daily', 'merits'], true) ? $item['id'] : (string) ($item['id'] ?? $index);
             if ($key === $original) {
                 $position = $index;
                 break;
@@ -179,17 +292,22 @@ function changeContent(array $payload, array $ayahCounts, string $section, strin
                 integer(field('last'), 1, 286),
                 $ayahCounts,
             ),
-            'hisn' => [
+            'hisn' => array_filter([
                 'title' => label(),
                 'chapterIds' => numberList(
                     field('chapters'), 0, count($payload['adhkar']['hisn']['chapterTitles']) - 1,
                 ),
                 'hadiths' => numberList(field('hadiths'), 1, 99999999),
-            ],
+                'entries' => hisnOwnItems(field('own_items')),
+            ], fn ($value, $key) => $key !== 'entries' || $value !== [], ARRAY_FILTER_USE_BOTH),
             default => dhikr($original ?: field('id'), $ayahCounts),
         };
-        if ($section === 'hisn' && $item['chapterIds'] === [] && $item['hadiths'] === []) {
-            throw new InvalidArgumentException('أضف مرجعًا واحدًا على الأقل للموضوع.');
+        // A Hisn topic keeps its id across edits.
+        if ($section === 'hisn' && $position !== null && isset($rows[$position]['id'])) {
+            $item = ['id' => $rows[$position]['id']] + $item;
+        }
+        if ($section === 'hisn' && $item['chapterIds'] === [] && $item['hadiths'] === [] && !isset($item['entries'])) {
+            throw new InvalidArgumentException('أضف ذكرًا خاصًا أو مرجعًا واحدًا على الأقل للموضوع.');
         }
         foreach ($rows as $index => $row) {
             if ($index !== $position &&

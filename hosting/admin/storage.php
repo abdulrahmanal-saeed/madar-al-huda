@@ -9,6 +9,9 @@ const FEED_LEGACY_BYTES = 1024 * 1024;
 // Raise only when the feed changes in a way older apps cannot read; the app
 // accepts this version or lower (ManagedFeedVersion.schema).
 const FEED_SCHEMA_VERSION = 1;
+// Dashboard-written adhkar (no HadeethEnc number, or Hisn own items) need
+// shape 2; older apps keep their last library instead of failing on them.
+const FEED_SCHEMA_OWN_ADHKAR = 2;
 
 function arabicDigits(string $text): string
 {
@@ -244,7 +247,8 @@ function serveFeed(PDO $db): never
     // Every feed states its shape, so an app that cannot read a later shape
     // keeps the last feed it could (see FEED_SCHEMA_VERSION).
     $payload = json_decode($body, true, 64, JSON_THROW_ON_ERROR);
-    $payload = ['schemaVersion' => FEED_SCHEMA_VERSION] + $payload;
+    $schema = hasOwnAdhkar($payload['library'] ?? $payload) ? FEED_SCHEMA_OWN_ADHKAR : FEED_SCHEMA_VERSION;
+    $payload = ['schemaVersion' => $schema] + $payload;
     $body = encode($payload);
     $etag = '"' . hash('sha256', $body) . '"';
     header('ETag: ' . $etag);

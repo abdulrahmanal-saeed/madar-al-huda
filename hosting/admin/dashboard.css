@@ -159,3 +159,7 @@ label.check { display: flex; align-items: center; gap: .4rem; }
 .report-row { margin: .75rem 0; padding: .9rem 1rem; }
 .report-row.muted { opacity: .65; }
 .report-text { white-space: normal; line-height: 1.8; margin: .5rem 0; overflow-wrap: anywhere; }
+/* Step-by-step help above the content editors */
+.help summary { cursor: pointer; font-weight: 600; }
+.help ol { margin: .6rem 0 0; padding-inline-start: 1.4rem; line-height: 1.9; }
+.hint { font-size: .85rem; color: var(--muted); margin: -.3rem 0 .6rem; }
