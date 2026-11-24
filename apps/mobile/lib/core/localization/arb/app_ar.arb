@@ -630,5 +630,8 @@
   "namesVerseReference": "الأعراف ١٨٠",
   "namesMeaning": "المعنى",
   "namesEvidence": "الدليل",
-  "namesSource": "المصدر"
+  "namesSource": "المصدر",
+  "namesDescription": "الشرح",
+  "namesImpact": "أثر الإيمان بالاسم",
+  "namesDua": "الدعاء"
 }

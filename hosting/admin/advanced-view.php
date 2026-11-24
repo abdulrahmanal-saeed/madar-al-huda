@@ -62,8 +62,15 @@ if (!defined('MADAR_ADMIN')) {
   <?php if ($section === 'names' && $current === null && $edit !== 'new'): ?>
   <section class="panel">
     <h2>إضافة أسماء دفعة واحدة</h2>
-    <p>الصق اسمًا في كل سطر بهذا الشكل، ثم «حفظ في المسودة». السطر الذي اسمه موجود يحدّث معناه:</p>
-    <p dir="rtl"><code>الرحمن | Ar-Rahman | ذو الرحمة الواسعة التي وسعت كل شيء | The Most Merciful</code></p>
+    <p>الصق اسمًا في كل سطر، وافصل بين الحقول بـ <bdi>|</bdi>، ثم «حفظ في المسودة». الحقول بالترتيب (أول ثلاثة مطلوبة، والباقي اختياري ويمكن تركه فارغًا):</p>
+    <ol class="fields-order">
+      <li>الاسم العربي بدون تشكيل</li><li>النطق بالإنجليزية</li><li>المعنى المختصر بالعربية</li><li>المعنى المختصر بالإنجليزية</li>
+      <li>الاسم العربي بالتشكيل</li><li>الشرح التفصيلي بالعربية</li><li>الشرح التفصيلي بالإنجليزية</li>
+      <li>الدليل الشرعي بالعربية</li><li>الدليل الشرعي بالإنجليزية</li><li>أثر الإيمان بالاسم بالعربية</li>
+      <li>أثر الإيمان بالاسم بالإنجليزية</li><li>الدعاء بالعربية</li><li>الدعاء بالإنجليزية</li>
+    </ol>
+    <p dir="rtl"><code>الرحمن | Ar-Rahman | ذو الرحمة الواسعة | The Most Merciful | الرَّحْمَٰنُ | الشرح… | Explanation… | الدليل… | Evidence… | الأثر… | Effect… | الدعاء… | Supplication…</code></p>
+    <p class="hint">السطر الذي اسمه موجود يحدّث الحقول المكتوبة فقط ويترك الفارغة كما هي. ولا تستخدم «|» داخل النص نفسه.</p>
     <form method="post">
       <?php controls('save', $revision); ?>
       <input type="hidden" name="original" value="">
@@ -95,9 +102,16 @@ if (!defined('MADAR_ADMIN')) {
           <label>الاسم<input name="ar" value="<?= e($current['title']['ar'] ?? '') ?>" required placeholder="الرحمن"></label>
           <label>النطق بالإنجليزية<input name="en" dir="ltr" value="<?= e($current['title']['en'] ?? '') ?>" required placeholder="Ar-Rahman"></label>
         </div>
-        <label>المعنى والشرح بالعربية<textarea name="body_ar" rows="6" required><?= e($current['body']['ar'] ?? '') ?></textarea></label>
-        <label>المعنى بالإنجليزية (اختياري)<textarea name="body_en" dir="ltr" rows="4"><?= e($current['body']['en'] ?? '') ?></textarea></label>
-        <label>الدليل من القرآن أو السنة (اختياري)<textarea name="evidence" rows="3"><?= e($current['evidence']['ar'] ?? '') ?></textarea></label>
+        <label>الاسم بالتشكيل (اختياري، يظهر في التطبيق بدل الاسم)<input name="vocalized" value="<?= e($current['vocalized'] ?? '') ?>" placeholder="الرَّحْمَٰنُ"></label>
+        <label>المعنى المختصر بالعربية<textarea name="body_ar" rows="3" required><?= e($current['body']['ar'] ?? '') ?></textarea></label>
+        <label>المعنى المختصر بالإنجليزية (اختياري)<textarea name="body_en" dir="ltr" rows="3"><?= e($current['body']['en'] ?? '') ?></textarea></label>
+        <?php foreach (NAME_TEXTS as $key => $label): ?>
+          <details <?= ($current[$key] ?? []) !== [] ? 'open' : '' ?>>
+            <summary><?= e($label) ?> (اختياري)</summary>
+            <label><?= e($label) ?> بالعربية<textarea name="<?= e($key) ?>_ar" rows="5"><?= e($current[$key]['ar'] ?? '') ?></textarea></label>
+            <label><?= e($label) ?> بالإنجليزية<textarea name="<?= e($key) ?>_en" dir="ltr" rows="4"><?= e($current[$key]['en'] ?? '') ?></textarea></label>
+          </details>
+        <?php endforeach; ?>
         <label>رابط المصدر (اختياري)<input name="source" type="url" dir="ltr" value="<?= e($current['source'] ?? '') ?>"></label>
       <?php else: ?>
       <label>العنوان بالعربية<input name="ar" value="<?= e($current['title']['ar'] ?? '') ?>" required></label>

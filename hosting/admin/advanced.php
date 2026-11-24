@@ -89,9 +89,18 @@ function changeBook(array $payload, string $section, bool $delete): array
         if ($section === 'names') {
             $row = ['id' => $id, 'number' => integer(field('number'), 1, 999)] + $row;
             $row['body'] = ['ar' => contentText('body_ar', 6000), 'en' => contentText('body_en', 6000, false)];
-            $evidence = contentText('evidence', 3000, false);
-            if ($evidence !== '') {
-                $row['evidence'] = ['ar' => $evidence];
+            $vocalized = contentText('vocalized', 120, false);
+            if ($vocalized !== '') {
+                $row['vocalized'] = $vocalized;
+            }
+            foreach (array_keys(NAME_TEXTS) as $key) {
+                $pair = array_filter([
+                    'ar' => contentText("{$key}_ar", 12000, false),
+                    'en' => contentText("{$key}_en", 12000, false),
+                ], static fn (string $value): bool => $value !== '');
+                if ($pair !== []) {
+                    $row[$key] = $pair;
+                }
             }
             if (field('source') !== '') {
                 $row['source'] = sourceLink('source');
@@ -131,9 +140,26 @@ function changeBook(array $payload, string $section, bool $delete): array
     return $payload;
 }
 
+/** The longer texts of a name, each in Arabic and English, in display order. */
+const NAME_TEXTS = [
+    'description' => 'الشرح التفصيلي',
+    'evidence' => 'الدليل الشرعي',
+    'impact' => 'أثر الإيمان بالاسم',
+    'dua' => 'الدعاء',
+];
+
+/** The 13 bulk fields, in order; the first four match the original format. */
+const NAME_BULK_FIELDS = [
+    'name_ar', 'transliteration', 'meaning_ar', 'meaning_en', 'name_ar_vocalized',
+    'description_ar', 'description_en', 'evidence_ar', 'evidence_en',
+    'impact_ar', 'impact_en', 'dua_ar', 'dua_en',
+];
+
 /**
- * Adds names pasted one per line: «الاسم | Transliteration | المعنى |
- * English meaning». A line for a name already listed replaces it.
+ * Adds names pasted one per line, fields separated by «|» in the order of
+ * NAME_BULK_FIELDS (only the first three are required). A line for a name
+ * already listed updates it: filled fields replace, empty ones keep what
+ * is there.
  */
 function namesWithBulk(array $rows, string $text): array
 {
@@ -147,21 +173,54 @@ function namesWithBulk(array $rows, string $text): array
             continue;
         }
         $parts = array_map('trim', explode('|', $line));
-        if (count($parts) < 3 || $parts[0] === '' || $parts[2] === '') {
-            throw new InvalidArgumentException('كل سطر: الاسم | النطق بالإنجليزية | المعنى | المعنى بالإنجليزية (اختياري).');
+        if (count($parts) > count(NAME_BULK_FIELDS)) {
+            throw new InvalidArgumentException('السطر فيه أكثر من ١٣ حقلًا؛ لا تستخدم «|» داخل النص. السطر: ' . mb_substr($line, 0, 60));
         }
-        if (mb_strlen($parts[0]) > 60 || mb_strlen($parts[1]) > 80 || mb_strlen($parts[2]) > 6000 || mb_strlen($parts[3] ?? '') > 6000) {
-            throw new InvalidArgumentException('أحد الأسطر أطول من المسموح.');
+        $parts = array_pad($parts, count(NAME_BULK_FIELDS), '');
+        $value = array_combine(NAME_BULK_FIELDS, $parts);
+        if ($value['name_ar'] === '' || $value['meaning_ar'] === '') {
+            throw new InvalidArgumentException('كل سطر يحتاج على الأقل: الاسم | النطق بالإنجليزية | المعنى بالعربية. السطر: ' . mb_substr($line, 0, 60));
         }
-        $row = [
-            'title' => ['ar' => $parts[0], 'en' => $parts[1] !== '' ? $parts[1] : $parts[0]],
-            'body' => ['ar' => $parts[2], 'en' => $parts[3] ?? ''],
+        if (mb_strlen($value['name_ar']) > 60 || mb_strlen($value['transliteration']) > 80 ||
+            mb_strlen($value['name_ar_vocalized']) > 120) {
+            throw new InvalidArgumentException('الاسم أو نطقه أطول من المسموح. السطر: ' . mb_substr($line, 0, 60));
+        }
+        foreach ($value as $field => $content) {
+            if (mb_strlen($content) > 12000) {
+                throw new InvalidArgumentException("الحقل {$field} أطول من المسموح.");
+            }
+        }
+        $name = $value['name_ar'];
+        $existing = isset($byName[$name]) ? $rows[$byName[$name]] : [];
+        // Filled fields replace; empty ones keep the existing text.
+        $pick = static fn (string $new, ?string $old): string => $new !== '' ? $new : (string) $old;
+        $row = $existing;
+        $row['title'] = [
+            'ar' => $name,
+            'en' => $pick($value['transliteration'], $existing['title']['en'] ?? null) ?: $name,
         ];
-        if (isset($byName[$parts[0]])) {
-            $rows[$byName[$parts[0]]] = $row + $rows[$byName[$parts[0]]];
+        $row['body'] = [
+            'ar' => $value['meaning_ar'],
+            'en' => $pick($value['meaning_en'], $existing['body']['en'] ?? null),
+        ];
+        $vocalized = $pick($value['name_ar_vocalized'], $existing['vocalized'] ?? null);
+        if ($vocalized !== '') {
+            $row['vocalized'] = $vocalized;
+        }
+        foreach (array_keys(NAME_TEXTS) as $key) {
+            $pair = array_filter([
+                'ar' => $pick($value["{$key}_ar"], $existing[$key]['ar'] ?? null),
+                'en' => $pick($value["{$key}_en"], $existing[$key]['en'] ?? null),
+            ], static fn (string $text): bool => $text !== '');
+            if ($pair !== []) {
+                $row[$key] = $pair;
+            }
+        }
+        if (isset($byName[$name])) {
+            $rows[$byName[$name]] = $row;
         } else {
             $rows[] = ['id' => bin2hex(random_bytes(12)), 'number' => count($rows) + 1] + $row;
-            $byName[$parts[0]] = count($rows) - 1;
+            $byName[$name] = count($rows) - 1;
         }
         $added++;
     }

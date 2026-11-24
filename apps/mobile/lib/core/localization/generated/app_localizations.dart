@@ -3817,6 +3817,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Source'**
   String get namesSource;
+
+  /// Detail heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Explanation'**
+  String get namesDescription;
+
+  /// Detail heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Living by this name'**
+  String get namesImpact;
+
+  /// Detail heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Supplication'**
+  String get namesDua;
 }
 
 class _AppLocalizationsDelegate
