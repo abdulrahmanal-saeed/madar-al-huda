@@ -23,6 +23,13 @@ if (!defined('MADAR_ADMIN')) {
         <label>رابط (اختياري)<input name="link" dir="ltr" value="<?= e($settings['announcement']['link']) ?>" placeholder="https://"></label>
         <label>يظهر حتى تاريخ (اختياري)<input name="until" type="date" value="<?= e($settings['announcement']['until']) ?>"></label>
       </fieldset>
+      <fieldset>
+        <legend>توافق الإصدارات</legend>
+        <label>أقل رقم بناء للتطبيق يقبل هذه المكتبة (٠ = كل الإصدارات)
+          <input name="min_app_version" type="number" min="0" dir="ltr" value="<?= e((int) ($draft['minAppVersion'] ?? 0)) ?>">
+        </label>
+        <p>ارفعه فقط عند تغيير لا تفهمه الإصدارات القديمة؛ تبقى عندها آخر مكتبة كانت تعمل.</p>
+      </fieldset>
       <button class="primary">حفظ في المسودة</button>
     </form>
   </section>
