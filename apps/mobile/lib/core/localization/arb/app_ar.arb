@@ -607,5 +607,20 @@
   "firstRunRemindersBody": "اختر التذكيرات التي تريدها، ويمكنك تغييرها في أي وقت من الإعدادات.",
   "firstRunSelectAll": "تحديد الكل",
   "firstRunClearAll": "إلغاء الكل",
-  "firstRunStart": "ابدأ"
+  "firstRunStart": "ابدأ",
+  "feedbackTitle": "أبلغ عن مشكلة أو اقترح",
+  "feedbackSettingsSubtitle": "أخبرنا بما لا يعمل أو بما تتمنى إضافته",
+  "feedbackIntro": "تصل رسالتك مباشرة إلى فريق التطبيق. شكرًا لمساعدتك في تحسين «مدار الهدى».",
+  "feedbackProblem": "مشكلة",
+  "feedbackSuggestion": "اقتراح",
+  "feedbackProblemHint": "ماذا حدث، وفي أي شاشة؟",
+  "feedbackSuggestionHint": "ما الذي تتمنى أن تراه؟",
+  "feedbackContact": "بريدك أو رقمك للرد (اختياري)",
+  "feedbackPrivacy": "لا يُرسل إلا ما تكتبه ورقم نسخة التطبيق.",
+  "feedbackSend": "إرسال",
+  "feedbackThanks": "شكرًا لك، وصلت رسالتك.",
+  "feedbackDone": "تم",
+  "feedbackTooShort": "اكتب تفاصيل أكثر قليلًا أولًا.",
+  "feedbackTooMany": "أرسلت عدة رسائل مؤخرًا. حاول مرة أخرى بعد ساعة.",
+  "feedbackFailed": "تعذّر الإرسال. تحقق من الاتصال وحاول مرة أخرى."
 }

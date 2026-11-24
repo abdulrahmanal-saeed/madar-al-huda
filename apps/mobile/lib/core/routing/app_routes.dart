@@ -46,6 +46,7 @@ abstract final class AppRoutes {
   static const String zakat = '/zakat';
   static const String reminders = '$settings/reminders';
   static const String downloads = '$settings/downloads';
+  static const String feedback = '$settings/feedback';
 
   /// Tab roots in navigation order.
   static const List<String> tabs = [home, quran, adhkar, prayerTimes, library];

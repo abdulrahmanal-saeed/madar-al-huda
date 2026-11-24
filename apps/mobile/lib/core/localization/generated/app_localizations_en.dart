@@ -2055,4 +2055,54 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get firstRunStart => 'Start';
+
+  @override
+  String get feedbackTitle => 'Report a problem or suggest';
+
+  @override
+  String get feedbackSettingsSubtitle =>
+      'Tell us what is wrong or what you would like';
+
+  @override
+  String get feedbackIntro =>
+      'Your message goes straight to the app\'s team. Thank you for helping improve Madar Al-Huda.';
+
+  @override
+  String get feedbackProblem => 'Problem';
+
+  @override
+  String get feedbackSuggestion => 'Suggestion';
+
+  @override
+  String get feedbackProblemHint => 'What happened, and where in the app?';
+
+  @override
+  String get feedbackSuggestionHint => 'What would you like to see?';
+
+  @override
+  String get feedbackContact => 'Email or phone for a reply (optional)';
+
+  @override
+  String get feedbackPrivacy =>
+      'Only what you write and the app\'s build number are sent.';
+
+  @override
+  String get feedbackSend => 'Send';
+
+  @override
+  String get feedbackThanks => 'Thank you, your message arrived.';
+
+  @override
+  String get feedbackDone => 'Done';
+
+  @override
+  String get feedbackTooShort => 'Write a little more first.';
+
+  @override
+  String get feedbackTooMany =>
+      'You\'ve sent several messages recently. Try again in an hour.';
+
+  @override
+  String get feedbackFailed =>
+      'Couldn\'t send. Check the connection and try again.';
 }

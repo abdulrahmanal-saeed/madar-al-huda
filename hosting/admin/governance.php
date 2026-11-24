@@ -7,7 +7,7 @@ declare(strict_types=1);
  */
 
 /** Sections only the owner manages. */
-const OWNER_SECTIONS = ['appearance', 'app_settings', 'library_sections', 'reciters', 'releases', 'users', 'audit'];
+const OWNER_SECTIONS = ['appearance', 'app_settings', 'library_sections', 'reciters', 'releases', 'users', 'audit', 'reports'];
 
 /** Actions and the roles allowed to take them. */
 const ACTION_ROLES = [
@@ -33,6 +33,10 @@ const ACTION_ROLES = [
     'totp_enable' => ['owner', 'reviewer', 'editor'],
     'totp_disable' => ['owner', 'reviewer', 'editor'],
     'logout' => ['owner', 'reviewer', 'editor'],
+    'report_settings' => ['owner'],
+    'report_done' => ['owner'],
+    'report_open' => ['owner'],
+    'report_delete' => ['owner'],
 ];
 
 function canSee(array $user, string $section): bool
@@ -81,6 +85,8 @@ const AUDIT_ACTIONS = [
     'user_role' => 'تغيير دور', 'user_disable' => 'إيقاف مستخدم', 'user_enable' => 'تفعيل مستخدم',
     'user_reset' => 'إعادة تعيين كلمة مرور', 'password_change' => 'تغيير كلمة المرور',
     'totp_enable' => 'تفعيل التحقق بخطوتين', 'totp_disable' => 'إيقاف التحقق بخطوتين',
+    'report_settings' => 'بريد البلاغات', 'report_done' => 'إنهاء بلاغ', 'report_open' => 'إعادة فتح بلاغ',
+    'report_delete' => 'حذف بلاغ',
 ];
 
 /** What the audit line says about a request, without secrets. */

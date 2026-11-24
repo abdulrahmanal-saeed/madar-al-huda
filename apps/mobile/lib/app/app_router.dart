@@ -6,6 +6,7 @@ import '../core/routing/app_routes.dart';
 import '../features/adhkar/presentation/adhkar_screen.dart';
 import '../features/articles/presentation/articles_screen.dart';
 import '../features/downloads/presentation/download_center_screen.dart';
+import '../features/feedback/feedback_screen.dart';
 import '../features/fiqh/presentation/fiqh_screen.dart';
 import '../features/hadith/presentation/hadith_screen.dart';
 import '../features/home/presentation/home_screen.dart';
@@ -242,6 +243,11 @@ GoRouter buildAppRouter({String initialLocation = AppRoutes.home}) {
             path: 'downloads',
             parentNavigatorKey: rootNavigatorKey,
             builder: (_, _) => const DownloadCenterScreen(),
+          ),
+          GoRoute(
+            path: 'feedback',
+            parentNavigatorKey: rootNavigatorKey,
+            builder: (_, _) => const FeedbackScreen(),
           ),
         ],
       ),
