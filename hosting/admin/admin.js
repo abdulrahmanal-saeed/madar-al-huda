@@ -59,7 +59,9 @@
       for (const [key, value] of Object.entries(fields)) data.append(key, value);
       if (file) data.append('recording', file);
       const request = new XMLHttpRequest();
-      request.open('POST', form.action || window.location.href);
+      // Not form.action: the form has a field named "action", which the
+      // browser returns in place of the form's address.
+      request.open('POST', form.getAttribute('action') || window.location.href);
       request.setRequestHeader('Accept', 'application/json');
       if (file) {
         request.upload.onprogress = (event) =>
