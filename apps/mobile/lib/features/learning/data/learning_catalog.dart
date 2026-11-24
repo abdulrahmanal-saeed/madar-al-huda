@@ -17,20 +17,43 @@ class LessonMedia {
   final LessonFormat format;
 }
 
+typedef LocalizedText = ({String ar, String en});
+
+String localizedIn(LocalizedText text, String language) =>
+    language == 'ar' ? text.ar : text.en;
+
+LocalizedText? _localized(Object? value) {
+  if (value is! Map) return null;
+  final ar = '${value['ar'] ?? ''}'.trim();
+  final en = '${value['en'] ?? ''}'.trim();
+  if (ar.isEmpty && en.isEmpty) return null;
+  return (ar: ar.isNotEmpty ? ar : en, en: en.isNotEmpty ? en : ar);
+}
+
 class LessonEpisode {
-  const LessonEpisode(this.number, this.media);
+  const LessonEpisode(this.number, this.media, {this.title});
 
   final int number;
   final Map<LessonFormat, LessonMedia> media;
+
+  /// The title set in the dashboard, if any.
+  final LocalizedText? title;
 }
 
 class LearningSeries {
-  const LearningSeries(this.id, this.arabic, this.english, this.episodes);
+  const LearningSeries(
+    this.id,
+    this.arabic,
+    this.english,
+    this.episodes, {
+    this.description,
+  });
 
   final String id;
   final String arabic;
   final String english;
   final List<LessonEpisode> episodes;
+  final LocalizedText? description;
 
   String title(String language) => language == 'ar' ? arabic : english;
   String trackId(LessonEpisode episode) => 'learning:$id:${episode.number}';
@@ -66,6 +89,7 @@ List<LearningSeries> parseLearningCatalog(Object? source) {
                     if (media[format.name] case final Map<String, dynamic> file)
                       format: _readMedia(file, format, fileNames),
                 }),
+                title: _localized(value['title']),
               );
             }).toList()
             ..sort((first, second) => first.number.compareTo(second.number));
@@ -81,6 +105,7 @@ List<LearningSeries> parseLearningCatalog(Object? source) {
         entry['ar'] as String,
         entry['en'] as String,
         List.unmodifiable(episodes),
+        description: _localized(entry['description']),
       );
     }),
   );

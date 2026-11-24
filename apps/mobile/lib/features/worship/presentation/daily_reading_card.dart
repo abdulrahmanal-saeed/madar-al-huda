@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart' show DateFormat, NumberFormat;
 import 'package:material_ui/material_ui.dart';
 
+import '../../../core/content/app_settings.dart';
 import '../../../core/content/feature_preview.dart';
 import '../../../core/localization/l10n_extension.dart';
 import '../../../core/localization/numbers.dart';
@@ -140,12 +141,13 @@ class _DailyReadingScreenState extends ConsumerState<DailyReadingScreen> {
       appBar: AppBar(
         title: Text(l10n.dailyReadingTitle),
         actions: [
-          IconButton(
-            key: const ValueKey('open-stats'),
-            tooltip: l10n.statsTitle,
-            onPressed: () => context.push(AppRoutes.stats),
-            icon: const Icon(Icons.insights_outlined),
-          ),
+          if (ref.watch(appSettingsProvider).shows(AppFeature.stats))
+            IconButton(
+              key: const ValueKey('open-stats'),
+              tooltip: l10n.statsTitle,
+              onPressed: () => context.push(AppRoutes.stats),
+              icon: const Icon(Icons.insights_outlined),
+            ),
         ],
       ),
       body: SafeArea(
@@ -168,8 +170,10 @@ class _DailyReadingScreenState extends ConsumerState<DailyReadingScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            const KhatmaCard(),
-            const SizedBox(height: 12),
+            if (ref.watch(appSettingsProvider).shows(AppFeature.khatma)) ...[
+              const KhatmaCard(),
+              const SizedBox(height: 12),
+            ],
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(16),

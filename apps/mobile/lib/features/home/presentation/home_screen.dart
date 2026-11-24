@@ -4,7 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:material_ui/material_ui.dart';
+import 'package:url_launcher/url_launcher.dart';
 
+import '../../../core/content/app_settings.dart';
 import '../../../core/content/feature_preview.dart';
 import '../../../core/localization/civil_hijri_date.dart';
 import '../../../core/localization/l10n_extension.dart';
@@ -78,6 +80,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final edition = showMushaf
         ? ref.watch(mushafEditionProvider).asData?.value
         : null;
+    final settings = ref.watch(appSettingsProvider);
+    bool shows(AppFeature feature) => settings.shows(feature);
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -85,17 +89,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             pinned: true,
             title: Text(l10n.homeGreeting),
             actions: [
-              IconButton(
-                tooltip: l10n.statsTitle,
-                onPressed: () => context.push(AppRoutes.stats),
-                icon: const Icon(Icons.insights_outlined),
-              ),
-              IconButton(
-                key: const ValueKey('home-search'),
-                tooltip: l10n.searchTitle,
-                onPressed: () => context.push(AppRoutes.search),
-                icon: const Icon(Icons.search),
-              ),
+              if (shows(AppFeature.stats))
+                IconButton(
+                  tooltip: l10n.statsTitle,
+                  onPressed: () => context.push(AppRoutes.stats),
+                  icon: const Icon(Icons.insights_outlined),
+                ),
+              if (shows(AppFeature.search))
+                IconButton(
+                  key: const ValueKey('home-search'),
+                  tooltip: l10n.searchTitle,
+                  onPressed: () => context.push(AppRoutes.search),
+                  icon: const Icon(Icons.search),
+                ),
               const SettingsButton(),
             ],
           ),
@@ -109,10 +115,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   place: location.place?.label(locale.languageCode),
                 ),
                 const SizedBox(height: AppSpacing.md),
+                if (settings.announcement case final announcement?) ...[
+                  _AnnouncementCard(announcement: announcement),
+                  const SizedBox(height: AppSpacing.md),
+                ],
                 if (schedule != null &&
                     (!AppSection.adhkar.status.isGated ||
                         managedReleaseEnabled)) ...[
-                  RamadanHomeCard(now: now),
+                  if (shows(AppFeature.ramadan)) RamadanHomeCard(now: now),
                   WorshipNowCard(schedule: schedule, now: now),
                   const SizedBox(height: AppSpacing.md),
                 ],
@@ -152,38 +162,43 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       l10n.homeWird,
                       AppRoutes.dailyReading,
                     ),
-                    _HomeShortcut(
-                      Icons.explore_outlined,
-                      l10n.sectionQiblaTitle,
-                      AppRoutes.qibla,
-                      key: const ValueKey('quick-access-AppSection.qibla'),
-                    ),
-                    _HomeShortcut(
-                      Icons.touch_app_outlined,
-                      l10n.tasbihTitle,
-                      AppRoutes.tasbih,
-                      key: const ValueKey('quick-access-tasbih'),
-                    ),
-                    _HomeShortcut(
-                      Icons.radio_outlined,
-                      l10n.homeRadio,
-                      AppRoutes.cairoRadio,
-                    ),
+                    if (shows(AppFeature.qibla))
+                      _HomeShortcut(
+                        Icons.explore_outlined,
+                        l10n.sectionQiblaTitle,
+                        AppRoutes.qibla,
+                        key: const ValueKey('quick-access-AppSection.qibla'),
+                      ),
+                    if (shows(AppFeature.tasbih))
+                      _HomeShortcut(
+                        Icons.touch_app_outlined,
+                        l10n.tasbihTitle,
+                        AppRoutes.tasbih,
+                        key: const ValueKey('quick-access-tasbih'),
+                      ),
+                    if (shows(AppFeature.radio))
+                      _HomeShortcut(
+                        Icons.radio_outlined,
+                        l10n.homeRadio,
+                        AppRoutes.cairoRadio,
+                      ),
                     _HomeShortcut(
                       Icons.wb_twilight,
                       l10n.homeMorning,
                       AppRoutes.morningAdhkar,
                     ),
-                    _HomeShortcut(
-                      Icons.format_quote_outlined,
-                      l10n.sectionHadithTitle,
-                      AppRoutes.hadith,
-                    ),
-                    _HomeShortcut(
-                      Icons.auto_stories_outlined,
-                      l10n.sectionStoriesTitle,
-                      AppRoutes.stories,
-                    ),
+                    if (shows(AppFeature.hadith))
+                      _HomeShortcut(
+                        Icons.format_quote_outlined,
+                        l10n.sectionHadithTitle,
+                        AppRoutes.hadith,
+                      ),
+                    if (shows(AppFeature.stories))
+                      _HomeShortcut(
+                        Icons.auto_stories_outlined,
+                        l10n.sectionStoriesTitle,
+                        AppRoutes.stories,
+                      ),
                     _HomeShortcut(
                       Icons.notifications_none,
                       l10n.remindersTitle,
@@ -459,6 +474,41 @@ class _DuaOfDay extends ConsumerWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// The dashboard's announcement, shown until its end date.
+class _AnnouncementCard extends StatelessWidget {
+  const _AnnouncementCard({required this.announcement});
+
+  final Announcement announcement;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final ar = Localizations.localeOf(context).languageCode == 'ar';
+    final link = announcement.link;
+    return Card(
+      key: const ValueKey('home-announcement'),
+      margin: EdgeInsets.zero,
+      color: scheme.tertiaryContainer,
+      child: ListTile(
+        leading: Icon(
+          Icons.campaign_outlined,
+          color: scheme.onTertiaryContainer,
+        ),
+        title: Text(
+          ar ? announcement.ar : announcement.en,
+          style: TextStyle(color: scheme.onTertiaryContainer),
+        ),
+        trailing: link == null
+            ? null
+            : Icon(Icons.open_in_new, color: scheme.onTertiaryContainer),
+        onTap: link == null
+            ? null
+            : () => launchUrl(link, mode: LaunchMode.externalApplication),
       ),
     );
   }

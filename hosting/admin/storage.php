@@ -20,7 +20,7 @@ function verseRangeLabel(array $range): string
     $surahs ??= require __DIR__ . '/quran-surahs.php';
     [$surah, $first, $last] = $range;
     $name = $surahs[$surah - 1][0] ?? ('سورة ' . $surah);
-    return $name . ' ' . arabicDigits($first === $last ? (string) $first : "$first–$last");
+    return $name . ' ' . arabicDigits($first === $last ? (string) $first : "{$first}–{$last}");
 }
 
 /** The publish time of a history entry, in the owner's time zone. */
@@ -199,6 +199,9 @@ function updateLibrary(PDO $db, string $action, array $seed, string $section, st
             $draft = encode(match (true) {
                 $section === 'reciters' => changeReaders($content, $delete),
                 $section === 'appearance' => changeAppearance($content, $delete),
+                $section === 'app_settings' => changeAppSettings($content),
+                $section === 'story_titles' => changeStoryTitles($content),
+                $section === 'adhkar_groups' => changeAdhkarGroups($content),
                 $section === 'library_sections' => changeSections($content, $delete),
                 in_array($section, BOOK_SECTIONS, true) => changeBook($content, $section, $delete),
                 default => changeContent($content, $seed['ayahCounts'], $section, $topic, $delete),
