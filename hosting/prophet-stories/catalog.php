@@ -42,6 +42,32 @@ $prophets = [
     ['muhammad', 'محمد', 'Muhammad', ['mohamed', 'mohammed']],
 ];
 
+// The dashboard's prophets list, when published, replaces the one above.
+try {
+    $database = dirname(__DIR__, 2) . '/.madar-admin/library.sqlite3';
+    if (is_file($database)) {
+        $listDb = new PDO('sqlite:' . $database, null, null, [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::SQLITE_ATTR_OPEN_FLAGS => PDO::SQLITE_OPEN_READONLY,
+        ]);
+        $published = $listDb->query('SELECT published FROM library WHERE id = 1')->fetchColumn();
+        $list = is_string($published) ? (json_decode($published, true)['storyProphets'] ?? null) : null;
+        $custom = [];
+        foreach (is_array($list) ? $list : [] as $row) {
+            if (is_array($row) && is_string($row[0] ?? null) && preg_match('/\A[a-z][a-z-]{1,30}\z/', $row[0]) &&
+                is_string($row[1] ?? null) && is_string($row[2] ?? null)) {
+                $aliases = array_values(array_filter(is_array($row[3] ?? null) ? $row[3] : [], 'is_string'));
+                $custom[] = [$row[0], $row[1], $row[2], $aliases];
+            }
+        }
+        if ($custom !== []) {
+            $prophets = $custom;
+        }
+    }
+} catch (Throwable) {
+    // Keep the built-in list.
+}
+
 $tokens = [];
 foreach ($prophets as [$id, $arabic, $english, $aliases]) {
     foreach (array_merge([$id], $aliases) as $token) {

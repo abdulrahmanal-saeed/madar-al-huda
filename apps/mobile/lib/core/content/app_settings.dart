@@ -28,6 +28,7 @@ class AppSettings {
     this.hidden = const {},
     this.announcement,
     this.radioStream,
+    this.prayerVerses = const [],
   });
 
   factory AppSettings.fromFeed(Map<String, Object?>? feed, DateTime today) {
@@ -60,6 +61,7 @@ class AppSettings {
       }
     }
     final radio = Uri.tryParse('${app['radio_url'] ?? ''}'.trim());
+    final verses = app['prayer_verses'];
     return AppSettings(
       hidden: hidden,
       announcement: announcement,
@@ -70,6 +72,14 @@ class AppSettings {
               radio.userInfo.isEmpty
           ? radio
           : null,
+      prayerVerses: [
+        if (verses is List)
+          for (final range in verses)
+            if (range is List &&
+                range.length == 3 &&
+                range.every((n) => n is int && n > 0))
+              (range[0] as int, range[1] as int, range[2] as int),
+      ],
     );
   }
 
@@ -78,6 +88,10 @@ class AppSettings {
 
   /// The radio stream set in the dashboard, when there is one.
   final Uri? radioStream;
+
+  /// Verses for prayer notifications as (surah, first, last); empty keeps
+  /// the app's own list.
+  final List<(int, int, int)> prayerVerses;
 
   bool shows(AppFeature feature) => !hidden.contains(feature);
 }

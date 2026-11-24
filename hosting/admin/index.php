@@ -627,6 +627,7 @@ if ($active) {
               <input type="hidden" name="original" value="<?= e($edit) ?>">
               <button class="quiet danger">حذف من المسودة</button>
             </form>
+            <?php require __DIR__ . '/preview-view.php'; ?>
           <?php endif; ?>
         </section>
         <?php endif; ?>

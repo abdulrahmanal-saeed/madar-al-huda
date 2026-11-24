@@ -146,6 +146,7 @@ if (!defined('MADAR_ADMIN')) {
         <?php controls('delete', $revision); ?><input type="hidden" name="original" value="<?= e($current['id']) ?>">
         <button class="quiet danger">حذف من المسودة</button>
       </form>
+      <?php require __DIR__ . '/preview-view.php'; ?>
     <?php endif; ?>
   </section>
   <?php endif; ?>

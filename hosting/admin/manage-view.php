@@ -24,6 +24,16 @@ if (!defined('MADAR_ADMIN')) {
         <label>يظهر حتى تاريخ (اختياري)<input name="until" type="date" value="<?= e($settings['announcement']['until']) ?>"></label>
       </fieldset>
       <fieldset>
+        <legend>الإذاعة وتنبيهات الصلاة</legend>
+        <label>رابط بث إذاعة القرآن (اتركه فارغًا للرابط الافتراضي)
+          <input name="radio_url" dir="ltr" value="<?= e($settings['radio_url']) ?>" placeholder="https://stream.radiojar.com/8s5u5tpdtwzuv">
+        </label>
+        <label>آيات تنبيهات الصلاة، آية في كل سطر بصيغة <bdi dir="ltr">2:45</bdi> أو <bdi dir="ltr">29:45-45</bdi> (فارغ = آيات التطبيق الافتراضية)
+          <textarea name="prayer_verses" dir="ltr" rows="6" placeholder="2:45&#10;20:132&#10;29:45"><?= e($settings['prayer_verses']) ?></textarea>
+        </label>
+        <p class="hint">يظهر تحت عنوان كل تنبيه صلاة نص آية من هذه القائمة بالتناوب، من المصحف المضمّن في التطبيق.</p>
+      </fieldset>
+      <fieldset>
         <legend>توافق الإصدارات</legend>
         <label>أقل رقم بناء للتطبيق يقبل هذه المكتبة (٠ = كل الإصدارات)
           <input name="min_app_version" type="number" min="0" dir="ltr" value="<?= e((int) ($draft['minAppVersion'] ?? 0)) ?>">
@@ -40,7 +50,18 @@ if (!defined('MADAR_ADMIN')) {
     <p>عدّل عنوان القصة ووصفها وعناوين حلقاتها كما تظهر في التطبيق، أو أخفِ قصة. الملفات نفسها تُدار من صفحة «قصص الأنبياء».</p>
     <label>ابحث<input type="search" data-filter-list=".story-card" placeholder="اسم النبي"></label>
   </section>
-  <?php foreach (storyProphets() as $id => [$ar, $en]): ?>
+  <section class="panel">
+    <details>
+      <summary><strong>قائمة الأنبياء وترتيبها</strong></summary>
+      <p>نبي في كل سطر بالترتيب الذي يظهر في التطبيق: <bdi dir="ltr">id | الاسم | English | aliases</bdi>. المعرّف هو الجزء الذي يأتي في اسم الملف (<bdi dir="ltr">Madar-<strong>nuh</strong>-001.mp3</bdi>)، والأسماء البديلة تُقبل أيضًا في أسماء الملفات. احذف السطر لإزالة النبي من القائمة.</p>
+      <form method="post" class="editor">
+        <?php controls('save', $revision); ?>
+        <textarea name="prophets" rows="14" required><?php foreach (storyProphets($draft) as $id => $prophet): ?><?= e($id . ' | ' . $prophet[0] . ' | ' . $prophet[1] . (($prophet[2] ?? []) !== [] ? ' | ' . implode(', ', $prophet[2]) : '')) . "\n" ?><?php endforeach; ?></textarea>
+        <button class="primary">حفظ القائمة في المسودة</button>
+      </form>
+    </details>
+  </section>
+  <?php foreach (storyProphets($draft) as $id => [$ar, $en]): ?>
     <?php $story = $stories[$id] ?? []; ?>
     <section class="panel story-card">
       <details>

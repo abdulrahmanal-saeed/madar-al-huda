@@ -97,4 +97,24 @@ void main() {
     );
     expect(find.text('Notice'), findsOneWidget);
   });
+
+  test('reads the radio stream and prayer verses set on the dashboard', () {
+    final settings = AppSettings.fromFeed({
+      'app': {
+        'radio_url': 'https://radio.example/live',
+        'prayer_verses': [
+          [2, 45, 45],
+          [20, 132, 132],
+          ['x', 1, 1],
+        ],
+      },
+    }, DateTime(2026));
+    expect(settings.radioStream, Uri.https('radio.example', '/live'));
+    expect(settings.prayerVerses, [(2, 45, 45), (20, 132, 132)]);
+    final insecure = AppSettings.fromFeed({
+      'app': {'radio_url': 'http://radio.example/live'},
+    }, DateTime(2026));
+    expect(insecure.radioStream, isNull);
+    expect(insecure.prayerVerses, isEmpty);
+  });
 }
