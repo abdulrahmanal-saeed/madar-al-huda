@@ -103,6 +103,13 @@ final List<_Place> _places = [
     label: (l) => l.statsTitle,
   ),
   (
+    id: 'zakat',
+    route: AppRoutes.zakat,
+    push: true,
+    icon: Icons.calculate_outlined,
+    label: (l) => l.zakatTitle,
+  ),
+  (
     id: 'ramadan',
     route: AppRoutes.ramadan,
     push: true,

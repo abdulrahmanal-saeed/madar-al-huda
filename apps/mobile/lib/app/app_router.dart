@@ -29,6 +29,7 @@ import '../features/tasbih/presentation/tasbih_screen.dart';
 import '../features/worship/presentation/cairo_radio_card.dart';
 import '../features/worship/presentation/daily_reading_card.dart';
 import '../features/worship/presentation/worship_hub_screen.dart';
+import '../features/zakat/presentation/zakat_screen.dart';
 import 'app_shell.dart';
 import 'not_found_screen.dart';
 
@@ -206,6 +207,11 @@ GoRouter buildAppRouter({String initialLocation = AppRoutes.home}) {
         path: AppRoutes.cairoRadio,
         parentNavigatorKey: rootNavigatorKey,
         builder: (_, _) => const CairoRadioScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.zakat,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (_, _) => const ZakatScreen(),
       ),
       GoRoute(
         path: AppRoutes.stats,

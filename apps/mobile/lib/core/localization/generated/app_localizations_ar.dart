@@ -1889,4 +1889,83 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get statsTasbihTotal => 'تسبيحة إجمالًا';
+
+  @override
+  String get zakatTitle => 'حاسبة الزكاة';
+
+  @override
+  String get zakatSubtitle => 'تقدير زكاة المال والذهب والتجارة';
+
+  @override
+  String get zakatNeedPrice => 'أدخل سعر الجرام لحساب النصاب';
+
+  @override
+  String get zakatDue => 'الزكاة الواجبة (٢٫٥٪)';
+
+  @override
+  String get zakatBelowNisab => 'أقل من النصاب: لا زكاة';
+
+  @override
+  String get zakatPrices => 'أسعار اليوم والنصاب';
+
+  @override
+  String get zakatBasisGold => 'نصاب الذهب (٨٥ جم)';
+
+  @override
+  String get zakatBasisSilver => 'نصاب الفضة (٥٩٥ جم)';
+
+  @override
+  String get zakatGoldPrice => 'سعر جرام الذهب عيار ٢٤';
+
+  @override
+  String get zakatSilverPrice => 'سعر جرام الفضة';
+
+  @override
+  String get zakatAssets => 'ما تملكه';
+
+  @override
+  String get zakatCash => 'النقد والأرصدة البنكية';
+
+  @override
+  String get zakatCashHint => 'ما مرّ عليه حول هجري كامل';
+
+  @override
+  String get zakatSilver => 'الفضة (بالجرام)';
+
+  @override
+  String get zakatTrade => 'عروض التجارة';
+
+  @override
+  String get zakatTradeHint => 'بقيمة البيع اليوم';
+
+  @override
+  String get zakatOwed => 'ديون لك مرجوّة السداد';
+
+  @override
+  String get zakatLiabilities => 'ما عليك';
+
+  @override
+  String get zakatDebts => 'ديون حالّة عليك';
+
+  @override
+  String get zakatDebtsHint => 'تُخصم من المال';
+
+  @override
+  String get zakatDisclaimer =>
+      'تقدير مبسّط وليس فتوى. في بعض المسائل خلاف بين العلماء، كزكاة الحليّ المستعمل وتقدير النصاب؛ فاسأل من تثق في علمه عن حالتك. لا يُحفظ شيء مما تكتبه.';
+
+  @override
+  String zakatWealth(String amount) {
+    return 'المال الخاضع للزكاة: $amount';
+  }
+
+  @override
+  String zakatNisab(String amount) {
+    return 'النصاب: $amount';
+  }
+
+  @override
+  String zakatGold(String karat) {
+    return 'ذهب عيار $karat (بالجرام)';
+  }
 }

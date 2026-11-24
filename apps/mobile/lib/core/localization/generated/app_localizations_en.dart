@@ -1899,4 +1899,84 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get statsTasbihTotal => 'tasbih in all';
+
+  @override
+  String get zakatTitle => 'Zakat calculator';
+
+  @override
+  String get zakatSubtitle => 'An estimate for money, gold and trade';
+
+  @override
+  String get zakatNeedPrice =>
+      'Enter the price of a gram to work out the nisab';
+
+  @override
+  String get zakatDue => 'Zakat due (2.5%)';
+
+  @override
+  String get zakatBelowNisab => 'Below the nisab: no zakat due';
+
+  @override
+  String get zakatPrices => 'Today\'s prices and nisab';
+
+  @override
+  String get zakatBasisGold => 'Gold nisab (85 g)';
+
+  @override
+  String get zakatBasisSilver => 'Silver nisab (595 g)';
+
+  @override
+  String get zakatGoldPrice => 'Price of 1 g of 24k gold';
+
+  @override
+  String get zakatSilverPrice => 'Price of 1 g of silver';
+
+  @override
+  String get zakatAssets => 'What you own';
+
+  @override
+  String get zakatCash => 'Cash and bank balances';
+
+  @override
+  String get zakatCashHint => 'Held for a full lunar year';
+
+  @override
+  String get zakatSilver => 'Silver (grams)';
+
+  @override
+  String get zakatTrade => 'Trade goods';
+
+  @override
+  String get zakatTradeHint => 'At today\'s selling value';
+
+  @override
+  String get zakatOwed => 'Money owed to you, expected back';
+
+  @override
+  String get zakatLiabilities => 'What you owe';
+
+  @override
+  String get zakatDebts => 'Debts due now';
+
+  @override
+  String get zakatDebtsHint => 'Deducted from your wealth';
+
+  @override
+  String get zakatDisclaimer =>
+      'A simplified estimate, not a fatwa. Scholars differ on details such as worn jewellery and the nisab; ask a scholar you trust about your case. Nothing you type is saved.';
+
+  @override
+  String zakatWealth(String amount) {
+    return 'Zakatable wealth: $amount';
+  }
+
+  @override
+  String zakatNisab(String amount) {
+    return 'Nisab: $amount';
+  }
+
+  @override
+  String zakatGold(String karat) {
+    return 'Gold ${karat}k (grams)';
+  }
 }
