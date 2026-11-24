@@ -15,6 +15,7 @@ import '../../adhkar/data/adhkar_catalog.dart';
 import '../../hadith/data/hadeeth_enc.dart';
 import '../../hadith/presentation/hadith_screen.dart';
 import '../../quran/data/mushaf_edition.dart';
+import '../../worship/application/cairo_radio_control.dart';
 import '../domain/global_search.dart';
 
 typedef _Place = ({
@@ -263,7 +264,10 @@ class _GlobalSearchScreenState extends ConsumerState<GlobalSearchScreen> {
                       ActionChip(
                         avatar: Icon(place.icon, size: 18),
                         label: Text(place.label(l10n)),
-                        onPressed: () => _open(place.route, push: place.push),
+                        // The radio plays in place; the rest open a page.
+                        onPressed: () => place.id == 'radio'
+                            ? toggleCairoRadio(context, ref)
+                            : _open(place.route, push: place.push),
                       ),
                 ],
               ),

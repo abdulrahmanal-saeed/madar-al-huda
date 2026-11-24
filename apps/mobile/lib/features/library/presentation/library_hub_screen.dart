@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../../core/audio/audio_playback.dart';
 import '../../../core/content/app_settings.dart';
 import '../../../core/content/feature_preview.dart';
 import '../../../core/content/managed_library.dart';
@@ -13,6 +14,7 @@ import '../../../core/theme/brand_colors.dart';
 import '../../../core/widgets/responsive_content.dart';
 import '../../../core/widgets/settings_button.dart';
 import '../../names/names_screen.dart';
+import '../../worship/application/cairo_radio_control.dart';
 import '../domain/library_sections.dart';
 
 class LibraryHubScreen extends ConsumerWidget {
@@ -180,11 +182,13 @@ Widget? _tile(
 }
 
 /// The live Quran radio as a banner at the top of the library.
-class _RadioBanner extends StatelessWidget {
+class _RadioBanner extends ConsumerWidget {
   const _RadioBanner();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final playback = ref.watch(audioPlaybackProvider);
+    final on = cairoRadioOn(playback);
     final l10n = context.l10n;
     final text = Theme.of(context).textTheme;
     return Material(
@@ -200,7 +204,7 @@ class _RadioBanner extends StatelessWidget {
           ),
         ),
         child: InkWell(
-          onTap: () => context.push(AppRoutes.cairoRadio),
+          onTap: () => toggleCairoRadio(context, ref),
           child: Padding(
             padding: const EdgeInsets.all(AppSpacing.lg),
             child: Row(
@@ -255,11 +259,24 @@ class _RadioBanner extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: AppSpacing.md),
-                const CircleAvatar(
+                CircleAvatar(
+                  key: const Key('library-radio-play'),
                   radius: 28,
                   backgroundColor: BrandColors.goldBright,
                   foregroundColor: BrandColors.primaryGreen,
-                  child: Icon(Icons.play_arrow_rounded, size: 34),
+                  child: cairoRadioConnecting(playback)
+                      ? const SizedBox.square(
+                          dimension: 26,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 3,
+                            color: BrandColors.primaryGreen,
+                          ),
+                        )
+                      : Icon(
+                          on ? Icons.stop_rounded : Icons.play_arrow_rounded,
+                          size: 34,
+                          semanticLabel: on ? l10n.radioStop : l10n.radioPlay,
+                        ),
                 ),
               ],
             ),

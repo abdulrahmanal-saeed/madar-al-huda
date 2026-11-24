@@ -6,6 +6,7 @@ import 'package:intl/intl.dart' show DateFormat;
 import 'package:material_ui/material_ui.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../core/audio/audio_playback.dart';
 import '../../../core/content/app_settings.dart';
 import '../../../core/content/feature_preview.dart';
 import '../../../core/localization/civil_hijri_date.dart';
@@ -26,6 +27,7 @@ import '../../quran/data/mushaf_edition.dart';
 import '../../quran/data/quran_services.dart';
 import '../../quran/presentation/quran_meaning_view.dart';
 import '../../ramadan/presentation/ramadan_screen.dart';
+import '../../worship/application/cairo_radio_control.dart';
 import '../../worship/application/worship_location.dart';
 import '../../worship/data/daily_reading_plan.dart';
 import 'worship_now_card.dart';
@@ -178,9 +180,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       ),
                     if (shows(AppFeature.radio))
                       _HomeShortcut(
-                        Icons.radio_outlined,
+                        cairoRadioOn(ref.watch(audioPlaybackProvider))
+                            ? Icons.stop_circle_outlined
+                            : Icons.radio_outlined,
                         l10n.homeRadio,
                         AppRoutes.cairoRadio,
+                        key: const ValueKey('quick-access-radio'),
+                        onTap: () => toggleCairoRadio(context, ref),
                       ),
                     _HomeShortcut(
                       Icons.wb_twilight,
@@ -274,11 +280,20 @@ class _HomeHeader extends StatelessWidget {
 }
 
 class _HomeShortcut extends StatelessWidget {
-  const _HomeShortcut(this.icon, this.label, this.route, {super.key});
+  const _HomeShortcut(
+    this.icon,
+    this.label,
+    this.route, {
+    this.onTap,
+    super.key,
+  });
 
   final IconData icon;
   final String label;
   final String route;
+
+  /// Acts in place instead of opening [route] (the radio).
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -288,16 +303,17 @@ class _HomeShortcut extends StatelessWidget {
       button: true,
       child: InkWell(
         borderRadius: AppRadii.lgAll,
-        onTap: () {
-          if (route == AppRoutes.dailyReading ||
-              route == AppRoutes.cairoRadio ||
-              route == AppRoutes.tasbih ||
-              route.startsWith(AppRoutes.settings)) {
-            context.push(route);
-          } else {
-            context.go(route);
-          }
-        },
+        onTap:
+            onTap ??
+            () {
+              if (route == AppRoutes.dailyReading ||
+                  route == AppRoutes.tasbih ||
+                  route.startsWith(AppRoutes.settings)) {
+                context.push(route);
+              } else {
+                context.go(route);
+              }
+            },
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
           child: Column(

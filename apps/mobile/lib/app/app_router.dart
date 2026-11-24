@@ -28,7 +28,6 @@ import '../features/search/presentation/global_search_screen.dart';
 import '../features/settings/presentation/settings_screen.dart';
 import '../features/stats/presentation/stats_screen.dart';
 import '../features/tasbih/presentation/tasbih_screen.dart';
-import '../features/worship/presentation/cairo_radio_card.dart';
 import '../features/worship/presentation/daily_reading_card.dart';
 import '../features/worship/presentation/worship_hub_screen.dart';
 import '../features/zakat/presentation/zakat_screen.dart';
@@ -50,6 +49,9 @@ GoRouter buildAppRouter({String initialLocation = AppRoutes.home}) {
     errorBuilder: (_, _) => const NotFoundScreen(),
     redirect: (_, state) => switch (state.uri.path) {
       '/' => AppRoutes.home,
+      // The radio plays in place now; its old page address opens the
+      // library, where its banner is.
+      AppRoutes.cairoRadio => AppRoutes.library,
       AppRoutes.mushaf ||
       AppRoutes.recitations ||
       AppRoutes.tafsir => state.uri.replace(path: AppRoutes.quran).toString(),
@@ -209,11 +211,6 @@ GoRouter buildAppRouter({String initialLocation = AppRoutes.home}) {
         path: AppRoutes.ramadan,
         parentNavigatorKey: rootNavigatorKey,
         builder: (_, _) => const RamadanScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.cairoRadio,
-        parentNavigatorKey: rootNavigatorKey,
-        builder: (_, _) => const CairoRadioScreen(),
       ),
       GoRoute(
         path: AppRoutes.zakat,
