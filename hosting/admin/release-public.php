@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'HEAD') {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>تنزيل مدار الهدى</title>
-  <link rel="stylesheet" href="dashboard.css">
+  <link rel="stylesheet" href="dashboard.css?v=<?= e((string) @filemtime(__DIR__ . '/dashboard.css')) ?>">
 </head>
 <body>
 <main>
