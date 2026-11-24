@@ -518,5 +518,16 @@
   "khatmaToday": "ورد اليوم: {target} صفحة · قرأت {read}",
   "readerPaperAmber": "ليلي دافئ",
   "readerFullscreen": "ملء الشاشة",
-  "readerExitFullscreen": "الخروج من ملء الشاشة"
+  "readerExitFullscreen": "الخروج من ملء الشاشة",
+  "searchTitle": "بحث",
+  "searchHint": "ابحث في القرآن والأذكار والحديث…",
+  "searchIntro": "ابحث في السور والآيات والأذكار وموضوعات الحديث وأقسام التطبيق، حتى من غير إنترنت. اكتب ٢:٢٥٥ لتفتح آية.",
+  "searchTry": "جرّب",
+  "searchNoResults": "لا توجد نتائج. جرّب كلمة أخرى.",
+  "searchSections": "في التطبيق",
+  "searchSurahs": "السور",
+  "searchVerses": "الآيات",
+  "searchHadithTopics": "موضوعات الحديث",
+  "searchVerseCount": "{count} آية",
+  "searchShowAll": "عرض الكل ({count})"
 }

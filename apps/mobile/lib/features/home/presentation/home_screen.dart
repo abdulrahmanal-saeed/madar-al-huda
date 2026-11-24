@@ -84,7 +84,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           SliverAppBar(
             pinned: true,
             title: Text(l10n.homeGreeting),
-            actions: const [SettingsButton()],
+            actions: [
+              IconButton(
+                key: const ValueKey('home-search'),
+                tooltip: l10n.searchTitle,
+                onPressed: () => context.push(AppRoutes.search),
+                icon: const Icon(Icons.search),
+              ),
+              const SettingsButton(),
+            ],
           ),
           SliverResponsiveContent(
             sliver: SliverList.list(

@@ -1750,4 +1750,42 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get readerExitFullscreen => 'الخروج من ملء الشاشة';
+
+  @override
+  String get searchTitle => 'بحث';
+
+  @override
+  String get searchHint => 'ابحث في القرآن والأذكار والحديث…';
+
+  @override
+  String get searchIntro =>
+      'ابحث في السور والآيات والأذكار وموضوعات الحديث وأقسام التطبيق، حتى من غير إنترنت. اكتب ٢:٢٥٥ لتفتح آية.';
+
+  @override
+  String get searchTry => 'جرّب';
+
+  @override
+  String get searchNoResults => 'لا توجد نتائج. جرّب كلمة أخرى.';
+
+  @override
+  String get searchSections => 'في التطبيق';
+
+  @override
+  String get searchSurahs => 'السور';
+
+  @override
+  String get searchVerses => 'الآيات';
+
+  @override
+  String get searchHadithTopics => 'موضوعات الحديث';
+
+  @override
+  String searchVerseCount(String count) {
+    return '$count آية';
+  }
+
+  @override
+  String searchShowAll(String count) {
+    return 'عرض الكل ($count)';
+  }
 }

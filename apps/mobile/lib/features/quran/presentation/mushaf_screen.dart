@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -9,6 +10,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../core/content/feature_preview.dart';
 import '../../../core/localization/l10n_extension.dart';
 import '../../../core/localization/numbers.dart';
+import '../../../core/routing/app_routes.dart';
 import '../../../core/routing/app_sections.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/section_detail_scaffold.dart';
@@ -395,6 +397,11 @@ class _ReaderState extends ConsumerState<_Reader> {
                   ],
                 ),
                 actions: [
+                  IconButton(
+                    tooltip: l10n.searchTitle,
+                    onPressed: () => context.push(AppRoutes.search),
+                    icon: const Icon(Icons.search),
+                  ),
                   IconButton(
                     key: const ValueKey('reader-fullscreen'),
                     tooltip: l10n.readerFullscreen,
