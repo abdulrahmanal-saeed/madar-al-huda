@@ -3,6 +3,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../../core/localization/l10n_extension.dart';
 import '../../../core/localization/numbers.dart';
+import '../../../core/theme/app_theme.dart';
 import '../data/adhkar_catalog.dart';
 import '../data/adhkar_progress.dart';
 import 'adhkar_widgets.dart';
@@ -58,6 +59,10 @@ class _DhikrReaderState extends ConsumerState<DhikrReader> {
     final saved = progress.saved.contains(savedKey);
     final shownCount = progress.count(day, group, entry);
     final complete = shownCount == variant.goal;
+    final separateSteps = variant.steps.length > 1 &&
+        variant.steps.every((step) => const {
+          'tasbih', 'tahmid', 'takbir', 'tahlil', 'closing_tahlil',
+        }.contains(step.unit));
     final number = decimalFormat(language).format;
     final l10n = context.l10n;
     return AdhkarPage(
@@ -128,11 +133,15 @@ class _DhikrReaderState extends ConsumerState<DhikrReader> {
               },
             ),
           const SizedBox(height: 10),
+          if (separateSteps)
+            for (var i = 0; i < variant.steps.length; i++)
+              _stepCard(context, group, entry, variant, day, i),
           DhikrContent(
             key: ValueKey('${entry.id}:${variant.hadith}'),
             hadith: variant.hadith,
             entry: entry,
             period: group.id,
+            showWording: !separateSteps,
           ),
           const SizedBox(height: 14),
           Text(l10n.adhkarSavedProgress, textAlign: TextAlign.center),
@@ -145,7 +154,8 @@ class _DhikrReaderState extends ConsumerState<DhikrReader> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Row(
+              if (!separateSteps)
+                Row(
                 children: [
                   if (variant.steps.isNotEmpty) ...[
                     Semantics(
@@ -195,6 +205,11 @@ class _DhikrReaderState extends ConsumerState<DhikrReader> {
                   ),
                 ],
               ),
+              if (separateSteps)
+                Text(
+                  complete ? l10n.adhkarCompleted : '${number(shownCount)} / ${number(variant.goal)}',
+                  textAlign: TextAlign.center,
+                ),
               OverflowBar(
                 alignment: MainAxisAlignment.spaceBetween,
                 overflowAlignment: OverflowBarAlignment.center,
@@ -232,13 +247,99 @@ class _DhikrReaderState extends ConsumerState<DhikrReader> {
     );
   }
 
+  Widget _stepCard(
+    BuildContext context,
+    DhikrGroup group,
+    DhikrEntry entry,
+    DhikrVariant variant,
+    String day,
+    int index,
+  ) {
+    final step = variant.steps[index];
+    final language = context.adhkarLanguage;
+    final number = decimalFormat(language).format;
+    final l10n = context.l10n;
+    final count = ref.watch(adhkarProgressProvider).stepCount(day, group, entry, index);
+    final finished = count >= step.count;
+    final fullTahlil = step.unit == 'closing_tahlil' ||
+        (step.unit == 'tahlil' && step.count == 1);
+    final wording = switch (step.unit) {
+      'tasbih' => 'سُبْحَانَ اللَّهِ',
+      'tahmid' => 'الْحَمْدُ لِلَّهِ',
+      'takbir' => 'اللَّهُ أَكْبَرُ',
+      _ => fullTahlil
+          ? 'لَا إِلَٰهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ'
+          : 'لَا إِلَٰهَ إِلَّا اللَّهُ',
+    };
+    final meaning = switch (step.unit) {
+      'tasbih' => 'Glory be to Allah.',
+      'tahmid' => 'All praise belongs to Allah.',
+      'takbir' => 'Allah is the Greatest.',
+      _ => fullTahlil
+          ? 'There is no deity worthy of worship except Allah alone, without partner. To Him belongs all sovereignty and praise, and He has power over all things.'
+          : 'There is no deity worthy of worship except Allah.',
+    };
+    return Card(
+      key: ValueKey('dhikr-step-$index'),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              wording,
+              textDirection: TextDirection.rtl,
+              textAlign: TextAlign.right,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                fontFamily: AppTheme.readingFontFamily,
+                fontSize: 23,
+                height: 1.75,
+              ),
+            ),
+            if (language == 'en') Text(meaning),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: FilledButton(
+                    onPressed: finished ? null : () => adhkarSave(
+                      context,
+                      ref.read(adhkarProgressProvider.notifier).advanceStep(
+                        day, group, entry, index,
+                      ),
+                    ),
+                    child: Text(finished ? l10n.adhkarCompleted : _counterLabel(context, step.unit)),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Semantics(
+                  liveRegion: true,
+                  child: SizedBox.square(
+                    dimension: 64,
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        CircularProgressIndicator(value: count / step.count),
+                        Center(child: Text('${number(count)}/${number(step.count)}')),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   String _counterLabel(BuildContext context, String unit) {
     final l10n = context.l10n;
     return switch (unit) {
       'tasbih' => l10n.adhkarTasbih,
       'tahmid' => l10n.adhkarTahmid,
       'takbir' => l10n.adhkarTakbir,
-      'closing_tahlil' => l10n.adhkarTahlil,
+      'closing_tahlil' || 'tahlil' => l10n.adhkarTahlil,
       'seeking_forgiveness' => l10n.adhkarIstighfar,
       'each_surah' => l10n.adhkarThreeSurahCycle,
       'full_recitation_and_wiping_cycle' => l10n.adhkarBedtimeCycle,
