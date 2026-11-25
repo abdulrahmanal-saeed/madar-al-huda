@@ -27,6 +27,7 @@ import '../../quran/data/mushaf_edition.dart';
 import '../../quran/data/quran_services.dart';
 import '../../quran/presentation/quran_meaning_view.dart';
 import '../../ramadan/presentation/ramadan_screen.dart';
+import '../../settings/presentation/settings_updates.dart';
 import '../../worship/application/cairo_radio_control.dart';
 import '../../worship/application/worship_location.dart';
 import '../../worship/data/daily_reading_plan.dart';
@@ -117,6 +118,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   place: location.place?.label(locale.languageCode),
                 ),
                 const SizedBox(height: AppSpacing.md),
+                const HomeUpdateBanner(),
                 if (settings.announcement case final announcement?) ...[
                   _AnnouncementCard(announcement: announcement),
                   const SizedBox(height: AppSpacing.md),
