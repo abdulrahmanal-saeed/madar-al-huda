@@ -97,7 +97,7 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
   Uint8List? _image;
 
   bool get _canPick {
-    final android = foundation.TargetPlatform.android;
+    const android = foundation.TargetPlatform.android;
     return !foundation.kIsWeb && foundation.defaultTargetPlatform == android;
   }
 
