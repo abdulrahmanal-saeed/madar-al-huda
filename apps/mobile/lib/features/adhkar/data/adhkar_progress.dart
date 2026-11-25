@@ -48,20 +48,6 @@ class AdhkarProgress {
     );
   }
 
-  // Older app versions stored only a cumulative count. Distribute that
-  // count in the original step order until individual counters are saved.
-  int stepCount(String day, DhikrGroup group, DhikrEntry entry, int index) {
-    final variant = entry.variants[variantIndex(day, group, entry)];
-    final path = '${entryKey(day, group, entry)}/${variant.key}';
-    final saved = counts['$path/step-$index'];
-    final goal = variant.steps[index].count;
-    if (saved != null) return saved.clamp(0, goal);
-    final preceding = variant.steps.take(index).fold<int>(
-      0, (total, step) => total + step.count,
-    );
-    return (count(day, group, entry) - preceding).clamp(0, goal);
-  }
-
   bool complete(String day, DhikrGroup group, DhikrEntry entry) =>
       count(day, group, entry) ==
       entry.variants[variantIndex(day, group, entry)].goal;
@@ -161,39 +147,13 @@ class AdhkarProgressController extends Notifier<AdhkarProgress> {
         );
       });
 
-  Future<void> advanceStep(
-    String day,
-    DhikrGroup group,
-    DhikrEntry entry,
-    int index,
-  ) => _save((current) {
-    final variant = entry.variants[current.variantIndex(day, group, entry)];
-    if (index < 0 || index >= variant.steps.length) return current;
-    final path = '${current.entryKey(day, group, entry)}/${variant.key}';
-    final values = [
-      for (var i = 0; i < variant.steps.length; i++)
-        current.stepCount(day, group, entry, i),
-    ];
-    values[index] = (values[index] + 1).clamp(0, variant.steps[index].count);
-    return _copy(
-      current,
-      counts: {
-        ...current.counts,
-        path: values.fold<int>(0, (total, value) => total + value),
-        for (var i = 0; i < values.length; i++) '$path/step-$i': values[i],
-      },
-      lastGroup: group.id,
-    );
-  });
-
   Future<void> reset(String day, DhikrGroup group, DhikrEntry entry) =>
       _save((current) {
         final variant = entry.variants[current.variantIndex(day, group, entry)];
         final path = '${current.entryKey(day, group, entry)}/${variant.key}';
         return _copy(
           current,
-          counts: {...current.counts, path: 0}
-            ..removeWhere((key, _) => key.startsWith('$path/step-')),
+          counts: {...current.counts, path: 0},
           lastGroup: group.id,
         );
       });
