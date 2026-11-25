@@ -1,0 +1,116 @@
+# Manual, private artifact only. Never publishes to Google Play or Obtainium.
+name: Play Store AAB
+on:
+  workflow_dispatch:
+    inputs:
+      version_code:
+        description: 'Unused Play version code (first upload: 1; increase for every upload)'
+        required: true
+        type: string
+        default: '1'
+permissions:
+  contents: read
+concurrency:
+  group: play-aab
+  cancel-in-progress: false
+jobs:
+  build:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: apps/mobile
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Require separate Play signing credentials and valid version
+        env:
+          KEY_B64: ${{ secrets.MADAR_PLAY_KEYSTORE_BASE64 }}
+          KEY_PASSWORD: ${{ secrets.MADAR_PLAY_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.MADAR_PLAY_KEY_ALIAS }}
+          VERSION_CODE: ${{ inputs.version_code }}
+          MADAR_QURAN_API_URL: ${{ vars.MADAR_QURAN_API_URL }}
+          MADAR_SUPABASE_ANON_KEY: ${{ vars.MADAR_SUPABASE_ANON_KEY }}
+        run: |
+          set -euo pipefail
+          for name in KEY_B64 KEY_PASSWORD KEY_ALIAS MADAR_QURAN_API_URL MADAR_SUPABASE_ANON_KEY; do
+            if [[ -z "${!name}" ]]; then
+              echo "::error::Missing $name; see docs/PLAY_BUILD.md"
+              exit 1
+            fi
+          done
+          [[ "$VERSION_CODE" =~ ^[1-9][0-9]{0,9}$ ]]
+          (( VERSION_CODE <= 2100000000 ))
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
+        with:
+          channel: stable
+          flutter-version: '3.50.0'
+          cache: true
+      - name: Install dependencies and run tests
+        run: |
+          flutter pub get --enforce-lockfile
+          flutter analyze
+          flutter test
+      - name: Build signed Play bundle
+        env:
+          MADAR_CHANNEL: play
+          MADAR_SIGNING_STORE_FILE: ${{ runner.temp }}/madar-play.p12
+          MADAR_SIGNING_STORE_PASSWORD: ${{ secrets.MADAR_PLAY_KEYSTORE_PASSWORD }}
+          MADAR_SIGNING_KEY_PASSWORD: ${{ secrets.MADAR_PLAY_KEYSTORE_PASSWORD }}
+          MADAR_SIGNING_KEY_ALIAS: ${{ secrets.MADAR_PLAY_KEY_ALIAS }}
+          KEY_B64: ${{ secrets.MADAR_PLAY_KEYSTORE_BASE64 }}
+          MADAR_QURAN_API_URL: ${{ vars.MADAR_QURAN_API_URL }}
+          MADAR_SUPABASE_ANON_KEY: ${{ vars.MADAR_SUPABASE_ANON_KEY }}
+          VERSION_CODE: ${{ inputs.version_code }}
+        run: |
+          set -euo pipefail
+          umask 077
+          printf '%s' "$KEY_B64" | base64 --decode > "$MADAR_SIGNING_STORE_FILE"
+          keytool -exportcert -keystore "$MADAR_SIGNING_STORE_FILE" -storepass:env MADAR_SIGNING_STORE_PASSWORD -alias "$MADAR_SIGNING_KEY_ALIAS" > "$RUNNER_TEMP/play-cert.der"
+          cert=$(sha256sum "$RUNNER_TEMP/play-cert.der" | cut -d' ' -f1)
+          test "$cert" != 6c7046d0f47791452da955c39b1710addd2fa042373c29782e692a08042f3ee3
+          config="$RUNNER_TEMP/madar-play-config.json"
+          python3 tool/write_quran_config.py "$config"
+          flutter build appbundle --release --dart-define=MADAR_MANAGED_RELEASE=true "--dart-define=MADAR_BUILD=$VERSION_CODE" "--build-number=$VERSION_CODE" --dart-define-from-file="$config"
+      - name: Remove private signing material
+        if: always()
+        run: rm -f "$RUNNER_TEMP/madar-play.p12" "$RUNNER_TEMP/madar-play-config.json"
+      - name: Verify bundle, signing, permissions and page alignment
+        env:
+          VERSION_CODE: ${{ inputs.version_code }}
+        run: |
+          set -euo pipefail
+          aab=build/app/outputs/bundle/release/app-release.aab
+          jar="$RUNNER_TEMP/bundletool.jar"
+          curl --fail --silent --show-error --location --retry 3 https://github.com/google/bundletool/releases/download/1.18.3/bundletool-all-1.18.3.jar -o "$jar"
+          echo "a099cfa1543f55593bc2ed16a70a7c67fe54b1747bb7301f37fdfd6d91028e29  $jar" | sha256sum -c -
+          java -jar "$jar" validate --bundle="$aab"
+          java -jar "$jar" dump manifest --bundle="$aab" --module=base > "$RUNNER_TEMP/play-manifest.xml"
+          java -jar "$jar" dump config --bundle="$aab" > "$RUNNER_TEMP/play-bundle-config.txt"
+          grep -q PAGE_ALIGNMENT_16K "$RUNNER_TEMP/play-bundle-config.txt"
+          jarsigner -verify "$aab" > "$RUNNER_TEMP/play-signature.txt"
+          grep -q 'jar verified' "$RUNNER_TEMP/play-signature.txt"
+          actual=$(keytool -printcert -jarfile "$aab" | sed -n 's/^[[:space:]]*SHA256: //p' | head -1 | tr -d ':' | tr '[:upper:]' '[:lower:]')
+          expected=$(sha256sum "$RUNNER_TEMP/play-cert.der" | cut -d' ' -f1)
+          test "$actual" = "$expected"
+          python3 tool/verify_play_bundle.py "$aab" "$RUNNER_TEMP/play-manifest.xml" "$VERSION_CODE"
+          mkdir -p "$RUNNER_TEMP/play-output"
+          cp "$aab" "$RUNNER_TEMP/play-output/madar-al-huda-play-$VERSION_CODE.aab"
+          cp "$RUNNER_TEMP/play-manifest.xml" "$RUNNER_TEMP/play-output/manifest.xml"
+          cp "$RUNNER_TEMP/play-bundle-config.txt" "$RUNNER_TEMP/play-output/bundle-config.txt"
+          printf 'commit=%s\nversionCode=%s\nuploadCertificateSHA256=%s\n' "$GITHUB_SHA" "$VERSION_CODE" "$actual" > "$RUNNER_TEMP/play-output/build-info.txt"
+          cd "$RUNNER_TEMP/play-output"
+          sha256sum *.aab > SHA256SUMS
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: madar-play-aab-${{ inputs.version_code }}
+          path: ${{ runner.temp }}/play-output/
+          if-no-files-found: error
+          retention-days: 14
