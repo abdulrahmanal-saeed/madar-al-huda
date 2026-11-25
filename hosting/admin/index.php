@@ -57,7 +57,7 @@ try {
 }
 
 header('Cache-Control: no-store');
-header("Content-Security-Policy: default-src 'none'; style-src 'self'; script-src 'self'; connect-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'");
+header("Content-Security-Policy: default-src 'none'; style-src 'self'; script-src 'self'; img-src 'self'; connect-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'");
 header('Strict-Transport-Security: max-age=31536000');
 // Sessions live in the private storage folder with the same lifetime as a
 // sign-in, so shared-hosting cleanup cannot end them early and an open login
@@ -172,6 +172,13 @@ if ($active && $user === null) {
     // The account was disabled or removed: end this session.
     $_SESSION = ['csrf' => bin2hex(random_bytes(32))];
     $active = false;
+}
+if (isset($_GET['report_image'])) {
+    if ($user === null || !canSee($user, 'reports')) {
+        http_response_code(404);
+        exit;
+    }
+    serveReportImage($db, $_GET['report_image']);
 }
 if ($user !== null && !canSee($user, $section)) {
     $section = 'daily';

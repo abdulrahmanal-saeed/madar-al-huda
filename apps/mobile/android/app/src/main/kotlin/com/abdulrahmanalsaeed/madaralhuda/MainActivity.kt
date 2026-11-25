@@ -1,6 +1,8 @@
 package com.abdulrahmanalsaeed.madaralhuda
 
 import android.Manifest
+import android.app.Activity
+import java.io.ByteArrayOutputStream
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -23,6 +25,7 @@ import io.flutter.plugin.common.MethodChannel
 class MainActivity : AudioServiceActivity() {
     private val compass by lazy { CompassStream() }
     private var notificationRequest: MethodChannel.Result? = null
+    private var feedbackImageRequest: MethodChannel.Result? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -49,6 +52,26 @@ class MainActivity : AudioServiceActivity() {
                     }
                 }
                 else -> result.notImplemented()
+            }
+        }
+        MethodChannel(messenger, "madar/feedback-image").setMethodCallHandler { call, result ->
+            if (call.method != "pick") {
+                result.notImplemented()
+            } else if (feedbackImageRequest != null) {
+                result.error("busy", "Image selection already open", null)
+            } else {
+                feedbackImageRequest = result
+                try {
+                    val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                        type = "image/*"
+                        addCategory(Intent.CATEGORY_OPENABLE)
+                        putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("image/png", "image/jpeg"))
+                    }
+                    startActivityForResult(intent, 4412)
+                } catch (error: Exception) {
+                    feedbackImageRequest = null
+                    result.error("picker", "Cannot open image picker", null)
+                }
             }
         }
         EventChannel(messenger, "madar/compass").setStreamHandler(compass)
@@ -108,6 +131,50 @@ class MainActivity : AudioServiceActivity() {
         }
     }
 
+    @Suppress("DEPRECATION")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode != 4412) return
+        val result = feedbackImageRequest ?: return
+        val uri = data?.data
+        if (resultCode != Activity.RESULT_OK || uri == null) {
+            feedbackImageRequest = null
+            result.success(null)
+            return
+        }
+        Thread {
+            val bytes = try {
+                val max = 2 * 1024 * 1024
+                contentResolver.openInputStream(uri)?.use { input ->
+                    val output = ByteArrayOutputStream()
+                    val buffer = ByteArray(8192)
+                    while (true) {
+                        val size = input.read(buffer)
+                        if (size == -1) break
+                        if (output.size() + size > max) throw IllegalArgumentException("Image too large")
+                        output.write(buffer, 0, size)
+                    }
+                    output.toByteArray().also {
+                        val png = it.size >= 8 && it.take(8).map { b -> b.toInt() and 255 } ==
+                            listOf(137, 80, 78, 71, 13, 10, 26, 10)
+                        val jpeg = it.size >= 3 && (it[0].toInt() and 255) == 255 &&
+                            (it[1].toInt() and 255) == 216 && (it[2].toInt() and 255) == 255
+                        if (!png && !jpeg) throw IllegalArgumentException("Invalid image")
+                    }
+                }
+            } catch (error: Exception) {
+                null
+            }
+            runOnUiThread {
+                if (feedbackImageRequest === result) {
+                    feedbackImageRequest = null
+                    if (bytes == null) result.error("image", "Invalid or oversized image", null)
+                    else result.success(bytes)
+                }
+            }
+        }.start()
+    }
+
     override fun onResume() {
         super.onResume()
         compass.resume()
@@ -134,6 +201,9 @@ class MainActivity : AudioServiceActivity() {
         MethodChannel(messenger, "madar/geomagnetic").setMethodCallHandler(null)
         MethodChannel(messenger, "madar/share").setMethodCallHandler(null)
         MethodChannel(messenger, "madar/updates").setMethodCallHandler(null)
+        MethodChannel(messenger, "madar/feedback-image").setMethodCallHandler(null)
+        feedbackImageRequest?.success(null)
+        feedbackImageRequest = null
         notificationRequest?.success(false)
         notificationRequest = null
         super.cleanUpFlutterEngine(flutterEngine)

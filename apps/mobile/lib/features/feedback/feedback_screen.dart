@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart' as foundation;
+import 'package:flutter/services.dart' show MethodChannel;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:material_ui/material_ui.dart';
@@ -10,13 +13,16 @@ import '../../core/localization/l10n_extension.dart';
 import '../../core/theme/app_tokens.dart';
 import '../../core/widgets/responsive_content.dart';
 
+const _maxFeedbackImageBytes = 2 * 1024 * 1024;
+const _feedbackImages = MethodChannel('madar/feedback-image');
+
 enum FeedbackKind { problem, suggestion }
 
 enum FeedbackResult { sent, tooMany, failed }
 
 /// Sends a report or suggestion to the dashboard, which keeps it and
-/// emails it to the owner. Only what the user typed and the build number
-/// are sent.
+/// emails it to the owner. Only user-entered information, an explicitly
+/// selected image, and the build number are sent.
 class FeedbackApi {
   FeedbackApi(this._client);
 
@@ -30,7 +36,12 @@ class FeedbackApi {
     required FeedbackKind kind,
     required String message,
     String contact = '',
+    Uint8List? image,
   }) async {
+    final tooLarge = image != null && image.length > _maxFeedbackImageBytes;
+    if (tooLarge || image?.isEmpty == true) {
+      return FeedbackResult.failed;
+    }
     try {
       final response = await _client
           .post(
@@ -41,9 +52,17 @@ class FeedbackApi {
               'message': message.trim(),
               'contact': contact.trim(),
               'app': 'build ${ManagedFeedVersion.build}',
+              if (image != null) 'image': base64Encode(image),
             }),
           )
           .timeout(const Duration(seconds: 20));
+      if (image != null &&
+          (response.statusCode == 200 || response.statusCode == 201)) {
+        final receipt = jsonDecode(response.body);
+        if (receipt is! Map || receipt['image'] != true) {
+          return FeedbackResult.failed;
+        }
+      }
       return switch (response.statusCode) {
         201 || 200 => FeedbackResult.sent,
         429 => FeedbackResult.tooMany,
@@ -74,6 +93,33 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
   FeedbackKind _kind = FeedbackKind.problem;
   bool _sending = false;
   bool _sent = false;
+  bool _picking = false;
+  Uint8List? _image;
+
+  bool get _canPick {
+    const android = foundation.TargetPlatform.android;
+    return !foundation.kIsWeb && foundation.defaultTargetPlatform == android;
+  }
+
+  bool get _ar => Localizations.localeOf(context).languageCode == 'ar';
+
+  Future<void> _pickImage() async {
+    setState(() => _picking = true);
+    try {
+      final image = await _feedbackImages.invokeMethod<Uint8List>('pick');
+      if (mounted && image != null) setState(() => _image = image);
+    } on Object {
+      if (mounted) {
+        final message = _ar
+            ? 'اختر صورة PNG أو JPEG بحجم لا يتجاوز 2 ميجابايت.'
+            : 'Choose a PNG or JPEG image no larger than 2 MB.';
+        final snack = SnackBar(content: Text(message));
+        ScaffoldMessenger.of(context).showSnackBar(snack);
+      }
+    } finally {
+      if (mounted) setState(() => _picking = false);
+    }
+  }
 
   @override
   void dispose() {
@@ -92,11 +138,17 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
     setState(() => _sending = true);
     final result = await ref
         .read(feedbackApiProvider)
-        .send(kind: _kind, message: _message.text, contact: _contact.text);
+        .send(
+          kind: _kind,
+          message: _message.text,
+          contact: _contact.text,
+          image: _image,
+        );
     if (!mounted) return;
     setState(() {
       _sending = false;
       _sent = result == FeedbackResult.sent;
+      if (_sent) _image = null;
     });
     if (result != FeedbackResult.sent) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -109,6 +161,45 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
         ),
       );
     }
+  }
+
+  Widget _imageControls() {
+    final ar = _ar;
+    final busy = _sending || _picking;
+    final image = _image;
+    final attach = ar ? 'إرفاق صورة (اختياري)' : 'Attach image (optional)';
+    final remove = ar ? 'إزالة الصورة' : 'Remove image';
+    final help = ar
+        ? 'اختر لقطة شاشة بدون معلومات شخصية (PNG أو JPEG، حتى 2 ميجابايت). تُرسل مع البلاغ إلى الإدارة فقط.'
+        : 'Choose a screenshot without personal information (PNG or JPEG, up to 2 MB). It is sent only to the administrators.';
+    final style = Theme.of(context).textTheme.bodySmall;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        OutlinedButton.icon(
+          key: const Key('feedback-image'),
+          onPressed: busy ? null : _pickImage,
+          icon: const Icon(Icons.add_photo_alternate_outlined),
+          label: Text(attach),
+        ),
+        Text(help, style: style),
+        if (image != null) ...[
+          Image.memory(
+            image,
+            height: 120,
+            cacheWidth: 480,
+            fit: BoxFit.contain,
+            errorBuilder: (_, _, _) => const Icon(Icons.broken_image),
+          ),
+          TextButton.icon(
+            onPressed: busy ? null : () => setState(() => _image = null),
+            icon: const Icon(Icons.close),
+            label: Text(remove),
+          ),
+        ],
+        const SizedBox(height: AppSpacing.md),
+      ],
+    );
   }
 
   @override
@@ -203,9 +294,10 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
                           style: theme.textTheme.bodySmall,
                         ),
                         const SizedBox(height: AppSpacing.lg),
+                        if (_canPick) _imageControls(),
                         FilledButton.icon(
                           key: const Key('feedback-send'),
-                          onPressed: _sending ? null : _send,
+                          onPressed: _sending || _picking ? null : _send,
                           icon: _sending
                               ? const SizedBox.square(
                                   dimension: 18,
