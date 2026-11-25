@@ -7,6 +7,7 @@ on:
       - 'hosting/admin/**'
       - 'hosting/prepare_admin.py'
       - 'hosting/web/privacy/**'
+      - 'hosting/web/.well-known/assetlinks.json'
       - '.github/workflows/hostinger-admin-deploy.yml'
   workflow_dispatch:
 
@@ -40,6 +41,7 @@ jobs:
           php hosting/tests/apk_signature_test.php
           php -l hosting/web/privacy/index.php
           cp hosting/web/privacy/index.php "$RUNNER_TEMP/privacy-index.php"
+          python3 -m json.tool hosting/web/.well-known/assetlinks.json > "$RUNNER_TEMP/assetlinks.json"
           tar -czf "$RUNNER_TEMP/madar-admin.tar.gz" -C "$RUNNER_TEMP/madar-admin" .
 
       - name: Deploy over verified SSH
@@ -76,6 +78,7 @@ jobs:
           trap cleanup EXIT
           scp "${opts[@]}" -P 65002 "$RUNNER_TEMP/madar-admin.tar.gz" "$target:$stage/update.tar.gz"
           scp "${opts[@]}" -P 65002 "$RUNNER_TEMP/privacy-index.php" "$target:$stage/privacy-index.php"
+          scp "${opts[@]}" -P 65002 "$RUNNER_TEMP/assetlinks.json" "$target:$stage/assetlinks.json"
           ssh "${opts[@]}" -p 65002 "$target" bash -s -- "$stage" <<'REMOTE'
           set -euo pipefail
           umask 077
@@ -84,6 +87,11 @@ jobs:
           admin="$root/public_html/admin"
           private="$root/.madar-admin"
           privacy="$root/public_html/privacy"
+          links_dir="$root/public_html/.well-known"
+          links="$links_dir/assetlinks.json"
+          test ! -L "$links_dir" && test ! -L "$links"
+          if [[ -e "$links_dir" ]]; then test -d "$links_dir"; fi
+          if [[ -e "$links" ]]; then test -f "$links"; fi
           test ! -L "$privacy" && test ! -L "$privacy/index.php"
           if [[ -e "$privacy" ]]; then test -d "$privacy"; fi
           if [[ -e "$privacy/index.php" ]]; then test -f "$privacy/index.php"; fi
@@ -116,12 +124,15 @@ jobs:
             if [[ -f "$admin/$name" ]]; then cp -p "$admin/$name" "$backup/code/$name"; fi
           done
           if [[ -f "$privacy/index.php" ]]; then cp -p "$privacy/index.php" "$backup/privacy-index.php"; fi
+          if [[ -f "$links" ]]; then cp -p "$links" "$backup/assetlinks.json"; fi
           # SQLite online snapshot; no direct copy of a live database.
           php -r '$db = new PDO("sqlite:" . $argv[1]); $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); $db->exec("PRAGMA busy_timeout=5000"); $db->exec("VACUUM INTO " . $db->quote($argv[2]));' "$private/library.sqlite3" "$backup/library.sqlite3"
           echo "Private backup created."
           changed=()
           privacy_changed=0
           privacy_created=0
+          links_changed=0
+          links_created=0
           rollback() {
             rc=$?
             trap - EXIT
@@ -144,6 +155,14 @@ jobs:
                 fi
               fi
               if (( privacy_created )); then rmdir "$privacy" || failed=1; fi
+              if (( links_changed )); then
+                if [[ -f "$backup/assetlinks.json" ]]; then
+                  cp -p "$backup/assetlinks.json" "$stage/restore" && mv -f "$stage/restore" "$links" || failed=1
+                else
+                  rm -f "$links" || failed=1
+                fi
+              fi
+              if (( links_created )); then rmdir "$links_dir" || failed=1; fi
               if (( failed )); then echo 'WARNING: rollback incomplete; restore code from the private backup manually.'; fi
               echo "Backup directory: ${backup##*/}"
             fi
@@ -162,6 +181,13 @@ jobs:
           privacy_changed=1
           install -m 644 "$stage/privacy-index.php" "$stage/next"
           mv -f "$stage/next" "$privacy/index.php"
+          if [[ ! -d "$links_dir" ]]; then
+            mkdir -m 755 "$links_dir"
+            links_created=1
+          fi
+          links_changed=1
+          install -m 644 "$stage/assetlinks.json" "$stage/next"
+          mv -f "$stage/next" "$links"
           base=https://quran.abdulrahmanalsaeed.com/admin/
           check() {
             actual=$(curl -sS --max-time 20 --retry 2 -o /dev/null -w '%{http_code}' "$base$1")
@@ -183,6 +209,10 @@ jobs:
           grep -Fq 'Madar Al-Huda Privacy Policy' "$stage/privacy.html"
           grep -Fq 'id="privacy-request"' "$stage/privacy.html"
           echo 'Public privacy policy health check passed.'
+          status=$(curl -fsS --max-time 20 --retry 2 -o "$stage/assetlinks-live.json" -w '%{http_code} %{content_type}' https://quran.abdulrahmanalsaeed.com/.well-known/assetlinks.json)
+          [[ "$status" == '200 application/json'* ]]
+          cmp "$stage/assetlinks.json" "$stage/assetlinks-live.json"
+          echo 'Public Android App Links health check passed.'
           trap - EXIT
           echo "DEPLOYMENT SUCCESSFUL. Backup: ${backup##*/}"
           REMOTE
