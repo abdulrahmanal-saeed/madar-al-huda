@@ -7,6 +7,7 @@ plugins {
 // Distribution channel and signing come from environment variables so no
 // key material or passwords ever live in the repository (P00-11).
 //   MADAR_CHANNEL=dev            → dev build: app id suffix ".dev"
+//   MADAR_CHANNEL=play           → store AAB with a separate upload key
 //   MADAR_CHANNEL=preview        → side-by-side test build: app id suffix ".preview"
 //   MADAR_VERSION_SUFFIX         → e.g. "-dev.42" (shown in Settings/Obtainium)
 //   MADAR_SIGNING_STORE_FILE     → path to the keystore (decoded in CI)
@@ -15,6 +16,7 @@ plugins {
 // Without them, release builds fall back to debug keys for local runs only.
 val madarChannel: String = System.getenv("MADAR_CHANNEL") ?: "local"
 val isDevChannel = madarChannel == "dev"
+val isPlayChannel = madarChannel == "play"
 val isPreviewChannel = madarChannel == "preview"
 val madarSigningStore: String? = System.getenv("MADAR_SIGNING_STORE_FILE")
 
@@ -50,7 +52,7 @@ android {
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
+        targetSdk = if (isPlayChannel) maxOf(flutter.targetSdkVersion, 36) else flutter.targetSdkVersion
         // Uses the version code from pubspec.yaml. When using split APKs, 1000 * ABI_VERSION
         // is added automatically by Flutter. (https://developer.android.com/studio/build/configure-apk-splits#configure-APK-versions)
         // You can force using the value of versionCode by specifying the `-P force-version-code-ignoring-abi=true`
@@ -79,10 +81,10 @@ android {
                 madarSigningStore != null -> signingConfigs.getByName("madar")
                 // A published dev build must always carry the fixed dev key,
                 // or installed copies could never be updated.
-                isDevChannel -> throw GradleException(
-                    "MADAR_CHANNEL=dev requires MADAR_SIGNING_* variables.",
+                isDevChannel || isPlayChannel -> throw GradleException(
+                    "Published dev and Play builds require MADAR_SIGNING_* variables.",
                 )
-                // Local `flutter run --release` only. Store signing: P06-01.
+                // Local `flutter run --release` only.
                 else -> signingConfigs.getByName("debug")
             }
         }
