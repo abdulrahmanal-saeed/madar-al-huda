@@ -10,5 +10,17 @@
         "6C:70:46:D0:F4:77:91:45:2D:A9:55:C3:9B:17:10:AD:DD:2F:A0:42:37:3C:29:78:2E:69:2A:08:04:2F:3E:E3"
       ]
     }
+  },
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.abdulrahmanalsaeed.madaralhuda",
+      "sha256_cert_fingerprints": [
+        "4E:F7:3D:83:E9:28:A4:EB:85:65:FD:3F:FA:A2:7E:E9:19:18:AF:78:B4:F5:05:13:72:4A:1D:28:23:0B:AA:63"
+      ]
+    }
   }
 ]
