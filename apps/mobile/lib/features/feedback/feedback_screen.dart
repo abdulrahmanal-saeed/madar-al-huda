@@ -38,8 +38,8 @@ class FeedbackApi {
     String contact = '',
     Uint8List? image,
   }) async {
-    if (image != null &&
-        (image.isEmpty || image.length > _maxFeedbackImageBytes)) {
+    final tooLarge = image != null && image.length > _maxFeedbackImageBytes;
+    if (tooLarge || image?.isEmpty == true) {
       return FeedbackResult.failed;
     }
     try {
@@ -163,11 +163,49 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
     }
   }
 
+  Widget _imageControls() {
+    final ar = _ar;
+    final busy = _sending || _picking;
+    final image = _image;
+    final attach = ar ? 'إرفاق صورة (اختياري)' : 'Attach image (optional)';
+    final remove = ar ? 'إزالة الصورة' : 'Remove image';
+    final help = ar
+        ? 'اختر لقطة شاشة بدون معلومات شخصية (PNG أو JPEG، حتى 2 ميجابايت). تُرسل مع البلاغ إلى الإدارة فقط.'
+        : 'Choose a screenshot without personal information (PNG or JPEG, up to 2 MB). It is sent only to the administrators.';
+    final style = Theme.of(context).textTheme.bodySmall;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        OutlinedButton.icon(
+          key: const Key('feedback-image'),
+          onPressed: busy ? null : _pickImage,
+          icon: const Icon(Icons.add_photo_alternate_outlined),
+          label: Text(attach),
+        ),
+        Text(help, style: style),
+        if (image != null) ...[
+          Image.memory(
+            image,
+            height: 120,
+            cacheWidth: 480,
+            fit: BoxFit.contain,
+            errorBuilder: (_, _, _) => const Icon(Icons.broken_image),
+          ),
+          TextButton.icon(
+            onPressed: busy ? null : () => setState(() => _image = null),
+            icon: const Icon(Icons.close),
+            label: Text(remove),
+          ),
+        ],
+        const SizedBox(height: AppSpacing.md),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final theme = Theme.of(context);
-    final attachLabel = _ar ? 'إرفاق صورة (اختياري)' : 'Attach image';
     return Scaffold(
       appBar: AppBar(title: Text(l10n.feedbackTitle)),
       body: SafeArea(
@@ -256,39 +294,7 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
                           style: theme.textTheme.bodySmall,
                         ),
                         const SizedBox(height: AppSpacing.lg),
-                        if (_canPick) ...[
-                          OutlinedButton.icon(
-                            key: const Key('feedback-image'),
-                            onPressed: _sending || _picking ? null : _pickImage,
-                            icon: const Icon(Icons.add_photo_alternate_outlined),
-                            label: Text(attachLabel),
-                          ),
-                          Text(
-                            _ar
-                                ? 'اختر لقطة شاشة بدون معلومات شخصية (PNG أو JPEG، حتى 2 ميجابايت). تُرسل مع البلاغ إلى الإدارة فقط.'
-                                : 'Choose a screenshot without personal information (PNG or JPEG, up to 2 MB). It is sent only to the administrators.',
-                            style: theme.textTheme.bodySmall,
-                          ),
-                          if (_image case final image?) ...[
-                            Image.memory(
-                              image,
-                              height: 120,
-                              cacheWidth: 480,
-                              fit: BoxFit.contain,
-                              errorBuilder: (_, _, _) {
-                                return const SizedBox.shrink();
-                              },
-                            ),
-                            TextButton.icon(
-                              onPressed: _sending || _picking
-                                  ? null
-                                  : () => setState(() => _image = null),
-                              icon: const Icon(Icons.close),
-                              label: Text(_ar ? 'إزالة الصورة' : 'Remove image'),
-                            ),
-                          ],
-                          const SizedBox(height: AppSpacing.md),
-                        ],
+                        if (_canPick) _imageControls(),
                         FilledButton.icon(
                           key: const Key('feedback-send'),
                           onPressed: _sending || _picking ? null : _send,
