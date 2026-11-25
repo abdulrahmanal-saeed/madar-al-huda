@@ -2,8 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../core/localization/l10n_extension.dart';
-import '../../../core/theme/app_theme.dart';
 import '../../../core/localization/numbers.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../hadith/data/hadeeth_enc.dart';
 import '../../quran/data/mushaf_edition.dart';
 import '../../quran/presentation/quran_meaning_view.dart';
@@ -15,7 +15,6 @@ class DhikrContent extends ConsumerWidget {
     required this.hadith,
     this.entry,
     this.period,
-    this.showWording = true,
     super.key,
   });
 
@@ -23,7 +22,6 @@ class DhikrContent extends ConsumerWidget {
   final int? hadith;
   final DhikrEntry? entry;
   final String? period;
-  final bool showWording;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -41,9 +39,8 @@ class DhikrContent extends ConsumerWidget {
 
     final verses = entry?.verses ?? const <VerseRange>[];
     final edition = verses.isEmpty ? null : ref.watch(mushafEditionProvider);
-    // Quran ranges are the authoritative text; dashboard wording may contain
-    // the same verses or a short instruction, not an additional recitation.
-    final quotation = verses.isEmpty && showWording ? entry?.wording : null;
+    // Quran ranges already provide the complete recitation from the Mushaf.
+    final quotation = verses.isEmpty ? entry?.wording : null;
     final reading = Theme.of(context).textTheme.bodyLarge?.copyWith(
       fontFamily: AppTheme.readingFontFamily,
       fontSize: 23,
@@ -96,21 +93,21 @@ class DhikrContent extends ConsumerWidget {
                 textAlign: TextAlign.right,
                 style: reading,
               ),
-            if (english && verses.isEmpty && showWording && hasDraft)
+            if (english && verses.isEmpty && hasDraft)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 child: Text(
                   '${entry!.draftMeaning!}\n${l10n.adhkarDraftMeaning}',
                 ),
               ),
-            if (english && verses.isEmpty && showWording && own && entry?.meaning != null)
+            if (english && verses.isEmpty && own && entry?.meaning != null)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 child: Text(entry!.meaning!),
               ),
             if (arabic == null)
               ...[]
-            else if (verses.isNotEmpty || quotation != null || !showWording)
+            else if (verses.isNotEmpty || quotation != null)
               ExpansionTile(
                 tilePadding: EdgeInsets.zero,
                 title: Text(l10n.adhkarHadithSource),
@@ -196,7 +193,11 @@ class DhikrContent extends ConsumerWidget {
 }
 
 /// Uses the same numbered end-of-ayah mark as the Mushaf reader.
-String numberedQuranRange(List<String> verses, {required int first, required int last}) {
+String numberedQuranRange(
+  List<String> verses, {
+  required int first,
+  required int last,
+}) {
   final numbers = decimalFormat('ar');
   return [
     for (var ayah = first; ayah <= last; ayah++)
