@@ -5,7 +5,7 @@ if (!defined('MADAR_ADMIN')) {
 }
 reportsTable($db);
 $showDone = ($_GET['show'] ?? '') === 'all';
-$reports = $db->query('SELECT * FROM reports' . ($showDone ? '' : ' WHERE done = 0') . ' ORDER BY id DESC LIMIT 300')->fetchAll();
+$reports = $db->query('SELECT reports.*, EXISTS(SELECT 1 FROM report_images WHERE report = reports.id) AS has_image FROM reports' . ($showDone ? '' : ' WHERE done = 0') . ' ORDER BY id DESC LIMIT 300')->fetchAll();
 $openCount = (int) $db->query('SELECT COUNT(*) FROM reports WHERE done = 0')->fetchColumn();
 ?>
 <section class="panel">
@@ -44,6 +44,12 @@ $openCount = (int) $db->query('SELECT COUNT(*) FROM reports WHERE done = 0')->fe
         </span>
       </div>
       <p class="report-text"><?= nl2br(e($report['message'])) ?></p>
+      <?php if ($report['has_image']): ?>
+        <p><a href="./?report_image=<?= e($report['id']) ?>" target="_blank" rel="noopener">
+          <img src="./?report_image=<?= e($report['id']) ?>" alt="الصورة المرفقة" width="180" loading="lazy">
+          عرض الصورة المرفقة بالحجم الكامل
+        </a></p>
+      <?php endif; ?>
       <?php if ($report['contact'] !== ''): ?><p><small>للتواصل: <bdi><?= e($report['contact']) ?></bdi></small></p><?php endif; ?>
     </article>
   <?php endforeach; ?>
