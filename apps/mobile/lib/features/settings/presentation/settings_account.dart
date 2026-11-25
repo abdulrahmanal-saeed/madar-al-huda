@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/auth/google_account.dart';
 import '../../../core/localization/l10n_extension.dart';
@@ -55,6 +56,7 @@ class _SettingsAccountState extends ConsumerState<SettingsAccount> {
               null => null,
             },
           ),
+          const _DeleteAccountTile(),
           ListTile(
             leading: const Icon(Icons.logout),
             title: Text(l10n.settingsGoogleSignOut),
@@ -87,6 +89,29 @@ class _SettingsAccountState extends ConsumerState<SettingsAccount> {
             }, l10n.settingsGoogleSignInError),
           ),
       ],
+    );
+  }
+}
+
+class _DeleteAccountTile extends StatelessWidget {
+  const _DeleteAccountTile();
+
+  @override
+  Widget build(BuildContext context) {
+    final ar = Localizations.localeOf(context).languageCode == 'ar';
+    return ListTile(
+      key: const ValueKey('request-account-deletion'),
+      leading: const Icon(Icons.person_remove_outlined),
+      title: Text(ar ? 'طلب حذف الحساب والبيانات' : 'Request account deletion'),
+      onTap: () async {
+        final uri = Uri(
+          scheme: 'https',
+          host: 'quran.abdulrahmanalsaeed.com',
+          path: '/privacy/',
+          fragment: 'request',
+        );
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      },
     );
   }
 }

@@ -6,6 +6,9 @@ const MADAR_ADMIN = true;
 ini_set('display_errors', '0');
 header('X-Content-Type-Options: nosniff');
 header('Referrer-Policy: no-referrer');
+if (($_GET['privacy'] ?? '') === '1') {
+    require __DIR__ . '/privacy-public.php';
+}
 require __DIR__ . '/content.php';
 require __DIR__ . '/advanced.php';
 require __DIR__ . '/appearance.php';
