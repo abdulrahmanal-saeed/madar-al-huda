@@ -2,9 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:flutter/foundation.dart' show defaultTargetPlatform, kIsWeb, TargetPlatform;
-import 'package:flutter/services.dart';
-
+import 'package:flutter/foundation.dart'
+    show defaultTargetPlatform, kIsWeb, TargetPlatform;
+import 'package:flutter/services.dart' show MethodChannel;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:material_ui/material_ui.dart';
@@ -97,8 +97,7 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
   bool _picking = false;
   Uint8List? _image;
 
-  bool get _canPick =>
-      !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+  bool get _canPick => !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
 
   bool get _ar => Localizations.localeOf(context).languageCode == 'ar';
 
@@ -112,9 +111,8 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
         final message = _ar
             ? 'اختر صورة PNG أو JPEG بحجم لا يتجاوز 2 ميجابايت.'
             : 'Choose a PNG or JPEG image no larger than 2 MB.';
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(message)),
-        );
+        final snack = SnackBar(content: Text(message));
+        ScaffoldMessenger.of(context).showSnackBar(snack);
       }
     } finally {
       if (mounted) setState(() => _picking = false);
@@ -261,7 +259,9 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
                             onPressed: _sending || _picking ? null : _pickImage,
                             icon: const Icon(Icons.add_photo_alternate_outlined),
                             label: Text(
-                              _ar ? 'إرفاق صورة (اختياري)' : 'Attach image (optional)',
+                              _ar
+                                  ? 'إرفاق صورة (اختياري)'
+                                  : 'Attach image (optional)',
                             ),
                           ),
                           Text(
@@ -276,7 +276,9 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
                               height: 120,
                               cacheWidth: 480,
                               fit: BoxFit.contain,
-                              errorBuilder: (_, _, _) => const Icon(Icons.broken_image),
+                              errorBuilder: (_, _, _) {
+                                return const Icon(Icons.broken_image);
+                              },
                             ),
                             TextButton.icon(
                               onPressed: _sending || _picking
