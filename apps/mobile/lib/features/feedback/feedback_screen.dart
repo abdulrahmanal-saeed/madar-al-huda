@@ -2,8 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:flutter/foundation.dart'
-    show defaultTargetPlatform, kIsWeb, TargetPlatform;
+import 'package:flutter/foundation.dart' as foundation;
 import 'package:flutter/services.dart' show MethodChannel;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
@@ -97,7 +96,10 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
   bool _picking = false;
   Uint8List? _image;
 
-  bool get _canPick => !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+  bool get _canPick {
+    final android = foundation.TargetPlatform.android;
+    return !foundation.kIsWeb && foundation.defaultTargetPlatform == android;
+  }
 
   bool get _ar => Localizations.localeOf(context).languageCode == 'ar';
 
@@ -165,6 +167,7 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final theme = Theme.of(context);
+    final attachLabel = _ar ? 'إرفاق صورة (اختياري)' : 'Attach image';
     return Scaffold(
       appBar: AppBar(title: Text(l10n.feedbackTitle)),
       body: SafeArea(
@@ -258,11 +261,7 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
                             key: const Key('feedback-image'),
                             onPressed: _sending || _picking ? null : _pickImage,
                             icon: const Icon(Icons.add_photo_alternate_outlined),
-                            label: Text(
-                              _ar
-                                  ? 'إرفاق صورة (اختياري)'
-                                  : 'Attach image (optional)',
-                            ),
+                            label: Text(attachLabel),
                           ),
                           Text(
                             _ar
@@ -277,7 +276,7 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
                               cacheWidth: 480,
                               fit: BoxFit.contain,
                               errorBuilder: (_, _, _) {
-                                return const Icon(Icons.broken_image);
+                                return const SizedBox.shrink();
                               },
                             ),
                             TextButton.icon(
