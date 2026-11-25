@@ -26,27 +26,14 @@ void main() {
     tester,
   ) async {
     Future<void> pump(AppUpdateStatus? status) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: HomeUpdateBanner(
-              key: UniqueKey(),
-              check: () async => status,
-            ),
-          ),
-        ),
-      );
+      final key = UniqueKey();
+      final banner = HomeUpdateBanner(key: key, check: () async => status);
+      await tester.pumpWidget(MaterialApp(home: Scaffold(body: banner)));
       await tester.pumpAndSettle();
     }
 
-    await pump(
-      AppUpdateStatus(
-        'dev',
-        false,
-        PublishedAppUpdate.parse(release, 67),
-        false,
-      ),
-    );
+    final update = PublishedAppUpdate.parse(release, 67);
+    await pump(AppUpdateStatus('dev', false, update, false));
     expect(find.text('New update available'), findsOneWidget);
     expect(find.text('0.1.0-dev.68'), findsOneWidget);
     expect(find.text('Update now'), findsOneWidget);

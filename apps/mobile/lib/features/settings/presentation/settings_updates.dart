@@ -147,14 +147,9 @@ Future<AppUpdateStatus?> _checkAppUpdate() async {
   }
   final notifications = info?['notifications'] == true;
   try {
-    final response = await http
-        .get(
-          Uri.https(_host, '/admin/', {
-            'feed': 'updates',
-            'channel': channel,
-          }),
-        )
-        .timeout(const Duration(seconds: 8));
+    final query = {'feed': 'updates', 'channel': channel};
+    final uri = Uri.https(_host, '/admin/', query);
+    final response = await http.get(uri).timeout(const Duration(seconds: 8));
     // The update notice is a few hundred bytes; anything far larger is not
     // a genuine response and is treated like an unreachable server.
     if (response.bodyBytes.length > _maxUpdateFeedBytes) {
@@ -166,12 +161,8 @@ Future<AppUpdateStatus?> _checkAppUpdate() async {
             installed,
           )
         : null;
-    return AppUpdateStatus(
-      channel,
-      notifications,
-      update,
-      response.statusCode != 200,
-    );
+    final unreachable = response.statusCode != 200;
+    return AppUpdateStatus(channel, notifications, update, unreachable);
   } catch (_) {
     return AppUpdateStatus(channel, notifications, null, true);
   }
@@ -190,13 +181,11 @@ Future<void> _downloadAppUpdate(
     // Show a retryable message for unsupported browsers.
   }
   if (context.mounted) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          ar ? 'تعذّر فتح رابط التنزيل.' : 'Could not open the download.',
-        ),
-      ),
-    );
+    final message = ar
+        ? 'تعذّر فتح رابط التنزيل.'
+        : 'Could not open the download.';
+    final snack = SnackBar(content: Text(message));
+    ScaffoldMessenger.of(context).showSnackBar(snack);
   }
 }
 
