@@ -6,6 +6,8 @@ on:
     paths:
       - 'hosting/admin/**'
       - 'hosting/prepare_admin.py'
+      - 'hosting/web/privacy/**'
+      - '.github/workflows/hostinger-admin-deploy.yml'
   workflow_dispatch:
 
 permissions:
@@ -36,6 +38,8 @@ jobs:
             php -l "$file"
           done
           php hosting/tests/apk_signature_test.php
+          php -l hosting/web/privacy/index.php
+          cp hosting/web/privacy/index.php "$RUNNER_TEMP/privacy-index.php"
           tar -czf "$RUNNER_TEMP/madar-admin.tar.gz" -C "$RUNNER_TEMP/madar-admin" .
 
       - name: Deploy over verified SSH
@@ -71,6 +75,7 @@ jobs:
           }
           trap cleanup EXIT
           scp "${opts[@]}" -P 65002 "$RUNNER_TEMP/madar-admin.tar.gz" "$target:$stage/update.tar.gz"
+          scp "${opts[@]}" -P 65002 "$RUNNER_TEMP/privacy-index.php" "$target:$stage/privacy-index.php"
           ssh "${opts[@]}" -p 65002 "$target" bash -s -- "$stage" <<'REMOTE'
           set -euo pipefail
           umask 077
@@ -78,6 +83,13 @@ jobs:
           root="$HOME/domains/quran.abdulrahmanalsaeed.com"
           admin="$root/public_html/admin"
           private="$root/.madar-admin"
+          privacy="$root/public_html/privacy"
+          test ! -L "$privacy" && test ! -L "$privacy/index.php"
+          if [[ -e "$privacy" ]]; then test -d "$privacy"; fi
+          if [[ -e "$privacy/index.php" ]]; then test -f "$privacy/index.php"; fi
+          # Do not overwrite an existing non-PHP landing page.
+          test ! -e "$privacy/index.html" && test ! -L "$privacy/index.html"
+          php -l "$stage/privacy-index.php"
           test -d "$admin" && test -f "$admin/seed.php" && test -f "$private/library.sqlite3"
           test ! -L "$admin" && test ! -L "$private"
           mkdir "$stage/code"
@@ -103,10 +115,13 @@ jobs:
           for name in "${files[@]}"; do
             if [[ -f "$admin/$name" ]]; then cp -p "$admin/$name" "$backup/code/$name"; fi
           done
+          if [[ -f "$privacy/index.php" ]]; then cp -p "$privacy/index.php" "$backup/privacy-index.php"; fi
           # SQLite online snapshot; no direct copy of a live database.
           php -r '$db = new PDO("sqlite:" . $argv[1]); $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); $db->exec("PRAGMA busy_timeout=5000"); $db->exec("VACUUM INTO " . $db->quote($argv[2]));' "$private/library.sqlite3" "$backup/library.sqlite3"
           echo "Private backup created."
           changed=()
+          privacy_changed=0
+          privacy_created=0
           rollback() {
             rc=$?
             trap - EXIT
@@ -121,6 +136,14 @@ jobs:
                   rm -f "$admin/$name" || failed=1
                 fi
               done
+              if (( privacy_changed )); then
+                if [[ -f "$backup/privacy-index.php" ]]; then
+                  cp -p "$backup/privacy-index.php" "$stage/restore" && mv -f "$stage/restore" "$privacy/index.php" || failed=1
+                else
+                  rm -f "$privacy/index.php" || failed=1
+                fi
+              fi
+              if (( privacy_created )); then rmdir "$privacy" || failed=1; fi
               if (( failed )); then echo 'WARNING: rollback incomplete; restore code from the private backup manually.'; fi
               echo "Backup directory: ${backup##*/}"
             fi
@@ -132,6 +155,13 @@ jobs:
             install -m 644 "$stage/code/$name" "$stage/next"
             mv -f "$stage/next" "$admin/$name"
           done
+          if [[ ! -d "$privacy" ]]; then
+            mkdir -m 755 "$privacy"
+            privacy_created=1
+          fi
+          privacy_changed=1
+          install -m 644 "$stage/privacy-index.php" "$stage/next"
+          mv -f "$stage/next" "$privacy/index.php"
           base=https://quran.abdulrahmanalsaeed.com/admin/
           check() {
             actual=$(curl -sS --max-time 20 --retry 2 -o /dev/null -w '%{http_code}' "$base$1")
@@ -145,6 +175,14 @@ jobs:
           check '?feed=library' 200
           check '?feed=updates&channel=dev' 200
           check 'release-view.php' 403
+          check 'privacy.css' 200
+          check 'privacy.js' 200
+          privacy_url=https://quran.abdulrahmanalsaeed.com/privacy
+          status=$(curl -fsSL --max-time 20 -o "$stage/privacy.html" -w '%{http_code}' "$privacy_url")
+          test "$status" = 200
+          grep -Fq 'Madar Al-Huda Privacy Policy' "$stage/privacy.html"
+          grep -Fq 'id="privacy-request"' "$stage/privacy.html"
+          echo 'Public privacy policy health check passed.'
           trap - EXIT
           echo "DEPLOYMENT SUCCESSFUL. Backup: ${backup##*/}"
           REMOTE

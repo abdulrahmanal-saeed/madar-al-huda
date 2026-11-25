@@ -12,7 +12,7 @@ form.addEventListener('submit', async (event) => {
     const kind = document.getElementById('request-kind').value;
     const contact = document.getElementById('request-email').value.trim();
     const detail = document.getElementById('request-message').value.trim();
-    const response = await fetch('./?report=1', {
+    const response = await fetch('/admin/?report=1', {
       method: 'POST',
       credentials: 'omit',
       headers: {'Content-Type': 'application/json'},

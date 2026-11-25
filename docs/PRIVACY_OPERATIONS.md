@@ -1,8 +1,8 @@
 # Madar Al-Huda privacy operations
 
-Public policy: https://quran.abdulrahmanalsaeed.com/admin/?privacy=1
+Public policy: https://quran.abdulrahmanalsaeed.com/privacy/
 
-Public deletion request: https://quran.abdulrahmanalsaeed.com/admin/?privacy=1#request
+Public deletion request: https://quran.abdulrahmanalsaeed.com/privacy/#request
 
 The bilingual web page submits privacy requests to the existing private feedback inbox, tagged [Privacy request: ...]. This is a request intake, not automatic account deletion.
 

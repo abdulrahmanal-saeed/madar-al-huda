@@ -107,8 +107,7 @@ class _DeleteAccountTile extends StatelessWidget {
         final uri = Uri(
           scheme: 'https',
           host: 'quran.abdulrahmanalsaeed.com',
-          path: '/admin/',
-          queryParameters: {'privacy': '1'},
+          path: '/privacy/',
           fragment: 'request',
         );
         await launchUrl(uri, mode: LaunchMode.externalApplication);

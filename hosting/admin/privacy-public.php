@@ -21,8 +21,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'HEAD') {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>سياسة الخصوصية | Madar Al-Huda Privacy Policy</title>
-  <link rel="stylesheet" href="privacy.css">
-  <script src="privacy.js" defer></script>
+  <link rel="stylesheet" href="/admin/privacy.css">
+  <script src="/admin/privacy.js" defer></script>
 </head>
 <body>
 <header class="mast"><div><strong>مدار الهدى · Madar Al-Huda</strong><nav><a href="#ar">العربية</a> <a href="#en" lang="en">English</a> <a href="#request">التواصل / Contact</a></nav></div></header>

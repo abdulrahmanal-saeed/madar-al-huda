@@ -231,11 +231,7 @@ class PrivacyPolicyTile extends StatelessWidget {
       title: Text(ar ? 'سياسة الخصوصية' : 'Privacy policy'),
       trailing: const Icon(Icons.open_in_new),
       onTap: () async {
-        final uri = Uri.https(
-          'quran.abdulrahmanalsaeed.com',
-          '/admin/',
-          {'privacy': '1'},
-        );
+        final uri = Uri.https('quran.abdulrahmanalsaeed.com', '/privacy/');
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       },
     );
