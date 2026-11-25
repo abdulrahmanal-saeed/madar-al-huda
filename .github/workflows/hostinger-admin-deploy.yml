@@ -1,0 +1,150 @@
+name: Deploy hosted admin to Hostinger
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'hosting/admin/**'
+      - 'hosting/prepare_admin.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: madar-hostinger-admin-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Prepare and validate code-only update
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 hosting/prepare_admin.py "$RUNNER_TEMP/madar-admin" --update
+          test ! -e "$RUNNER_TEMP/madar-admin/seed.php"
+          test ! -e "$RUNNER_TEMP/madar-admin/setup-config.php"
+          for file in "$RUNNER_TEMP/madar-admin/"*.php; do
+            php -l "$file"
+          done
+          php hosting/tests/apk_signature_test.php
+          tar -czf "$RUNNER_TEMP/madar-admin.tar.gz" -C "$RUNNER_TEMP/madar-admin" .
+
+      - name: Deploy over verified SSH
+        shell: bash
+        env:
+          HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
+          USER: ${{ secrets.HOSTINGER_SSH_USER }}
+          KEY: ${{ secrets.HOSTINGER_SSH_KEY }}
+        run: |
+          set -euo pipefail
+          : "${HOST:?Set HOSTINGER_SSH_HOST}" "${USER:?Set HOSTINGER_SSH_USER}" "${KEY:?Set HOSTINGER_SSH_KEY}"
+          [[ "$HOST" =~ ^[a-zA-Z0-9.-]+$ && "$USER" =~ ^[a-zA-Z0-9_-]+$ ]]
+          umask 077
+          key="$RUNNER_TEMP/madar-ssh-key"
+          known="$RUNNER_TEMP/madar-known-hosts"
+          printf '%s\n' "$KEY" | tr -d '\r' > "$key"
+          unset KEY
+          chmod 600 "$key"
+          trap 'rm -f "$key" "$known"' EXIT
+          ssh-keyscan -T 15 -p 65002 -t ed25519 "$HOST" > "$known"
+          fingerprint=$(ssh-keygen -E sha256 -lf "$known" | awk '{print $2}' | sort -u)
+          test "$fingerprint" = 'SHA256:4bu/oKsT8DDL7MCC81qLK+ZdKYS8XFne24v/qd13dfs' || {
+            echo 'Hostinger SSH host fingerprint mismatch; refusing deployment.'
+            exit 1
+          }
+          opts=(-i "$key" -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o "UserKnownHostsFile=$known" -o ConnectTimeout=15)
+          target="$USER@$HOST"
+          stage=$(ssh "${opts[@]}" -p 65002 "$target" 'umask 077; mktemp -d "$HOME/.madar-deploy.XXXXXX"')
+          [[ "$stage" =~ ^/home/[a-zA-Z0-9_-]+/\.madar-deploy\.[a-zA-Z0-9]+$ ]]
+          cleanup() {
+            ssh "${opts[@]}" -p 65002 "$target" "rm -rf -- '$stage'" >/dev/null 2>&1 || true
+            rm -f "$key" "$known"
+          }
+          trap cleanup EXIT
+          scp "${opts[@]}" -P 65002 "$RUNNER_TEMP/madar-admin.tar.gz" "$target:$stage/update.tar.gz"
+          ssh "${opts[@]}" -p 65002 "$target" bash -s -- "$stage" <<'REMOTE'
+          set -euo pipefail
+          umask 077
+          stage="$1"
+          root="$HOME/domains/quran.abdulrahmanalsaeed.com"
+          admin="$root/public_html/admin"
+          private="$root/.madar-admin"
+          test -d "$admin" && test -f "$admin/seed.php" && test -f "$private/library.sqlite3"
+          test ! -L "$admin" && test ! -L "$private"
+          mkdir "$stage/code"
+          tar -xzf "$stage/update.tar.gz" -C "$stage/code"
+          test -f "$stage/code/index.php" && test -f "$stage/code/.htaccess"
+          shopt -s dotglob nullglob
+          files=()
+          for source in "$stage/code/"*; do
+            name=${source##*/}
+            [[ "$name" =~ ^[a-zA-Z0-9_-]+\.(php|css|js)$ || "$name" = .htaccess ]]
+            [[ "$name" != seed.php && "$name" != setup-config.php ]]
+            test -f "$source" && test ! -L "$source"
+            test ! -L "$admin/$name"
+            if [[ -e "$admin/$name" ]]; then test -f "$admin/$name"; fi
+            if [[ "$name" == *.php ]]; then php -l "$source"; fi
+            if [[ "$name" != index.php ]]; then files+=("$name"); fi
+          done
+          files+=(index.php)
+
+          mkdir -p "$private/backups"
+          backup=$(mktemp -d "$private/backups/admin-ci.XXXXXX")
+          mkdir "$backup/code"
+          for name in "${files[@]}"; do
+            if [[ -f "$admin/$name" ]]; then cp -p "$admin/$name" "$backup/code/$name"; fi
+          done
+          # SQLite online snapshot; no direct copy of a live database.
+          php -r '$db = new PDO("sqlite:" . $argv[1]); $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); $db->exec("PRAGMA busy_timeout=5000"); $db->exec("VACUUM INTO " . $db->quote($argv[2]));' "$private/library.sqlite3" "$backup/library.sqlite3"
+          echo "Private backup created."
+          changed=()
+          rollback() {
+            rc=$?
+            trap - EXIT
+            if (( rc != 0 )); then
+              echo 'Deployment failed; restoring changed code files (not the live database).'
+              failed=0
+              for (( i=${#changed[@]}-1; i>=0; i-- )); do
+                name=${changed[i]}
+                if [[ -f "$backup/code/$name" ]]; then
+                  cp -p "$backup/code/$name" "$stage/restore" && mv -f "$stage/restore" "$admin/$name" || failed=1
+                else
+                  rm -f "$admin/$name" || failed=1
+                fi
+              done
+              if (( failed )); then echo 'WARNING: rollback incomplete; restore code from the private backup manually.'; fi
+              echo "Backup directory: ${backup##*/}"
+            fi
+            exit "$rc"
+          }
+          trap rollback EXIT
+          for name in "${files[@]}"; do
+            changed+=("$name")
+            install -m 644 "$stage/code/$name" "$stage/next"
+            mv -f "$stage/next" "$admin/$name"
+          done
+          base=https://quran.abdulrahmanalsaeed.com/admin/
+          check() {
+            actual=$(curl -sS --max-time 20 --retry 2 -o /dev/null -w '%{http_code}' "$base$1")
+            if [[ "$actual" != "$2" ]]; then
+              echo "Health check failed for $1: HTTP $actual (expected $2)"
+              return 1
+            fi
+            echo "Health check passed: $1 (HTTP $actual)"
+          }
+          check '' 200
+          check '?feed=library' 200
+          check '?feed=updates&channel=dev' 200
+          check 'release-view.php' 403
+          trap - EXIT
+          echo "DEPLOYMENT SUCCESSFUL. Backup: ${backup##*/}"
+          REMOTE
