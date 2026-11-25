@@ -1,0 +1,40 @@
+name: Public privacy URL
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/public-privacy-check.yml'
+      - 'hosting/web/privacy/**'
+      - 'hosting/admin/privacy-public.php'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  external:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check public DNS and HTTPS outside Hostinger
+        shell: bash
+        run: |
+          set -uo pipefail
+          host=quran.abdulrahmanalsaeed.com
+          getent ahosts "$host" || true
+          fail=0
+          for path in /privacy /privacy/ /privacy/index.php '/admin/?privacy=1'; do
+            url="https://$host$path"
+            echo "::group::$url"
+            if curl --silent --show-error --location --max-redirs 5 --max-time 20 --dump-header "$RUNNER_TEMP/headers" --output "$RUNNER_TEMP/body" --write-out 'GET status=%{http_code} final=%{url_effective} remote=%{remote_ip}\n' "$url"; then
+              grep -Ei '^(HTTP/|location:|content-type:)' "$RUNNER_TEMP/headers" || true
+              if grep -Fq 'Madar Al-Huda Privacy Policy' "$RUNNER_TEMP/body" && grep -Fq 'id="privacy-request"' "$RUNNER_TEMP/body"; then
+                echo 'Policy and deletion form found.'
+              else
+                echo 'Policy or deletion form missing.'
+                fail=1
+              fi
+            else
+              fail=1
+            fi
+            curl --silent --show-error --head --location --max-redirs 5 --max-time 20 --output /dev/null --write-out 'HEAD status=%{http_code} final=%{url_effective}\n' "$url" || true
+            echo '::endgroup::'
+          done
+          exit "$fail"
