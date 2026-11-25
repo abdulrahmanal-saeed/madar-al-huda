@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/diagnostics/error_log.dart';
 import '../../../core/localization/l10n_extension.dart';
@@ -124,6 +125,7 @@ class SettingsScreen extends ConsumerWidget {
                   const _Divider(),
                   _GroupHeader(l10n.settingsAbout),
                   const SettingsUpdates(),
+                  const PrivacyPolicyTile(),
                   ListTile(
                     key: const ValueKey('settings-feedback'),
                     leading: const Icon(Icons.feedback_outlined),
@@ -215,4 +217,27 @@ class _Divider extends StatelessWidget {
     padding: EdgeInsets.symmetric(vertical: AppSpacing.sm),
     child: Divider(indent: AppSpacing.lg, endIndent: AppSpacing.lg),
   );
+}
+
+class PrivacyPolicyTile extends StatelessWidget {
+  const PrivacyPolicyTile({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final ar = Localizations.localeOf(context).languageCode == 'ar';
+    return ListTile(
+      key: const ValueKey('settings-privacy'),
+      leading: const Icon(Icons.privacy_tip_outlined),
+      title: Text(ar ? 'سياسة الخصوصية' : 'Privacy policy'),
+      trailing: const Icon(Icons.open_in_new),
+      onTap: () async {
+        final uri = Uri.https(
+          'quran.abdulrahmanalsaeed.com',
+          '/admin/',
+          {'privacy': '1'},
+        );
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      },
+    );
+  }
 }
