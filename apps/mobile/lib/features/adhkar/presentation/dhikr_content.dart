@@ -3,6 +3,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../../core/localization/l10n_extension.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/localization/numbers.dart';
 import '../../hadith/data/hadeeth_enc.dart';
 import '../../quran/data/mushaf_edition.dart';
 import '../../quran/presentation/quran_meaning_view.dart';
@@ -14,6 +15,7 @@ class DhikrContent extends ConsumerWidget {
     required this.hadith,
     this.entry,
     this.period,
+    this.showWording = true,
     super.key,
   });
 
@@ -21,6 +23,7 @@ class DhikrContent extends ConsumerWidget {
   final int? hadith;
   final DhikrEntry? entry;
   final String? period;
+  final bool showWording;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -38,7 +41,9 @@ class DhikrContent extends ConsumerWidget {
 
     final verses = entry?.verses ?? const <VerseRange>[];
     final edition = verses.isEmpty ? null : ref.watch(mushafEditionProvider);
-    final quotation = entry?.wording;
+    // Quran ranges are the authoritative text; dashboard wording may contain
+    // the same verses or a short instruction, not an additional recitation.
+    final quotation = verses.isEmpty && showWording ? entry?.wording : null;
     final reading = Theme.of(context).textTheme.bodyLarge?.copyWith(
       fontFamily: AppTheme.readingFontFamily,
       fontSize: 23,
@@ -62,9 +67,11 @@ class DhikrContent extends ConsumerWidget {
                   children: [
                     for (final range in verses) ...[
                       Text(
-                        mushaf.surahs[range.surah - 1].verses
-                            .sublist(range.first - 1, range.last)
-                            .join(' '),
+                        numberedQuranRange(
+                          mushaf.surahs[range.surah - 1].verses,
+                          first: range.first,
+                          last: range.last,
+                        ),
                         textDirection: TextDirection.rtl,
                         textAlign: TextAlign.right,
                         style: reading?.copyWith(
@@ -89,21 +96,21 @@ class DhikrContent extends ConsumerWidget {
                 textAlign: TextAlign.right,
                 style: reading,
               ),
-            if (english && hasDraft)
+            if (english && verses.isEmpty && showWording && hasDraft)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 child: Text(
                   '${entry!.draftMeaning!}\n${l10n.adhkarDraftMeaning}',
                 ),
               ),
-            if (english && own && entry?.meaning != null)
+            if (english && verses.isEmpty && showWording && own && entry?.meaning != null)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 child: Text(entry!.meaning!),
               ),
             if (arabic == null)
               ...[]
-            else if (verses.isNotEmpty || quotation != null)
+            else if (verses.isNotEmpty || quotation != null || !showWording)
               ExpansionTile(
                 tilePadding: EdgeInsets.zero,
                 title: Text(l10n.adhkarHadithSource),
@@ -186,4 +193,13 @@ class DhikrContent extends ConsumerWidget {
       ),
     ),
   );
+}
+
+/// Uses the same numbered end-of-ayah mark as the Mushaf reader.
+String numberedQuranRange(List<String> verses, {required int first, required int last}) {
+  final numbers = decimalFormat('ar');
+  return [
+    for (var ayah = first; ayah <= last; ayah++)
+      '${verses[ayah - 1]} \u06dd${numbers.format(ayah)}',
+  ].join(' ');
 }
