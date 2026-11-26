@@ -31,7 +31,10 @@ void main() {
     final list = decodeDailyDuas([
       {
         'id': 'knowledge',
-        'wording': {'ar': 'رَبِّ زِدْنِي عِلْمًا', 'en': 'Increase my knowledge'},
+        'wording': {
+          'ar': 'رَبِّ زِدْنِي عِلْمًا',
+          'en': 'Increase my knowledge',
+        },
         'source': {'ar': 'طه: ١١٤', 'en': 'Quran 20:114'},
       },
     ]);
