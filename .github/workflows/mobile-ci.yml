@@ -63,6 +63,8 @@ jobs:
             php -l "$file"
           done
           php hosting/tests/apk_signature_test.php
+          php hosting/tests/library_media_test.php
+          node --check hosting/admin/admin.js
 
   quran-edge:
     name: Quran Edge Function
@@ -100,7 +102,9 @@ jobs:
           git diff --exit-code -- lib/core/localization/generated
 
       - name: Check formatting
-        run: dart format --output=none --set-exit-if-changed lib test
+        run: |
+          dart format lib test
+          git diff --exit-code -- lib test
 
       - name: Analyze
         run: flutter analyze --fatal-infos

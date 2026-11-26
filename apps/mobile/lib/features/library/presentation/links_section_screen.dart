@@ -3,8 +3,10 @@ import 'package:material_ui/material_ui.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/localization/l10n_extension.dart';
+import '../../../core/localization/numbers.dart';
 import '../../../core/theme/app_tokens.dart';
 import '../../../core/widgets/responsive_content.dart';
+import '../../learning/presentation/episode_series_screen.dart';
 import '../domain/library_sections.dart';
 
 /// A section added on the dashboard: its titled links open in an in-app
@@ -25,7 +27,7 @@ class LinksSectionScreen extends ConsumerWidget {
         .firstOrNull;
     return Scaffold(
       appBar: AppBar(title: Text(entry?.title.inLanguage(language) ?? '')),
-      body: entry == null || entry.links.isEmpty
+      body: entry == null || (entry.links.isEmpty && entry.seasons.isEmpty)
           ? Center(
               child: Padding(
                 padding: const EdgeInsets.all(AppSpacing.xl),
@@ -49,20 +51,43 @@ class LinksSectionScreen extends ConsumerWidget {
                         ),
                         const SizedBox(height: AppSpacing.md),
                       ],
-                      Card(
-                        child: Column(
-                          children: [
-                            for (final (index, link) in entry.links.indexed)
-                              ListTile(
-                                key: ValueKey('section-link-$index'),
-                                leading: Icon(_iconFor(link.url)),
-                                title: Text(link.title.inLanguage(language)),
-                                trailing: const Icon(Icons.open_in_new),
-                                onTap: () => _open(context, link.url),
+                      for (final season in entry.seasons)
+                        Card(
+                          child: ListTile(
+                            key: ValueKey(season.id),
+                            leading: const Icon(Icons.folder_open_outlined),
+                            title: Text(season.title(language)),
+                            subtitle: Text(
+                              l10n.learningEpisodeCount(
+                                decimalFormat(language)
+                                    .format(season.episodes.length),
+                                season.episodes.length,
                               ),
-                          ],
+                            ),
+                            trailing: const Icon(Icons.chevron_right),
+                            onTap: () => Navigator.of(context).push<void>(
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    EpisodeSeriesScreen(series: season),
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
+                      if (entry.links.isNotEmpty)
+                        Card(
+                          child: Column(
+                            children: [
+                              for (final (index, link) in entry.links.indexed)
+                                ListTile(
+                                  key: ValueKey('section-link-$index'),
+                                  leading: Icon(_iconFor(link.url)),
+                                  title: Text(link.title.inLanguage(language)),
+                                  trailing: const Icon(Icons.open_in_new),
+                                  onTap: () => _open(context, link.url),
+                                ),
+                            ],
+                          ),
+                        ),
                     ],
                   ),
                 ),

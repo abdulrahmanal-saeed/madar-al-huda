@@ -15,6 +15,7 @@ import '../../adhkar/data/adhkar_catalog.dart';
 import '../../learning/data/learning_catalog.dart';
 import '../../learning/data/learning_files.dart';
 import '../../learning/data/prophet_stories.dart';
+import '../../library/domain/library_sections.dart';
 import '../../quran/data/chapter_reciters.dart';
 import '../../quran/data/offline_recitations.dart';
 import '../data/download_usage.dart';
@@ -74,6 +75,9 @@ class _DownloadCenterScreenState extends ConsumerState<DownloadCenterScreen> {
         .length;
     final stories = ref.watch(prophetStoriesProvider).asData?.value;
     final libraryFeed = ref.watch(managedLibraryProvider).asData?.value;
+    final librarySections = ref
+        .watch(librarySectionsProvider)
+        .whereType<LinksEntry>();
 
     Widget heading(String text) => Padding(
       padding: const EdgeInsets.fromLTRB(
@@ -230,6 +234,25 @@ class _DownloadCenterScreenState extends ConsumerState<DownloadCenterScreen> {
                       ),
                     ),
                   ),
+                  for (final section in librarySections)
+                    if (section.seasons.isNotEmpty) ...[
+                      heading(
+                        language == 'ar' ? section.title.ar : section.title.en,
+                      ),
+                      Card(
+                        child: Column(
+                          children: [
+                            for (final series in section.seasons)
+                              _SeriesRow(
+                                series: series,
+                                includeVideo: true,
+                                busy: busy,
+                                number: number,
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
                   heading(l10n.downloadsOnlineOnly),
                   Card(
                     child: Column(
@@ -443,11 +466,13 @@ class _SeriesRow extends ConsumerStatefulWidget {
     required this.series,
     required this.busy,
     required this.number,
+    this.includeVideo = false,
   });
 
   final LearningSeries series;
   final bool busy;
   final String Function(num) number;
+  final bool includeVideo;
 
   @override
   ConsumerState<_SeriesRow> createState() => _SeriesRowState();
@@ -456,10 +481,11 @@ class _SeriesRow extends ConsumerStatefulWidget {
 class _SeriesRowState extends ConsumerState<_SeriesRow> {
   int? _saved;
 
-  /// Audio is offered for offline use: it is far smaller than video.
+  /// Stories default to audio; managed seasons expose both formats here.
   List<LessonMedia> get _media => [
     for (final episode in widget.series.episodes)
-      ?episode.media[LessonFormat.audio],
+      for (final media in episode.media.values)
+        if (widget.includeVideo || media.format == LessonFormat.audio) media,
   ];
 
   @override
@@ -526,7 +552,9 @@ class _SeriesRowState extends ConsumerState<_SeriesRow> {
                       await after();
                     },
             ),
-          if (saved != null && saved < media.length && files.base != null)
+          if (saved != null &&
+              saved < media.length &&
+              media.every((item) => files.source(item) != null))
             IconButton.filledTonal(
               tooltip: l10n.downloadsAll,
               icon: const Icon(Icons.download),

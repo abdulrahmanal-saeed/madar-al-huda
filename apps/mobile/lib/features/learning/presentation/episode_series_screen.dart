@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../core/audio/audio_playback.dart';
+import '../../../core/content/collection_downloads.dart';
 import '../../../core/localization/l10n_extension.dart';
 import '../../../core/localization/numbers.dart';
 import '../../../core/theme/app_tokens.dart';
@@ -212,6 +213,11 @@ class _EpisodeSeriesScreenState extends ConsumerState<EpisodeSeriesScreen> {
                     ),
                   )
                 else ...[
+                  if (series.id.contains('-season-')) ...[
+                    SeasonDownloadButton(series: series),
+                    const CollectionDownloadStatus(),
+                    const SizedBox(height: AppSpacing.md),
+                  ],
                   if (formats.length > 1)
                     SegmentedButton<LessonFormat>(
                       key: const Key('episode-format'),
@@ -368,6 +374,78 @@ class _EpisodeSeriesScreenState extends ConsumerState<EpisodeSeriesScreen> {
               )
             : null,
       ),
+    );
+  }
+}
+
+class SeasonDownloadButton extends ConsumerWidget {
+  const SeasonDownloadButton({required this.series, super.key});
+
+  final LearningSeries series;
+
+  Future<void> _download(BuildContext context, WidgetRef ref) async {
+    final l10n = context.l10n;
+    final language = Localizations.localeOf(context).languageCode;
+    final label = language == 'ar'
+        ? 'تنزيل الموسم بالكامل'
+        : 'Download entire season';
+    final files = ref.read(learningFilesProvider);
+    final manager = ref.read(collectionDownloadsProvider.notifier);
+    final available = [
+      for (final episode in series.episodes)
+        for (final media in episode.media.values)
+          if (files.source(media) != null) media,
+    ];
+    final hasAudio = available.any((m) => m.format == LessonFormat.audio);
+    final hasVideo = available.any((m) => m.format == LessonFormat.video);
+    final scope = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheet) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(title: Text(label)),
+            if (hasAudio)
+              ListTile(
+                leading: const Icon(Icons.headphones_outlined),
+                title: Text(l10n.learningFormatAudio),
+                onTap: () => Navigator.pop(sheet, 'audio'),
+              ),
+            if (hasVideo)
+              ListTile(
+                leading: const Icon(Icons.videocam_outlined),
+                title: Text(l10n.learningFormatVideo),
+                onTap: () => Navigator.pop(sheet, 'video'),
+              ),
+            if (hasAudio && hasVideo)
+              ListTile(
+                leading: const Icon(Icons.perm_media_outlined),
+                title: Text(l10n.learningAudioAndVideo),
+                onTap: () => Navigator.pop(sheet, 'both'),
+              ),
+          ],
+        ),
+      ),
+    );
+    if (scope == null || !context.mounted) return;
+    await manager.start(series.title(language), [
+      for (final media in available)
+        if (scope == 'both' || scope == media.format.name)
+          () => files.download(media),
+    ]);
+    if (context.mounted) ref.invalidate(lessonSavedProvider);
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final busy = ref.watch(collectionDownloadsProvider)?.running == true;
+    final ar = Localizations.localeOf(context).languageCode == 'ar';
+    return FilledButton.tonalIcon(
+      key: const Key('season-download-all'),
+      onPressed: busy ? null : () => _download(context, ref),
+      icon: const Icon(Icons.download_for_offline_outlined),
+      label: Text(ar ? 'تنزيل الموسم بالكامل' : 'Download entire season'),
     );
   }
 }

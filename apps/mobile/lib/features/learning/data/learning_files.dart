@@ -42,6 +42,11 @@ class LearningFiles {
   static const _timeout = Duration(seconds: 30);
 
   Uri? source(LessonMedia media) {
+    if (RegExp(r'^Library-[a-f0-9]{32}\.(mp3|mp4)$').hasMatch(media.fileName)) {
+      return Uri.https('quran.abdulrahmanalsaeed.com', '/admin/', {
+        'library_media': media.fileName,
+      });
+    }
     final root = base;
     if (root == null) return null;
     return root.replace(
