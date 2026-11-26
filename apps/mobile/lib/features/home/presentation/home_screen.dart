@@ -18,19 +18,18 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_tokens.dart';
 import '../../../core/widgets/responsive_content.dart';
 import '../../../core/widgets/settings_button.dart';
-import '../../adhkar/data/adhkar_catalog.dart';
 import '../../adhkar/data/quran_dua_index.dart';
 import '../../prayer/application/prayer_preferences.dart';
 import '../../prayer/domain/prayer_schedule.dart';
 import '../../prayer/presentation/next_prayer_card.dart';
 import '../../quran/data/mushaf_edition.dart';
 import '../../quran/data/quran_services.dart';
-import '../../quran/presentation/quran_meaning_view.dart';
 import '../../ramadan/presentation/ramadan_screen.dart';
 import '../../settings/presentation/settings_updates.dart';
 import '../../worship/application/cairo_radio_control.dart';
 import '../../worship/application/worship_location.dart';
 import '../../worship/data/daily_reading_plan.dart';
+import '../data/daily_duas.dart';
 import 'worship_now_card.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -218,7 +217,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     (!AppSection.adhkar.status.isGated ||
                         managedReleaseEnabled)) ...[
                   const SizedBox(height: AppSpacing.lg),
-                  _DuaOfDay(edition: edition, day: date),
+                  _DuaOfDay(day: date),
                 ],
                 const SizedBox(height: AppSpacing.xl),
               ],
@@ -438,21 +437,15 @@ DuaRange? duaForCivilDay(DateTime day, Iterable<List<DuaRange>> groups) {
 }
 
 class _DuaOfDay extends ConsumerWidget {
-  const _DuaOfDay({required this.edition, required this.day});
+  const _DuaOfDay({required this.day});
 
-  final MushafEdition edition;
   final DateTime day;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final index =
-        ref.watch(quranDuaIndexProvider).asData?.value ?? quranDuaIndex;
-    final range = duaForCivilDay(day, index.values);
-    if (range == null) return const SizedBox.shrink();
-    final locale = Localizations.localeOf(context).languageCode;
-    final numbers = decimalFormat(locale);
-    final surah = edition.surahs[range.surah - 1];
-    final l10n = context.l10n;
+    final list = ref.watch(dailyDuasProvider).asData?.value ?? bundledDailyDuas;
+    final dua = dailyDuaForCivilDay(day, list);
+    final ar = Localizations.localeOf(context).languageCode == 'ar';
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.lg),
@@ -460,12 +453,12 @@ class _DuaOfDay extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              l10n.homeDuaOfDay,
+              context.l10n.homeDuaOfDay,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: AppSpacing.sm),
             Text(
-              surah.verses.sublist(range.first - 1, range.last).join(' '),
+              dua.ar,
               textDirection: TextDirection.rtl,
               style: const TextStyle(
                 fontFamily: AppTheme.quranFontFamily,
@@ -473,23 +466,8 @@ class _DuaOfDay extends ConsumerWidget {
                 height: 1.65,
               ),
             ),
-            if (locale == 'en')
-              QuranMeaningView(
-                surah: range.surah,
-                first: range.first,
-                last: range.last,
-                count: surah.verses.length,
-              ),
-            Text(
-              '${surah.name(locale)} · ${numbers.format(range.first)}'
-              '${range.last == range.first ? '' : '–${numbers.format(range.last)}'}',
-            ),
-            TextButton.icon(
-              onPressed: () =>
-                  context.go(AppRoutes.verse(range.surah, range.first)),
-              icon: const Icon(Icons.menu_book_outlined),
-              label: Text(l10n.dailyReadingOpen),
-            ),
+            if (!ar) Text(dua.en),
+            Text(ar ? dua.sourceAr : dua.sourceEn),
           ],
         ),
       ),
