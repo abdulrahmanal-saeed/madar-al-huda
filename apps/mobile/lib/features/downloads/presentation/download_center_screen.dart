@@ -236,7 +236,9 @@ class _DownloadCenterScreenState extends ConsumerState<DownloadCenterScreen> {
                   ),
                   for (final section in librarySections)
                     if (section.seasons.isNotEmpty) ...[
-                      heading(section.title.inLanguage(language)),
+                      heading(
+                        language == 'ar' ? section.title.ar : section.title.en,
+                      ),
                       Card(
                         child: Column(
                           children: [
