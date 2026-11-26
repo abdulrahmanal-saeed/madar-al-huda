@@ -20,7 +20,7 @@ $excerpt = static fn (string $text, int $limit): string => mb_strlen($text) > $l
   <p class="hint">تعرض المعاينة آخر نسخة محفوظة في المسودة؛ احفظ لترى تعديلاتك.</p>
   <div class="phone" aria-hidden="true">
     <div class="phone-screen">
-      <?php if (in_array($section, ['daily', 'merits'], true)): ?>
+      <?php if (in_array($section, ['daily', 'merits', 'daily_duas'], true)): ?>
         <span class="phone-brand"><?= e($ar($item['title'])) ?></span>
         <div class="phone-card phone-reading">
           <?php if ($ar($item['wording'] ?? null) !== ''): ?>
@@ -30,8 +30,10 @@ $excerpt = static fn (string $text, int $limit): string => mb_strlen($text) > $l
           <?php endif; ?>
           <?php if ($ar($item['source'] ?? null) !== ''): ?><span class="muted"><?= e($ar($item['source'])) ?></span><?php endif; ?>
         </div>
+        <?php if ($section !== 'daily_duas'): ?>
         <?php $goal = array_sum(array_column($item['repeat'] ?? [], 'count')) ?: 1; ?>
         <div class="phone-button">٠ / <?= e(arabicDigits((string) $goal)) ?></div>
+        <?php endif; ?>
       <?php elseif ($section === 'hisn'): ?>
         <span class="phone-brand"><?= e($ar($item['title'])) ?></span>
         <?php foreach (array_slice($item['entries'] ?? [], 0, 6) as $entry): ?>
