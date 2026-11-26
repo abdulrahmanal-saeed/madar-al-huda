@@ -36,6 +36,22 @@ function seasonControls(string $op, int $revision, string $id, string $season = 
       <form method="post"><?php seasonControls('remove_season', $revision, $editing['id'], $season['id']); ?><button class="quiet danger">حذف الموسم الفارغ</button></form>
     <?php endif; ?>
   </div>
+  <h3>رفع جماعي للتسجيلات</h3>
+  <p>اختر عدة ملفات مثل <bdi>Madar-Seerah-001.mp3</bdi> و<bdi>Madar-Seerah-001.mp4</bdi>. تُنشأ الحلقات تلقائيًا بحسب الرقم الأخير في اسم الملف، ويُجمع الصوت والفيديو تحت نفس الرقم دون استبدال تسجيل موجود.</p>
+  <form method="post" enctype="multipart/form-data" data-season-batch="upload">
+    <?php seasonControls('bulk_upload', $revision, $editing['id'], $season['id']); ?>
+    <label>ملفات MP3 وMP4<input name="recording" type="file" accept=".mp3,.mp4" multiple required></label>
+    <button class="primary">رفع جماعي</button>
+    <div class="uploads" data-batch-progress hidden></div>
+  </form>
+  <h3>استيراد مباشر من Google Drive</h3>
+  <p>الصق رابط كل ملف في سطر (حتى ٥٠ رابطًا)، مع اسم اختياري بعد مسافة. اجعل مشاركة الملف «أي شخص لديه الرابط». تُحفظ الملفات في المسودة فقط.</p>
+  <form method="post" data-season-batch="drive">
+    <?php seasonControls('bulk_drive', $revision, $editing['id'], $season['id']); ?>
+    <textarea name="links" required rows="4" dir="ltr" placeholder="https://drive.google.com/file/d/… Madar-Seerah-001.mp4"></textarea>
+    <button class="primary">نقل من Drive</button>
+    <div class="uploads" data-batch-progress hidden></div>
+  </form>
   <h3>إضافة حلقة</h3>
   <form method="post">
     <?php seasonControls('add_episode', $revision, $editing['id'], $season['id']); ?>
