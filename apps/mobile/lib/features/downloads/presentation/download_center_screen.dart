@@ -15,6 +15,7 @@ import '../../adhkar/data/adhkar_catalog.dart';
 import '../../learning/data/learning_catalog.dart';
 import '../../learning/data/learning_files.dart';
 import '../../learning/data/prophet_stories.dart';
+import '../../library/domain/library_sections.dart';
 import '../../quran/data/chapter_reciters.dart';
 import '../../quran/data/offline_recitations.dart';
 import '../data/download_usage.dart';
@@ -74,6 +75,9 @@ class _DownloadCenterScreenState extends ConsumerState<DownloadCenterScreen> {
         .length;
     final stories = ref.watch(prophetStoriesProvider).asData?.value;
     final libraryFeed = ref.watch(managedLibraryProvider).asData?.value;
+    final librarySections = ref
+        .watch(librarySectionsProvider)
+        .whereType<LinksEntry>();
 
     Widget heading(String text) => Padding(
       padding: const EdgeInsets.fromLTRB(
@@ -230,6 +234,22 @@ class _DownloadCenterScreenState extends ConsumerState<DownloadCenterScreen> {
                       ),
                     ),
                   ),
+                  for (final section in librarySections)
+                    if (section.seasons.isNotEmpty) ...[
+                      heading(section.title.inLanguage(language)),
+                      Card(
+                        child: Column(
+                          children: [
+                            for (final series in section.seasons)
+                              _SeriesRow(
+                                series: series,
+                                busy: busy,
+                                number: number,
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
                   heading(l10n.downloadsOnlineOnly),
                   Card(
                     child: Column(
