@@ -13,6 +13,7 @@ require __DIR__ . '/content.php';
 require __DIR__ . '/advanced.php';
 require __DIR__ . '/appearance.php';
 require __DIR__ . '/sections.php';
+require __DIR__ . '/library-media.php';
 require __DIR__ . '/storage.php';
 require __DIR__ . '/stories.php';
 require __DIR__ . '/apk-signature.php';
@@ -26,6 +27,9 @@ require __DIR__ . '/agent.php';
 
 try {
     $db = database();
+    if (isset($_GET['library_media'])) {
+        serveLibraryMedia($db, $_GET['library_media']);
+    }
     if (($_GET['feed'] ?? '') === 'library') {
         serveFeed($db);
     }
