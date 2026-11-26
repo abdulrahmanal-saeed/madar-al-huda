@@ -86,7 +86,7 @@ function bilingual(string $prefix, bool $required = true, int $limit = 300): arr
 }
 
 /** Applies one sections change to the draft ("save" ops, or "delete"). */
-function changeSections(array $payload, bool $delete): array
+function changeSections(array $payload, bool $delete, ?string $staged = null, ?string $filename = null): array
 {
     $sections = currentSections($payload);
     $operation = $delete ? 'delete' : field('op');
@@ -152,13 +152,15 @@ function changeSections(array $payload, bool $delete): array
         case 'add_episode':
         case 'rename_episode':
         case 'remove_episode':
+        case 'bulk_upload':
+        case 'bulk_drive':
         case 'upload_episode':
         case 'remove_media':
             $index = sectionIndex($sections, $id);
             if ($sections[$index]['kind'] !== 'links') {
                 throw new InvalidArgumentException('المواسم متاحة للأقسام الإضافية فقط.');
             }
-            $sections[$index] = changeLibrarySeason($sections[$index], $operation);
+            $sections[$index] = changeLibrarySeason($sections[$index], $operation, $staged, $filename);
             break;
         case 'delete':
             $index = sectionIndex($sections, $id);
