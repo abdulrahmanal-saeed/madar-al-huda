@@ -144,6 +144,22 @@ function changeSections(array $payload, bool $delete): array
             }
             array_splice($sections[$index]['items'], $item, 1);
             break;
+        case 'add_season':
+        case 'rename_season':
+        case 'remove_season':
+        case 'season_up':
+        case 'season_down':
+        case 'add_episode':
+        case 'rename_episode':
+        case 'remove_episode':
+        case 'upload_episode':
+        case 'remove_media':
+            $index = sectionIndex($sections, $id);
+            if ($sections[$index]['kind'] !== 'links') {
+                throw new InvalidArgumentException('المواسم متاحة للأقسام الإضافية فقط.');
+            }
+            $sections[$index] = changeLibrarySeason($sections[$index], $operation);
+            break;
         case 'delete':
             $index = sectionIndex($sections, $id);
             if ($sections[$index]['kind'] === 'builtin') {
