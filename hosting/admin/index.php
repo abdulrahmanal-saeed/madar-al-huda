@@ -130,7 +130,7 @@ function fieldValue(mixed $value): string
 }
 
 $sections = [
-    'daily' => 'أذكار اليوم', 'merits' => 'فضائل الذكر',
+    'daily' => 'أذكار اليوم', 'daily_duas' => 'دعاء اليوم', 'merits' => 'فضائل الذكر',
     'hisn' => 'حصن المسلم', 'duas' => 'الأدعية القرآنية',
     'stories' => 'قصص الأنبياء', 'history' => 'سجل النشر',
     'fiqh' => 'الفقه المقارن', 'articles' => 'المقالات',
@@ -582,6 +582,8 @@ if ($active) {
             <li>للحذف: افتح الدعاء من القائمة، ثم «حذف من المسودة».</li>
             <li>لا يظهر شيء في التطبيق حتى تضغط «نشر المسودة للتطبيق» أعلى الصفحة.</li>
           </ol>
+        <?php elseif ($section === 'daily_duas'): ?>
+          <p>هذه قائمة مستقلة للشاشة الرئيسية. اكتب نص الدعاء فقط، ومعناه ومصدره باللغتين. تحفظ التعديلات في المسودة حتى النشر.</p>
         <?php elseif ($section === 'hisn'): ?>
           <ol>
             <li>اضغط «إضافة» لموضوع جديد، أو افتح موضوعًا موجودًا.</li>
@@ -641,12 +643,13 @@ if ($active) {
                 <label>أرقام أحاديث HadeethEnc (اختياري)<input name="hadiths" dir="ltr" value="<?= e(implode(', ', $current['hadiths'] ?? [])) ?>"></label>
               <?php else: ?>
                 <?php if ($current === null): ?><label>معرّف الذكر بالإنجليزية<input name="id" dir="ltr" pattern="[a-z0-9][a-z0-9-]{0,63}" required></label><?php endif; ?>
-                <label>نص الذكر بالعربية<textarea name="wording" rows="5"><?= e($current['wording']['ar'] ?? '') ?></textarea></label>
-                <label>المعنى بالإنجليزية (اختياري)<textarea name="meaning" dir="ltr" rows="3"><?= e($current['wording']['en'] ?? $current['wording']['draftMeaningEn'] ?? '') ?></textarea></label>
+                <label><?= $section === 'daily_duas' ? 'نص الدعاء بالعربية' : 'نص الذكر بالعربية' ?><textarea name="wording" rows="5" <?= $section === 'daily_duas' ? 'required' : '' ?>><?= e($current['wording']['ar'] ?? '') ?></textarea></label>
+                <label>المعنى بالإنجليزية<textarea name="meaning" dir="ltr" rows="3" <?= $section === 'daily_duas' ? 'required' : '' ?>><?= e($current['wording']['en'] ?? $current['wording']['draftMeaningEn'] ?? '') ?></textarea></label>
                 <div class="fields">
-                  <label>المصدر (اختياري)<input name="source_ar" value="<?= e($current['source']['ar'] ?? '') ?>" placeholder="رواه مسلم"></label>
-                  <label>Source (optional)<input name="source_en" dir="ltr" value="<?= e($current['source']['en'] ?? '') ?>" placeholder="Muslim"></label>
+                  <label>المصدر<input <?= $section === 'daily_duas' ? 'required' : '' ?> name="source_ar" value="<?= e($current['source']['ar'] ?? '') ?>" placeholder="رواه مسلم"></label>
+                  <label>Source<input <?= $section === 'daily_duas' ? 'required' : '' ?> name="source_en" dir="ltr" value="<?= e($current['source']['en'] ?? '') ?>" placeholder="Muslim"></label>
                 </div>
+                <?php if ($section !== 'daily_duas'): ?>
                 <label>رقم الحديث في HadeethEnc (اتركه فارغًا إن كتبت النص بنفسك)<input name="hadith" type="number" min="1" value="<?= e($current['hadith'] ?? '') ?>"></label>
                 <?php if ($section === 'daily'): ?>
                   <fieldset><legend>مجموعات الذكر</legend>
@@ -661,6 +664,7 @@ if ($active) {
                   <label>خطوات التكرار <span dir="ltr">[{"unit":"tasbih","count":33}]</span><textarea name="repeat" dir="ltr"><?= e(fieldValue($current['repeat'] ?? [])) ?></textarea></label>
                   <label>صيغ بديلة للذكر <span dir="ltr">[{"hadith":5490}]</span><textarea name="variants" dir="ltr"><?= e(fieldValue($current['variants'] ?? [])) ?></textarea></label>
                 </details>
+                <?php endif; ?>
               <?php endif; ?>
             <?php endif; ?>
             <button class="primary">حفظ في المسودة</button>
