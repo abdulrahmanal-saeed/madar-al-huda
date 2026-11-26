@@ -4,7 +4,7 @@ declare(strict_types=1);
 /** Readable names for the parts of the library shown in a diff. */
 const DIFF_LABELS = [
     'adhkar' => 'الأذكار', 'daily' => 'أذكار اليوم', 'groups' => 'المجموعات', 'entries' => 'الأذكار',
-    'merits' => 'فضائل الذكر', 'hisn' => 'حصن المسلم', 'topics' => 'الموضوعات',
+    'dailyDuas' => 'دعاء اليوم', 'merits' => 'فضائل الذكر', 'hisn' => 'حصن المسلم', 'topics' => 'الموضوعات',
     'chapterTitles' => 'عناوين الأبواب', 'quranDuas' => 'الأدعية القرآنية', 'duas' => 'الأدعية',
     'forgiveness' => 'المغفرة', 'guidance' => 'الهداية', 'family' => 'الأهل', 'hardship' => 'الشدة',
     'gratitude' => 'الشكر', 'worship' => 'العبادة', 'hereafter' => 'الآخرة', 'protection' => 'الحفظ',
