@@ -115,18 +115,7 @@ List<learning.LearningSeries> _seasons(String sectionId, Object? raw) {
     final title = _text(season['title']);
     final rows = season['episodes'];
     if (id is! String ||
-        !RegExp(r'^season-[a-f0-9]{16}
-  if (value is! Map) return null;
-  final ar = value['ar'];
-  final en = value['en'];
-  if (ar is! String || en is! String || ar.trim().isEmpty) return null;
-  return (ar: ar, en: en.trim().isEmpty ? ar : en);
-}
-
-final librarySectionsProvider = Provider<List<LibraryEntry>>(
-  (ref) => librarySectionsFrom(ref.watch(managedLibraryProvider).asData?.value),
-);
-).hasMatch(id) ||
+        !RegExp(r'^season-[a-f0-9]{16}$').hasMatch(id) ||
         !ids.add(id) ||
         title == null ||
         rows is! List) {
@@ -153,18 +142,7 @@ final librarySectionsProvider = Provider<List<LibraryEntry>>(
         final name = file['file'];
         final bytes = file['bytes'];
         if (name is! String ||
-            !RegExp(r'^Library-[a-f0-9]{32}\.(mp3|mp4)
-  if (value is! Map) return null;
-  final ar = value['ar'];
-  final en = value['en'];
-  if (ar is! String || en is! String || ar.trim().isEmpty) return null;
-  return (ar: ar, en: en.trim().isEmpty ? ar : en);
-}
-
-final librarySectionsProvider = Provider<List<LibraryEntry>>(
-  (ref) => librarySectionsFrom(ref.watch(managedLibraryProvider).asData?.value),
-);
-).hasMatch(name) ||
+            !RegExp(r'^Library-[a-f0-9]{32}\.(mp3|mp4)$').hasMatch(name) ||
             !name.endsWith('.${format.extension}') ||
             bytes is! int ||
             bytes < 1024 ||
