@@ -243,6 +243,7 @@ class _DownloadCenterScreenState extends ConsumerState<DownloadCenterScreen> {
                             for (final series in section.seasons)
                               _SeriesRow(
                                 series: series,
+                                includeVideo: true,
                                 busy: busy,
                                 number: number,
                               ),
@@ -463,11 +464,13 @@ class _SeriesRow extends ConsumerStatefulWidget {
     required this.series,
     required this.busy,
     required this.number,
+    this.includeVideo = false,
   });
 
   final LearningSeries series;
   final bool busy;
   final String Function(num) number;
+  final bool includeVideo;
 
   @override
   ConsumerState<_SeriesRow> createState() => _SeriesRowState();
@@ -476,10 +479,11 @@ class _SeriesRow extends ConsumerStatefulWidget {
 class _SeriesRowState extends ConsumerState<_SeriesRow> {
   int? _saved;
 
-  /// Audio is offered for offline use: it is far smaller than video.
+  /// Stories default to audio; managed seasons expose both formats here.
   List<LessonMedia> get _media => [
     for (final episode in widget.series.episodes)
-      ?episode.media[LessonFormat.audio],
+      for (final media in episode.media.values)
+        if (widget.includeVideo || media.format == LessonFormat.audio) media,
   ];
 
   @override
@@ -546,7 +550,9 @@ class _SeriesRowState extends ConsumerState<_SeriesRow> {
                       await after();
                     },
             ),
-          if (saved != null && saved < media.length && files.base != null)
+          if (saved != null &&
+              saved < media.length &&
+              media.every((item) => files.source(item) != null))
             IconButton.filledTonal(
               tooltip: l10n.downloadsAll,
               icon: const Icon(Icons.download),
