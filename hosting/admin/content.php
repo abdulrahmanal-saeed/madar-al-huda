@@ -243,6 +243,7 @@ function contentRows(array $payload, string $section, string $topic): array
     return match ($section) {
         'daily' => $payload['adhkar']['daily']['entries'],
         'merits' => $payload['adhkar']['merits'],
+        'daily_duas' => $payload['dailyDuas'] ?? (require __DIR__ . '/daily-duas-seed.php'),
         'hisn' => $payload['adhkar']['hisn']['topics'],
         'duas' => $payload['duas'][$topic],
         default => throw new InvalidArgumentException('القسم غير موجود.'),
@@ -268,7 +269,7 @@ function changeContent(array $payload, array $ayahCounts, string $section, strin
     $position = null;
     if ($original !== '') {
         foreach ($rows as $index => $item) {
-            $key = in_array($section, ['daily', 'merits'], true) ? $item['id'] : (string) ($item['id'] ?? $index);
+            $key = in_array($section, ['daily', 'merits', 'daily_duas'], true) ? $item['id'] : (string) ($item['id'] ?? $index);
             if ($key === $original) {
                 $position = $index;
                 break;
@@ -323,7 +324,25 @@ function changeContent(array $payload, array $ayahCounts, string $section, strin
         }
     }
 
-    if ($section === 'daily') {
+    if ($section === 'daily_duas') {
+        if ($rows === []) {
+            throw new InvalidArgumentException('احتفظ بدعاء واحد على الأقل.');
+        }
+        $texts = [];
+        foreach ($rows as $row) {
+            $text = trim($row['wording']['ar'] ?? '');
+            if ($text === '' || trim($row['wording']['en'] ?? '') === '' ||
+                trim($row['source']['ar'] ?? '') === '' || trim($row['source']['en'] ?? '') === '' ||
+                isset($row['hadith']) || isset($row['variants'])) {
+                throw new InvalidArgumentException('اكتب نص الدعاء وترجمته ومصدره بالعربية والإنجليزية دون جلب حديث آلي.');
+            }
+            if (isset($texts[$text])) {
+                throw new InvalidArgumentException('نص الدعاء موجود بالفعل.');
+            }
+            $texts[$text] = true;
+        }
+        $payload['dailyDuas'] = $rows;
+    } elseif ($section === 'daily') {
         $payload['adhkar']['daily']['entries'] = $rows;
         $id = $original ?: field('id');
         $groups = $delete ? [] : ($_POST['groups'] ?? []);
