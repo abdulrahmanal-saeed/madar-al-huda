@@ -20,7 +20,7 @@ foreach ($librarySections as $candidate) {
       <div class="row section-row<?= ($item['visible'] ?? true) ? '' : ' hidden-section' ?>">
         <span class="section-name">
           <strong><?= e(sectionLabel($item)) ?></strong>
-          <span class="badge"><?= $item['kind'] === 'builtin' ? 'أساسي' : 'روابط · ' . e(count($item['items'] ?? [])) ?></span>
+          <span class="badge"><?= $item['kind'] === 'builtin' ? 'أساسي' : 'روابط · ' . e(count($item['items'] ?? [])) . ' / مواسم · ' . e(count($item['seasons'] ?? [])) ?></span>
           <?php if (!($item['visible'] ?? true)): ?><span class="badge muted">مخفي</span><?php endif; ?>
         </span>
         <span class="section-actions">
@@ -37,7 +37,7 @@ foreach ($librarySections as $candidate) {
   </section>
   <section class="panel">
     <h2>إضافة قسم جديد</h2>
-    <p>مثلًا «حلقات التفسير بالفيديو». بعد الإضافة افتح «تعديل» وأضف روابط الحلقات.</p>
+    <p>مثلًا «السيرة النبوية». بعد الإضافة افتح «تعديل» وأضف المواسم والحلقات والتسجيلات أو الروابط.</p>
     <form method="post">
       <?php controls('save', $revision); ?>
       <input type="hidden" name="op" value="add">
@@ -51,6 +51,7 @@ foreach ($librarySections as $candidate) {
 </div>
 <?php else: ?>
 <p><a class="button quiet" href="<?= e(route($section)) ?>">→ كل الأقسام</a></p>
+<?php require __DIR__ . '/library-seasons-view.php'; ?>
 <div class="editor-grid">
   <section class="panel">
     <h2>روابط «<?= e($editing['title']['ar']) ?>»</h2>
