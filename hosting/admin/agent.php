@@ -223,11 +223,128 @@ function agentChange(PDO $db, array $key, string $action, string $section, strin
     audit($db, agentActor($key), $action, $section, (string) ($fields['original'] ?? $fields['id'] ?? $fields['ar'] ?? ''));
 }
 
+
+/** The connector may inspect custom library sections, but only edit episode titles. */
+function agentLibraryId(array $args, string $field): string
+{
+    $id = $args[$field] ?? null;
+    if (!is_string($id) || $id === '' || strlen($id) > 128) {
+        throw new AgentError('Invalid or missing ' . $field . '.');
+    }
+    return $id;
+}
+
+function agentLibraryIndexes(array $draft, array $args, bool $withSeason = true): array
+{
+    $sectionId = agentLibraryId($args, 'section_id');
+    foreach ($draft['appearance']['sections'] ?? [] as $i => $section) {
+        if (($section['id'] ?? null) !== $sectionId || ($section['kind'] ?? '') !== 'links') continue;
+        if (!$withSeason) return [$i];
+        $seasonId = agentLibraryId($args, 'season_id');
+        foreach ($section['seasons'] ?? [] as $j => $season) {
+            if (($season['id'] ?? null) === $seasonId) return [$i, $j];
+        }
+        throw new AgentError('Season not found. Call list_seasons.');
+    }
+    throw new AgentError('Custom library section not found. Call list_library_sections.');
+}
+
+function agentLibraryTitle(array $row): array
+{
+    $ar = $row['ar'] ?? null;
+    $en = $row['en'] ?? null;
+    if (!is_string($ar) || !is_string($en) || trim($ar) === '' || trim($en) === ''
+        || strlen(trim($ar)) > 300 || strlen(trim($en)) > 300
+        || preg_match('/[\x00-\x1f\x7f]/u', $ar . $en) !== 0) {
+        throw new AgentError('Both titles are required, with no control characters and at most 300 UTF-8 bytes each.');
+    }
+    return ['ar' => trim($ar), 'en' => trim($en)];
+}
+
+/** All-or-nothing title update; IDs, numbers, media and all other metadata stay untouched. */
+function agentLibraryRename(array $draft, array $args, array $updates): array
+{
+    if (!array_is_list($updates) || count($updates) < 1 || count($updates) > MAX_SEASON_EPISODES) {
+        throw new AgentError('Supply between 1 and 200 episode title updates for one season.');
+    }
+    [$i, $j] = agentLibraryIndexes($draft, $args);
+    $episodes = &$draft['appearance']['sections'][$i]['seasons'][$j]['episodes'];
+    $indexes = array_column($episodes ?? [], null, 'id');
+    $titles = [];
+    foreach ($updates as $row) {
+        if (!is_array($row)) throw new AgentError('Invalid episode update.');
+        $id = agentLibraryId($row, 'episode_id');
+        if (!isset($indexes[$id])) throw new AgentError('Episode not found: ' . $id);
+        if (isset($titles[$id])) throw new AgentError('Duplicate episode: ' . $id);
+        $titles[$id] = agentLibraryTitle($row);
+    }
+    foreach ($episodes as &$episode) {
+        if (isset($titles[$episode['id']])) {
+            $episode['title'] = $titles[$episode['id']];
+        }
+    }
+    unset($episode, $episodes);
+    return $draft;
+}
+
+/** Use the same transaction and revision guard as updateLibrary, for a narrow title-only patch. */
+function agentLibrarySave(PDO $db, array $key, array $args, array $updates): array
+{
+    $expected = $args['revision'] ?? null;
+    if (!is_int($expected) || $expected < 1) throw new AgentError('Read list_episodes and pass its revision.');
+    return locked($db, function () use ($db, $key, $args, $updates, $expected): array {
+        $state = library($db);
+        if ((int) $state['revision'] !== $expected) {
+            throw new AgentError('Draft changed. Read list_episodes again and review the titles before retrying.');
+        }
+        $draft = json_decode($state['draft'], true, 64, JSON_THROW_ON_ERROR);
+        $next = agentLibraryRename($draft, $args, $updates);
+        $changed = $next !== $draft;
+        if ($changed) {
+            $db->prepare('UPDATE library SET draft = ?, revision = revision + 1 WHERE id = 1')
+                ->execute([encode($next)]);
+            audit($db, agentActor($key), 'save', 'library_sections',
+                $args['section_id'] . ' / ' . $args['season_id'] . ' / ' . count($updates) . ' episode titles');
+        }
+        return ['saved' => true, 'changed' => $changed, 'count' => count($updates),
+            'revision' => $expected + ($changed ? 1 : 0), 'published' => false,
+            'note' => 'Titles saved in the draft only. Media and episode numbers are unchanged.'];
+    });
+}
+
+function agentLibraryTools(): array
+{
+    $id = ['type' => 'string', 'minLength' => 1, 'maxLength' => 128];
+    $section = ['section_id' => $id];
+    $season = $section + ['season_id' => $id];
+    $target = $season + ['revision' => ['type' => 'integer', 'minimum' => 1, 'description' => 'Revision returned by list_episodes.']];
+    $title = ['type' => 'string', 'minLength' => 1, 'maxLength' => 300];
+    $row = ['episode_id' => $id, 'ar' => $title, 'en' => $title];
+    $schema = static fn (array $props): array => ['type' => 'object',
+        'properties' => $props ?: new stdClass(), 'required' => array_keys($props), 'additionalProperties' => false];
+    $read = ['readOnlyHint' => true];
+    $write = ['readOnlyHint' => false, 'destructiveHint' => false, 'idempotentHint' => false];
+    return [
+        ['name' => 'list_library_sections', 'description' => 'List custom library sections in the draft (including Seerah), with IDs and titles.',
+            'inputSchema' => $schema([]), 'annotations' => $read],
+        ['name' => 'list_seasons', 'description' => 'List the seasons of a custom library section, with IDs and titles.',
+            'inputSchema' => $schema($section), 'annotations' => $read],
+        ['name' => 'list_episodes', 'description' => 'List episodes of a season with stable IDs, numbers, bilingual titles, media metadata and the current draft revision.',
+            'inputSchema' => $schema($season), 'annotations' => $read],
+        ['name' => 'update_episode', 'description' => 'Rename one existing episode in the draft only. Show the owner both proposed titles and get approval before calling. IDs, number and media stay unchanged.',
+            'inputSchema' => $schema($target + $row), 'annotations' => $write],
+        ['name' => 'bulk_update_episode_titles', 'description' => 'Rename 1–200 existing episodes in one season atomically, in the draft only. Show the owner the complete list and get approval first. Read list_episodes for IDs and revision. No media, numbers or order are changed.',
+            'inputSchema' => $schema($target + ['updates' => ['type' => 'array', 'minItems' => 1,
+                'maxItems' => MAX_SEASON_EPISODES, 'items' => $schema($row)]]), 'annotations' => $write],
+    ];
+}
+
 function agentTools(string $mode = 'chat'): array
 {
     $sectionProp = ['type' => 'string', 'enum' => array_keys(AGENT_SECTIONS)];
     $topicProp = ['type' => 'string', 'enum' => array_keys(topics()), 'description' => 'duas only.'];
     return [
+        ...agentLibraryTools(),
         [
             'name' => 'list_sections',
             'description' => 'The content sections you can edit, with the fields each one takes. Call this first.',
@@ -297,7 +414,30 @@ function agentCall(PDO $db, array $key, string $tool, array $args): array
             return ['sections' => array_map(
                 static fn (string $about, string $section) => ['section' => $section, 'about' => $about, 'fields' => AGENT_FIELDS[$section]],
                 AGENT_SECTIONS, array_keys(AGENT_SECTIONS),
-            ), 'duas_topics' => topics()];
+            ), 'duas_topics' => topics(), 'custom_library_tools' => array_column(agentLibraryTools(), 'name')];
+        case 'list_library_sections':
+            $sections = [];
+            foreach ($draft['appearance']['sections'] ?? [] as $section) {
+                if (($section['kind'] ?? '') !== 'links') continue;
+                $sections[] = ['id' => $section['id'], 'title' => $section['title'],
+                    'visible' => $section['visible'] ?? true, 'season_count' => count($section['seasons'] ?? [])];
+            }
+            return ['sections' => $sections, 'revision' => (int) $state['revision']];
+        case 'list_seasons':
+            [$i] = agentLibraryIndexes($draft, $args, false);
+            $seasons = array_map(static fn (array $season): array => [
+                'id' => $season['id'], 'title' => $season['title'], 'episode_count' => count($season['episodes'] ?? []),
+            ], $draft['appearance']['sections'][$i]['seasons'] ?? []);
+            return ['seasons' => $seasons, 'revision' => (int) $state['revision']];
+        case 'list_episodes':
+            [$i, $j] = agentLibraryIndexes($draft, $args);
+            return ['episodes' => $draft['appearance']['sections'][$i]['seasons'][$j]['episodes'] ?? [],
+                'revision' => (int) $state['revision']];
+        case 'update_episode':
+            return agentLibrarySave($db, $key, $args, [$args]);
+        case 'bulk_update_episode_titles':
+            if (!is_array($args['updates'] ?? null)) throw new AgentError('Expected a list of updates.');
+            return agentLibrarySave($db, $key, $args, $args['updates']);
         case 'list_items':
             $section = agentSection($args);
             $topic = $section === 'duas' ? agentTopic($args) : '';
@@ -429,9 +569,9 @@ function serveMcp(PDO $db, string $secret): never
             $reply($id, ['result' => [
                 'protocolVersion' => (string) ($params['protocolVersion'] ?? '2025-06-18'),
                 'capabilities' => ['tools' => ['listChanged' => false]],
-                'serverInfo' => ['name' => 'Madar Al-Huda dashboard', 'version' => '1.0.0'],
-                'instructions' => 'Edit the content of the Madar Al-Huda app (adhkar, duas, Hisn al-Muslim, Names of Allah, articles, lessons, fiqh). '
-                    . 'Call list_sections first. Every change goes to the DRAFT only. Before save_item or delete_item, show the owner exactly what you will write and wait for approval. '
+                'serverInfo' => ['name' => 'Madar Al-Huda dashboard', 'version' => '1.1.0'],
+                'instructions' => 'Edit the content of the Madar Al-Huda app (adhkar, duas, Hisn al-Muslim, Names of Allah, articles, lessons, fiqh, and custom library episode titles). '
+                    . 'Call list_sections first. Every change goes to the DRAFT only. Before save_item, delete_item, update_episode or bulk_update_episode_titles, show the owner exactly what you will write and wait for approval. '
                     . (agentPublishMode($db) === 'chat'
                         ? 'To put changes in the app, call draft_changes, show the owner the changes, ask whether to publish, and call publish only after an explicit yes. Every publish needs its own yes. '
                         : 'To put changes in the app, call request_publish: the owner approves it in the dashboard; you cannot publish yourself. ')
