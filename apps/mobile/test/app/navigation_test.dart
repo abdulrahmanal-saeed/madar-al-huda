@@ -7,6 +7,7 @@ import 'package:madar_al_huda/core/routing/app_sections.dart';
 import 'package:madar_al_huda/core/widgets/content_status_panel.dart';
 import 'package:madar_al_huda/core/widgets/section_card.dart';
 import 'package:madar_al_huda/core/widgets/settings_button.dart';
+import 'package:madar_al_huda/features/home/data/daily_duas.dart';
 import 'package:madar_al_huda/features/learning/data/learning_catalog.dart';
 import 'package:madar_al_huda/features/learning/data/learning_files.dart';
 import 'package:madar_al_huda/features/learning/data/prophet_stories.dart';
@@ -276,11 +277,18 @@ void main() {
     tester,
   ) async {
     await pumpMadarApp(tester);
-    // No clock-like times (e.g. "04:32") anywhere on Home.
+    // No clock-like times (e.g. "04:32") on Home, except exact verified
+    // supplication references such as Quran 20:25–28.
     final timeLike = RegExp(r'\b\d{1,2}:\d{2}\b');
     final texts = tester
         .widgetList<Text>(find.byType(Text))
         .map((t) => t.data ?? t.textSpan?.toPlainText() ?? '');
-    expect(texts.where(timeLike.hasMatch), isEmpty);
+    final knownSources = bundledDailyDuas.map((dua) => dua.sourceEn).toSet();
+    expect(
+      texts.where(
+        (text) => timeLike.hasMatch(text) && !knownSources.contains(text),
+      ),
+      isEmpty,
+    );
   });
 }
