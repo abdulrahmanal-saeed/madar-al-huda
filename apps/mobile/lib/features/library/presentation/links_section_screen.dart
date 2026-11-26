@@ -3,6 +3,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/localization/l10n_extension.dart';
+import '../../../core/localization/numbers.dart';
 import '../../../core/theme/app_tokens.dart';
 import '../../../core/widgets/responsive_content.dart';
 import '../../learning/presentation/episode_series_screen.dart';
@@ -58,33 +59,36 @@ class LinksSectionScreen extends ConsumerWidget {
                             title: Text(season.title(language)),
                             subtitle: Text(
                               l10n.learningEpisodeCount(
-                                '${season.episodes.length}',
+                                decimalFormat(language).format(
+                                  season.episodes.length,
+                                ),
                                 season.episodes.length,
                               ),
                             ),
                             trailing: const Icon(Icons.chevron_right),
                             onTap: () => Navigator.of(context).push<void>(
                               MaterialPageRoute(
-                                builder: (_) => EpisodeSeriesScreen(series: season),
+                                builder: (_) =>
+                                    EpisodeSeriesScreen(series: season),
                               ),
                             ),
                           ),
                         ),
                       if (entry.links.isNotEmpty)
                         Card(
-                        child: Column(
-                          children: [
-                            for (final (index, link) in entry.links.indexed)
-                              ListTile(
-                                key: ValueKey('section-link-$index'),
-                                leading: Icon(_iconFor(link.url)),
-                                title: Text(link.title.inLanguage(language)),
-                                trailing: const Icon(Icons.open_in_new),
-                                onTap: () => _open(context, link.url),
-                              ),
-                          ],
+                          child: Column(
+                            children: [
+                              for (final (index, link) in entry.links.indexed)
+                                ListTile(
+                                  key: ValueKey('section-link-$index'),
+                                  leading: Icon(_iconFor(link.url)),
+                                  title: Text(link.title.inLanguage(language)),
+                                  trailing: const Icon(Icons.open_in_new),
+                                  onTap: () => _open(context, link.url),
+                                ),
+                            ],
+                          ),
                         ),
-                      ),
                     ],
                   ),
                 ),
