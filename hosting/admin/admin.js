@@ -74,7 +74,7 @@
         } catch (_) {
           body = { ok: false, message: 'استجابة غير متوقعة من الموقع.' };
         }
-        resolve({ ok: request.status < 400 && body.ok === true, message: body.message || '' });
+        resolve({ ok: request.status < 400 && body.ok === true, message: body.message || '', revision: body.revision });
       };
       request.onerror = () => resolve({ ok: false, message: 'انقطع الاتصال أثناء الرفع.' });
       request.send(data);
@@ -88,6 +88,80 @@
   const lock = (form, locked) => {
     for (const control of form.querySelectorAll('input, textarea, button')) control.disabled = locked;
   };
+
+  // Each successful item advances the exact draft revision, not a fresh
+  // revision fetched from elsewhere. Stop on failure or a concurrent edit.
+  for (const form of document.querySelectorAll('[data-season-batch]')) {
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const drive = form.dataset.seasonBatch === 'drive';
+      const items = drive
+        ? form.querySelector('textarea').value.split(/\r?\n/).map((line) => line.trim()).filter(Boolean).map((line) => {
+            const [link, ...name] = line.split(/\s+/);
+            return { link, name: name.join(' ') };
+          })
+        : [...form.querySelector('input[type=file]').files];
+      const box = form.querySelector('[data-batch-progress]');
+      box.hidden = false;
+      box.replaceChildren();
+      if (!items.length || items.length > 50) {
+        box.textContent = 'اختر من ملف واحد إلى ٥٠ ملفًا في كل دفعة.';
+        return;
+      }
+      const fields = Object.fromEntries(new FormData(form));
+      delete fields.recording;
+      delete fields.links;
+      const update = overall(box, items.length);
+      const rows = items.map((item) => row(box, drive ? item.name || item.link : item.name));
+      const pageForms = [...document.querySelectorAll('[data-season-batch]')];
+      for (const other of pageForms) lock(other, true);
+      let done = 0;
+      let failed = 0;
+      update(0, 0);
+      for (const [index, item] of items.entries()) {
+        const job = [...crypto.getRandomValues(new Uint8Array(16))]
+          .map((byte) => byte.toString(16).padStart(2, '0')).join('');
+        let polling = drive;
+        const watch = async () => {
+          while (polling) {
+            await new Promise((wait) => setTimeout(wait, 1000));
+            if (!polling) break;
+            try {
+              const response = await fetch('./?job=' + job, { headers: { Accept: 'application/json' } });
+              const state = await response.json();
+              if (state.state === 'downloading') {
+                rows[index].progress(state.received, state.total, sizeLabel(state.received) + (state.total ? ' / ' + sizeLabel(state.total) : ''));
+              } else if (state.state === 'checking') {
+                rows[index].progress(1, 1, 'جارٍ التحقق من الملف');
+              }
+            } catch (_) { /* retry next poll */ }
+          }
+        };
+        const watching = watch();
+        const result = await send(form, drive ? { ...fields, ...item, job } : fields, drive ? null : item,
+          (sent, total) => rows[index].progress(sent, total, total ? Math.round(sent / total * 100) + '٪' : 'جارٍ الرفع'));
+        polling = false;
+        await watching;
+        const ok = result.ok && Number.isSafeInteger(result.revision) && result.revision === Number(fields.revision) + 1;
+        rows[index].finish(ok, ok ? 'تم الحفظ في المسودة ✓' : result.message || 'تعذّر تأكيد الحفظ');
+        if (!ok) {
+          failed++;
+          for (const pending of rows.slice(index + 1)) pending.finish(false, 'لم يُرسل — حدّث الصفحة ثم أعد المحاولة');
+          update(done, failed);
+          break;
+        }
+        fields.revision = String(result.revision);
+        done++;
+        update(done, failed);
+      }
+      // Require reload so no stale revision or outdated episode list is reused.
+      const reload = document.createElement('a');
+      reload.className = 'button';
+      reload.href = window.location.href;
+      reload.textContent = 'تحديث قائمة الحلقات';
+      box.append(reload);
+    });
+  }
 
   const uploadForm = document.getElementById('upload-form');
   const uploadBox = document.getElementById('upload-progress');
