@@ -171,10 +171,10 @@ function library(PDO $db): array
     return $row;
 }
 
-function updateLibrary(PDO $db, string $action, array $seed, string $section, string $topic, ?array $user = null): void
+function updateLibrary(PDO $db, string $action, array $seed, string $section, string $topic, ?array $user = null, ?string $staged = null, ?string $filename = null): void
 {
     $revision = integer(field('revision'), 1, PHP_INT_MAX);
-    locked($db, function () use ($db, $revision, $action, $seed, $section, $topic, $user): void {
+    locked($db, function () use ($db, $revision, $action, $seed, $section, $topic, $user, $staged, $filename): void {
         $row = library($db);
         if ((int) $row['revision'] !== $revision) {
             throw new InvalidArgumentException('تغيّرت المسودة. أعِد فتح العنصر ثم احفظ التعديل.');
@@ -216,7 +216,7 @@ function updateLibrary(PDO $db, string $action, array $seed, string $section, st
                 $section === 'app_settings' => changeAppSettings($content, $seed['ayahCounts']),
                 $section === 'story_titles' => changeStoryTitles($content),
                 $section === 'adhkar_groups' => changeAdhkarGroups($content),
-                $section === 'library_sections' => changeSections($content, $delete),
+                $section === 'library_sections' => changeSections($content, $delete, $staged, $filename),
                 in_array($section, BOOK_SECTIONS, true) => changeBook($content, $section, $delete),
                 default => changeContent($content, $seed['ayahCounts'], $section, $topic, $delete),
             });
