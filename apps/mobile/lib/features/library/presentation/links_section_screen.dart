@@ -59,9 +59,8 @@ class LinksSectionScreen extends ConsumerWidget {
                             title: Text(season.title(language)),
                             subtitle: Text(
                               l10n.learningEpisodeCount(
-                                decimalFormat(language).format(
-                                  season.episodes.length,
-                                ),
+                                decimalFormat(language)
+                                    .format(season.episodes.length),
                                 season.episodes.length,
                               ),
                             ),
