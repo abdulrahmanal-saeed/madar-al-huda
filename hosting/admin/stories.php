@@ -183,7 +183,7 @@ function writeDriveJob(string $file, array $state): void
  * Downloads a publicly shared Google Drive file straight to the server and
  * publishes it. Without [$name], the file's own name on Drive is used.
  */
-function importDriveFile(string $link, string $name, string $job): string
+function importDriveFile(string $link, string $name, string $job, ?callable $receive = null): string
 {
     $id = driveFileId($link);
     if ($id === null) {
@@ -211,7 +211,12 @@ function importDriveFile(string $link, string $name, string $job): string
         CURLOPT_LOW_SPEED_LIMIT => 1024,
         CURLOPT_LOW_SPEED_TIME => 60,
         CURLOPT_NOPROGRESS => false,
-        CURLOPT_HEADERFUNCTION => function ($curl, string $line) use (&$headers): int {
+        CURLOPT_HEADERFUNCTION => function ($curl, string $line) use (&$headers, $receive): int {
+            if ($receive !== null && stripos($line, 'Location:') === 0) {
+                $location = trim(substr($line, 9));
+                $parts = parse_url($location);
+                if ($parts === false || ($parts['scheme'] ?? '') !== 'https' || isset($parts['user']) || isset($parts['pass']) || isset($parts['port']) || !preg_match('/\A(?:[a-z0-9-]+\.)*(?:google\.com|googleusercontent\.com)\z/i', $parts['host'] ?? '')) return 0;
+            }
             if (str_contains($line, ':')) {
                 [$key, $value] = explode(':', $line, 2);
                 $headers[strtolower(trim($key))] = trim($value);
@@ -251,7 +256,11 @@ function importDriveFile(string $link, string $name, string $job): string
             throw new InvalidArgumentException('اكتب اسم الملف بجانب الرابط، مثل Madar-Idris-007.mp4.');
         }
         writeDriveJob($jobFile, ['state' => 'checking', 'received' => filesize($staged), 'total' => filesize($staged)]);
-        publishStoryFile($staged, $name);
+        if ($receive === null) {
+            publishStoryFile($staged, $name);
+        } else {
+            $receive($staged, $name);
+        }
         writeDriveJob($jobFile, ['state' => 'done', 'name' => $name]);
         return $name;
     } catch (Throwable $failure) {
