@@ -261,7 +261,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             session_destroy();
         } elseif (in_array($action, ['save', 'delete', 'publish', 'restore', 'review_approve'], true)) {
             $seed = require __DIR__ . '/seed.php';
-            updateLibrary($db, $action, $seed, $section, $topic, $user);
+            if ($action === 'save' && $section === 'library_sections' && field('op') === 'bulk_drive') {
+                set_time_limit(0);
+                session_write_close();
+                try {
+                    importDriveFile(field('link'), field('name'), field('job'), function ($staged, $filename) use ($db, $action, $seed, $section, $topic, $user): void {
+                        $current = userById($db, (int) $user['id']);
+                        if ($current === null || !allowedAction($current, 'save', 'library_sections')) {
+                            throw new InvalidArgumentException('لم تعد صلاحية التعديل متاحة.');
+                        }
+                        updateLibrary($db, $action, $seed, $section, $topic, $current, $staged, $filename);
+                    });
+                } finally {
+                    session_start();
+                }
+            } else {
+                updateLibrary($db, $action, $seed, $section, $topic, $user);
+            }
             $_SESSION['notice'] = match ($action) {
                 'publish' => 'تم نشر تحديث المكتبة.',
                 'restore' => 'استُعيد الإصدار إلى المسودة.',
@@ -319,7 +335,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         if ($confirming === null && wantsJson()) {
             header('Content-Type: application/json; charset=utf-8');
-            echo encode(['ok' => true, 'message' => $_SESSION['notice'] ?? '']);
+            $response = ['ok' => true, 'message' => $_SESSION['notice'] ?? ''];
+            if ($action === 'save' && $section === 'library_sections') {
+                $response['revision'] = (int) field('revision') + 1;
+            }
+            echo encode($response);
             unset($_SESSION['notice']);
             exit;
         }
