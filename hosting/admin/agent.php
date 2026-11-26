@@ -18,6 +18,7 @@ declare(strict_types=1);
 const AGENT_SECTIONS = [
     'daily' => 'أذكار اليوم (adhkar entries; each belongs to one or more groups such as morning, evening)',
     'merits' => 'فضائل الذكر (merits of remembrance)',
+    'daily_duas' => 'دعاء اليوم (independent home screen supplications)',
     'hisn' => 'حصن المسلم (Fortress of the Muslim topics, with their own adhkar)',
     'duas' => 'الأدعية القرآنية (Quranic supplications by topic: verse ranges)',
     'names' => 'أسماء الله الحسنى (the Beautiful Names of Allah)',
@@ -40,6 +41,14 @@ const AGENT_FIELDS = [
         'groups' => 'Array of group ids the dhikr appears in, at least one: see list_items daily (groups).',
         'repeat' => 'Optional JSON list of repetition steps, e.g. [{"unit":"tasbih","count":33}].',
         'quran' => 'Optional JSON list of verse ranges [[surah, first, last]].',
+    ],
+    'daily_duas' => [
+        'id' => 'New items only: English id (lowercase, digits, dashes).',
+        'ar' => 'Arabic title (required).', 'en' => 'English title (required).',
+        'wording' => 'Exact Arabic supplication text (required).',
+        'meaning' => 'English meaning (required).',
+        'source_ar' => 'Arabic Quran or authentic hadith reference (required).',
+        'source_en' => 'English Quran or authentic hadith reference (required).',
     ],
     'merits' => [
         'id' => 'New items only: English id (lowercase, digits, dashes).',
