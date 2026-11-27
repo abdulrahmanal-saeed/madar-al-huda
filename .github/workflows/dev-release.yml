@@ -133,6 +133,10 @@ jobs:
           echo "$badging" | grep -q "name='com.abdulrahmanalsaeed.madaralhuda.dev'"
           echo "$badging" | grep -q "versionCode='${{ steps.version.outputs.code }}'"
           echo "$badging" | grep -q "versionName='${{ steps.version.outputs.name }}'"
+          resources=$("$bt/aapt2" dump resources "$apk")
+          for recording in adhan_alternate adhan_makkah adhan_fajr worship_tone; do
+            grep -q "raw/$recording" <<< "$resources"
+          done
           cert=$("$bt/apksigner" verify --print-certs "$apk" | sed -nE 's/.*certificate SHA-256 digest: //p' | head -1)
           test "$cert" = 6c7046d0f47791452da955c39b1710addd2fa042373c29782e692a08042f3ee3
           out="madar-al-huda-${{ steps.version.outputs.name }}.apk"

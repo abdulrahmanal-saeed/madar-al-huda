@@ -137,9 +137,11 @@ internal object WorshipAlarms {
         manager(context).notify(id, b.build())
     }
 
-    private fun rawId(context: Context, sound: String): Int {
-        if (!sound.matches(Regex("adhan_[a-z_]+"))) return 0
-        return context.resources.getIdentifier(sound, "raw", context.packageName)
+    private fun rawId(sound: String): Int = when (sound) {
+        "adhan_alternate" -> R.raw.adhan_alternate
+        "adhan_makkah" -> R.raw.adhan_makkah
+        "adhan_fajr" -> R.raw.adhan_fajr
+        else -> 0
     }
 
     private fun file(context: Context, sound: String): File? {
@@ -148,7 +150,7 @@ internal object WorshipAlarms {
     }
 
     fun source(context: Context, player: MediaPlayer, sound: String) {
-        val raw = rawId(context, sound)
+        val raw = rawId(sound)
         if (raw != 0) {
             context.resources.openRawResourceFd(raw).use {
                 player.setDataSource(it.fileDescriptor, it.startOffset, it.length)
