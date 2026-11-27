@@ -77,27 +77,6 @@ Future<void> playRecitation(
       );
     }
 
-    if (!offlineOnly &&
-        !reader.hasOfflineAudio &&
-        api != null &&
-        foundation != null) {
-      await playback.startDeferredQueue([
-        for (final item in chapters)
-          (
-            track: track(item, fromFoundation: true),
-            resolve: () async => verse != null && item.id == surah.id
-                ? api.audioAtVerse(verse, foundation)
-                : (
-                    url: await api.audio(item.id, foundation),
-                    start: item.id == surah.id
-                        ? resumeAt ?? Duration.zero
-                        : Duration.zero,
-                  ),
-          ),
-      ]);
-      return;
-    }
-
     Map<int, Uri> saved = const {};
     if (reader.hasOfflineAudio) {
       try {
@@ -112,24 +91,49 @@ Future<void> playRecitation(
     final firstFile = saved[surah.id];
     if (offlineOnly && firstFile == null) throw StateError('Download missing');
 
-    final useFoundation =
-        !offlineOnly &&
-        foundation != null &&
-        (verse != null || firstFile == null);
-    final first = track(surah, fromFoundation: useFoundation);
+    if (!offlineOnly && api != null && foundation != null) {
+      // Resolve and queue the next surah while the current one plays. Prefer
+      // the provider that supplies timings for its actual recording.
+      await playback.startDeferredQueue([
+        for (final item in chapters)
+          (
+            track: track(
+              item,
+              fromFoundation:
+                  saved[item.id] == null ||
+                  (item.id == surah.id && verse != null),
+            ),
+            resolve: () async {
+              if (item.id == surah.id && verse != null) {
+                return api.audioAtVerse(verse, foundation);
+              }
+              final start = item.id == surah.id ? resumeAt : Duration.zero;
+              if (saved[item.id] case final local?) {
+                return (url: local, start: start);
+              }
+              try {
+                return (
+                  url: await api.audio(item.id, foundation),
+                  start: start,
+                );
+              } catch (_) {
+                final publisher = reader.publisherAudio(item.id);
+                if (publisher == null) rethrow;
+                // The timing lookup checks the actual URL before highlighting.
+                return (url: publisher, start: start);
+              }
+            },
+          ),
+      ]);
+      return;
+    }
+
+    final first = track(surah);
     await playback.startQueue(first, () async {
-      final PlaybackSource firstSource;
-      if (useFoundation && verse != null) {
-        firstSource = await api!.audioAtVerse(verse, foundation);
-      } else {
-        final url = useFoundation
-            ? await api!.audio(surah.id, foundation)
-            : firstFile ?? reader.publisherAudio(surah.id);
-        if (url == null) throw StateError('Recording unavailable');
-        firstSource = (url: url, start: resumeAt ?? Duration.zero);
-      }
+      final url = firstFile ?? reader.publisherAudio(surah.id);
+      if (url == null) throw StateError('Recording unavailable');
       return [
-        (track: first, source: firstSource),
+        (track: first, source: (url: url, start: resumeAt)),
         for (final item in chapters.skip(1))
           if ((saved[item.id] ??
                   (offlineOnly ? null : reader.publisherAudio(item.id)))

@@ -281,14 +281,14 @@ class _ReaderState extends ConsumerState<_Reader> {
     unawaited(_save(verse));
   }
 
-  void _navigate(AyahRef verse) {
+  void _navigate(AyahRef verse, {bool highlight = true}) {
     _settle?.cancel();
     final page = widget.edition.pageOf(verse);
     _scheduleReveal(verse);
     if (_scroll.isAttached) _scroll.jumpTo(index: page ~/ _spread);
     setState(() {
       _current = verse;
-      _selected = verse;
+      _selected = highlight ? verse : null;
     });
     unawaited(_save(verse));
   }
@@ -420,6 +420,24 @@ class _ReaderState extends ConsumerState<_Reader> {
     // Tablets and wide windows read a two-page spread.
     final spread = MediaQuery.sizeOf(context).width >= 840 ? 2 : 1;
     _spread = spread;
+    ref.listen(
+      audioPlaybackProvider.select(
+        (playback) => playback.track?.extras?[recitationSurahExtra],
+      ),
+      (previous, current) {
+        if (previous is! int ||
+            current is! int ||
+            current < 1 ||
+            current > widget.edition.surahs.length ||
+            _current.surah == current) {
+          return;
+        }
+        _navigate(
+          AyahRef(editionId: MushafEdition.id, surah: current, ayah: 1),
+          highlight: false,
+        );
+      },
+    );
     ref.listen<RecitedVerse?>(recitedVerseProvider, (_, recited) {
       if (recited != null) {
         _follow(recited);
