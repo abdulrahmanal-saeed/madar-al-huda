@@ -80,7 +80,7 @@ void main() {
 
     final l10n = lookupAppLocalizations(const Locale('en'));
     expect(find.text(l10n.downloadsTitle), findsOneWidget);
-    expect(find.byKey(const ValueKey('downloads-used')), findsOneWidget);
+    expect(find.byKey(const ValueKey('downloads-used')), findsNothing);
     final row = find.byKey(ValueKey('downloads-reciter-${reader.key}'));
     expect(
       find.descendant(

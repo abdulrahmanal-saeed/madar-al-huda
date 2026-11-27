@@ -28,8 +28,9 @@ final brandSeasonProvider = Provider<BrandSeason>((ref) {
   final timer = Timer(tomorrow.difference(now), ref.invalidateSelf);
   final life = AppLifecycleListener(
     onResume: () {
-      if (BrandSeason.on(DateTime.now()) != BrandSeason.on(now))
+      if (BrandSeason.on(DateTime.now()) != BrandSeason.on(now)) {
         ref.invalidateSelf();
+      }
     },
   );
   ref.onDispose(timer.cancel);

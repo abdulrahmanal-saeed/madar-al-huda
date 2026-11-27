@@ -49,25 +49,6 @@ class ReadingSettingsSheet extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(l10n.readerAppearance, style: theme.textTheme.titleLarge),
-              DropdownButtonFormField<MushafSource>(
-                initialValue: source,
-                isExpanded: true,
-                decoration: InputDecoration(
-                  labelText: language == 'ar' ? 'مصدر المصحف' : 'Mushaf source',
-                ),
-                items: [
-                  for (final edition in MushafSource.values)
-                    DropdownMenuItem(
-                      value: edition,
-                      child: Text(language == 'ar' ? edition.ar : edition.en),
-                    ),
-                ],
-                onChanged: (value) {
-                  if (value != null) {
-                    ref.read(mushafSourceProvider.notifier).select(value);
-                  }
-                },
-              ),
               const SizedBox(height: AppSpacing.lg),
               Text(l10n.readerFontSize, style: theme.textTheme.titleSmall),
               Row(
@@ -143,6 +124,26 @@ class ReadingSettingsSheet extends ConsumerWidget {
                       },
                     ),
                 ],
+              ),
+              const SizedBox(height: AppSpacing.md),
+              DropdownButtonFormField<MushafSource>(
+                initialValue: source,
+                isExpanded: true,
+                decoration: InputDecoration(
+                  labelText: language == 'ar' ? 'مصدر المصحف' : 'Mushaf source',
+                ),
+                items: [
+                  for (final edition in MushafSource.values)
+                    DropdownMenuItem(
+                      value: edition,
+                      child: Text(language == 'ar' ? edition.ar : edition.en),
+                    ),
+                ],
+                onChanged: (value) {
+                  if (value != null) {
+                    ref.read(mushafSourceProvider.notifier).select(value);
+                  }
+                },
               ),
             ],
           ),

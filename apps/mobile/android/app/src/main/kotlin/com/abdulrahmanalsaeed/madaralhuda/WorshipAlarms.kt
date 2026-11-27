@@ -91,9 +91,6 @@ internal object WorshipAlarms {
     private fun shortSound(context: Context) =
         Uri.parse("android.resource://${context.packageName}/${R.raw.worship_tone}")
 
-    private fun shortSound(context: Context) =
-        Uri.parse("android.resource://${context.packageName}/${R.raw.worship_tone}")
-
     private fun channels(context: Context) {
         if (Build.VERSION.SDK_INT < 26) return
         manager(context).createNotificationChannels(listOf(

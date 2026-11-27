@@ -88,144 +88,163 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final settings = ref.watch(appSettingsProvider);
     bool shows(AppFeature feature) => settings.shows(feature);
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            pinned: true,
-            title: Image.asset(
-              season.asset('logo', dark: theme.brightness == Brightness.dark),
-              width: 46,
-              height: 46,
-              semanticLabel: l10n.appTitle,
-            ),
-            actions: [
-              if (shows(AppFeature.stats))
-                IconButton(
-                  tooltip: l10n.statsTitle,
-                  onPressed: () => context.push(AppRoutes.stats),
-                  icon: const Icon(Icons.insights_outlined),
-                ),
-              if (shows(AppFeature.search))
-                IconButton(
-                  key: const ValueKey('home-search'),
-                  tooltip: l10n.searchTitle,
-                  onPressed: () => context.push(AppRoutes.search),
-                  icon: const Icon(Icons.search),
-                ),
-              const SettingsButton(),
-            ],
-          ),
-          SliverResponsiveContent(
-            sliver: SliverList.list(
-              children: [
-                _HomeHeader(
-                  season: season,
-                  gregorian: DateFormat.yMMMMEEEEd(locale.toLanguageTag())
-                      .format(date),
-                  hijri: hijri,
-                  place: location.place?.label(locale.languageCode),
-                ),
-                const SizedBox(height: AppSpacing.md),
-                const HomeUpdateBanner(),
-                if (settings.announcement case final announcement?) ...[
-                  _AnnouncementCard(announcement: announcement),
-                  const SizedBox(height: AppSpacing.md),
-                ],
-                _ContinueReading(edition: edition, season: season),
-                const SizedBox(height: AppSpacing.sm),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _WorshipTile(schedule: schedule, now: now),
+      body: DecoratedBox(
+        decoration: BoxDecoration(
+          image: season == BrandSeason.regular
+              ? null
+              : DecorationImage(
+                  image: AssetImage(
+                    season.asset(
+                      'screen-background',
+                      dark: theme.brightness == Brightness.dark,
                     ),
-                    if (shows(AppFeature.tasbih)) ...[
-                      const SizedBox(width: AppSpacing.sm),
-                      Expanded(child: _WorshipTile(tasbih: true, now: now)),
-                    ],
-                  ],
+                  ),
+                  fit: BoxFit.cover,
+                  alignment: Alignment.topCenter,
                 ),
-                if (schedule != null &&
-                    (!AppSection.adhkar.status.isGated ||
-                        managedReleaseEnabled)) ...[
-                  const SizedBox(height: AppSpacing.sm),
-                  WorshipNowCard(schedule: schedule, now: now),
-                  if (shows(AppFeature.ramadan)) RamadanHomeCard(now: now),
-                ],
-                const SizedBox(height: AppSpacing.lg),
-                Text(l10n.homeQuickAccess, style: theme.textTheme.titleMedium),
-                const SizedBox(height: AppSpacing.sm),
-                GridView.count(
-                  crossAxisCount: 4,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  mainAxisSpacing: AppSpacing.sm,
-                  crossAxisSpacing: AppSpacing.sm,
-                  childAspectRatio: 0.82,
-                  children: [
-                    _HomeShortcut(
-                      Icons.menu_book_outlined,
-                      l10n.homeWird,
-                      AppRoutes.dailyReading,
-                    ),
-                    if (shows(AppFeature.qibla))
-                      _HomeShortcut(
-                        Icons.explore_outlined,
-                        l10n.sectionQiblaTitle,
-                        AppRoutes.qibla,
-                        key: const ValueKey('quick-access-AppSection.qibla'),
-                      ),
-                    if (shows(AppFeature.tasbih))
-                      _HomeShortcut(
-                        Icons.touch_app_outlined,
-                        l10n.tasbihTitle,
-                        AppRoutes.tasbih,
-                        key: const ValueKey('quick-access-tasbih'),
-                      ),
-                    if (shows(AppFeature.radio))
-                      _HomeShortcut(
-                        cairoRadioOn(ref.watch(audioPlaybackProvider))
-                            ? Icons.stop_circle_outlined
-                            : Icons.radio_outlined,
-                        l10n.homeRadio,
-                        AppRoutes.cairoRadio,
-                        key: const ValueKey('quick-access-radio'),
-                        onTap: () => toggleCairoRadio(context, ref),
-                      ),
-                    _HomeShortcut(
-                      Icons.wb_twilight,
-                      l10n.homeMorning,
-                      AppRoutes.morningAdhkar,
-                    ),
-                    if (shows(AppFeature.hadith))
-                      _HomeShortcut(
-                        Icons.format_quote_outlined,
-                        l10n.sectionHadithTitle,
-                        AppRoutes.hadith,
-                      ),
-                    if (shows(AppFeature.stories))
-                      _HomeShortcut(
-                        Icons.auto_stories_outlined,
-                        l10n.sectionStoriesTitle,
-                        AppRoutes.stories,
-                      ),
-                    _HomeShortcut(
-                      Icons.notifications_none,
-                      l10n.remindersTitle,
-                      AppRoutes.reminders,
-                    ),
-                  ],
-                ),
-                if (edition != null &&
-                    (!AppSection.adhkar.status.isGated ||
-                        managedReleaseEnabled)) ...[
-                  const SizedBox(height: AppSpacing.lg),
-                  _DuaOfDay(day: date),
-                ],
-                const SizedBox(height: AppSpacing.xl),
+        ),
+        child: CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              pinned: true,
+              title: Image.asset(
+                season.asset('logo', dark: theme.brightness == Brightness.dark),
+                width: 46,
+                height: 46,
+                semanticLabel: l10n.appTitle,
+              ),
+              actions: [
+                if (shows(AppFeature.stats))
+                  IconButton(
+                    tooltip: l10n.statsTitle,
+                    onPressed: () => context.push(AppRoutes.stats),
+                    icon: const Icon(Icons.insights_outlined),
+                  ),
+                if (shows(AppFeature.search))
+                  IconButton(
+                    key: const ValueKey('home-search'),
+                    tooltip: l10n.searchTitle,
+                    onPressed: () => context.push(AppRoutes.search),
+                    icon: const Icon(Icons.search),
+                  ),
+                const SettingsButton(),
               ],
             ),
-          ),
-        ],
+            SliverResponsiveContent(
+              sliver: SliverList.list(
+                children: [
+                  _HomeHeader(
+                    season: season,
+                    gregorian: DateFormat.yMMMMEEEEd(locale.toLanguageTag())
+                        .format(date),
+                    hijri: hijri,
+                    place: location.place?.label(locale.languageCode),
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  const HomeUpdateBanner(),
+                  if (settings.announcement case final announcement?) ...[
+                    _AnnouncementCard(announcement: announcement),
+                    const SizedBox(height: AppSpacing.md),
+                  ],
+                  _ContinueReading(edition: edition, season: season),
+                  const SizedBox(height: AppSpacing.sm),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _WorshipTile(schedule: schedule, now: now),
+                      ),
+                      if (shows(AppFeature.tasbih)) ...[
+                        const SizedBox(width: AppSpacing.sm),
+                        Expanded(child: _WorshipTile(tasbih: true, now: now)),
+                      ],
+                    ],
+                  ),
+                  if (schedule != null &&
+                      (!AppSection.adhkar.status.isGated ||
+                          managedReleaseEnabled)) ...[
+                    const SizedBox(height: AppSpacing.sm),
+                    WorshipNowCard(schedule: schedule, now: now),
+                    if (shows(AppFeature.ramadan)) RamadanHomeCard(now: now),
+                  ],
+                  const SizedBox(height: AppSpacing.lg),
+                  Text(
+                    l10n.homeQuickAccess,
+                    style: theme.textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  GridView.count(
+                    crossAxisCount: 4,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    mainAxisSpacing: AppSpacing.sm,
+                    crossAxisSpacing: AppSpacing.sm,
+                    childAspectRatio: 0.82,
+                    children: [
+                      _HomeShortcut(
+                        Icons.menu_book_outlined,
+                        l10n.homeWird,
+                        AppRoutes.dailyReading,
+                      ),
+                      if (shows(AppFeature.qibla))
+                        _HomeShortcut(
+                          Icons.explore_outlined,
+                          l10n.sectionQiblaTitle,
+                          AppRoutes.qibla,
+                          key: const ValueKey('quick-access-AppSection.qibla'),
+                        ),
+                      if (shows(AppFeature.tasbih))
+                        _HomeShortcut(
+                          Icons.touch_app_outlined,
+                          l10n.tasbihTitle,
+                          AppRoutes.tasbih,
+                          key: const ValueKey('quick-access-tasbih'),
+                        ),
+                      if (shows(AppFeature.radio))
+                        _HomeShortcut(
+                          cairoRadioOn(ref.watch(audioPlaybackProvider))
+                              ? Icons.stop_circle_outlined
+                              : Icons.radio_outlined,
+                          l10n.homeRadio,
+                          AppRoutes.cairoRadio,
+                          key: const ValueKey('quick-access-radio'),
+                          onTap: () => toggleCairoRadio(context, ref),
+                        ),
+                      _HomeShortcut(
+                        Icons.wb_twilight,
+                        l10n.homeMorning,
+                        AppRoutes.morningAdhkar,
+                      ),
+                      if (shows(AppFeature.hadith))
+                        _HomeShortcut(
+                          Icons.format_quote_outlined,
+                          l10n.sectionHadithTitle,
+                          AppRoutes.hadith,
+                        ),
+                      if (shows(AppFeature.stories))
+                        _HomeShortcut(
+                          Icons.auto_stories_outlined,
+                          l10n.sectionStoriesTitle,
+                          AppRoutes.stories,
+                        ),
+                      _HomeShortcut(
+                        Icons.notifications_none,
+                        l10n.remindersTitle,
+                        AppRoutes.reminders,
+                      ),
+                    ],
+                  ),
+                  if (edition != null &&
+                      (!AppSection.adhkar.status.isGated ||
+                          managedReleaseEnabled)) ...[
+                    const SizedBox(height: AppSpacing.lg),
+                    _DuaOfDay(day: date),
+                  ],
+                  const SizedBox(height: AppSpacing.xl),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

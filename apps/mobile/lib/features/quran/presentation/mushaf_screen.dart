@@ -1,5 +1,3 @@
-import '../../../core/audio/audio_playback.dart';
-
 import 'dart:async';
 
 import 'package:flutter/services.dart';
@@ -10,6 +8,7 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../app/deep_links.dart';
+import '../../../core/audio/audio_playback.dart';
 import '../../../core/content/app_settings.dart';
 import '../../../core/content/feature_preview.dart';
 import '../../../core/localization/l10n_extension.dart';

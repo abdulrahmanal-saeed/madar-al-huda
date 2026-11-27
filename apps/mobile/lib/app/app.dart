@@ -87,7 +87,29 @@ class MadarApp extends ConsumerWidget {
             ),
           ),
         );
-        if (!showStartupSplash) return synced;
+        final decorated = season == BrandSeason.regular
+            ? synced
+            : Stack(
+                fit: StackFit.expand,
+                children: [
+                  synced,
+                  Align(
+                    alignment: Alignment.topCenter,
+                    child: IgnorePointer(
+                      child: Image.asset(
+                        season.asset(
+                          'top-garland',
+                          dark: Theme.of(context).brightness == Brightness.dark,
+                        ),
+                        width: 384,
+                        fit: BoxFit.contain,
+                        excludeFromSemantics: true,
+                      ),
+                    ),
+                  ),
+                ],
+              );
+        if (!showStartupSplash) return decorated;
         // First launch: the first-run steps (language, theme, permissions,
         // reminders) wait under the splash. Later launches only refresh
         // the location.
@@ -97,7 +119,7 @@ class MadarApp extends ConsumerWidget {
           onDismissed: () {
             if (returning) unawaited(_setUpLocation(context, ref));
           },
-          child: returning ? synced : FirstRunGate(child: synced),
+          child: returning ? decorated : FirstRunGate(child: decorated),
         );
       },
     );
