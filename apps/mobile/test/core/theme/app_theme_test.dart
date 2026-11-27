@@ -110,7 +110,10 @@ void main() {
 
   test('component text styles carry real font sizes', () {
     for (final theme in [AppTheme.light(), AppTheme.dark()]) {
-      expect(theme.appBarTheme.titleTextStyle?.fontSize, 22);
+      expect(
+        theme.appBarTheme.titleTextStyle?.fontSize,
+        theme.textTheme.headlineSmall?.fontSize,
+      );
       expect(theme.textTheme.bodyMedium?.fontSize, 14);
       expect(theme.textTheme.headlineMedium?.fontSize, 28);
       final label = theme.navigationBarTheme.labelTextStyle?.resolve({});

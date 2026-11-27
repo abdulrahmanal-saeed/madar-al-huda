@@ -9,6 +9,7 @@ import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.graphics.drawable.Icon
 import android.media.AudioAttributes
 import android.media.AudioFocusRequest
 import android.media.AudioManager
@@ -75,7 +76,8 @@ internal object WorshipAlarms {
         val now = System.currentTimeMillis()
         val data = status(context)
         val statusBoundary = if (data.optBoolean("enabled")) {
-            array(data.optJSONArray("prayers")?.toString())
+            (array(data.optJSONArray("prayers")?.toString()) +
+                array(data.optJSONArray("dates")?.toString()))
                 .map { it.optLong("at") }.filter { it > now }.minOrNull()
         } else null
         val next = (events(context).map { it.optLong("at") }.filter { it > now } +
@@ -220,23 +222,42 @@ internal object WorshipAlarms {
         val next = prayers.firstOrNull { it.optLong("at") > now }
         val last = prayers.lastOrNull { it.optLong("at") <= now }
         val place = prefs.optString("place")
+        val hijri = array(prefs.optJSONArray("dates")?.toString())
+            .lastOrNull { it.optLong("at") <= now }?.optString("label").orEmpty()
+        val heading = listOf(place, hijri).filter { it.isNotBlank() }.joinToString("  |  ")
         val title = prefs.optString("title")
-        val b = builder(context, UPCOMING).setContentTitle(title)
+        val route = prefs.optString("route", "/worship/prayer-times")
+        val locationRoute = prefs.optString("locationRoute", "$route?location=1")
+        val arabic = prefs.optString("lang", "ar") == "ar"
+        val times = open(context, route, STATUS_ID)
+        val location = open(context, locationRoute, STATUS_ID + 3)
+        val openLabel = prefs.optString("open", if (arabic) "مواقيت الصلاة" else "Prayer times")
+        val locationLabel = if (next == null) {
+            prefs.optString("choose", if (arabic) "اختيار المدينة" else "Choose city")
+        } else {
+            prefs.optString("refresh", if (arabic) "تحديث الموقع" else "Update location")
+        }
+        val b = builder(context, UPCOMING)
+            .setContentTitle(heading.ifBlank { title })
+            .setLargeIcon(Icon.createWithResource(context, R.drawable.madar_launcher_mark))
+            .setColor(0xffe4502f.toInt())
             .setOnlyAlertOnce(true).setOngoing(true)
-            .setContentIntent(open(context, prefs.optString("route"), STATUS_ID))
+            .setContentIntent(if (next == null) location else times)
+            .addAction(Notification.Action.Builder(null, openLabel, times).build())
+            .addAction(Notification.Action.Builder(null, locationLabel, location).build())
         if (next == null) {
             b.setContentText(prefs.optString("unknown"))
         } else {
-            val label = prefs.optString("next") + " " + next.optString("label")
-            b.setContentText("$place · $label")
+            val label = prayerLine(next)
+            b.setContentText(label)
                 .setWhen(next.optLong("at")).setShowWhen(true)
                 .setUsesChronometer(true).setChronometerCountDown(true)
             if (last != null && Build.VERSION.SDK_INT >= 24) {
                 val clock = SystemClock.elapsedRealtime()
                 val expanded = RemoteViews(context.packageName, R.layout.prayer_notification_expanded).apply {
-                    setTextViewText(R.id.prayer_status_place, place)
-                    setTextViewText(R.id.prayer_status_next, label)
-                    setTextViewText(R.id.prayer_status_last, prefs.optString("last") + " " + last.optString("label"))
+                    setTextViewText(R.id.prayer_status_place, heading.ifBlank { title })
+                    setTextViewText(R.id.prayer_status_next, prefs.optString("next") + " · " + label)
+                    setTextViewText(R.id.prayer_status_last, prefs.optString("last") + " · " + prayerLine(last))
                     setChronometer(R.id.prayer_status_countdown, clock + next.optLong("at") - now, null, true)
                     setChronometerCountDown(R.id.prayer_status_countdown, true)
                     setChronometer(R.id.prayer_status_elapsed, clock + last.optLong("at") - now, null, true)
@@ -246,6 +267,10 @@ internal object WorshipAlarms {
         }
         manager(context).notify(STATUS_ID, b.build())
     }
+
+    private fun prayerLine(prayer: JSONObject) =
+        listOf(prayer.optString("label"), prayer.optString("time"))
+            .filter { it.isNotBlank() }.joinToString(" · ")
 }
 
 class WorshipAlarmReceiver : BroadcastReceiver() {

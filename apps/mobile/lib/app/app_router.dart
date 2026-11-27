@@ -141,10 +141,12 @@ GoRouter buildAppRouter({String initialLocation = AppRoutes.home}) {
                 path: AppRoutes.worship,
                 builder: (_, _) => const WorshipHubScreen(),
                 routes: [
-                  _child(
-                    AppRoutes.prayerTimes,
-                    AppRoutes.worship,
-                    const PrayerTimesScreen(),
+                  GoRoute(
+                    path: 'prayer-times',
+                    builder: (_, state) => PrayerTimesScreen(
+                      showLocationOnOpen:
+                          state.uri.queryParameters['location'] == '1',
+                    ),
                   ),
                   _child(
                     AppRoutes.qibla,

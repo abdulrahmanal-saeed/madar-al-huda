@@ -4,8 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:material_ui/material_ui.dart';
+import 'package:timezone/timezone.dart' as tz;
 
 import '../../../core/localization/app_locales.dart';
+import '../../../core/localization/civil_hijri_date.dart';
 import '../../../core/localization/l10n_extension.dart';
 import '../../../core/routing/app_routes.dart';
 import '../../reminders/application/reminder_settings_controller.dart';
@@ -166,13 +168,22 @@ class _PrayerWidgetSyncState extends ConsumerState<PrayerWidgetSync> {
         try {
           await widgetTarget.publish(prayers, place);
           final now = DateTime.now();
+          final zone = prayerPlace == null
+              ? tz.UTC
+              : PrayerSchedule.zone(prayerPlace.timeZone) ?? tz.UTC;
+          final local = tz.TZDateTime.from(now, zone);
+          final days = [
+            for (var offset = -1; offset < 32; offset++)
+              tz.TZDateTime(zone, local.year, local.month, local.day + offset),
+          ];
+          final clock = DateFormat.jm(language);
           final statusPrayers = !enabled || prayerPlace == null
               ? const <PrayerEvent>[]
               : [
-                  for (var offset = -1; offset < 32; offset++)
+                  for (final day in days)
                     ...PrayerSchedule.calculate(
                       place: prayerPlace,
-                      now: DateTime(now.year, now.month, now.day + offset, 12),
+                      now: day.add(const Duration(hours: 12)),
                       hanafi: hanafi,
                     ).today.where((event) => event.slot != PrayerSlot.sunrise),
                 ];
@@ -182,16 +193,28 @@ class _PrayerWidgetSyncState extends ConsumerState<PrayerWidgetSync> {
             'title': l10n.appTitle,
             'lang': language,
             'route': AppRoutes.prayerTimes,
+            'locationRoute': '${AppRoutes.prayerTimes}?location=1',
+            'open': l10n.sectionPrayerTimesTitle,
+            'refresh': language == 'ar' ? 'تحديث الموقع' : 'Update location',
+            'choose': l10n.locationChooseTitle,
             'unknown': language == 'ar'
                 ? 'اختار مدينتك لعرض مواقيت الصلاة'
                 : 'Choose your city to show prayer times',
             'next': l10n.nextPrayer,
             'last': language == 'ar' ? 'آخر صلاة' : 'Last prayer',
-            'minutes': language == 'ar' ? 'دقيقة' : 'min ago',
+            'dates': [
+              if (enabled && prayerPlace != null)
+                for (final day in days)
+                  {
+                    'at': day.millisecondsSinceEpoch,
+                    'label': civilHijriDate(day, language) ?? '',
+                  },
+            ],
             'prayers': [
               for (final prayer in statusPrayers)
                 {
                   'label': prayerName(prayer.slot, l10n),
+                  'time': clock.format(prayer.time),
                   'at': prayer.time.millisecondsSinceEpoch,
                 },
             ],

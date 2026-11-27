@@ -88,7 +88,7 @@ void main() {
 
     await pumpCard(tester, at(PrayerSlot.fajr, const Duration(hours: 1)));
     expect(find.byKey(const ValueKey('worship-now-morning')), findsOneWidget);
-    expect(find.text(l10n.homeNowMorning), findsOneWidget);
+    expect(find.byTooltip(l10n.homeNowMorning), findsOneWidget);
     expect(find.text('Morning remembrance'), findsOneWidget);
     expect(find.text(l10n.homeNowStart), findsOneWidget);
 

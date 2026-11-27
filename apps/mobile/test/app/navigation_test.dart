@@ -239,10 +239,16 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(QiblaScreen), findsOneWidget);
-    final bar = tester.widget<NavigationBar>(
-      find.byKey(AppShell.navigationBarKey),
+    final tab = tester.widget<Semantics>(
+      find.ancestor(
+        of: navTab('Prayer'),
+        matching: find.byWidgetPredicate(
+          (widget) =>
+              widget is Semantics && widget.properties.label == 'Prayer',
+        ),
+      ),
     );
-    expect(bar.selectedIndex, 3, reason: 'Prayer tab selected');
+    expect(tab.properties.selected, isTrue, reason: 'Prayer tab selected');
   });
 
   testWidgets('settings opens above the shell and closes', (tester) async {

@@ -32,19 +32,23 @@ IconData prayerIcon(PrayerSlot slot) => switch (slot) {
 };
 
 class PrayerTimesScreen extends StatelessWidget {
-  const PrayerTimesScreen({super.key});
+  const PrayerTimesScreen({this.showLocationOnOpen = false, super.key});
+
+  final bool showLocationOnOpen;
 
   @override
   Widget build(BuildContext context) {
     if (AppSection.prayerTimes.status.isGated && !managedReleaseEnabled) {
       return const SectionDetailScaffold(section: AppSection.prayerTimes);
     }
-    return const _PrayerTimes();
+    return _PrayerTimes(showLocationOnOpen: showLocationOnOpen);
   }
 }
 
 class _PrayerTimes extends ConsumerStatefulWidget {
-  const _PrayerTimes();
+  const _PrayerTimes({required this.showLocationOnOpen});
+
+  final bool showLocationOnOpen;
 
   @override
   ConsumerState<_PrayerTimes> createState() => _PrayerTimesState();
@@ -62,6 +66,25 @@ class _PrayerTimesState extends ConsumerState<_PrayerTimes> {
     super.initState();
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (TickerMode.valuesOf(context).enabled) setState(() {});
+    });
+    if (widget.showLocationOnOpen) _openLocation();
+  }
+
+  @override
+  void didUpdateWidget(covariant _PrayerTimes oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.showLocationOnOpen && !oldWidget.showLocationOnOpen) {
+      _openLocation();
+    }
+  }
+
+  void _openLocation() {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      await showWorshipLocationSheet(context);
+      if (mounted && widget.showLocationOnOpen) {
+        context.replace(AppRoutes.prayerTimes);
+      }
     });
   }
 
