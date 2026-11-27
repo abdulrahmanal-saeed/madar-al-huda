@@ -3212,13 +3212,13 @@ abstract class AppLocalizations {
   /// **'Show all {count}'**
   String searchShowAll(String count);
 
-  /// No description provided for @homePrayerMinutes.
+  /// Time until the next prayer when it is less than an hour away.
   ///
   /// In en, this message translates to:
   /// **'{count, plural, one{1 minute} other{{number} minutes}}'**
   String homePrayerMinutes(int count, String number);
 
-  /// No description provided for @homePrayerHours.
+  /// Compact next-prayer countdown displayed when one hour or more remains.
   ///
   /// In en, this message translates to:
   /// **'{hours} h {minutes} min'**

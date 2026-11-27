@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:madar_al_huda/core/localization/app_locales.dart';
 import 'package:madar_al_huda/core/routing/app_routes.dart';
 import 'package:madar_al_huda/features/adhkar/data/adhkar_progress.dart';
+import 'package:madar_al_huda/features/worship/application/current_worship_moment.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../helpers/pump_app.dart';
@@ -23,10 +24,16 @@ void main() {
   ) async {
     const locale = Locale('ar');
     final l10n = lookupAppLocalizations(locale);
+    final today = DateTime.now();
     final store = await pumpMadarApp(
       tester,
       deviceLocales: const [locale],
       initialLocation: AppRoutes.adhkar,
+      additionalOverrides: [
+        adhkarClockProvider.overrideWith(
+          (_) => Stream.value(DateTime(today.year, today.month, today.day, 9)),
+        ),
+      ],
     );
     await tapVisible(tester, find.text(l10n.adhkarResume));
     for (var index = 0; index < 2; index++) {
