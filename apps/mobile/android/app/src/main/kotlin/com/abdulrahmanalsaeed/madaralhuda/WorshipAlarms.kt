@@ -172,7 +172,7 @@ internal object WorshipAlarms {
                 var audioStarted = false
                 for (event in due) {
                     val sound = event.optString("sound")
-                    val audioAllowed = !audioStarted && (rawId(context, sound) != 0 || file(context, sound) != null) &&
+                    val audioAllowed = !audioStarted && (rawId(sound) != 0 || file(context, sound) != null) &&
                         (Build.VERSION.SDK_INT < 31 || alarms(context).canScheduleExactAlarms())
                     if (audioAllowed) {
                         val intent = Intent(context, WorshipAudioService::class.java).putExtra("event", event.toString())
