@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:madar_al_huda/core/localization/app_locales.dart';
 import 'package:madar_al_huda/core/routing/app_routes.dart';
@@ -42,7 +44,19 @@ void main() {
     expect(find.text('الإخلاص والمعوذتان صباحًا ومساءً'), findsOneWidget);
     await tapVisible(tester, find.text(l10n.adhkarThreeSurahCycle));
     await tapVisible(tester, find.text(l10n.adhkarThreeSurahCycle));
-    expect(find.text(l10n.adhkarCompleted), findsOneWidget);
+    expect(find.text('الإخلاص والمعوذتان صباحًا ومساءً'), findsNothing);
+    final saved = jsonDecode(
+      store.getString(AdhkarProgressController.key)!,
+    ) as Map<String, Object?>;
+    final counts = saved['counts'] as Map<String, Object?>;
+    expect(
+      counts.entries
+          .singleWhere(
+            (entry) => entry.key.endsWith('/three-surahs-morning-evening/6082'),
+          )
+          .value,
+      3,
+    );
   });
 
   testWidgets('English routine, Hisn search, merits and Quranic duas open', (
