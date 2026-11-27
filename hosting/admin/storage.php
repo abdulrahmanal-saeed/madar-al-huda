@@ -218,6 +218,8 @@ function updateLibrary(PDO $db, string $action, array $seed, string $section, st
                 $section === 'story_titles' => changeStoryTitles($content),
                 $section === 'adhkar_groups' => changeAdhkarGroups($content),
                 $section === 'library_sections' => changeSections($content, $delete, $staged, $filename),
+                $section === 'daily_duas' && $action === 'save' && $staged !== null
+                    => attachDailyDuaRecording($content, field('original'), $staged),
                 in_array($section, BOOK_SECTIONS, true) => changeBook($content, $section, $delete),
                 default => changeContent($content, $seed['ayahCounts'], $section, $topic, $delete),
             });

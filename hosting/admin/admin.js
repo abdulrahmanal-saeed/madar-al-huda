@@ -3,6 +3,15 @@
 // post normally.
 'use strict';
 
+for (const form of document.querySelectorAll('[data-dua-drive]')) {
+  form.addEventListener('submit', () => {
+    form.querySelector('[data-dua-drive-button]').disabled = true;
+    const status = form.querySelector('[data-dua-drive-status]');
+    status.hidden = false;
+    status.textContent = 'جارٍ تنزيل التسجيل وحفظه في المسودة…';
+  });
+}
+
 for (const editor of document.querySelectorAll('[data-repeat-editor]')) {
   const rows = editor.querySelector('[data-repeat-rows]');
   const add = editor.querySelector('[data-repeat-add]');

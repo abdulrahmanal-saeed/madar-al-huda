@@ -30,11 +30,7 @@ final List<_Destination> _destinations = [
     Icons.wb_twilight,
     (c) => c.l10n.navAdhkar,
   ),
-  _Destination(
-    Icons.nights_stay_outlined,
-    Icons.nights_stay_rounded,
-    (c) => c.l10n.navPrayer,
-  ),
+  _Destination(Icons.mosque_outlined, Icons.mosque, (c) => c.l10n.navPrayer),
   _Destination(
     Icons.local_library_outlined,
     Icons.local_library,

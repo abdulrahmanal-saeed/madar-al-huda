@@ -51,7 +51,7 @@ abstract final class AppRoutes {
   static const String feedback = '$settings/feedback';
 
   /// Tab roots in navigation order.
-  static const List<String> tabs = [home, quran, adhkar, prayerTimes, library];
+  static const List<String> tabs = [home, quran, adhkar, worship, library];
 
   static String verse(int surah, int ayah) => Uri(
     path: quran,

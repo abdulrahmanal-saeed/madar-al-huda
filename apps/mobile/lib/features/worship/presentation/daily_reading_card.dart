@@ -17,20 +17,6 @@ import '../../quran/domain/quran_search_text.dart';
 import '../data/daily_reading_plan.dart';
 import '../data/khatma.dart';
 
-class DailyReadingCard extends StatelessWidget {
-  const DailyReadingCard({super.key});
-
-  @override
-  Widget build(BuildContext context) => Card(
-    child: ListTile(
-      leading: const Icon(Icons.menu_book_outlined),
-      title: Text(context.l10n.dailyReadingTitle),
-      trailing: const Icon(Icons.chevron_right),
-      onTap: () => context.push(AppRoutes.dailyReading),
-    ),
-  );
-}
-
 class DailyReadingScreen extends ConsumerStatefulWidget {
   const DailyReadingScreen({super.key});
 

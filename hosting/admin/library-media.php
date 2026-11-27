@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 const MAX_LIBRARY_SEASONS = 30;
 const MAX_SEASON_EPISODES = 200;
+const MAX_DEVOTIONAL_RECORDING_BYTES = 12 * 1024 * 1024;
 
 function seasonIndex(array $rows, string $id): int
 {
@@ -186,7 +187,7 @@ function devotionalAudio(array $item, array $previous, string $slot): array
         $tmp = $_FILES['devotional']['tmp_name'][$slot] ?? null;
         $size = $_FILES['devotional']['size'][$slot] ?? null;
         if ($upload !== UPLOAD_ERR_OK || !is_string($tmp) ||
-            !is_int($size) || $size > 12 * 1024 * 1024) {
+            !is_int($size) || $size > MAX_DEVOTIONAL_RECORDING_BYTES) {
             throw new InvalidArgumentException('اختر ملف MP3 حجمه لا يتجاوز ١٢ ميجابايت.');
         }
         $item['recording'] = storeLibraryMedia($tmp, 'audio', true);
@@ -195,6 +196,61 @@ function devotionalAudio(array $item, array $previous, string $slot): array
         $item['recording'] = $previous['recording'];
     }
     return $item;
+}
+
+/** Attaches one validated MP3 without editing the dua's other fields. */
+function attachDailyDuaRecording(array $payload, string $id, string $staged): array
+{
+    $rows = contentRows($payload, 'daily_duas', '');
+    $index = array_search($id, array_column($rows, 'id'), true);
+    if ($id === '' || $index === false) {
+        throw new InvalidArgumentException('الدعاء غير موجود. أعد فتح السجل ثم حاول مرة أخرى.');
+    }
+    $bytes = is_file($staged) ? filesize($staged) : false;
+    if ($bytes === false || $bytes > MAX_DEVOTIONAL_RECORDING_BYTES) {
+        throw new InvalidArgumentException('اختر ملف MP3 حجمه لا يتجاوز ١٢ ميجابايت.');
+    }
+    try {
+        $rows[$index]['recording'] = storeLibraryMedia($staged, 'audio', false);
+    } catch (InvalidArgumentException $failure) {
+        throw new InvalidArgumentException('الملف الذي تم تنزيله ليس تسجيل MP3 صالحًا.', 0, $failure);
+    }
+    $payload['dailyDuas'] = $rows;
+    return $payload;
+}
+
+function importDailyDuaAudio(
+    PDO $db,
+    array $seed,
+    int $revision,
+    string $id,
+    string $link,
+    array $actor,
+    ?callable $recheckAccess = null,
+): void {
+    $state = library($db);
+    if ((int) $state['revision'] !== $revision) {
+        throw new InvalidArgumentException('تغيّرت المسودة. أعِد فتح الدعاء ثم أعد المحاولة.');
+    }
+    $payload = json_decode($state['draft'], true, 64, JSON_THROW_ON_ERROR);
+    if ($id === '' || !in_array($id, array_column(contentRows($payload, 'daily_duas', ''), 'id'), true)) {
+        throw new InvalidArgumentException('الدعاء غير موجود في المسودة.');
+    }
+    if (strlen($link) > 2048) {
+        throw new InvalidArgumentException('رابط Google Drive طويل أكثر من اللازم.');
+    }
+    importDriveFile(trim($link), 'dua.mp3', bin2hex(random_bytes(16)), function (string $staged) use (
+        $db, $seed, $revision, $id, $actor, $recheckAccess,
+    ): void {
+        $user = $recheckAccess === null ? $actor : $recheckAccess();
+        $previousPost = $_POST;
+        $_POST = ['revision' => (string) $revision, 'original' => $id];
+        try {
+            updateLibrary($db, 'save', $seed, 'daily_duas', '', $user, $staged);
+        } finally {
+            $_POST = $previousPost;
+        }
+    }, MAX_DEVOTIONAL_RECORDING_BYTES);
 }
 
 function devotionalEntryAudio(array $entry, array $previous, string $slot): array
