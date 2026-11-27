@@ -88,8 +88,8 @@ The default target is the dev audience. Production announcements are enabled
 with MADAR_NEWS_LIVE=1 after confirming a dev notification opens the selected
 content. The APK or AAB build reads the public Firebase Android configuration
 from MADAR_FIREBASE_APP_ID, MADAR_FIREBASE_API_KEY, MADAR_FIREBASE_SENDER_ID and
-MADAR_FIREBASE_PROJECT_ID. Use separate Android registrations for the dev and
-production application IDs. Place the FCM sender service account only in the
+MADAR_FIREBASE_PROJECT_ID. Set the corresponding MADAR_DEV_FIREBASE_* repository
+variables for the separate dev Android registration. Place the FCM sender service account only in the
 private admin storage as firebase-messaging.json. Give it permission to send
 FCM messages for the configured project. Devices without an FCM subscription
 check the public content-news feed on Android's periodic schedule.

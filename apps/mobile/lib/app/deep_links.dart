@@ -21,7 +21,8 @@ const _linkable = [
   AppRoutes.search,
   AppRoutes.memorize,
   AppRoutes.stats,
-  AppRoutes.settings,
+  AppRoutes.reminders,
+  AppRoutes.downloads,
   AppRoutes.zakat,
 ];
 

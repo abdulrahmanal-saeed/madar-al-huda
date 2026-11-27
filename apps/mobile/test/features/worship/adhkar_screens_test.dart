@@ -29,7 +29,6 @@ void main() {
     await tapVisible(tester, find.text(l10n.adhkarResume));
     for (var index = 0; index < 2; index++) {
       await tapVisible(tester, find.text(l10n.adhkarMarkRead));
-      await tapVisible(tester, find.text(l10n.adhkarNext));
     }
     await tapVisible(tester, find.text(l10n.adhkarThreeSurahCycle));
     expect(

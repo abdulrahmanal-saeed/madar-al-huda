@@ -159,7 +159,7 @@ jobs:
 
       - name: Build debug APK
         env:
-          MADAR_QURAN_API_URL: ${{ vars.MADAR_QURAN_API_URL }}
+          MADAR_QURAN_API_URL: ${{ vars.MADAR_DEV_QURAN_API_URL || vars.MADAR_QURAN_API_URL }}
           MADAR_SUPABASE_ANON_KEY: ${{ vars.MADAR_SUPABASE_ANON_KEY }}
         run: |
           if [[ -z "$MADAR_QURAN_API_URL" && -z "$MADAR_SUPABASE_ANON_KEY" ]]; then

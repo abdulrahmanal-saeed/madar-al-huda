@@ -521,8 +521,8 @@ class _WorshipTile extends ConsumerWidget {
             context.go(AppRoutes.prayerTimes);
           }
         },
-        child: SizedBox(
-          height: 128,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 128),
           child: Center(
             child: Stack(
               alignment: Alignment.center,
@@ -551,6 +551,7 @@ class _WorshipTile extends ConsumerWidget {
                           ? l10n.sectionPrayerTimesTitle
                           : prayerName(next.slot, l10n),
                       style: theme.textTheme.titleMedium,
+                      textAlign: TextAlign.center,
                     ),
                     if (remaining != null)
                       Text(
@@ -573,9 +574,14 @@ class _WorshipTile extends ConsumerWidget {
                             ],
                           ),
                         ),
-                        child: Text(
-                          number(state.day == tasbihDay(now) ? state.today : 0),
-                          style: theme.textTheme.titleLarge,
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            number(
+                              state.day == tasbihDay(now) ? state.today : 0,
+                            ),
+                            style: theme.textTheme.titleLarge,
+                          ),
                         ),
                       ),
                     if (state != null && state.goal > 0)

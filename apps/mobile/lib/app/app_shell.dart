@@ -117,6 +117,7 @@ class AppShell extends ConsumerWidget {
                   labelTextStyle: WidgetStatePropertyAll(
                     TextStyle(
                       color: scheme.onInverseSurface,
+                      fontSize: 11,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -125,8 +126,7 @@ class AppShell extends ConsumerWidget {
                   key: navigationBarKey,
                   backgroundColor: scheme.inverseSurface,
                   indicatorColor: scheme.primary,
-                  labelBehavior:
-                      NavigationDestinationLabelBehavior.onlyShowSelected,
+                  labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
                   selectedIndex: index,
                   onDestinationSelected: _onSelect,
                   destinations: [

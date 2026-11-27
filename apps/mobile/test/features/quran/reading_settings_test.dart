@@ -24,7 +24,12 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byTooltip(l10n.readerLarger));
     await tester.pumpAndSettle();
-    await tester.tap(find.text(l10n.readerPaperWarm));
+    await tester.tap(
+      find.ancestor(
+        of: find.text(l10n.readerPaperWarm),
+        matching: find.byType(ChoiceChip),
+      ),
+    );
     await tester.pumpAndSettle();
 
     expect(page().preferences.fontSize, defaultReadingFontSize + 2);
