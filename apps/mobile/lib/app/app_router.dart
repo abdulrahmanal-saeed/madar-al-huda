@@ -135,7 +135,7 @@ GoRouter buildAppRouter({String initialLocation = AppRoutes.home}) {
             ],
           ),
           StatefulShellBranch(
-            initialLocation: AppRoutes.prayerTimes,
+            initialLocation: AppRoutes.worship,
             routes: [
               GoRoute(
                 path: AppRoutes.worship,

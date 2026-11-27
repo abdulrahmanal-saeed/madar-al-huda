@@ -978,6 +978,8 @@
   "@homeReadQuran": {
     "description": "Open the Mushaf"
   },
+  "listeningDuasTitle": "Listen to duas",
+  "@listeningDuasTitle": {"description": "Title of the supplication recordings library."},
   "homeDuaOfDay": "Dua of the day",
   "@homeDuaOfDay": {
     "description": "Dua of the day"

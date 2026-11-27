@@ -183,7 +183,13 @@ function writeDriveJob(string $file, array $state): void
  * Downloads a publicly shared Google Drive file straight to the server and
  * publishes it. Without [$name], the file's own name on Drive is used.
  */
-function importDriveFile(string $link, string $name, string $job, ?callable $receive = null): string
+function importDriveFile(
+    string $link,
+    string $name,
+    string $job,
+    ?callable $receive = null,
+    int $maxBytes = MAX_STORY_BYTES,
+): string
 {
     $id = driveFileId($link);
     if ($id === null) {
@@ -208,6 +214,8 @@ function importDriveFile(string $link, string $name, string $job, ?callable $rec
         CURLOPT_PROTOCOLS => CURLPROTO_HTTPS,
         CURLOPT_REDIR_PROTOCOLS => CURLPROTO_HTTPS,
         CURLOPT_CONNECTTIMEOUT => 20,
+        CURLOPT_MAXFILESIZE_LARGE => $maxBytes,
+        CURLOPT_TIMEOUT => $maxBytes < MAX_STORY_BYTES ? 90 : 0,
         CURLOPT_LOW_SPEED_LIMIT => 1024,
         CURLOPT_LOW_SPEED_TIME => 60,
         CURLOPT_NOPROGRESS => false,
@@ -223,8 +231,8 @@ function importDriveFile(string $link, string $name, string $job, ?callable $rec
             }
             return strlen($line);
         },
-        CURLOPT_XFERINFOFUNCTION => function ($curl, $total, $received) use ($jobFile, &$lastWrite): int {
-            if ($received > MAX_STORY_BYTES) {
+        CURLOPT_XFERINFOFUNCTION => function ($curl, $total, $received) use ($jobFile, &$lastWrite, $maxBytes): int {
+            if ($received > $maxBytes || $total > $maxBytes) {
                 return 1;
             }
             $now = microtime(true);
@@ -240,6 +248,11 @@ function importDriveFile(string $link, string $name, string $job, ?callable $rec
         fclose($out);
         $status = curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
         $host = parse_url((string) curl_getinfo($curl, CURLINFO_EFFECTIVE_URL), PHP_URL_HOST) ?: '';
+        if (curl_errno($curl) === CURLE_FILESIZE_EXCEEDED ||
+            (int) curl_getinfo($curl, CURLINFO_SIZE_DOWNLOAD) > $maxBytes ||
+            (int) curl_getinfo($curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD) > $maxBytes) {
+            throw new InvalidArgumentException('حجم الملف يتجاوز الحد المسموح به.');
+        }
         if ($ok !== true || $status !== 200) {
             throw new InvalidArgumentException('تعذّر تنزيل الملف من Drive. تأكّد أن المشاركة «أي شخص لديه الرابط».');
         }

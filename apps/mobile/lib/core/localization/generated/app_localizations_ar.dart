@@ -938,6 +938,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get homeReadQuran => 'افتح المصحف';
 
   @override
+  String get listeningDuasTitle => 'أدعية مسموعة';
+
+  @override
   String get homeDuaOfDay => 'دعاء اليوم';
 
   @override

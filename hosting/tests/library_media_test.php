@@ -144,4 +144,14 @@ if (publishedLibraryMedia($devotional, $registered['file']) !== $registered ||
     publishedLibraryMedia([], $registered['file']) !== null) {
     throw new RuntimeException('Devotional media must be tied to a published entry');
 }
+foreach (['chat', 'dashboard'] as $mode) {
+    $tools = array_column(agentTools($mode), null, 'name');
+    $attach = $tools['attach_dua_audio'];
+    check($attach['inputSchema']['required'] === ['id', 'drive_url']);
+    check($attach['annotations']['readOnlyHint'] === false);
+}
+try {
+    attachDailyDuaRecording($devotional, 'another-item', 'unused.mp3');
+    throw new RuntimeException('Drive audio accepted for an unknown dua');
+} catch (InvalidArgumentException) {}
 echo "Library media tests passed.\n";

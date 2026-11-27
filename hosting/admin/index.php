@@ -266,7 +266,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             session_destroy();
         } elseif (in_array($action, ['save', 'delete', 'publish', 'restore', 'review_approve'], true)) {
             $seed = require __DIR__ . '/seed.php';
-            if ($action === 'save' && $section === 'library_sections' && field('op') === 'bulk_drive') {
+            $isDuaDrive = $action === 'save' && $section === 'daily_duas' && field('op') === 'drive_dua_audio';
+            if ($isDuaDrive) {
+                $revision = integer(field('revision'), 1, PHP_INT_MAX);
+                $id = field('original');
+                $link = field('drive_url');
+                set_time_limit(120);
+                session_write_close();
+                try {
+                    importDailyDuaAudio($db, $seed, $revision, $id, $link, $user, function () use ($db, $user): array {
+                        $current = userById($db, (int) $user['id']);
+                        if ($current === null || !allowedAction($current, 'save', 'daily_duas')) {
+                            throw new InvalidArgumentException('لم تعد صلاحية التعديل متاحة.');
+                        }
+                        return $current;
+                    });
+                } finally {
+                    session_start();
+                }
+            } elseif ($action === 'save' && $section === 'library_sections' && field('op') === 'bulk_drive') {
                 set_time_limit(0);
                 session_write_close();
                 try {
@@ -288,7 +306,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'restore' => 'استُعيد الإصدار إلى المسودة.',
                 'delete' => 'حُذف العنصر من المسودة.',
                 'review_approve' => 'اعتُمدت المسألة شرعيًا ويمكن نشرها.',
-                default => 'حُفظت المسودة.',
+                default => $isDuaDrive ? 'تم جلب التسجيل من Google Drive وحفظه في المسودة.' : 'حُفظت المسودة.',
             };
         } elseif ($action === 'news_publish') {
             $id = locked($db, function () use ($db): int {
@@ -366,8 +384,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
         if ($confirming === null) {
-            // The sections page keeps an open section's link editor open.
-            $keep = $section === 'library_sections' && is_string($_GET['edit'] ?? null) ? $_GET['edit'] : '';
+            $keepDua = $section === 'daily_duas' && $action !== 'delete' && ($_GET['edit'] ?? '') !== 'new';
+            $keep = ($section === 'library_sections' || $keepDua) && is_string($_GET['edit'] ?? null)
+                ? $_GET['edit'] : '';
             header('Location: ' . route($section, $topic, $keep), true, 303);
             exit;
         }
@@ -765,6 +784,19 @@ if ($active) {
             <button class="primary">حفظ في المسودة</button>
           </form>
           <?php if ($current !== null): ?>
+            <?php if ($section === 'daily_duas' && allowedAction($user, 'save', $section)): ?>
+              <form method="post" data-dua-drive>
+                <?php controls('save', $revision); ?>
+                <input type="hidden" name="op" value="drive_dua_audio">
+                <input type="hidden" name="original" value="<?= e($edit) ?>">
+                <label>استيراد MP3 من Google Drive
+                  <input type="url" name="drive_url" dir="ltr" placeholder="https://drive.google.com/file/d/…/view" maxlength="2048" required>
+                </label>
+                <p class="hint">الصق رابط الملف الذي يمكن تنزيله بواسطة «أي شخص لديه الرابط». الاستيراد يستبدل تسجيل هذا الدعاء في المسودة.</p>
+                <button class="quiet" data-dua-drive-button>جلب التسجيل وحفظه</button>
+                <p class="hint" role="status" data-dua-drive-status hidden></p>
+              </form>
+            <?php endif; ?>
             <form method="post" class="delete-form">
               <?php controls('delete', $revision); ?>
               <input type="hidden" name="original" value="<?= e($edit) ?>">

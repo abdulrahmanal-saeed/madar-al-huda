@@ -1,9 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:material_ui/material_ui.dart';
 
 import '../../../core/localization/l10n_extension.dart';
 import '../../../core/localization/numbers.dart';
+import '../../../core/routing/app_routes.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/madar_panel.dart';
 import '../../../core/widgets/responsive_content.dart';
@@ -221,6 +223,22 @@ class AdhkarHub extends ConsumerWidget {
                               ),
                             ),
                           ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  MadarPanel(
+                    onTap: () => context.push(AppRoutes.listeningDuas),
+                    child: Row(
+                      spacing: 10,
+                      children: [
+                        Icon(Icons.headphones, color: scheme.secondary),
+                        Expanded(
+                          child: Text(
+                            l10n.listeningDuasTitle,
+                            style: theme.textTheme.titleSmall,
+                          ),
+                        ),
                       ],
                     ),
                   ),

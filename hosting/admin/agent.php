@@ -49,6 +49,7 @@ const AGENT_FIELDS = [
         'meaning' => 'English meaning (required).',
         'source_ar' => 'Arabic Quran or authentic hadith reference (required).',
         'source_en' => 'English Quran or authentic hadith reference (required).',
+        'drive_url' => 'For an existing dua, pass only this field to save_item to import an MP3 from a downloadable Google Drive file link. You can also call attach_dua_audio.',
     ],
     'merits' => [
         'id' => 'New items only: English id (lowercase, digits, dashes).',
@@ -387,6 +388,15 @@ function agentTools(string $mode = 'chat'): array
             'annotations' => ['readOnlyHint' => false, 'destructiveHint' => false],
         ],
         [
+            'name' => 'attach_dua_audio',
+            'description' => 'Import or replace an MP3 for one existing daily_duas item from a downloadable Google Drive file link. Use list_items (section daily_duas) to find the id. The recording is saved to the draft for later publishing.',
+            'inputSchema' => ['type' => 'object', 'properties' => [
+                'id' => ['type' => 'string', 'description' => 'The existing daily_duas item id.'],
+                'drive_url' => ['type' => 'string', 'description' => 'Shareable Google Drive link to an MP3 file.', 'maxLength' => 2048],
+            ], 'required' => ['id', 'drive_url']],
+            'annotations' => ['readOnlyHint' => false, 'destructiveHint' => false, 'openWorldHint' => true],
+        ],
+        [
             'name' => 'delete_item',
             'description' => 'Remove an item from the DRAFT (any item, bundled or added). Confirm with the owner first.',
             'inputSchema' => ['type' => 'object', 'properties' => ['section' => $sectionProp, 'topic' => $topicProp, 'id' => ['type' => 'string']], 'required' => ['section', 'id']],
@@ -423,7 +433,8 @@ function agentCall(PDO $db, array $key, string $tool, array $args): array
             return ['sections' => array_map(
                 static fn (string $about, string $section) => ['section' => $section, 'about' => $about, 'fields' => AGENT_FIELDS[$section]],
                 AGENT_SECTIONS, array_keys(AGENT_SECTIONS),
-            ), 'duas_topics' => topics(), 'custom_library_tools' => array_column(agentLibraryTools(), 'name')];
+            ), 'duas_topics' => topics(), 'custom_library_tools' => array_column(agentLibraryTools(), 'name'),
+                'daily_dua_audio_tool' => 'attach_dua_audio'];
         case 'list_library_sections':
             $sections = [];
             foreach ($draft['appearance']['sections'] ?? [] as $section) {
@@ -452,7 +463,9 @@ function agentCall(PDO $db, array $key, string $tool, array $args): array
             $topic = $section === 'duas' ? agentTopic($args) : '';
             $items = [];
             foreach (agentRows($draft, $section, $topic) as $id => $row) {
-                $items[] = ['id' => (string) $id, 'title' => agentSummary($section, $row)];
+                $item = ['id' => (string) $id, 'title' => agentSummary($section, $row)];
+                if ($section === 'daily_duas') $item['has_recording'] = isset($row['recording']);
+                $items[] = $item;
             }
             $out = ['section' => $section, 'count' => count($items), 'items' => $items];
             if ($section === 'daily') {
@@ -482,9 +495,44 @@ function agentCall(PDO $db, array $key, string $tool, array $args): array
             if ($id !== '' && !array_key_exists($id, agentRows($draft, $section, $topic))) {
                 throw new AgentError('No item "' . $id . '" to change in ' . $section . '. Leave id out to add a new one.');
             }
+            if ($section === 'daily_duas' && array_key_exists('drive_url', $fields)) {
+                if ($id === '' || count($fields) !== 1) {
+                    throw new AgentError('To import a recording through save_item, pass the existing id and only the drive_url field.');
+                }
+                return agentCall($db, $key, 'attach_dua_audio', ['id' => $id, 'drive_url' => $fields['drive_url']]);
+            }
             unset($fields['original'], $fields['revision'], $fields['action'], $fields['csrf']);
             agentChange($db, $key, 'save', $section, $topic, ['original' => $id] + $fields);
             return ['saved' => true, 'section' => $section, 'note' => 'Saved in the draft. Call request_publish when the owner wants it in the app.'];
+        case 'attach_dua_audio':
+            $id = $args['id'] ?? null;
+            $link = $args['drive_url'] ?? null;
+            if (!is_string($id) || $id === '' || !is_string($link) || $link === '' || strlen($link) > 2048) {
+                throw new AgentError('Pass an existing daily dua id and a downloadable Google Drive MP3 link.');
+            }
+            if (!array_key_exists($id, agentRows($draft, 'daily_duas', ''))) {
+                throw new AgentError('No daily dua with this id in the draft. Use list_items (daily_duas).');
+            }
+            $actor = ['id' => 0, 'username' => agentActor($key), 'role' => 'editor'];
+            set_time_limit(120);
+            try {
+                importDailyDuaAudio(
+                    $db, require __DIR__ . '/seed.php', (int) $state['revision'], $id, $link, $actor,
+                    function () use ($db, $key, $actor): array {
+                        $access = $db->prepare('SELECT 1 FROM agent_keys WHERE id = ? AND revoked_at IS NULL');
+                        $access->execute([$key['id']]);
+                        if (!$access->fetchColumn()) {
+                            throw new InvalidArgumentException('This connector no longer has access.');
+                        }
+                        return $actor;
+                    },
+                );
+            } catch (InvalidArgumentException $failure) {
+                throw new AgentError($failure->getMessage());
+            }
+            audit($db, agentActor($key), 'save', 'daily_duas', $id . ' · Drive MP3');
+            return ['saved' => true, 'id' => $id, 'published' => false,
+                'note' => 'Recording saved in the draft. It reaches the app after publication.'];
         case 'delete_item':
             $section = agentSection($args);
             $topic = $section === 'duas' ? agentTopic($args) : '';
@@ -578,9 +626,9 @@ function serveMcp(PDO $db, string $secret): never
             $reply($id, ['result' => [
                 'protocolVersion' => (string) ($params['protocolVersion'] ?? '2025-06-18'),
                 'capabilities' => ['tools' => ['listChanged' => false]],
-                'serverInfo' => ['name' => 'Madar Al-Huda dashboard', 'version' => '1.1.0'],
+                'serverInfo' => ['name' => 'Madar Al-Huda dashboard', 'version' => '1.2.0'],
                 'instructions' => 'Edit the content of the Madar Al-Huda app (adhkar, duas, Hisn al-Muslim, Names of Allah, articles, lessons, fiqh, and custom library episode titles). '
-                    . 'Call list_sections first. Every change goes to the DRAFT only. Before save_item, delete_item, update_episode or bulk_update_episode_titles, show the owner exactly what you will write and wait for approval. '
+                    . 'Call list_sections first. Every change goes to the DRAFT only. Before save_item, attach_dua_audio, delete_item, update_episode or bulk_update_episode_titles, show the owner exactly what you will write and wait for approval. '
                     . (agentPublishMode($db) === 'chat'
                         ? 'To put changes in the app, call draft_changes, show the owner the changes, ask whether to publish, and call publish only after an explicit yes. Every publish needs its own yes. '
                         : 'To put changes in the app, call request_publish: the owner approves it in the dashboard; you cannot publish yourself. ')

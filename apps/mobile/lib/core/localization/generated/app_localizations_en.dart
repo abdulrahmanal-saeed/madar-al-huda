@@ -948,6 +948,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeReadQuran => 'Open the Mushaf';
 
   @override
+  String get listeningDuasTitle => 'Listen to duas';
+
+  @override
   String get homeDuaOfDay => 'Dua of the day';
 
   @override

@@ -8,6 +8,7 @@ import 'package:madar_al_huda/core/widgets/content_status_panel.dart';
 import 'package:madar_al_huda/core/widgets/section_card.dart';
 import 'package:madar_al_huda/core/widgets/settings_button.dart';
 import 'package:madar_al_huda/features/home/data/daily_duas.dart';
+import 'package:madar_al_huda/features/home/presentation/listening_duas.dart';
 import 'package:madar_al_huda/features/learning/data/learning_catalog.dart';
 import 'package:madar_al_huda/features/learning/data/learning_files.dart';
 import 'package:madar_al_huda/features/learning/data/prophet_stories.dart';
@@ -15,6 +16,7 @@ import 'package:madar_al_huda/features/prayer/presentation/prayer_times_screen.d
 import 'package:madar_al_huda/features/qibla/presentation/qibla_screen.dart';
 import 'package:madar_al_huda/features/quran/presentation/mushaf_screen.dart';
 import 'package:madar_al_huda/features/worship/application/worship_location.dart';
+import 'package:madar_al_huda/features/worship/presentation/worship_hub_screen.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../helpers/pump_app.dart';
@@ -170,7 +172,7 @@ void main() {
 
     await tester.tap(navTab('Prayer'));
     await tester.pumpAndSettle();
-    await tester.tap(find.byTooltip('Qibla'));
+    await tester.tap(find.text('Qibla'));
     await tester.pumpAndSettle();
     expect(find.byType(QiblaScreen), findsOneWidget);
 
@@ -183,8 +185,35 @@ void main() {
 
     await tester.tap(navTab('Prayer'));
     await tester.pumpAndSettle();
-    expect(find.byType(PrayerTimesScreen), findsOneWidget);
+    expect(find.byType(WorshipHubScreen), findsOneWidget);
     expect(find.byType(QiblaScreen), findsNothing);
+  });
+
+  testWidgets('Prayer home puts the full-width daily reading above two tiles', (
+    tester,
+  ) async {
+    await pumpMadarApp(tester);
+    await tester.tap(navTab('Prayer'));
+    await tester.pumpAndSettle();
+    final daily = tester.getRect(
+      find.widgetWithText(Card, 'Daily Quran reading'),
+    );
+    final times = tester.getRect(find.widgetWithText(Card, 'Prayer Times'));
+    final qibla = tester.getRect(find.widgetWithText(Card, 'Qibla'));
+    expect(daily.bottom, lessThan(times.top));
+    expect(times.top, qibla.top);
+    expect(daily.left, times.left);
+    expect(daily.right, qibla.right);
+    expect(
+      find.descendant(
+        of: find.byType(WorshipHubScreen),
+        matching: find.byType(Card),
+      ),
+      findsNWidgets(3),
+    );
+    await tester.tap(find.text('Prayer Times'));
+    await tester.pumpAndSettle();
+    expect(find.byType(PrayerTimesScreen), findsOneWidget);
   });
 
   testWidgets('the selected city feeds Prayer and the north-up Qibla', (
@@ -309,6 +338,22 @@ void main() {
       find.descendant(of: card, matching: find.text('Listen to duas')),
       findsNothing,
     );
+  });
+
+  testWidgets('the recorded duas still open from the Adhkar tab', (
+    tester,
+  ) async {
+    await pumpMadarApp(tester, initialLocation: AppRoutes.adhkar);
+    final target = find.text('Listen to duas');
+    await tester.scrollUntilVisible(
+      target,
+      150,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(target);
+    await tester.pumpAndSettle();
+    expect(find.byType(ListeningDuasScreen), findsOneWidget);
   });
 
   testWidgets('home shows no fabricated prayer times or religious text', (
