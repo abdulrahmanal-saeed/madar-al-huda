@@ -257,16 +257,19 @@ void main() {
     expect(tab.properties.selected, isTrue, reason: 'Prayer tab selected');
   });
 
-  testWidgets('settings opens above the shell and closes', (tester) async {
+  testWidgets('settings keeps the dock and returns to the previous page', (
+    tester,
+  ) async {
     await pumpMadarApp(tester);
     await tester.tap(find.byKey(SettingsButton.buttonKey));
     await tester.pumpAndSettle();
     expect(find.text('Settings'), findsOneWidget);
-    expect(find.byKey(AppShell.navigationBarKey), findsNothing);
+    expect(find.byKey(AppShell.navigationBarKey), findsOneWidget);
 
     await tester.tap(find.byType(BackButton));
     await tester.pumpAndSettle();
     expect(find.byKey(AppShell.navigationBarKey), findsOneWidget);
+    expect(find.text('Settings'), findsNothing);
   });
 
   testWidgets('unknown routes show a recoverable not-found page', (

@@ -219,7 +219,8 @@ GoRouter buildAppRouter({String initialLocation = AppRoutes.home}) {
       GoRoute(
         path: AppRoutes.tasbih,
         parentNavigatorKey: rootNavigatorKey,
-        builder: (_, _) => const TasbihScreen(),
+        builder: (_, _) =>
+            const AppNavigationFrame(index: 2, child: TasbihScreen()),
       ),
       GoRoute(
         path: AppRoutes.ramadan,
@@ -234,7 +235,8 @@ GoRouter buildAppRouter({String initialLocation = AppRoutes.home}) {
       GoRoute(
         path: AppRoutes.stats,
         parentNavigatorKey: rootNavigatorKey,
-        builder: (_, _) => const StatsScreen(),
+        builder: (_, _) =>
+            const AppNavigationFrame(index: 4, child: StatsScreen()),
       ),
       GoRoute(
         path: AppRoutes.memorize,
@@ -249,7 +251,8 @@ GoRouter buildAppRouter({String initialLocation = AppRoutes.home}) {
       GoRoute(
         path: AppRoutes.settings,
         parentNavigatorKey: rootNavigatorKey,
-        builder: (_, _) => const SettingsScreen(),
+        builder: (_, _) =>
+            const AppNavigationFrame(index: 4, child: SettingsScreen()),
         routes: [
           GoRoute(
             path: 'reminders',
@@ -259,7 +262,10 @@ GoRouter buildAppRouter({String initialLocation = AppRoutes.home}) {
           GoRoute(
             path: 'downloads',
             parentNavigatorKey: rootNavigatorKey,
-            builder: (_, _) => const DownloadCenterScreen(),
+            builder: (_, _) => const AppNavigationFrame(
+              index: 4,
+              child: DownloadCenterScreen(),
+            ),
           ),
           GoRoute(
             path: 'feedback',

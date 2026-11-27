@@ -5,6 +5,7 @@ import 'package:material_ui/material_ui.dart';
 import '../core/audio/audio_mini_player.dart';
 import '../core/connectivity/offline_banner.dart';
 import '../core/localization/l10n_extension.dart';
+import '../core/routing/app_routes.dart';
 import '../core/theme/app_tokens.dart';
 import '../features/quran/application/reading_preferences.dart';
 
@@ -60,11 +61,35 @@ class AppShell extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final wide = MediaQuery.sizeOf(context).width >= AppBreakpoints.medium;
-    final index = navigationShell.currentIndex;
     if (ref.watch(readingFocusProvider)) {
       return Scaffold(body: navigationShell);
     }
+    return AppNavigationFrame(
+      index: navigationShell.currentIndex,
+      onSelect: _onSelect,
+      child: navigationShell,
+    );
+  }
+}
+
+/// Keeps the main destinations available on screens pushed above the tabs.
+class AppNavigationFrame extends StatelessWidget {
+  const AppNavigationFrame({
+    required this.index,
+    required this.child,
+    this.onSelect,
+    super.key,
+  });
+
+  final int index;
+  final Widget child;
+  final ValueChanged<int>? onSelect;
+
+  @override
+  Widget build(BuildContext context) {
+    final wide = MediaQuery.sizeOf(context).width >= AppBreakpoints.medium;
+    final select =
+        onSelect ?? (int position) => context.go(AppRoutes.tabs[position]);
 
     if (wide) {
       return Scaffold(
@@ -74,9 +99,9 @@ class AppShell extends ConsumerWidget {
               right: false,
               left: false,
               child: NavigationRail(
-                key: navigationRailKey,
+                key: AppShell.navigationRailKey,
                 selectedIndex: index,
-                onDestinationSelected: _onSelect,
+                onDestinationSelected: select,
                 labelType: NavigationRailLabelType.all,
                 groupAlignment: -0.85,
                 destinations: [
@@ -93,7 +118,7 @@ class AppShell extends ConsumerWidget {
             Expanded(
               child: Column(
                 children: [
-                  Expanded(child: navigationShell),
+                  Expanded(child: child),
                   const OfflineBanner(),
                   const AudioMiniPlayer(),
                 ],
@@ -106,7 +131,7 @@ class AppShell extends ConsumerWidget {
 
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
-      body: navigationShell,
+      body: child,
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -116,7 +141,7 @@ class AppShell extends ConsumerWidget {
             top: false,
             minimum: const EdgeInsets.fromLTRB(16, 6, 16, 10),
             child: DecoratedBox(
-              key: navigationBarKey,
+              key: AppShell.navigationBarKey,
               decoration: BoxDecoration(
                 color: scheme.inverseSurface,
                 borderRadius: BorderRadius.circular(36),
@@ -141,7 +166,7 @@ class AppShell extends ConsumerWidget {
                               ? destination.selectedIcon
                               : destination.icon,
                           current: position == index,
-                          select: () => _onSelect(position),
+                          select: () => select(position),
                         ),
                       ),
                   ],
