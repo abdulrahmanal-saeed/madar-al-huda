@@ -25,8 +25,8 @@ void main() {
 
   test('light scheme is built on the brand palette', () {
     const s = AppTheme.lightScheme;
-    expect(s.primary, BrandColors.primaryGreen);
-    expect(s.surface, BrandColors.ivory);
+    expect(s.primary, const Color(0xFFC43F23));
+    expect(s.surface, const Color(0xFFF3F0FA));
     expect(s.brightness, Brightness.light);
     expect(AppTheme.darkScheme.brightness, Brightness.dark);
   });

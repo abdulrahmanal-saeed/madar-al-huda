@@ -1,6 +1,6 @@
 # Madar Al-Huda Quran service
 
-The Android preview uses the `quran` Edge Function. Offline reading uses the separately licensed Tanzil source bundled with Flutter. The function's three GET operations under `/functions/v1/quran/v1` return display data for the app.
+The Android preview uses the `quran` Edge Function. Offline reading uses the separately licensed Tanzil source bundled with Flutter. The function's GET operations under `/functions/v1/quran/v1` return display data for the app.
 
 | Operation | Parameters | Purpose |
 | --- | --- | --- |
@@ -27,3 +27,9 @@ Use `MADAR_CHANNEL=preview` for a side-by-side Android test package. Pass the pu
 The Mobile CI debug job reads the two public Android settings from GitHub Actions repository variables of the same names. When configured, it builds the side-by-side preview as its APK artifact. Keep provider credentials and service-role keys in Supabase Secrets.
 
 Production function version 8 returned the 114 chapters, Tafsir Ibn Kathir for 112:1, and Maher Al-Muaiqly's chapter recording for Al-Ikhlas. The ayah operation returned the same recording with verse 112:2 at 12,310 ms. A recording without timings still supports chapter playback. [Chapter audio and timestamps](https://api-docs.quran.com/docs/content_apis_versioned/4.0.0/chapter-reciter-audio-file/)
+
+The reader can use the same application Edge Function for
+mushaf?edition=1&page=1 (QCF V2) and mushaf?edition=19&page=1 (QCF V4 Tajweed).
+The recitation operation also accepts timings=1 for a complete chapter timeline.
+The app applies a timeline only when its recording URL matches the actual
+playing source. Tanzil remains available locally while the optional pages load.

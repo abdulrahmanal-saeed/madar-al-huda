@@ -12,9 +12,16 @@ import '../domain/library_sections.dart';
 /// A section added on the dashboard: its titled links open in an in-app
 /// browser view (videos play there), or in the browser as a fallback.
 class LinksSectionScreen extends ConsumerWidget {
-  const LinksSectionScreen({required this.id, super.key});
+  const LinksSectionScreen({
+    required this.id,
+    this.seasonId,
+    this.episodeNumber,
+    super.key,
+  });
 
   final String id;
+  final String? seasonId;
+  final int? episodeNumber;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -25,6 +32,15 @@ class LinksSectionScreen extends ConsumerWidget {
         .whereType<LinksEntry>()
         .where((entry) => entry.id == id)
         .firstOrNull;
+    final requested = entry?.seasons
+        .where((season) => season.id == seasonId)
+        .firstOrNull;
+    if (requested != null) {
+      return EpisodeSeriesScreen(
+        series: requested,
+        highlightedEpisode: episodeNumber,
+      );
+    }
     return Scaffold(
       appBar: AppBar(title: Text(entry?.title.inLanguage(language) ?? '')),
       body: entry == null || (entry.links.isEmpty && entry.seasons.isEmpty)

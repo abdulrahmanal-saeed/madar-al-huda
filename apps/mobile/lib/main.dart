@@ -186,7 +186,15 @@ void _registerFontLicense() {
       '(creativecommons.org/licenses/by/4.0). Arabic country names: '
       'Unicode CLDR, under the Unicode License.',
     );
-    // Content sources are credited here only, not on the reading screens.
+    for (final (name, folder) in [
+      ('Noto Sans Arabic', 'notosansarabic'),
+      ('Noto Kufi Arabic', 'notokufiarabic'),
+      ('Noto Naskh Arabic', 'notonaskharabic'),
+    ]) {
+      yield LicenseEntryWithLineBreaks([
+        name,
+      ], await rootBundle.loadString('assets/fonts/$folder/OFL.txt'));
+    }
     for (final (name, credit) in _contentSources) {
       yield LicenseEntryWithLineBreaks([name], credit);
     }

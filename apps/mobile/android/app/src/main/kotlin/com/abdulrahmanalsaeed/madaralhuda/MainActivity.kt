@@ -27,9 +27,83 @@ class MainActivity : AudioServiceActivity() {
     private var notificationRequest: MethodChannel.Result? = null
     private var feedbackImageRequest: MethodChannel.Result? = null
 
+    private var adhanPreview: android.media.MediaPlayer? = null
+
+    override fun onStop() {
+        adhanPreview?.release()
+        adhanPreview = null
+        super.onStop()
+    }
+
+    override fun dispatchKeyEvent(event: android.view.KeyEvent): Boolean {
+        if (event.action == android.view.KeyEvent.ACTION_DOWN &&
+            (event.keyCode == android.view.KeyEvent.KEYCODE_VOLUME_UP ||
+                event.keyCode == android.view.KeyEvent.KEYCODE_VOLUME_DOWN)) {
+            WorshipAudioService.stopAdhanFromVolumeKey()
+        }
+        return super.dispatchKeyEvent(event)
+    }
+
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         val messenger = flutterEngine.dartExecutor.binaryMessenger
+        MethodChannel(messenger, "madar/content_news").setMethodCallHandler { call, result ->
+            when (call.method) {
+                "configure" -> {
+                    ContentNews.configure(this, call.argument<Boolean>("enabled") == true,
+                        call.argument<String>("language") ?: "ar")
+                    result.success(null)
+                }
+                "permission" -> {
+                    if (Build.VERSION.SDK_INT >= 33 &&
+                        checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                        requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 4412)
+                    }
+                    result.success(null)
+                }
+                else -> result.notImplemented()
+            }
+        }
+        MethodChannel(messenger, "madar/worship_alarms").setMethodCallHandler { call, result ->
+            when (call.method) {
+                "zone" -> result.success(java.util.TimeZone.getDefault().id)
+                "preview" -> {
+                    adhanPreview?.release()
+                    adhanPreview = null
+                    val sound = call.arguments as? String
+                    if (sound != null) {
+                        try {
+                            val player = android.media.MediaPlayer()
+                            adhanPreview = player
+                            WorshipAlarms.source(this, player, sound)
+                            player.setOnPreparedListener {
+                                if (adhanPreview === it) it.start()
+                            }
+                            player.setOnCompletionListener {
+                                if (adhanPreview === it) adhanPreview = null
+                                it.release()
+                            }
+                            player.prepareAsync()
+                        } catch (_: Exception) {
+                            adhanPreview?.release()
+                            adhanPreview = null
+                            result.error("preview_failed", "Recording unavailable", null)
+                            return@setMethodCallHandler
+                        }
+                    }
+                    result.success(null)
+                }
+                "replace" -> {
+                    WorshipAlarms.replace(this, call.arguments<List<Map<String, Any?>>>() ?: emptyList())
+                    result.success(null)
+                }
+                "status" -> {
+                    WorshipAlarms.replaceStatus(this, call.arguments<Map<String, Any?>>() ?: emptyMap())
+                    result.success(null)
+                }
+                else -> result.notImplemented()
+            }
+        }
         MethodChannel(messenger, "madar/updates").setMethodCallHandler { call, result ->
             when (call.method) {
                 "installed" -> result.success(mapOf(
@@ -182,6 +256,7 @@ class MainActivity : AudioServiceActivity() {
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 4412) ContentNews.refreshPermission(this)
         if (requestCode == 4411) {
             val allowed = grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED
             notificationRequest?.success(UpdateNotifications.setEnabled(this, allowed))

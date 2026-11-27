@@ -4,6 +4,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/diagnostics/error_log.dart';
+import '../../../core/content/content_news.dart';
 import '../../../core/localization/l10n_extension.dart';
 import '../../../core/routing/app_routes.dart';
 import '../../../core/theme/app_tokens.dart';
@@ -20,7 +21,6 @@ class SettingsScreen extends ConsumerWidget {
   static Key languageOptionKey(AppLanguage l) => ValueKey('language-$l');
   static Key themeOptionKey(AppThemePreference t) => ValueKey('theme-$t');
   static const Key reduceMotionKey = ValueKey('reduce-motion');
-  static const Key licensesKey = ValueKey('licenses');
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -125,6 +125,7 @@ class SettingsScreen extends ConsumerWidget {
                   const _Divider(),
                   _GroupHeader(l10n.settingsAbout),
                   const SettingsUpdates(),
+                  const ContentNewsTile(),
                   const PrivacyPolicyTile(),
                   ListTile(
                     key: const ValueKey('settings-feedback'),
@@ -139,16 +140,6 @@ class SettingsScreen extends ConsumerWidget {
                     leading: const Icon(Icons.info_outline),
                     title: Text(l10n.appTitle),
                     subtitle: Text(l10n.settingsAboutBody),
-                  ),
-                  ListTile(
-                    key: licensesKey,
-                    leading: const Icon(Icons.description_outlined),
-                    title: Text(l10n.settingsLicenses),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () => showLicensePage(
-                      context: context,
-                      applicationName: l10n.appTitle,
-                    ),
                   ),
                 ],
               ),

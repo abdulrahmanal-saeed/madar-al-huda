@@ -171,6 +171,60 @@ function publishedLibraryMedia(array $payload, string $name): ?array
             }
         }
     }
+    return publishedDevotionalAudio($payload, $name);
+}
+
+/**
+ * Sets one explicitly uploaded recording on an entry. Direct form fields and
+ * imported variant JSON cannot manufacture public media references.
+ */
+function devotionalAudio(array $item, array $previous, string $slot): array
+{
+    unset($item['recording']);
+    $upload = $_FILES['devotional']['error'][$slot] ?? UPLOAD_ERR_NO_FILE;
+    if ($upload !== UPLOAD_ERR_NO_FILE) {
+        $tmp = $_FILES['devotional']['tmp_name'][$slot] ?? null;
+        $size = $_FILES['devotional']['size'][$slot] ?? null;
+        if ($upload !== UPLOAD_ERR_OK || !is_string($tmp) ||
+            !is_int($size) || $size > 12 * 1024 * 1024) {
+            throw new InvalidArgumentException('اختر ملف MP3 حجمه لا يتجاوز ١٢ ميجابايت.');
+        }
+        $item['recording'] = storeLibraryMedia($tmp, 'audio', true);
+    } elseif (($_POST['remove_devotional'][$slot] ?? '') !== '1' &&
+        isset($previous['recording'])) {
+        $item['recording'] = $previous['recording'];
+    }
+    return $item;
+}
+
+function devotionalEntryAudio(array $entry, array $previous, string $slot): array
+{
+    if (!isset($entry['variants'])) {
+        return devotionalAudio($entry, ($entry['hadith'] ?? null) === ($previous['hadith'] ?? null) ? $previous : [], $slot);
+    }
+    $old = array_column($previous['variants'] ?? [], null, 'hadith');
+    unset($entry['recording']);
+    foreach ($entry['variants'] as &$variant) {
+        $id = $variant['hadith'];
+        $variant = devotionalAudio($variant, $old[$id] ?? [], $slot . '-' . $id);
+    }
+    unset($variant);
+    return $entry;
+}
+
+function publishedDevotionalAudio(array $payload, string $name): ?array
+{
+    $adhkar = $payload['adhkar'] ?? [];
+    $entries = [...($payload['dailyDuas'] ?? []), ...($adhkar['daily']['entries'] ?? []), ...($adhkar['merits'] ?? [])];
+    foreach ($adhkar['hisn']['topics'] ?? [] as $topic) {
+        array_push($entries, ...($topic['entries'] ?? []));
+    }
+    foreach ($entries as $entry) {
+        foreach ($entry['variants'] ?? [$entry] as $variant) {
+            $audio = $variant['recording'] ?? null;
+            if (($audio['file'] ?? null) === $name) return $audio;
+        }
+    }
     return null;
 }
 

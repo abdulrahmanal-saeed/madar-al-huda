@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:video_player/video_player.dart';
 
+import '../../../core/audio/playback_speeds.dart';
 import '../../../core/localization/l10n_extension.dart';
 import '../../../core/localization/numbers.dart';
 import '../../../core/theme/app_tokens.dart';
@@ -31,6 +32,7 @@ class EpisodeVideoScreen extends StatefulWidget {
 class _EpisodeVideoScreenState extends State<EpisodeVideoScreen> {
   VideoPlayerController? _controller;
   int _index = 0;
+  double _speed = 1;
   bool _loading = false;
   bool _failed = false;
 
@@ -51,6 +53,7 @@ class _EpisodeVideoScreenState extends State<EpisodeVideoScreen> {
   Future<void> _open(int index) async {
     if (_loading || index < 0 || index >= widget.queue.length) return;
     final previous = _controller;
+    if (previous != null) _speed = previous.value.playbackSpeed;
     setState(() {
       _loading = true;
       _failed = false;
@@ -73,6 +76,7 @@ class _EpisodeVideoScreenState extends State<EpisodeVideoScreen> {
           : VideoPlayerController.networkUrl(uri, videoPlayerOptions: options);
       _controller = player;
       await player.initialize().timeout(const Duration(seconds: 25));
+      if (_speed != 1) await player.setPlaybackSpeed(_speed);
       if (!mounted) return;
       player.addListener(_onVideoChanged);
       await player.play();
@@ -466,6 +470,40 @@ class _VideoSurfaceState extends State<VideoSurface> {
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 12,
+                                    ),
+                                  ),
+                                  PopupMenuButton<double>(
+                                    key: const ValueKey('video-speed'),
+                                    tooltip: l10n.playerSpeed,
+                                    initialValue: value.playbackSpeed,
+                                    onOpened: () => _hide?.cancel(),
+                                    onCanceled: _scheduleHide,
+                                    onSelected: (speed) async {
+                                      try {
+                                        await controller.setPlaybackSpeed(
+                                          speed,
+                                        );
+                                      } finally {
+                                        if (mounted) _show();
+                                      }
+                                    },
+                                    itemBuilder: (context) => [
+                                      for (final speed in playbackSpeeds)
+                                        PopupMenuItem(
+                                          value: speed,
+                                          child: Text(
+                                            '${decimalFormat(Localizations.localeOf(context).languageCode).format(speed)}×',
+                                          ),
+                                        ),
+                                    ],
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8),
+                                      child: Text(
+                                        '${decimalFormat(Localizations.localeOf(context).languageCode).format(value.playbackSpeed)}×',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                        ),
+                                      ),
                                     ),
                                   ),
                                   IconButton(

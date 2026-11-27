@@ -166,6 +166,15 @@ Deno.test("guest reader gets only approved resources, matched tafsir and audio",
       404,
     );
     equal((await request("tafsir?surah=1&ayah=4&resource=101")).status, 404);
+    equal(
+      await (await request("recitation?surah=2&resource=200&timings=1")).json(),
+      {
+        surah: 2,
+        resource: 200,
+        url: "https://audio.qurancdn.com/sample.mp3",
+        starts: [["2:1", 0], ["2:4", 18000]],
+      },
+    );
     equal((await request("recitation?surah=114&resource=200")).status, 404);
     equal(tokenRequests, 3);
     allowRequest = false;

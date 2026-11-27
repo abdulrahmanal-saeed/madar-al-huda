@@ -6,6 +6,9 @@ import 'package:intl/intl.dart' show DateFormat;
 import 'package:material_ui/material_ui.dart';
 
 import '../../../core/localization/app_locales.dart';
+import '../../../core/routing/app_routes.dart';
+import '../../reminders/application/reminder_settings_controller.dart';
+import '../../reminders/data/reminder_scheduler.dart';
 import '../../../core/localization/l10n_extension.dart';
 import '../../worship/application/worship_location.dart';
 import '../domain/prayer_schedule.dart';
@@ -125,6 +128,7 @@ class _PrayerWidgetSyncState extends ConsumerState<PrayerWidgetSync> {
   Widget build(BuildContext context) {
     final widgetTarget = ref.watch(prayerWidgetProvider);
     if (widgetTarget is NoPrayerWidget) return widget.child;
+    final enabled = ref.watch(reminderSettingsProvider).prayerStatus;
     final location = ref.watch(worshipLocationProvider);
     final prayerPlace = ref.watch(prayerPlaceProvider);
     final hanafi = ref.watch(hanafiAsrProvider);
@@ -139,6 +143,7 @@ class _PrayerWidgetSyncState extends ConsumerState<PrayerWidgetSync> {
       prayerPlace?.timeZone,
       prayerPlace?.method.name,
       hanafi,
+      enabled,
       language,
       place,
     ].join('|');
@@ -160,6 +165,37 @@ class _PrayerWidgetSyncState extends ConsumerState<PrayerWidgetSync> {
               );
         try {
           await widgetTarget.publish(prayers, place);
+          final now = DateTime.now();
+          final statusPrayers = !enabled || prayerPlace == null
+              ? const <PrayerEvent>[]
+              : [
+                  for (var offset = -1; offset < 32; offset++)
+                    ...PrayerSchedule.calculate(
+                      place: prayerPlace,
+                      now: DateTime(now.year, now.month, now.day + offset, 12),
+                      hanafi: hanafi,
+                    ).today.where((event) => event.slot != PrayerSlot.sunrise),
+                ];
+          await worshipAlarms.invokeMethod<void>('status', {
+            'enabled': enabled,
+            'place': place,
+            'title': l10n.appTitle,
+            'lang': language,
+            'route': AppRoutes.prayerTimes,
+            'unknown': language == 'ar'
+                ? 'اختار مدينتك لعرض مواقيت الصلاة'
+                : 'Choose your city to show prayer times',
+            'next': l10n.nextPrayer,
+            'last': language == 'ar' ? 'آخر صلاة' : 'Last prayer',
+            'minutes': language == 'ar' ? 'دقيقة' : 'min ago',
+            'prayers': [
+              for (final prayer in statusPrayers)
+                {
+                  'label': prayerName(prayer.slot, l10n),
+                  'at': prayer.time.millisecondsSinceEpoch,
+                },
+            ],
+          });
         } on Object catch (error, stack) {
           _published = null;
           FlutterError.reportError(

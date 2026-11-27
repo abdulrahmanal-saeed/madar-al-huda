@@ -100,6 +100,7 @@ class AppShell extends ConsumerWidget {
       );
     }
 
+    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       body: navigationShell,
       bottomNavigationBar: Column(
@@ -107,18 +108,41 @@ class AppShell extends ConsumerWidget {
         children: [
           const OfflineBanner(),
           const AudioMiniPlayer(),
-          NavigationBar(
-            key: navigationBarKey,
-            selectedIndex: index,
-            onDestinationSelected: _onSelect,
-            destinations: [
-              for (final d in _destinations)
-                NavigationDestination(
-                  icon: Icon(d.icon),
-                  selectedIcon: Icon(d.selectedIcon),
-                  label: d.label(context),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 6, 16, 10),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(36),
+              child: NavigationBarTheme(
+                data: NavigationBarTheme.of(context).copyWith(
+                  labelTextStyle: WidgetStatePropertyAll(
+                    TextStyle(
+                      color: scheme.onInverseSurface,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                 ),
-            ],
+                child: NavigationBar(
+                  key: navigationBarKey,
+                  backgroundColor: scheme.inverseSurface,
+                  indicatorColor: scheme.primary,
+                  labelBehavior:
+                      NavigationDestinationLabelBehavior.onlyShowSelected,
+                  selectedIndex: index,
+                  onDestinationSelected: _onSelect,
+                  destinations: [
+                    for (final d in _destinations)
+                      NavigationDestination(
+                        icon: Icon(d.icon, color: scheme.onInverseSurface),
+                        selectedIcon: Icon(
+                          d.selectedIcon,
+                          color: scheme.onPrimary,
+                        ),
+                        label: d.label(context),
+                      ),
+                  ],
+                ),
+              ),
+            ),
           ),
         ],
       ),

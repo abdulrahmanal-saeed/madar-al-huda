@@ -98,6 +98,7 @@ class _Reader extends ConsumerStatefulWidget {
 class _ReaderState extends ConsumerState<_Reader> {
   late AyahRef _current;
   AyahRef? _selected;
+  AyahRef? _playbackHighlight;
   final _scroll = ItemScrollController();
   final _positions = ItemPositionsListener.create();
   final _pageKeys = <int, GlobalKey<MushafPageViewState>>{};
@@ -118,6 +119,10 @@ class _ReaderState extends ConsumerState<_Reader> {
     _selected = saved == null ? null : _current;
     _positions.itemPositions.addListener(_trackPosition);
     if (_selected != null) _scheduleReveal(_current);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (ref.read(recitedVerseProvider) case final verse?) _follow(verse);
+    });
     // Leaving the app right after a scroll would skip the delayed save;
     // keep the place the reader is looking at now.
     _lifecycle = AppLifecycleListener(onInactive: _saveNow, onHide: _saveNow);
@@ -249,7 +254,8 @@ class _ReaderState extends ConsumerState<_Reader> {
       surah: recited.surah,
       ayah: recited.ayah,
     );
-    if (!widget.edition.contains(verse) || verse == _selected) return;
+    if (!widget.edition.contains(verse) || verse == _playbackHighlight) return;
+    _playbackHighlight = verse;
     _settle?.cancel();
     final page = widget.edition.pageOf(verse);
     if (_pageKeys[page]?.currentState == null && _scroll.isAttached) {
@@ -412,7 +418,12 @@ class _ReaderState extends ConsumerState<_Reader> {
     final spread = MediaQuery.sizeOf(context).width >= 840 ? 2 : 1;
     _spread = spread;
     ref.listen<RecitedVerse?>(recitedVerseProvider, (_, recited) {
-      if (recited != null) _follow(recited);
+      if (recited != null) {
+        _follow(recited);
+      } else if (_playbackHighlight != null) {
+        if (_selected == _playbackHighlight) setState(() => _selected = null);
+        _playbackHighlight = null;
+      }
     });
     // Keeps the bookmark list loaded for the index sheet without rebuilding
     // the whole reader on every bookmark change; the page header that shows

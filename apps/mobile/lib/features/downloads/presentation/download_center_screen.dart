@@ -18,7 +18,6 @@ import '../../learning/data/prophet_stories.dart';
 import '../../library/domain/library_sections.dart';
 import '../../quran/data/chapter_reciters.dart';
 import '../../quran/data/offline_recitations.dart';
-import '../data/download_usage.dart';
 
 /// One place to keep the app working without internet: what is always on
 /// the device, what can be downloaded, and what stays online for rights
@@ -43,7 +42,6 @@ class _DownloadCenterScreenState extends ConsumerState<DownloadCenterScreen> {
     final theme = Theme.of(context);
     final language = Localizations.localeOf(context).languageCode;
     final number = decimalFormat(language).format;
-    final usage = ref.watch(downloadUsageProvider).asData?.value;
     final busy = ref.watch(collectionDownloadsProvider)?.running == true;
     final selection = ref.watch(reciterSelectionProvider);
     final saved =
@@ -104,11 +102,7 @@ class _DownloadCenterScreenState extends ConsumerState<DownloadCenterScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: AppSpacing.md),
-                _DeviceSummary(
-                  used: usage == null
-                      ? null
-                      : formatBytes(usage.total, language, number),
-                ),
+                const _DeviceSummary(),
                 const CollectionDownloadStatus(),
                 const SizedBox(height: AppSpacing.lg),
                 SegmentedButton<_DownloadsTab>(
@@ -224,11 +218,7 @@ class _DownloadCenterScreenState extends ConsumerState<DownloadCenterScreen> {
                                       () async => ref.refresh(
                                         adhkarCatalogProvider.future,
                                       ),
-                                    ])
-                                    .whenComplete(
-                                      () =>
-                                          ref.invalidate(downloadUsageProvider),
-                                    ),
+                                    ]),
                               ),
                         child: Text(l10n.downloadsUpdate),
                       ),
@@ -281,9 +271,7 @@ class _DownloadCenterScreenState extends ConsumerState<DownloadCenterScreen> {
 }
 
 class _DeviceSummary extends StatelessWidget {
-  const _DeviceSummary({required this.used});
-
-  final String? used;
+  const _DeviceSummary();
 
   @override
   Widget build(BuildContext context) {
@@ -315,14 +303,6 @@ class _DeviceSummary extends StatelessWidget {
               l10n.downloadsOnDevice,
               style: theme.textTheme.titleMedium?.copyWith(color: onPrimary),
             ),
-            if (used != null)
-              Text(
-                l10n.downloadsUsed(used!),
-                key: const ValueKey('downloads-used'),
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: onPrimary.withValues(alpha: 0.85),
-                ),
-              ),
             const SizedBox(height: AppSpacing.md),
             Text(
               l10n.downloadsAlwaysOffline,
@@ -402,9 +382,7 @@ class _ReciterRow extends ConsumerWidget {
     final store = ref.read(offlineAudioStoreProvider);
 
     void refresh() {
-      ref
-        ..invalidate(offlineAudioLibraryProvider)
-        ..invalidate(downloadUsageProvider);
+      ref.invalidate(offlineAudioLibraryProvider);
     }
 
     return ListTile(
@@ -516,7 +494,6 @@ class _SeriesRowState extends ConsumerState<_SeriesRow> {
     final files = ref.read(learningFilesProvider);
     Future<void> after() async {
       await _count();
-      ref.invalidate(downloadUsageProvider);
     }
 
     return ListTile(

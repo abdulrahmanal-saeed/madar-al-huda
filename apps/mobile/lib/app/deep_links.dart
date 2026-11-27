@@ -14,12 +14,14 @@ const appLinkHost = 'quran.abdulrahmanalsaeed.com';
 const _linkable = [
   AppRoutes.home,
   AppRoutes.quran,
+  AppRoutes.adhkar,
   AppRoutes.worship,
   AppRoutes.library,
   AppRoutes.learning,
   AppRoutes.search,
   AppRoutes.memorize,
   AppRoutes.stats,
+  AppRoutes.settings,
   AppRoutes.zakat,
 ];
 

@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../core/localization/l10n_extension.dart';
+import '../../../core/audio/devotional_audio_button.dart';
 import '../../../core/localization/numbers.dart';
 import '../data/adhkar_catalog.dart';
 import '../data/adhkar_progress.dart';
@@ -20,6 +21,8 @@ class DhikrReader extends ConsumerStatefulWidget {
 class _DhikrReaderState extends ConsumerState<DhikrReader> {
   final _scroll = ScrollController();
   late int _index;
+  bool _saving = false;
+  bool _groupFinished = false;
 
   @override
   void initState() {
@@ -40,8 +43,38 @@ class _DhikrReaderState extends ConsumerState<DhikrReader> {
   }
 
   void _go(int index) {
-    setState(() => _index = index);
+    setState(() {
+      _index = index;
+      _groupFinished = false;
+    });
     if (_scroll.hasClients) _scroll.jumpTo(0);
+  }
+
+  Future<void> _advance(String day, DhikrGroup group, DhikrEntry entry) async {
+    if (_saving) return;
+    final index = _index;
+    final progress = ref.read(adhkarProgressProvider);
+    if (progress.complete(day, group, entry)) return;
+    setState(() => _saving = true);
+    await adhkarSave(context, () async {
+      await ref
+          .read(adhkarProgressProvider.notifier)
+          .advance(day, group, entry);
+      if (!mounted ||
+          index != _index ||
+          !ref.read(adhkarProgressProvider).complete(day, group, entry))
+        return;
+      if (index + 1 < group.entries.length) {
+        _go(index + 1);
+      } else {
+        final result = ref.read(adhkarProgressProvider);
+        setState(
+          () => _groupFinished =
+              result.completedInGroup(day, group) == result.groupGoal(group),
+        );
+      }
+    }());
+    if (mounted) setState(() => _saving = false);
   }
 
   @override
@@ -63,6 +96,11 @@ class _DhikrReaderState extends ConsumerState<DhikrReader> {
     return AdhkarPage(
       title: group.title.inLanguage(language),
       actions: [
+        if (variant.recording case final recording?)
+          DevotionalAudioButton(
+            recording: recording,
+            title: entry.title.inLanguage(language),
+          ),
         IconButton(
           tooltip: saved ? l10n.adhkarRemoveFavorite : l10n.adhkarAddFavorite,
           icon: Icon(saved ? Icons.favorite : Icons.favorite_border),
@@ -135,7 +173,16 @@ class _DhikrReaderState extends ConsumerState<DhikrReader> {
             period: group.id,
           ),
           const SizedBox(height: 14),
-          Text(l10n.adhkarSavedProgress, textAlign: TextAlign.center),
+          if (_groupFinished)
+            Semantics(
+              liveRegion: true,
+              child: Text(
+                language == 'ar'
+                    ? 'تمت مجموعة الأذكار'
+                    : 'Remembrance group complete',
+                textAlign: TextAlign.center,
+              ),
+            ),
         ],
       ),
       bottomNavigationBar: SafeArea(
@@ -150,24 +197,33 @@ class _DhikrReaderState extends ConsumerState<DhikrReader> {
                   if (variant.steps.isNotEmpty) ...[
                     Semantics(
                       liveRegion: true,
+                      label: l10n.adhkarPosition(
+                        number(shownCount),
+                        number(variant.goal),
+                      ),
                       child: SizedBox.square(
-                        dimension: 54,
-                        child: Stack(
-                          fit: StackFit.expand,
-                          children: [
-                            CircularProgressIndicator(
-                              value: shownCount / variant.goal,
-                            ),
-                            Center(
-                              child: Text(
-                                number(shownCount),
-                                semanticsLabel: l10n.adhkarPosition(
+                        dimension: 82,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(42),
+                          onTap: complete || _saving
+                              ? null
+                              : () => _advance(day, group, entry),
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              CircularProgressIndicator(
+                                value: shownCount / variant.goal,
+                              ),
+                              Center(
+                                child: Text(
                                   number(shownCount),
-                                  number(variant.goal),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineMedium,
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -175,12 +231,9 @@ class _DhikrReaderState extends ConsumerState<DhikrReader> {
                   ],
                   Expanded(
                     child: FilledButton(
-                      onPressed: complete
+                      onPressed: complete || _saving
                           ? null
-                          : () => adhkarSave(
-                              context,
-                              controller.advance(day, group, entry),
-                            ),
+                          : () => _advance(day, group, entry),
                       child: Text(
                         complete
                             ? l10n.adhkarCompleted

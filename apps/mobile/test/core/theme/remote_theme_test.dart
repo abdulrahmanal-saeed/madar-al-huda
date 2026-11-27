@@ -70,7 +70,7 @@ void main() {
       greaterThan(4.5),
     );
     final dark = AppTheme.dark(remote: theme).colorScheme;
-    expect(dark.surface, BrandColors.night);
+    expect(dark.surface, AppTheme.darkScheme.surface);
     expect(contrastRatio(dark.primary, dark.surface), greaterThan(4.5));
     expect(contrastRatio(dark.secondary, dark.surface), greaterThan(4.5));
   });

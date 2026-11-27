@@ -309,3 +309,16 @@
     });
   }
 })();
+
+for (const fields of document.querySelectorAll('.content-news-fields')) {
+  const title = fields.querySelector('[name="news_title"]');
+  const body = fields.querySelector('[name="news_body"]');
+  const target = fields.querySelector('[name="news_route"]');
+  const update = () => {
+    fields.querySelector('[data-news-preview-title]').textContent = title.value || 'عنوان الإشعار';
+    fields.querySelector('[data-news-preview-body]').textContent = body.value || 'نص الإشعار';
+    fields.querySelector('[data-news-preview-action]').textContent = 'افتح · ' + target.selectedOptions[0].textContent;
+  };
+  fields.addEventListener('input', update);
+  update();
+}

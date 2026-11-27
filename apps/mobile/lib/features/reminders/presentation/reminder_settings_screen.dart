@@ -1,3 +1,5 @@
+import 'adhan_voice_picker.dart';
+
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -151,13 +153,36 @@ class _ReminderSettingsScreenState
                       child: Text(l10n.remindersExactAlarmAllow),
                     ),
                   ),
+                if (settings.anyEnabled)
+                  _Notice(
+                    icon: Icons.volume_up_outlined,
+                    text: Localizations.localeOf(context).languageCode == 'ar'
+                        ? 'التذكيرات تستخدم مستوى صوت المنبّه وتحترم إعدادات عدم الإزعاج. السماح بالمنبّهات الدقيقة مطلوب لبدء التسجيل الكامل في الخلفية.'
+                        : 'Reminders use alarm volume and follow Do Not Disturb settings. Exact alarm access lets full recordings start in the background.',
+                  ),
                 section(l10n.remindersPrayerSection, [
+                  toggle(
+                    title: Localizations.localeOf(context).languageCode == 'ar'
+                        ? 'إشعار الصلاة الثابت'
+                        : 'Persistent prayer countdown',
+                    subtitle:
+                        Localizations.localeOf(context).languageCode == 'ar'
+                        ? 'يعرض المدينة والصلاة القادمة والوقت المتبقي'
+                        : 'Show the city, next prayer and time remaining',
+                    value: settings.prayerStatus,
+                    apply: (on) => settings.copyWith(prayerStatus: on),
+                  ),
                   toggle(
                     key: const ValueKey('reminder-adhan'),
                     title: l10n.remindersAdhan,
                     subtitle: l10n.remindersAdhanSubtitle,
                     value: settings.adhan,
                     apply: (on) => settings.copyWith(adhan: on),
+                  ),
+                  AdhanVoicePicker(
+                    value: settings.adhanVoice,
+                    onChanged: (voice) =>
+                        _change(settings.copyWith(adhanVoice: voice)),
                   ),
                   toggle(
                     title: l10n.remindersBeforePrayer,

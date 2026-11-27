@@ -3,6 +3,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/localization/l10n_extension.dart';
+import '../../../core/audio/devotional_audio_button.dart';
 import '../../quran/domain/quran_search_text.dart';
 import '../data/adhkar_catalog.dart';
 import '../data/adhkar_progress.dart';
@@ -195,7 +196,19 @@ class _HisnNarration extends ConsumerWidget {
       ],
       body: ListView(
         padding: const EdgeInsets.all(16),
-        children: [DhikrContent(hadith: id, entry: entry)],
+        children: [
+          DhikrContent(hadith: id, entry: entry),
+          if (entry case final selected?)
+            if (selected.variants
+                    .where((variant) => variant.hadith == id)
+                    .firstOrNull
+                    ?.recording
+                case final recording?)
+              DevotionalAudioButton(
+                recording: recording,
+                title: selected.title.inLanguage(context.adhkarLanguage),
+              ),
+        ],
       ),
     );
   }

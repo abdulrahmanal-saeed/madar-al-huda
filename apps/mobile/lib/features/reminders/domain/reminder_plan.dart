@@ -31,6 +31,7 @@ class PlannedReminder {
     required this.title,
     required this.body,
     required this.route,
+    this.sound,
   });
 
   /// Stable per day and slot, so rescheduling replaces rather than duplicates.
@@ -42,6 +43,7 @@ class PlannedReminder {
 
   /// Screen opened when the notification is tapped.
   final String route;
+  final String? sound;
 }
 
 /// Localized wording, supplied by the caller so planning stays testable.
@@ -113,16 +115,21 @@ const _obligatory = [
 /// given instant. Only reminders after [now] are returned, sorted by time.
 List<PlannedReminder> planReminders({
   required ReminderSettings settings,
-  required PrayerSchedule Function(DateTime day) scheduleOn,
+  required PrayerSchedule Function(DateTime day)? scheduleOn,
+  tz.Location? deviceZone,
   required DateTime now,
   required ReminderTexts texts,
   List<ReminderDua> duas = const [],
+  List<String> duaIds = const [],
+  Map<String, String> duaSounds = const {},
   List<ReminderDua> prayerVerses = const [],
   int days = 7,
 }) {
   final planned = <PlannedReminder>[];
   if (!settings.anyEnabled) return planned;
-  var dayStart = scheduleOn(now).today.first.time;
+  var dayStart =
+      scheduleOn?.call(now).today.first.time ??
+      tz.TZDateTime.from(now, deviceZone ?? tz.local);
   dayStart = tz.TZDateTime(
     dayStart.location,
     dayStart.year,
@@ -138,10 +145,10 @@ List<PlannedReminder> planReminders({
       dayStart.day + day,
       12,
     );
-    final schedule = scheduleOn(date);
+    final schedule = scheduleOn?.call(date);
     final base = (day % 30) * 100 + 1000;
     tz.TZDateTime at(PrayerSlot slot) =>
-        schedule.today.firstWhere((event) => event.slot == slot).time;
+        schedule!.today.firstWhere((event) => event.slot == slot).time;
     tz.TZDateTime clock(int minutes) => tz.TZDateTime(
       date.location,
       date.year,
@@ -154,8 +161,9 @@ List<PlannedReminder> planReminders({
       ReminderKind kind,
       String title,
       String body,
-      String route,
-    ) {
+      String route, {
+      String? sound,
+    }) {
       if (time.isAfter(now)) {
         planned.add(
           PlannedReminder(
@@ -165,6 +173,7 @@ List<PlannedReminder> planReminders({
             title: title,
             body: body,
             route: route,
+            sound: sound,
           ),
         );
       }
@@ -178,70 +187,75 @@ List<PlannedReminder> planReminders({
       return '﴿${verse.text}﴾ ${verse.source}';
     }
 
-    for (var i = 0; i < _obligatory.length; i++) {
-      final slot = _obligatory[i];
-      final name = texts.prayerName(slot);
-      final time = at(slot);
-      if (settings.adhan) {
+    if (schedule != null) {
+      for (var i = 0; i < _obligatory.length; i++) {
+        final slot = _obligatory[i];
+        final name = texts.prayerName(slot);
+        final time = at(slot);
+        if (settings.adhan) {
+          add(
+            i,
+            time,
+            ReminderKind.adhan,
+            texts.adhanTitle(name),
+            prayerBody(name, day * 5 + i),
+            AppRoutes.prayerTimes,
+            sound: slot == PrayerSlot.fajr
+                ? "adhan_fajr"
+                : settings.adhanVoice.sound,
+          );
+        }
+        if (settings.beforePrayer) {
+          add(
+            10 + i,
+            time.subtract(Duration(minutes: settings.beforePrayerMinutes)),
+            ReminderKind.beforePrayer,
+            texts.beforePrayerTitle(name, settings.beforePrayerMinutes),
+            prayerBody(name, day * 5 + i + 3),
+            AppRoutes.prayerTimes,
+          );
+        }
+        if (settings.afterPrayer) {
+          add(
+            20 + i,
+            time.add(const Duration(minutes: 10)),
+            ReminderKind.afterPrayer,
+            texts.afterPrayerTitle(name),
+            texts.afterPrayerBody,
+            AppRoutes.adhkarGroup(WorshipMoment.afterPrayer.groupId),
+          );
+        }
+      }
+      if (settings.morning) {
         add(
-          i,
-          time,
-          ReminderKind.adhan,
-          texts.adhanTitle(name),
-          prayerBody(name, day * 5 + i),
-          AppRoutes.prayerTimes,
+          30,
+          at(PrayerSlot.fajr).add(const Duration(minutes: 30)),
+          ReminderKind.morning,
+          texts.morningTitle,
+          texts.adhkarBody,
+          AppRoutes.adhkarGroup(WorshipMoment.morning.groupId),
         );
       }
-      if (settings.beforePrayer) {
+      if (settings.evening) {
         add(
-          10 + i,
-          time.subtract(Duration(minutes: settings.beforePrayerMinutes)),
-          ReminderKind.beforePrayer,
-          texts.beforePrayerTitle(name, settings.beforePrayerMinutes),
-          prayerBody(name, day * 5 + i + 3),
-          AppRoutes.prayerTimes,
+          31,
+          at(PrayerSlot.asr).add(const Duration(minutes: 15)),
+          ReminderKind.evening,
+          texts.eveningTitle,
+          texts.adhkarBody,
+          AppRoutes.adhkarGroup(WorshipMoment.evening.groupId),
         );
       }
-      if (settings.afterPrayer) {
+      if (settings.bedtime) {
         add(
-          20 + i,
-          time.add(const Duration(minutes: 10)),
-          ReminderKind.afterPrayer,
-          texts.afterPrayerTitle(name),
-          texts.afterPrayerBody,
-          AppRoutes.adhkarGroup(WorshipMoment.afterPrayer.groupId),
+          32,
+          bedtimeFor(schedule, settings.bedtimeMinutes),
+          ReminderKind.bedtime,
+          texts.bedtimeTitle,
+          texts.adhkarBody,
+          AppRoutes.adhkarGroup(WorshipMoment.bedtime.groupId),
         );
       }
-    }
-    if (settings.morning) {
-      add(
-        30,
-        at(PrayerSlot.fajr).add(const Duration(minutes: 30)),
-        ReminderKind.morning,
-        texts.morningTitle,
-        texts.adhkarBody,
-        AppRoutes.adhkarGroup(WorshipMoment.morning.groupId),
-      );
-    }
-    if (settings.evening) {
-      add(
-        31,
-        at(PrayerSlot.asr).add(const Duration(minutes: 15)),
-        ReminderKind.evening,
-        texts.eveningTitle,
-        texts.adhkarBody,
-        AppRoutes.adhkarGroup(WorshipMoment.evening.groupId),
-      );
-    }
-    if (settings.bedtime) {
-      add(
-        32,
-        bedtimeFor(schedule, settings.bedtimeMinutes),
-        ReminderKind.bedtime,
-        texts.bedtimeTitle,
-        texts.adhkarBody,
-        AppRoutes.adhkarGroup(WorshipMoment.bedtime.groupId),
-      );
     }
     if (settings.kahf && date.weekday == DateTime.friday) {
       add(
@@ -253,7 +267,8 @@ List<PlannedReminder> planReminders({
         AppRoutes.verse(18, 1),
       );
     }
-    if ((settings.suhoor || settings.iftar) &&
+    if (schedule != null &&
+        (settings.suhoor || settings.iftar) &&
         civilHijri(DateTime.utc(date.year, date.month, date.day))?.month == 9) {
       if (settings.suhoor) {
         add(
@@ -293,16 +308,30 @@ List<PlannedReminder> planReminders({
         );
       }
     }
-    final dayNumber = date.difference(DateTime.utc(2026)).inDays;
-    if (settings.dailyDua && duas.isNotEmpty) {
-      final dua = duas[dayNumber % duas.length];
+    final dayNumber = DateTime.utc(
+      date.year,
+      date.month,
+      date.day,
+    ).difference(DateTime.utc(2026)).inDays;
+    String duaRoute(int index) => index < duaIds.length
+        ? Uri(
+            path: AppRoutes.listeningDuas,
+            queryParameters: {'dua': duaIds[index]},
+          ).toString()
+        : AppRoutes.quranDuas;
+    String? duaSound(int index) =>
+        index < duaIds.length ? duaSounds[duaIds[index]] : null;
+    if (settings.dailyDua && duas.isNotEmpty && !_quiet(8 * 60, settings)) {
+      final selection = dayNumber % duas.length;
+      final dua = duas[selection];
       add(
         34,
         clock(8 * 60),
         ReminderKind.dailyDua,
         texts.duaTitle,
         '${dua.text} · ${dua.source}',
-        AppRoutes.quranDuas,
+        duaRoute(selection),
+        sound: duaSound(selection),
       );
     }
     if (settings.duaEveryHours > 0 && duas.isNotEmpty) {
@@ -314,14 +343,16 @@ List<PlannedReminder> planReminders({
       ) {
         if (_quiet(minutes, settings)) continue;
         // Offset from the daily supplication so they differ on the same day.
-        final dua = duas[(dayNumber * 7 + index + 1) % duas.length];
+        final selection = (dayNumber * 7 + index + 1) % duas.length;
+        final dua = duas[selection];
         add(
           40 + index,
           clock(minutes),
           ReminderKind.dua,
           texts.duaTitle,
           '${dua.text} · ${dua.source}',
-          AppRoutes.quranDuas,
+          duaRoute(selection),
+          sound: duaSound(selection),
         );
         index++;
       }

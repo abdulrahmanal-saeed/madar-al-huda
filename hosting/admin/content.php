@@ -303,6 +303,17 @@ function changeContent(array $payload, array $ayahCounts, string $section, strin
             ], fn ($value, $key) => $key !== 'entries' || $value !== [], ARRAY_FILTER_USE_BOTH),
             default => dhikr($original ?: field('id'), $ayahCounts),
         };
+        $previous = $position === null ? [] : $rows[$position];
+        if (in_array($section, ['daily', 'merits', 'daily_duas'], true)) {
+            $item = devotionalEntryAudio($item, $previous, 'main');
+        } elseif ($section === 'hisn' && isset($item['entries'])) {
+            $old = array_column($previous['entries'] ?? [], null, 'id');
+            foreach ($item['entries'] as &$entry) {
+                $id = $entry['id'];
+                $entry = devotionalEntryAudio($entry, $old[$id] ?? [], $id);
+            }
+            unset($entry);
+        }
         // A Hisn topic keeps its id across edits.
         if ($section === 'hisn' && $position !== null && isset($rows[$position]['id'])) {
             $item = ['id' => $rows[$position]['id']] + $item;

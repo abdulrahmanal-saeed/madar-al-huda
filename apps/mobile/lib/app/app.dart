@@ -4,12 +4,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../core/content/content_news.dart';
 import '../core/content/feature_preview.dart';
 import '../core/localization/app_locales.dart';
 import '../core/localization/l10n_extension.dart';
 import '../core/routing/app_sections.dart';
 import '../core/storage/storage_providers.dart';
 import '../core/theme/app_theme.dart';
+import '../core/theme/brand_season.dart';
 import '../core/theme/remote_theme.dart';
 import '../features/prayer/application/prayer_widget_sync.dart';
 import '../features/quran/data/recitation_resume.dart';
@@ -32,6 +34,7 @@ class MadarApp extends ConsumerWidget {
     final settings = ref.watch(settingsControllerProvider);
     final router = ref.watch(appRouterProvider);
     final remote = ref.watch(remoteThemeProvider);
+    final season = BrandSeason.on(DateTime.now());
 
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
@@ -51,10 +54,12 @@ class MadarApp extends ConsumerWidget {
       theme: AppTheme.light(
         reduceMotion: settings.reduceMotion,
         remote: remote,
+        season: season,
       ),
       darkTheme: AppTheme.dark(
         reduceMotion: settings.reduceMotion,
         remote: remote,
+        season: season,
       ),
       builder: (context, child) {
         final media = MediaQuery.of(context);
@@ -75,9 +80,11 @@ class MadarApp extends ConsumerWidget {
                 child: child!,
               )
             : child!;
-        final synced = DeepLinks(
-          child: ReminderSync(
-            child: PrayerWidgetSync(child: RecitationMemory(child: content)),
+        final synced = ContentNewsSync(
+          child: DeepLinks(
+            child: ReminderSync(
+              child: PrayerWidgetSync(child: RecitationMemory(child: content)),
+            ),
           ),
         );
         if (!showStartupSplash) return synced;
@@ -86,6 +93,7 @@ class MadarApp extends ConsumerWidget {
         // the location.
         final returning = firstRunDone(ref.read(keyValueStoreProvider));
         return StartupSplash(
+          season: season,
           onDismissed: () {
             if (returning) unawaited(_setUpLocation(context, ref));
           },

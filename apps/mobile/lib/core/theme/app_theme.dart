@@ -2,15 +2,16 @@ import 'package:material_ui/material_ui.dart';
 
 import 'app_tokens.dart';
 import 'brand_colors.dart';
+import 'brand_season.dart';
 import 'remote_theme.dart';
 
 /// Builds the Madar Al-Huda light and dark themes.
 abstract final class AppTheme {
   /// Bundled UI font (Arabic + Latin). See pubspec.yaml for licensing.
-  static const String fontFamily = 'IBMPlexSansArabic';
-  static const String headingFontFamily = 'ReemKufi';
+  static const String fontFamily = 'NotoSansArabic';
+  static const String headingFontFamily = 'NotoKufiArabic';
   static const String quranFontFamily = 'AmiriQuran';
-  static const String readingFontFamily = 'Amiri';
+  static const String readingFontFamily = 'NotoNaskhArabic';
 
   static TextStyle headingStyle(FontWeight weight) => TextStyle(
     fontFamily: headingFontFamily,
@@ -21,93 +22,186 @@ abstract final class AppTheme {
 
   static const ColorScheme lightScheme = ColorScheme(
     brightness: Brightness.light,
-    primary: BrandColors.primaryGreen,
-    onPrimary: BrandColors.ivory,
-    primaryContainer: BrandColors.greenMist,
-    onPrimaryContainer: BrandColors.primaryGreen,
-    secondary: BrandColors.goldDeep,
+    primary: Color(0xFFC43F23),
+    onPrimary: Colors.white,
+    primaryContainer: Color(0xFFE7E1F6),
+    onPrimaryContainer: Color(0xFF1B1530),
+    secondary: Color(0xFF6242CD),
     onSecondary: Colors.white,
-    secondaryContainer: BrandColors.goldMist,
-    onSecondaryContainer: Color(0xFF3D2E0F),
-    tertiary: Color(0xFF3E6B62),
+    secondaryContainer: Color(0xFFF7D8CF),
+    onSecondaryContainer: Color(0xFF552417),
+    tertiary: Color(0xFF47339B),
     onTertiary: Colors.white,
-    tertiaryContainer: Color(0xFFCDE6DF),
-    onTertiaryContainer: Color(0xFF0F2C26),
+    tertiaryContainer: Color(0xFFE7E1F6),
+    onTertiaryContainer: Color(0xFF211851),
     error: Color(0xFFB3261E),
     onError: Colors.white,
     errorContainer: Color(0xFFF9DEDC),
     onErrorContainer: Color(0xFF410E0B),
-    surface: BrandColors.ivory,
-    onSurface: Color(0xFF1B2826),
-    onSurfaceVariant: Color(0xFF4A5753),
-    surfaceDim: BrandColors.sandDeep,
-    surfaceBright: BrandColors.paper,
+    surface: Color(0xFFF3F0FA),
+    onSurface: Color(0xFF1B1530),
+    onSurfaceVariant: Color(0xFF716A8A),
+    surfaceDim: Color(0xFFE7E1F6),
+    surfaceBright: Colors.white,
     surfaceContainerLowest: Colors.white,
-    surfaceContainerLow: BrandColors.paper,
-    surfaceContainer: BrandColors.sand,
-    surfaceContainerHigh: BrandColors.sandDeep,
-    surfaceContainerHighest: Color(0xFFE2DAC7),
-    outline: Color(0xFF6F7B76),
-    outlineVariant: BrandColors.line,
+    surfaceContainerLow: Colors.white,
+    surfaceContainer: Color(0xFFEEE9F9),
+    surfaceContainerHigh: Color(0xFFE7E1F6),
+    surfaceContainerHighest: Color(0xFFE1D9F3),
+    outline: Color(0xFF807798),
+    outlineVariant: Color(0x141B1530),
     shadow: Colors.black,
     scrim: Colors.black,
-    inverseSurface: BrandColors.darkInk,
-    onInverseSurface: BrandColors.ivory,
-    inversePrimary: BrandColors.greenGlow,
+    inverseSurface: Color(0xFF1B1530),
+    onInverseSurface: Color(0xFFF3F0FA),
+    inversePrimary: Color(0xFFFF7A59),
     surfaceTint: Colors.transparent,
   );
 
   static const ColorScheme darkScheme = ColorScheme(
     brightness: Brightness.dark,
-    primary: BrandColors.greenGlow,
-    onPrimary: Color(0xFF07231D),
-    primaryContainer: BrandColors.primaryGreen,
-    onPrimaryContainer: Color(0xFFDDF0EA),
-    secondary: BrandColors.goldBright,
-    onSecondary: Color(0xFF2B210B),
-    secondaryContainer: Color(0xFF4A3B1C),
-    onSecondaryContainer: Color(0xFFF4E6C6),
-    tertiary: Color(0xFFA8CFC5),
-    onTertiary: Color(0xFF0E2B25),
-    tertiaryContainer: Color(0xFF26453E),
-    onTertiaryContainer: Color(0xFFD3EBE4),
+    primary: Color(0xFFFF7A59),
+    onPrimary: Color(0xFF1A0E0A),
+    primaryContainer: Color(0xFF292143),
+    onPrimaryContainer: Color(0xFFF3ECFA),
+    secondary: Color(0xFFB7A4FF),
+    onSecondary: Color(0xFF211851),
+    secondaryContainer: Color(0xFF382B64),
+    onSecondaryContainer: Color(0xFFE9DFFF),
+    tertiary: Color(0xFFFFA28C),
+    onTertiary: Color(0xFF38150C),
+    tertiaryContainer: Color(0xFF49251E),
+    onTertiaryContainer: Color(0xFFFFDACE),
     error: Color(0xFFF2B8B5),
     onError: Color(0xFF601410),
     errorContainer: Color(0xFF8C1D18),
     onErrorContainer: Color(0xFFF9DEDC),
-    surface: BrandColors.night,
-    onSurface: BrandColors.ivoryDim,
-    onSurfaceVariant: Color(0xFFB9C4BF),
-    surfaceDim: BrandColors.night,
-    surfaceBright: Color(0xFF2B403A),
-    surfaceContainerLowest: Color(0xFF09120F),
-    surfaceContainerLow: BrandColors.nightRaised,
-    surfaceContainer: BrandColors.nightRaised,
-    surfaceContainerHigh: BrandColors.nightHigh,
-    surfaceContainerHighest: BrandColors.nightHighest,
-    outline: Color(0xFF85948E),
-    outlineVariant: BrandColors.nightLine,
+    surface: Color(0xFF120E1C),
+    onSurface: Color(0xFFF3ECFA),
+    onSurfaceVariant: Color(0xFF9C92B8),
+    surfaceDim: Color(0xFF120E1C),
+    surfaceBright: Color(0xFF332852),
+    surfaceContainerLowest: Color(0xFF100C18),
+    surfaceContainerLow: Color(0xFF1D1730),
+    surfaceContainer: Color(0xFF211A37),
+    surfaceContainerHigh: Color(0xFF292143),
+    surfaceContainerHighest: Color(0xFF332852),
+    outline: Color(0xFF8B7EA8),
+    outlineVariant: Color(0x14FFFFFF),
     shadow: Colors.black,
     scrim: Colors.black,
-    inverseSurface: BrandColors.ivoryDim,
-    onInverseSurface: BrandColors.darkInk,
-    inversePrimary: BrandColors.primaryGreen,
+    inverseSurface: Color(0xFFF3ECFA),
+    onInverseSurface: Color(0xFF120E1C),
+    inversePrimary: Color(0xFFC43F23),
     surfaceTint: Colors.transparent,
   );
 
-  static ThemeData light({bool reduceMotion = false, RemoteTheme? remote}) =>
-      _build(
-        remote == null ? lightScheme : _remoteLight(remote),
-        reduceMotion: reduceMotion,
-        radius: remote?.radius,
-      );
+  static ThemeData light({
+    bool reduceMotion = false,
+    RemoteTheme? remote,
+    BrandSeason season = BrandSeason.regular,
+  }) => _build(
+    season != BrandSeason.regular
+        ? _seasonal(lightScheme, season)
+        : remote == null
+        ? lightScheme
+        : _remoteLight(remote),
+    reduceMotion: reduceMotion,
+    radius: remote?.radius,
+  );
 
-  static ThemeData dark({bool reduceMotion = false, RemoteTheme? remote}) =>
-      _build(
-        remote == null ? darkScheme : _remoteDark(remote),
-        reduceMotion: reduceMotion,
-        radius: remote?.radius,
-      );
+  static ThemeData dark({
+    bool reduceMotion = false,
+    RemoteTheme? remote,
+    BrandSeason season = BrandSeason.regular,
+  }) => _build(
+    season != BrandSeason.regular
+        ? _seasonal(darkScheme, season)
+        : remote == null
+        ? darkScheme
+        : _remoteDark(remote),
+    reduceMotion: reduceMotion,
+    radius: remote?.radius,
+  );
+
+  static ColorScheme _seasonal(ColorScheme base, BrandSeason season) {
+    final dark = base.brightness == Brightness.dark;
+    final (
+      bg,
+      card,
+      raised,
+      ink,
+      muted,
+      accent,
+      onAccent,
+      secondary,
+    ) = switch ((season, dark)) {
+      (BrandSeason.ramadan, false) => (
+        0xFFFBF5E6,
+        0xFFFFFFFF,
+        0xFFF1E6C8,
+        0xFF10283A,
+        0xFF6B7480,
+        0xFF9A5D07,
+        0xFFFFFFFF,
+        0xFF0C7161,
+      ),
+      (BrandSeason.ramadan, true) => (
+        0xFF0C1626,
+        0xFF14233A,
+        0xFF1D3150,
+        0xFFF6EFDC,
+        0xFF93A3BC,
+        0xFFF2B84B,
+        0xFF2A1A00,
+        0xFF5FD3B8,
+      ),
+      (BrandSeason.eid, false) => (
+        0xFFF1FAF5,
+        0xFFFFFFFF,
+        0xFFDDF1E7,
+        0xFF0C3326,
+        0xFF5C7C70,
+        0xFFC3255C,
+        0xFFFFFFFF,
+        0xFF08774F,
+      ),
+      (BrandSeason.eid, true) => (
+        0xFF0B1B17,
+        0xFF122A24,
+        0xFF1B3D34,
+        0xFFF2FBF6,
+        0xFF8FB3A6,
+        0xFFFF6B9A,
+        0xFF2A0714,
+        0xFF3EE0A8,
+      ),
+      (BrandSeason.regular, _) => throw StateError('Expected a seasonal theme'),
+    };
+    return base.copyWith(
+      primary: Color(accent),
+      onPrimary: Color(onAccent),
+      secondary: Color(secondary),
+      onSecondary: Color(onAccent),
+      primaryContainer: Color(raised),
+      onPrimaryContainer: Color(ink),
+      secondaryContainer: Color(raised),
+      onSecondaryContainer: Color(ink),
+      surface: Color(bg),
+      onSurface: Color(ink),
+      onSurfaceVariant: _readableOn(Color(muted), Color(bg), Color(ink), 4.5),
+      surfaceDim: Color(bg),
+      surfaceBright: Color(card),
+      surfaceContainerLowest: Color(bg),
+      surfaceContainerLow: Color(card),
+      surfaceContainer: Color(card),
+      surfaceContainerHigh: Color(raised),
+      surfaceContainerHighest: Color(raised),
+      inverseSurface: Color(ink),
+      onInverseSurface: Color(bg),
+      outlineVariant: Color(ink).withValues(alpha: .12),
+    );
+  }
 
   static bool _isBrand(RemoteTheme theme) =>
       theme.primary == BrandColors.primaryGreen &&
@@ -229,7 +323,12 @@ abstract final class AppTheme {
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
           borderRadius: radius == null
-              ? AppRadii.lgAll
+              ? const BorderRadiusDirectional.only(
+                  topStart: Radius.circular(18),
+                  topEnd: Radius.circular(18),
+                  bottomStart: Radius.circular(18),
+                  bottomEnd: Radius.circular(5),
+                )
               : BorderRadius.circular(radius),
           side: BorderSide(color: scheme.outlineVariant),
         ),

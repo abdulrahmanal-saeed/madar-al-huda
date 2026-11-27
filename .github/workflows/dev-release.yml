@@ -98,6 +98,10 @@ jobs:
       - name: Build signed dev APK
         env:
           MADAR_CHANNEL: dev
+          MADAR_FIREBASE_APP_ID: ${{ vars.MADAR_FIREBASE_APP_ID }}
+          MADAR_FIREBASE_API_KEY: ${{ vars.MADAR_FIREBASE_API_KEY }}
+          MADAR_FIREBASE_SENDER_ID: ${{ vars.MADAR_FIREBASE_SENDER_ID }}
+          MADAR_FIREBASE_PROJECT_ID: ${{ vars.MADAR_FIREBASE_PROJECT_ID }}
           MADAR_QURAN_API_URL: ${{ vars.MADAR_QURAN_API_URL }}
           MADAR_SUPABASE_ANON_KEY: ${{ vars.MADAR_SUPABASE_ANON_KEY }}
           MADAR_VERSION_SUFFIX: ${{ steps.version.outputs.suffix }}

@@ -16,9 +16,14 @@ import 'prophet_stories_screen.dart';
 
 /// Ordered media player shared by stories and future lesson collections.
 class EpisodeSeriesScreen extends ConsumerStatefulWidget {
-  const EpisodeSeriesScreen({required this.series, super.key});
+  const EpisodeSeriesScreen({
+    required this.series,
+    this.highlightedEpisode,
+    super.key,
+  });
 
   final LearningSeries series;
+  final int? highlightedEpisode;
 
   @override
   ConsumerState<EpisodeSeriesScreen> createState() =>
@@ -27,8 +32,15 @@ class EpisodeSeriesScreen extends ConsumerStatefulWidget {
 
 class _EpisodeSeriesScreenState extends ConsumerState<EpisodeSeriesScreen> {
   late LessonFormat _format = LessonFormat.values.firstWhere(
-    (format) => widget.series.queue(format, 1).isNotEmpty,
-    orElse: () => LessonFormat.audio,
+    (format) => widget.series.episodes.any(
+      (episode) =>
+          episode.number == widget.highlightedEpisode &&
+          episode.media.containsKey(format),
+    ),
+    orElse: () => LessonFormat.values.firstWhere(
+      (format) => widget.series.queue(format, 1).isNotEmpty,
+      orElse: () => LessonFormat.audio,
+    ),
   );
   final _saving = <String>{};
   bool _openingVideo = false;
@@ -101,7 +113,7 @@ class _EpisodeSeriesScreenState extends ConsumerState<EpisodeSeriesScreen> {
     try {
       if (saved) {
         final track = ref.read(audioPlaybackProvider).track;
-        if (media.format == LessonFormat.audio &&
+        if (_format == LessonFormat.audio &&
             track?.id.startsWith('learning:${widget.series.id}:') == true) {
           await ref.read(audioPlaybackProvider.notifier).stop();
         }
@@ -257,7 +269,14 @@ class _EpisodeSeriesScreenState extends ConsumerState<EpisodeSeriesScreen> {
                       label: Text(l10n.learningPlaySeries),
                     ),
                   const SizedBox(height: AppSpacing.md),
-                  for (final episode in episodes)
+                  for (final episode in [
+                    ...episodes.where(
+                      (item) => item.number == widget.highlightedEpisode,
+                    ),
+                    ...episodes.where(
+                      (item) => item.number != widget.highlightedEpisode,
+                    ),
+                  ])
                     _episodeTile(episode, playback, files),
                 ],
                 const SizedBox(height: AppSpacing.lg),
@@ -283,16 +302,13 @@ class _EpisodeSeriesScreenState extends ConsumerState<EpisodeSeriesScreen> {
     final saved = ref.watch(lessonSavedProvider(media)).asData?.value == true;
     final saving = _saving.contains(media.fileName);
     final available = files.source(media) != null;
+    final highlighted = episode.number == widget.highlightedEpisode;
     final playing =
         _format == LessonFormat.audio &&
         playback.track?.id == widget.series.trackId(episode);
-    final size = NumberFormat(
-      '0.0',
-      numberLocale(language),
-    ).format(media.bytes / (1024 * 1024));
     return Card(
       margin: const EdgeInsets.only(bottom: AppSpacing.sm),
-      color: playing ? scheme.primaryContainer : null,
+      color: playing || highlighted ? scheme.primaryContainer : null,
       child: ListTile(
         key: ValueKey(episode.number),
         contentPadding: const EdgeInsetsDirectional.only(
@@ -325,7 +341,11 @@ class _EpisodeSeriesScreenState extends ConsumerState<EpisodeSeriesScreen> {
             const SizedBox(width: AppSpacing.xs),
             Flexible(
               child: Text(
-                playing ? l10n.learningNowPlaying : l10n.learningFileSize(size),
+                playing
+                    ? l10n.learningNowPlaying
+                    : (_format == LessonFormat.audio
+                          ? l10n.learningFormatAudio
+                          : l10n.learningFormatVideo),
               ),
             ),
             if (saved) ...[

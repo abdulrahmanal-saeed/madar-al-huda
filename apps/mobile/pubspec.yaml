@@ -52,6 +52,15 @@ flutter:
 
   # Bundled typefaces and accompanying SIL OFL notices.
   fonts:
+    - family: NotoSansArabic
+      fonts:
+        - asset: assets/fonts/notosansarabic/NotoSansArabic[wdth,wght].ttf
+    - family: NotoKufiArabic
+      fonts:
+        - asset: assets/fonts/notokufiarabic/NotoKufiArabic[wght].ttf
+    - family: NotoNaskhArabic
+      fonts:
+        - asset: assets/fonts/notonaskharabic/NotoNaskhArabic[wght].ttf
     - family: IBMPlexSansArabic
       fonts:
         - asset: assets/fonts/ibm_plex_sans_arabic/IBMPlexSansArabic-Regular.ttf
@@ -74,6 +83,11 @@ flutter:
         - asset: assets/fonts/amiri/Amiri-Regular.ttf
 
   assets:
+    - assets/brand/
+    - assets/brand/shortcuts/
+    - assets/fonts/notosansarabic/OFL.txt
+    - assets/fonts/notokufiarabic/OFL.txt
+    - assets/fonts/notonaskharabic/OFL.txt
     - assets/adhkar/catalog.json
     - assets/learning/prophet_stories.json
     - assets/fonts/amiri/OFL.txt

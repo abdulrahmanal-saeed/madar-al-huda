@@ -1,16 +1,22 @@
 import 'dart:async';
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../app/app_router.dart';
 import '../../../core/content/app_settings.dart';
+import '../../../core/audio/devotional_recording.dart';
 import '../../../core/localization/app_locales.dart';
 import '../../../core/localization/l10n_extension.dart';
 import '../../../core/localization/numbers.dart';
-import '../../adhkar/data/adhkar_catalog.dart';
 import '../../adhkar/data/quran_dua_index.dart';
 import '../../prayer/application/prayer_preferences.dart';
+import '../../home/data/daily_duas.dart';
 import '../../prayer/domain/prayer_schedule.dart';
 import '../../prayer/presentation/next_prayer_card.dart' as prayer_card;
 import '../../quran/data/mushaf_edition.dart';
@@ -97,7 +103,17 @@ class _ReminderSyncState extends ConsumerState<ReminderSync> {
         ? ref.watch(mushafEditionProvider).asData?.value
         : null;
     final verseRefs = ref.watch(appSettingsProvider).prayerVerses;
-    final duaIndex = ref.watch(quranDuaIndexProvider).asData?.value;
+    final needsDua = settings.dailyDua || settings.duaEveryHours > 0;
+    final dailyDuas = needsDua
+        ? ref.watch(dailyDuasProvider).asData?.value ?? bundledDailyDuas
+        : const <DailyDua>[];
+    final recordings = needsDua
+        ? ref.watch(dailyDuaRecordingsProvider)
+        : const <String, DevotionalRecording>{};
+    final sounds = {
+      for (final entry in recordings.entries)
+        entry.key: entry.value.url.queryParameters['library_media']!,
+    };
     final l10n = context.l10n;
     final language = Localizations.localeOf(context).languageCode;
     final signature = [
@@ -110,7 +126,8 @@ class _ReminderSyncState extends ConsumerState<ReminderSync> {
       hanafi,
       language,
       edition != null,
-      duaIndex?.length,
+      '$dailyDuas',
+      '$sounds',
     ].join('|');
     if (signature != _planned) {
       _planned = signature;
@@ -118,32 +135,52 @@ class _ReminderSyncState extends ConsumerState<ReminderSync> {
       _debounce = Timer(const Duration(seconds: 1), () async {
         await _started;
         if (!mounted) return;
-        final reminders = place == null
-            ? const <PlannedReminder>[]
-            : planReminders(
-                settings: settings,
-                scheduleOn: (day) => PrayerSchedule.calculate(
+        String? deviceZone;
+        if (!kIsWeb &&
+            defaultTargetPlatform == TargetPlatform.android &&
+            place == null) {
+          try {
+            deviceZone = await worshipAlarms.invokeMethod<String>('zone');
+          } catch (_) {}
+        }
+        if (!mounted || signature != _planned) return;
+        final reminders = planReminders(
+          settings: settings,
+          scheduleOn: place == null
+              ? null
+              : (day) => PrayerSchedule.calculate(
                   place: place,
                   now: day,
                   hanafi: hanafi,
                 ),
-                now: DateTime.now(),
-                texts: L10nReminderTexts(l10n, language),
-                duas: edition == null
-                    ? const []
-                    : remindersDuas(
-                        edition,
-                        duaIndex ?? quranDuaIndex,
-                        language,
-                      ),
-                prayerVerses: edition == null
-                    ? const []
-                    : prayerVerses(
-                        edition,
-                        language,
-                        refs: verseRefs.isEmpty ? prayerVerseRefs : verseRefs,
-                      ),
-              );
+          deviceZone: deviceZone == null
+              ? null
+              : PrayerSchedule.zone(deviceZone),
+          now: DateTime.now(),
+          texts: L10nReminderTexts(l10n, language),
+          duas: [
+            for (final dua in dailyDuas)
+              (
+                text: language == 'ar' ? dua.ar : dua.en,
+                source: language == 'ar' ? dua.sourceAr : dua.sourceEn,
+              ),
+          ],
+          days: 32,
+          duaIds: dailyDuas.map((dua) => dua.id).toList(),
+          duaSounds: sounds,
+          prayerVerses: edition == null
+              ? const []
+              : prayerVerses(
+                  edition,
+                  language,
+                  refs: verseRefs.isEmpty ? prayerVerseRefs : verseRefs,
+                ),
+        );
+        if (!kIsWeb &&
+            defaultTargetPlatform == TargetPlatform.android &&
+            recordings.isNotEmpty) {
+          unawaited(_cacheReminderAudio(recordings.values, reminders));
+        }
         try {
           await ref.read(reminderSchedulerProvider).replaceAll(reminders);
           _plannedAt = DateTime.now();
@@ -176,6 +213,59 @@ const prayerVerseRefs = [
 
 /// The text of [prayerVerseRefs] from the bundled Mushaf, without the
 /// basmala that opens a surah's first verse in this text.
+Future<void> _cacheReminderAudio(
+  Iterable<DevotionalRecording> recordings,
+  List<PlannedReminder> reminders,
+) async {
+  final needed = reminders
+      .map((reminder) => reminder.sound)
+      .whereType<String>()
+      .toSet();
+  try {
+    final root = await getApplicationSupportDirectory();
+    final folder = Directory('${root.path}/devotional')
+      ..createSync(recursive: true);
+    for (final recording in recordings) {
+      final name = recording.url.queryParameters['library_media']!;
+      if (!needed.contains(name)) continue;
+      final file = File('${folder.path}/$name');
+      if (await file.exists() && await file.length() == recording.bytes)
+        continue;
+      final pending = File('${folder.path}/$name.partial');
+      final client = http.Client();
+      try {
+        final response = await client
+            .send(http.Request('GET', recording.url)..followRedirects = false)
+            .timeout(const Duration(seconds: 12));
+        if (response.statusCode != 200 ||
+            response.contentLength != recording.bytes)
+          continue;
+        var count = 0;
+        final handle = await pending.open(mode: FileMode.write);
+        try {
+          await for (final chunk in response.stream.timeout(
+            const Duration(seconds: 15),
+          )) {
+            count += chunk.length;
+            if (count > recording.bytes) break;
+            await handle.writeFrom(chunk);
+          }
+        } finally {
+          await handle.close();
+        }
+        if (count == recording.bytes) await pending.rename(file.path);
+      } catch (_) {
+        // The alarm shows the published text and sound fallback.
+      } finally {
+        client.close();
+        if (await pending.exists()) await pending.delete();
+      }
+    }
+  } catch (_) {
+    // A device unable to store recordings can still display reminders.
+  }
+}
+
 List<ReminderDua> prayerVerses(
   MushafEdition edition,
   String language, {

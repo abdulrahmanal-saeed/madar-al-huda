@@ -171,10 +171,10 @@ function library(PDO $db): array
     return $row;
 }
 
-function updateLibrary(PDO $db, string $action, array $seed, string $section, string $topic, ?array $user = null, ?string $staged = null, ?string $filename = null): void
+function updateLibrary(PDO $db, string $action, array $seed, string $section, string $topic, ?array $user = null, ?string $staged = null, ?string $filename = null): ?int
 {
     $revision = integer(field('revision'), 1, PHP_INT_MAX);
-    locked($db, function () use ($db, $revision, $action, $seed, $section, $topic, $user, $staged, $filename): void {
+    return locked($db, function () use ($db, $revision, $action, $seed, $section, $topic, $user, $staged, $filename): ?int {
         $row = library($db);
         if ((int) $row['revision'] !== $revision) {
             throw new InvalidArgumentException('تغيّرت المسودة. أعِد فتح العنصر ثم احفظ التعديل.');
@@ -197,7 +197,8 @@ function updateLibrary(PDO $db, string $action, array $seed, string $section, st
             $current->execute([$draft]);
             $history = $db->prepare('INSERT OR IGNORE INTO publications (revision, body, published_at) VALUES (?, ?, ?)');
             $history->execute([$revision, $draft, time()]);
-            return;
+            return field('send_content_news') === '1'
+                ? enqueueContentNews($db, $payload, $revision) : null;
         }
         if ($action === 'restore') {
             $old = $db->prepare('SELECT body FROM publications WHERE revision = ?');
@@ -223,6 +224,7 @@ function updateLibrary(PDO $db, string $action, array $seed, string $section, st
         }
         $save = $db->prepare('UPDATE library SET draft = ?, revision = revision + 1 WHERE id = 1');
         $save->execute([$draft]);
+        return null;
     });
 }
 
