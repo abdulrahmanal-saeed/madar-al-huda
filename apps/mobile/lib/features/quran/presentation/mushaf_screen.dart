@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../../app/deep_links.dart';
 import '../../../core/audio/audio_playback.dart';
@@ -462,10 +461,24 @@ class _ReaderState extends ConsumerState<_Reader> {
         appBar: focused
             ? null
             : AppBar(
+                leading: Padding(
+                  padding: const EdgeInsetsDirectional.only(start: 8),
+                  child: IconButton.filledTonal(
+                    tooltip: l10n.readerIndex,
+                    onPressed: _chooseIndex,
+                    icon: const Icon(Icons.chevron_right),
+                  ),
+                ),
+                titleSpacing: 6,
                 title: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(surah.name(language)),
+                    Text(
+                      surah.name(language),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
                     Text(
                       l10n.readerPageMeta(
                         l10n.readerJuzLabel(
@@ -494,7 +507,7 @@ class _ReaderState extends ConsumerState<_Reader> {
                           : 'Verse timing is unavailable for this recording',
                       child: const Icon(Icons.sync_disabled),
                     ),
-                  IconButton(
+                  IconButton.filledTonal(
                     tooltip: l10n.searchTitle,
                     onPressed: () => context.push(AppRoutes.search),
                     icon: const Icon(Icons.search),
@@ -511,29 +524,32 @@ class _ReaderState extends ConsumerState<_Reader> {
                     onPressed: () => showReadingSettings(context),
                     icon: const Icon(Icons.text_fields),
                   ),
-                  IconButton(
-                    tooltip: l10n.readerGoToVerse,
-                    onPressed: _chooseAyah,
-                    icon: const Icon(Icons.tag),
-                  ),
-                  IconButton(
-                    tooltip: l10n.readerIndex,
-                    onPressed: _chooseIndex,
-                    icon: const Icon(Icons.list_alt),
-                  ),
-                  PopupMenuButton<Uri?>(
+                  PopupMenuButton<String>(
                     tooltip: l10n.readerSources,
-                    onSelected: (uri) => uri == null
-                        ? showRecitationDownloads(context, edition)
-                        : uri.scheme == 'madar'
-                        ? context.push(AppRoutes.memorize)
-                        : launchUrl(uri),
+                    onSelected: (action) {
+                      switch (action) {
+                        case 'verse':
+                          _chooseAyah();
+                        case 'downloads':
+                          showRecitationDownloads(context, edition);
+                        case 'memorize':
+                          context.push(AppRoutes.memorize);
+                      }
+                    },
                     itemBuilder: (_) => [
+                      PopupMenuItem(
+                        value: 'verse',
+                        child: ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: const Icon(Icons.tag),
+                          title: Text(l10n.readerGoToVerse),
+                        ),
+                      ),
                       if (ref
                           .watch(appSettingsProvider)
                           .shows(AppFeature.memorize))
                         PopupMenuItem(
-                          value: Uri(scheme: 'madar', path: 'memorize'),
+                          value: 'memorize',
                           child: ListTile(
                             contentPadding: EdgeInsets.zero,
                             leading: const Icon(Icons.psychology_outlined),
@@ -541,7 +557,7 @@ class _ReaderState extends ConsumerState<_Reader> {
                           ),
                         ),
                       PopupMenuItem(
-                        value: null,
+                        value: 'downloads',
                         child: ListTile(
                           contentPadding: EdgeInsets.zero,
                           leading: const Icon(Icons.file_download_outlined),

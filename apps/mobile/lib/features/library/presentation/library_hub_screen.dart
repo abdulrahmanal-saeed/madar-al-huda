@@ -10,7 +10,7 @@ import '../../../core/localization/l10n_extension.dart';
 import '../../../core/routing/app_routes.dart';
 import '../../../core/routing/app_sections.dart';
 import '../../../core/theme/app_tokens.dart';
-import '../../../core/theme/brand_colors.dart';
+import '../../../core/widgets/madar_panel.dart';
 import '../../../core/widgets/responsive_content.dart';
 import '../../../core/widgets/settings_button.dart';
 import '../../names/names_screen.dart';
@@ -92,34 +92,45 @@ class LibraryHubScreen extends ConsumerWidget {
         title: Text(l10n.navLibrary),
         actions: const [SettingsButton()],
       ),
-      body: CustomScrollView(
-        slivers: [
-          SliverResponsiveContent(
-            sliver: SliverList.list(
-              children: [
-                if (radio) ...[
-                  const _RadioBanner(),
-                  const SizedBox(height: AppSpacing.lg),
+      body: MadarBackdrop(
+        child: CustomScrollView(
+          slivers: [
+            SliverResponsiveContent(
+              sliver: SliverList.list(
+                children: [
+                  Center(
+                    child: Image.asset(
+                      'assets/brand/book-${theme.brightness == Brightness.dark ? 'dark' : 'light'}.png',
+                      height: 176,
+                      width: 286,
+                      fit: BoxFit.contain,
+                      excludeFromSemantics: true,
+                    ),
+                  ),
+                  if (radio) ...[
+                    const _RadioBanner(),
+                    const SizedBox(height: AppSpacing.lg),
+                  ],
+                  Text(l10n.libraryBrowse, style: theme.textTheme.titleMedium),
+                  const SizedBox(height: AppSpacing.sm),
                 ],
-                Text(l10n.libraryBrowse, style: theme.textTheme.titleMedium),
-                const SizedBox(height: AppSpacing.sm),
-              ],
-            ),
-          ),
-          SliverResponsiveContent(
-            sliver: SliverGrid.builder(
-              gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: 220,
-                mainAxisSpacing: AppSpacing.md,
-                crossAxisSpacing: AppSpacing.md,
-                mainAxisExtent: MediaQuery.textScalerOf(context).scale(164),
               ),
-              itemCount: tiles.length,
-              itemBuilder: (context, index) => tiles[index],
             ),
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xl)),
-        ],
+            SliverResponsiveContent(
+              sliver: SliverGrid.builder(
+                gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: 220,
+                  mainAxisSpacing: AppSpacing.md,
+                  crossAxisSpacing: AppSpacing.md,
+                  mainAxisExtent: MediaQuery.textScalerOf(context).scale(130),
+                ),
+                itemCount: tiles.length,
+                itemBuilder: (context, index) => tiles[index],
+              ),
+            ),
+            const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xl)),
+          ],
+        ),
       ),
     );
   }
@@ -191,97 +202,57 @@ class _RadioBanner extends ConsumerWidget {
     final on = cairoRadioOn(playback);
     final l10n = context.l10n;
     final text = Theme.of(context).textTheme;
-    return Material(
+    return MadarPanel(
       key: const ValueKey('library-radio'),
-      borderRadius: AppRadii.xlAll,
-      clipBehavior: Clip.antiAlias,
-      child: Ink(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: AlignmentDirectional.topStart,
-            end: AlignmentDirectional.bottomEnd,
-            colors: [BrandColors.primaryGreen, BrandColors.heroGreenEnd],
-          ),
-        ),
-        child: InkWell(
-          onTap: () => toggleCairoRadio(context, ref),
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.lg),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      DecoratedBox(
-                        decoration: BoxDecoration(
-                          color: BrandColors.goldBright.withValues(alpha: 0.2),
-                          borderRadius: AppRadii.lgAll,
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: AppSpacing.sm,
-                            vertical: AppSpacing.xxs,
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(
-                                Icons.circle,
-                                size: 8,
-                                color: BrandColors.goldBright,
-                              ),
-                              const SizedBox(width: AppSpacing.xs),
-                              Text(
-                                l10n.libraryLive,
-                                style: text.labelMedium?.copyWith(
-                                  color: BrandColors.goldBright,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.sm),
-                      Text(
-                        l10n.radioTitle,
-                        style: text.titleMedium?.copyWith(
-                          color: BrandColors.ivory,
-                        ),
-                      ),
-                      Text(
-                        l10n.radioCairo,
-                        style: text.bodySmall?.copyWith(
-                          color: BrandColors.ivory.withValues(alpha: 0.8),
-                        ),
-                      ),
-                    ],
+      radius: BorderRadius.circular(23),
+      gradient: const LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [Color(0xffff7959), Color(0xffd93f23)],
+      ),
+      onTap: () => toggleCairoRadio(context, ref),
+      child: Row(
+        children: [
+          CircleAvatar(
+            key: const Key('library-radio-play'),
+            radius: 23,
+            backgroundColor: Colors.white,
+            foregroundColor: const Color(0xffd93f23),
+            child: cairoRadioConnecting(playback)
+                ? const SizedBox.square(
+                    dimension: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 3,
+                      color: Color(0xffd93f23),
+                    ),
+                  )
+                : Icon(
+                    on ? Icons.stop_rounded : Icons.play_arrow_outlined,
+                    size: 25,
+                    semanticLabel: on ? l10n.radioStop : l10n.radioPlay,
                   ),
+          ),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.libraryLive,
+                  style: text.labelMedium?.copyWith(color: Colors.white),
                 ),
-                const SizedBox(width: AppSpacing.md),
-                CircleAvatar(
-                  key: const Key('library-radio-play'),
-                  radius: 28,
-                  backgroundColor: BrandColors.goldBright,
-                  foregroundColor: BrandColors.primaryGreen,
-                  child: cairoRadioConnecting(playback)
-                      ? const SizedBox.square(
-                          dimension: 26,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 3,
-                            color: BrandColors.primaryGreen,
-                          ),
-                        )
-                      : Icon(
-                          on ? Icons.stop_rounded : Icons.play_arrow_rounded,
-                          size: 34,
-                          semanticLabel: on ? l10n.radioStop : l10n.radioPlay,
-                        ),
+                const SizedBox(height: 4),
+                Text(
+                  l10n.radioTitle,
+                  style: text.titleMedium?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
               ],
             ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -309,51 +280,46 @@ class _LibraryTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final (background, foreground) = switch (tone % 3) {
-      0 => (scheme.primaryContainer, scheme.onPrimaryContainer),
-      1 => (scheme.secondaryContainer, scheme.onSecondaryContainer),
-      _ => (scheme.tertiaryContainer, scheme.onTertiaryContainer),
-    };
-    return Card(
-      margin: EdgeInsets.zero,
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () => push ? context.push(route) : context.go(route),
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: background,
-                  borderRadius: AppRadii.lgAll,
-                ),
-                child: Icon(icon, color: foreground),
-              ),
-              const Spacer(),
-              Text(
-                title,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: AppSpacing.xxs),
-              Text(
-                subtitle,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: scheme.onSurfaceVariant,
-                ),
-              ),
-            ],
+    return MadarPanel(
+      radius: const BorderRadiusDirectional.only(
+        topStart: Radius.circular(20),
+        topEnd: Radius.circular(20),
+        bottomStart: Radius.circular(20),
+        bottomEnd: Radius.circular(6),
+      ),
+      onTap: () => push ? context.push(route) : context.go(route),
+      padding: const EdgeInsets.all(13),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          MadarPanel(
+            radius: AppRadii.mdAll,
+            padding: const EdgeInsets.all(9),
+            child: Icon(
+              icon,
+              size: 20,
+              color: tone.isEven ? scheme.primary : scheme.secondary,
+            ),
           ),
-        ),
+          const Spacer(),
+          Text(
+            title,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xxs),
+          Text(
+            subtitle,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: scheme.onSurfaceVariant,
+            ),
+          ),
+        ],
       ),
     );
   }

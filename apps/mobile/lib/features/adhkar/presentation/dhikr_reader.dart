@@ -95,7 +95,7 @@ class _DhikrReaderState extends ConsumerState<DhikrReader> {
     final number = decimalFormat(language).format;
     final l10n = context.l10n;
     return AdhkarPage(
-      title: group.title.inLanguage(language),
+      title: entry.title.inLanguage(language),
       actions: [
         if (variant.recording case final recording?)
           DevotionalAudioButton(
@@ -116,30 +116,10 @@ class _DhikrReaderState extends ConsumerState<DhikrReader> {
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
         children: [
           Text(
-            l10n.adhkarPosition(
-              number(_index + 1),
-              number(group.entries.length),
-            ),
-          ),
-          const SizedBox(height: 6),
-          Row(
-            children: [
-              for (final item in group.entries)
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 2),
-                    child: LinearProgressIndicator(
-                      value: progress.complete(day, group, item) ? 1 : 0,
-                    ),
-                  ),
-                ),
-            ],
+            '${group.title.inLanguage(language)} · ${l10n.adhkarPosition(number(_index + 1), number(group.entries.length))}',
+            style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 14),
-          Text(
-            entry.title.inLanguage(language),
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
           if (entry.variants.length > 1)
             DropdownButton<int>(
               isExpanded: true,
@@ -203,27 +183,25 @@ class _DhikrReaderState extends ConsumerState<DhikrReader> {
                         number(variant.goal),
                       ),
                       child: SizedBox.square(
-                        dimension: 82,
+                        dimension: 68,
                         child: InkWell(
                           borderRadius: BorderRadius.circular(42),
                           onTap: complete || _saving
                               ? null
                               : () => _advance(day, group, entry),
-                          child: Stack(
-                            fit: StackFit.expand,
-                            children: [
-                              CircularProgressIndicator(
-                                value: shownCount / variant.goal,
-                              ),
-                              Center(
-                                child: Text(
-                                  number(shownCount),
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headlineMedium,
-                                ),
-                              ),
-                            ],
+                          child: CircleAvatar(
+                            backgroundColor: Theme.of(context)
+                                .colorScheme
+                                .surfaceContainerHighest,
+                            child: Text(
+                              number(shownCount),
+                              style: Theme.of(context).textTheme.headlineMedium
+                                  ?.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .primary,
+                                  ),
+                            ),
                           ),
                         ),
                       ),
@@ -232,6 +210,9 @@ class _DhikrReaderState extends ConsumerState<DhikrReader> {
                   ],
                   Expanded(
                     child: FilledButton(
+                      style: FilledButton.styleFrom(
+                        minimumSize: const Size(0, 62),
+                      ),
                       onPressed: complete || _saving
                           ? null
                           : () => _advance(day, group, entry),

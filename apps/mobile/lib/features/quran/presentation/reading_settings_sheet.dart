@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/localization/l10n_extension.dart';
 import '../../../core/localization/numbers.dart';
@@ -145,6 +146,20 @@ class ReadingSettingsSheet extends ConsumerWidget {
                   }
                 },
               ),
+              if (source != MushafSource.tanzil)
+                Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: TextButton.icon(
+                    onPressed: () => showAboutMushafSource(
+                      context,
+                      arabic: language == 'ar',
+                    ),
+                    icon: const Icon(Icons.info_outline),
+                    label: Text(
+                      language == 'ar' ? 'عن مصدر المصحف' : 'About this source',
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
@@ -152,3 +167,27 @@ class ReadingSettingsSheet extends ConsumerWidget {
     );
   }
 }
+
+Future<void> showAboutMushafSource(
+  BuildContext context, {
+  required bool arabic,
+}) => showDialog<void>(
+  context: context,
+  builder: (dialogContext) => AlertDialog(
+    title: Text(arabic ? 'مصدر المصحف' : 'Mushaf source'),
+    content: const Text('Quran data provided by Quran Foundation.'),
+    actions: [
+      TextButton(
+        onPressed: () => launchUrl(
+          Uri.https('quran.foundation'),
+          mode: LaunchMode.externalApplication,
+        ),
+        child: Text(arabic ? 'الموقع' : 'Website'),
+      ),
+      TextButton(
+        onPressed: () => Navigator.of(dialogContext).pop(),
+        child: Text(MaterialLocalizations.of(dialogContext).closeButtonLabel),
+      ),
+    ],
+  ),
+);

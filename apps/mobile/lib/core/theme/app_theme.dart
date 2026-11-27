@@ -314,7 +314,9 @@ abstract final class AppTheme {
         elevation: 0,
         scrolledUnderElevation: 0.5,
         centerTitle: false,
-        titleTextStyle: text.titleLarge?.copyWith(fontWeight: FontWeight.w600),
+        titleTextStyle: text.headlineSmall?.copyWith(
+          fontWeight: FontWeight.w800,
+        ),
       ),
       cardTheme: CardThemeData(
         color: scheme.surfaceContainerLow,

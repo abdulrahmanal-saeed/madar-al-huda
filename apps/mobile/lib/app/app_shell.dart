@@ -29,7 +29,11 @@ final List<_Destination> _destinations = [
     Icons.wb_twilight,
     (c) => c.l10n.navAdhkar,
   ),
-  _Destination(Icons.mosque_outlined, Icons.mosque, (c) => c.l10n.navPrayer),
+  _Destination(
+    Icons.nights_stay_outlined,
+    Icons.nights_stay_rounded,
+    (c) => c.l10n.navPrayer,
+  ),
   _Destination(
     Icons.local_library_outlined,
     Icons.local_library,
@@ -108,36 +112,37 @@ class AppShell extends ConsumerWidget {
         children: [
           const OfflineBanner(),
           const AudioMiniPlayer(),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 6, 16, 10),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(36),
-              child: NavigationBarTheme(
-                data: NavigationBarTheme.of(context).copyWith(
-                  labelTextStyle: WidgetStatePropertyAll(
-                    TextStyle(
-                      color: scheme.onInverseSurface,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                    ),
+          SafeArea(
+            top: false,
+            minimum: const EdgeInsets.fromLTRB(16, 6, 16, 10),
+            child: DecoratedBox(
+              key: navigationBarKey,
+              decoration: BoxDecoration(
+                color: scheme.inverseSurface,
+                borderRadius: BorderRadius.circular(36),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: .27),
+                    blurRadius: 23,
+                    offset: const Offset(0, 9),
                   ),
-                ),
-                child: NavigationBar(
-                  key: navigationBarKey,
-                  backgroundColor: scheme.inverseSurface,
-                  indicatorColor: scheme.primary,
-                  labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-                  selectedIndex: index,
-                  onDestinationSelected: _onSelect,
-                  destinations: [
-                    for (final d in _destinations)
-                      NavigationDestination(
-                        icon: Icon(d.icon, color: scheme.onInverseSurface),
-                        selectedIcon: Icon(
-                          d.selectedIcon,
-                          color: scheme.onPrimary,
+                ],
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(7),
+                child: Row(
+                  children: [
+                    for (final (position, destination) in _destinations.indexed)
+                      Expanded(
+                        flex: position == index ? 2 : 1,
+                        child: _DockTab(
+                          label: destination.label(context),
+                          icon: position == index
+                              ? destination.selectedIcon
+                              : destination.icon,
+                          current: position == index,
+                          select: () => _onSelect(position),
                         ),
-                        label: d.label(context),
                       ),
                   ],
                 ),
@@ -145,6 +150,69 @@ class AppShell extends ConsumerWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _DockTab extends StatelessWidget {
+  const _DockTab({
+    required this.label,
+    required this.icon,
+    required this.current,
+    required this.select,
+  });
+
+  final String label;
+  final IconData icon;
+  final bool current;
+  final VoidCallback select;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final color = current ? scheme.onPrimary : scheme.onInverseSurface;
+    return Semantics(
+      label: label,
+      selected: current,
+      button: true,
+      onTap: select,
+      excludeSemantics: true,
+      child: Tooltip(
+        message: label,
+        child: Material(
+          color: current ? scheme.primary : Colors.transparent,
+          borderRadius: BorderRadius.circular(32),
+          child: InkWell(
+            onTap: select,
+            borderRadius: BorderRadius.circular(32),
+            child: SizedBox(
+              height: 44,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 5),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Row(
+                    children: [
+                      Icon(icon, size: 21, color: color),
+                      if (current) ...[
+                        const SizedBox(width: 6),
+                        Text(
+                          label,
+                          style: theme.textTheme.labelLarge?.copyWith(
+                            color: color,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

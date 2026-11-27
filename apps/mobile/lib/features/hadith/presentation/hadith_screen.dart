@@ -646,7 +646,7 @@ class _HadithBody extends ConsumerWidget {
     final grade = hadithGrade(hadith.grade);
     final reading = theme.textTheme.bodyLarge?.copyWith(
       fontFamily: AppTheme.readingFontFamily,
-      fontSize: 23,
+      fontSize: 27,
       height: 1.9,
     );
 
@@ -724,10 +724,12 @@ class _HadithBody extends ConsumerWidget {
                 const SizedBox(height: AppSpacing.md),
                 DecoratedBox(
                   decoration: BoxDecoration(
-                    color: scheme.primaryContainer.withValues(alpha: 0.55),
-                    borderRadius: AppRadii.lgAll,
-                    border: BorderDirectional(
-                      start: BorderSide(color: scheme.primary, width: 4),
+                    color: scheme.surfaceContainerHighest,
+                    borderRadius: const BorderRadiusDirectional.only(
+                      topStart: Radius.circular(24),
+                      topEnd: Radius.circular(24),
+                      bottomStart: Radius.circular(24),
+                      bottomEnd: Radius.circular(7),
                     ),
                   ),
                   child: Padding(

@@ -102,6 +102,7 @@ class MushafPageViewState extends ConsumerState<MushafPageView> {
     Color highlight,
     Color numberColor,
     QcfPage? qcf,
+    String? pageFont,
   ) {
     final numbers = decimalFormat('ar');
     final spans = <InlineSpan>[];
@@ -139,7 +140,7 @@ class MushafPageViewState extends ConsumerState<MushafPageView> {
                       text: display,
                       recognizer: recognizer,
                       semanticsLabel: '$text $marker',
-                      style: TextStyle(fontFamily: qcf!.font),
+                      style: TextStyle(fontFamily: pageFont),
                     ),
                   ]
                 : [
@@ -179,11 +180,12 @@ class MushafPageViewState extends ConsumerState<MushafPageView> {
         ? provided
         : null;
     final (:paper, :ink, :border, :banner) = paperColors(
-      qcf != null && source == MushafSource.tajweed
-          ? ReadingPaper.light
-          : widget.preferences.paper,
+      widget.preferences.paper,
       theme,
     );
+    final pageFont =
+        (paper.computeLuminance() < .3 ? qcf?.fonts.dark : null) ??
+        qcf?.fonts.light;
     final highlight = Color.alphaBlend(
       colors.primary.withValues(alpha: .24),
       paper,
@@ -211,18 +213,25 @@ class MushafPageViewState extends ConsumerState<MushafPageView> {
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 720),
         child: Container(
-          margin: const EdgeInsets.fromLTRB(12, 6, 12, 8),
+          margin: const EdgeInsets.fromLTRB(20, 8, 20, 12),
           padding: const EdgeInsets.all(4),
           decoration: BoxDecoration(
             color: paper,
-            borderRadius: BorderRadius.circular(6),
+            borderRadius: BorderRadius.circular(20),
             border: Border.all(color: border),
+            boxShadow: [
+              BoxShadow(
+                color: colors.shadow.withValues(alpha: .17),
+                blurRadius: 11,
+                offset: const Offset(0, 6),
+              ),
+            ],
           ),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
             decoration: BoxDecoration(
               border: Border.all(color: border),
-              borderRadius: BorderRadius.circular(4),
+              borderRadius: BorderRadius.circular(17),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -292,27 +301,27 @@ class MushafPageViewState extends ConsumerState<MushafPageView> {
                       textScaler: MediaQuery.textScalerOf(context),
                       text: TextSpan(
                         style: quranStyle,
-                        children: _verseSpans(entry.value, highlight, ink, qcf),
+                        children: _verseSpans(
+                          entry.value,
+                          highlight,
+                          ink,
+                          qcf,
+                          pageFont,
+                        ),
                       ),
                     ),
                   ),
                 ],
-                if (first.ayah == 1 || source != MushafSource.tanzil)
+                if (qcf == null &&
+                    (first.ayah == 1 || source != MushafSource.tanzil))
                   Center(
                     child: TextButton(
                       onPressed: () => launchUrl(
-                        Uri.https(
-                          qcf == null ? 'tanzil.net' : 'quran.foundation',
-                          '/',
-                        ),
+                        Uri.https('tanzil.net', '/docs/Text_License'),
                         mode: LaunchMode.externalApplication,
                       ),
                       child: Text(
-                        qcf == null
-                            ? (locale == 'ar'
-                                  ? 'النص · Tanzil'
-                                  : 'Text · Tanzil')
-                            : 'Quran Foundation · QCF',
+                        locale == 'ar' ? 'النص · Tanzil' : 'Text · Tanzil',
                       ),
                     ),
                   ),

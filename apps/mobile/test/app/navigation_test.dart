@@ -21,7 +21,7 @@ import '../helpers/pump_app.dart';
 
 Finder navTab(String label) => find.descendant(
   of: find.byKey(AppShell.navigationBarKey),
-  matching: find.text(label),
+  matching: find.byTooltip(label),
 );
 
 void main() {
@@ -30,7 +30,7 @@ void main() {
     final bar = find.byKey(AppShell.navigationBarKey);
     expect(bar, findsOneWidget);
     expect(
-      find.descendant(of: bar, matching: find.byType(NavigationDestination)),
+      find.descendant(of: bar, matching: find.byType(Tooltip)),
       findsNWidgets(5),
     );
     for (final label in ['Today', 'Quran', 'Adhkar', 'Prayer', 'Library']) {

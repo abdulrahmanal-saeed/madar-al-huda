@@ -4,6 +4,7 @@ import 'package:material_ui/material_ui.dart';
 import '../../../core/localization/l10n_extension.dart';
 import '../../../core/localization/numbers.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/madar_panel.dart';
 import '../../hadith/data/hadeeth_enc.dart';
 import '../../quran/data/mushaf_edition.dart';
 import '../../quran/presentation/quran_meaning_view.dart';
@@ -46,108 +47,111 @@ class DhikrContent extends ConsumerWidget {
       fontSize: 23,
       height: 1.75,
     );
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (edition != null)
-              edition.when(
-                loading: () => const LinearProgressIndicator(),
-                error: (_, _) => TextButton(
-                  onPressed: () => ref.invalidate(mushafEditionProvider),
-                  child: Text(l10n.readerRetry),
-                ),
-                data: (mushaf) => Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    for (final range in verses) ...[
-                      Text(
-                        numberedQuranRange(
-                          mushaf.surahs[range.surah - 1].verses,
-                          first: range.first,
-                          last: range.last,
-                        ),
-                        textDirection: TextDirection.rtl,
-                        textAlign: TextAlign.right,
-                        style: reading?.copyWith(
-                          fontFamily: AppTheme.quranFontFamily,
-                        ),
-                      ),
-                      if (english)
-                        QuranMeaningView(
-                          surah: range.surah,
-                          first: range.first,
-                          last: range.last,
-                          count: mushaf.surahs[range.surah - 1].verses.length,
-                        ),
-                    ],
-                  ],
-                ),
+    return MadarPanel(
+      radius: const BorderRadiusDirectional.only(
+        topStart: Radius.circular(24),
+        topEnd: Radius.circular(24),
+        bottomStart: Radius.circular(24),
+        bottomEnd: Radius.circular(7),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (edition != null)
+            edition.when(
+              loading: () => const LinearProgressIndicator(),
+              error: (_, _) => TextButton(
+                onPressed: () => ref.invalidate(mushafEditionProvider),
+                child: Text(l10n.readerRetry),
               ),
-            if (quotation != null)
-              Text(
-                quotation,
-                textDirection: TextDirection.rtl,
-                textAlign: TextAlign.right,
-                style: reading,
-              ),
-            if (english && verses.isEmpty && hasDraft)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Text(
-                  '${entry!.draftMeaning!}\n${l10n.adhkarDraftMeaning}',
-                ),
-              ),
-            if (english && verses.isEmpty && own && entry?.meaning != null)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Text(entry!.meaning!),
-              ),
-            if (arabic == null)
-              ...[]
-            else if (verses.isNotEmpty || quotation != null)
-              ExpansionTile(
-                tilePadding: EdgeInsets.zero,
-                title: Text(l10n.adhkarHadithSource),
+              data: (mushaf) => Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  _narration(context, arabic, ref, 'ar', reading),
-                  if (translation != null)
-                    _narration(context, translation, ref, 'en', reading),
+                  for (final range in verses) ...[
+                    Text(
+                      numberedQuranRange(
+                        mushaf.surahs[range.surah - 1].verses,
+                        first: range.first,
+                        last: range.last,
+                      ),
+                      textDirection: TextDirection.rtl,
+                      textAlign: TextAlign.right,
+                      style: reading?.copyWith(
+                        fontFamily: AppTheme.quranFontFamily,
+                      ),
+                    ),
+                    if (english)
+                      QuranMeaningView(
+                        surah: range.surah,
+                        first: range.first,
+                        last: range.last,
+                        count: mushaf.surahs[range.surah - 1].verses.length,
+                      ),
+                  ],
                 ],
-              )
-            else ...[
-              if (period == 'morning' || period == 'evening')
-                if (hadith == 5490 || hadith == 3008)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Text(l10n.adhkarUsePeriodWording),
-                  ),
-              _narration(context, arabic, ref, 'ar', reading),
-              if (translation != null)
-                _narration(context, translation, ref, 'en', reading),
-            ],
-            if (source != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 4),
-                child: Text(
-                  source.inLanguage(context.adhkarLanguage),
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
               ),
-            // The book reference stays (part of the narration); the website
-            // it came from is credited on the licences page only.
-            if (hadith == 65913)
-              Padding(
-                padding: const EdgeInsets.only(top: 4),
-                child: Text(
-                  l10n.adhkarBukhari6324,
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
+            ),
+          if (quotation != null)
+            Text(
+              quotation,
+              textDirection: TextDirection.rtl,
+              textAlign: TextAlign.right,
+              style: reading,
+            ),
+          if (english && verses.isEmpty && hasDraft)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Text(
+                '${entry!.draftMeaning!}\n${l10n.adhkarDraftMeaning}',
               ),
+            ),
+          if (english && verses.isEmpty && own && entry?.meaning != null)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Text(entry!.meaning!),
+            ),
+          if (arabic == null)
+            ...[]
+          else if (verses.isNotEmpty || quotation != null)
+            ExpansionTile(
+              tilePadding: EdgeInsets.zero,
+              title: Text(l10n.adhkarHadithSource),
+              children: [
+                _narration(context, arabic, ref, 'ar', reading),
+                if (translation != null)
+                  _narration(context, translation, ref, 'en', reading),
+              ],
+            )
+          else ...[
+            if (period == 'morning' || period == 'evening')
+              if (hadith == 5490 || hadith == 3008)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Text(l10n.adhkarUsePeriodWording),
+                ),
+            _narration(context, arabic, ref, 'ar', reading),
+            if (translation != null)
+              _narration(context, translation, ref, 'en', reading),
           ],
-        ),
+          if (source != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                source.inLanguage(context.adhkarLanguage),
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ),
+          // The book reference stays (part of the narration); the website
+          // it came from is credited on the licences page only.
+          if (hadith == 65913)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                l10n.adhkarBukhari6324,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ),
+        ],
       ),
     );
   }

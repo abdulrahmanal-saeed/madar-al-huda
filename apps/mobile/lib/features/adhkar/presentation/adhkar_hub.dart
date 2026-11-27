@@ -4,6 +4,9 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../../core/localization/l10n_extension.dart';
 import '../../../core/localization/numbers.dart';
+import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/madar_panel.dart';
+import '../../../core/widgets/responsive_content.dart';
 import '../data/adhkar_catalog.dart';
 import '../data/adhkar_progress.dart';
 import 'adhkar_widgets.dart';
@@ -39,6 +42,32 @@ class AdhkarHub extends ConsumerWidget {
       (group) =>
           progress.completedInGroup(day, group) == progress.groupGoal(group),
     );
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final routineTitle = catalog.sections['routine']!.inLanguage(language);
+    final cards = [
+      for (final group in groups)
+        (
+          title: group.title.inLanguage(language),
+          icon: _dailyIcon(group.id),
+          progress: l10n.adhkarPosition(
+            number(progress.completedInGroup(day, group)),
+            number(progress.groupGoal(group)),
+          ),
+          active: group == current,
+          open: () => _openGroup(context, group),
+        ),
+      (
+        title: routineTitle,
+        icon: Icons.menu_book_outlined,
+        progress: l10n.adhkarPosition(
+          number(done.length),
+          number(selected.length),
+        ),
+        active: false,
+        open: () => openAdhkarPage(context, AdhkarRoutine(catalog: catalog)),
+      ),
+    ];
     return AdhkarPage(
       title: l10n.adhkarHubTitle,
       actions: [
@@ -49,126 +78,149 @@ class AdhkarHub extends ConsumerWidget {
           icon: const Icon(Icons.search),
         ),
       ],
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
-        children: [
-          AdhkarHero(
-            onTap: () => _openGroup(context, current),
-            child: SizedBox(
-              width: double.infinity,
+      body: MadarBackdrop(
+        child: ListView(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          children: [
+            ResponsiveContent(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(l10n.adhkarToday),
-                  const SizedBox(height: 6),
-                  Text(
-                    current.title.inLanguage(language),
-                    style: Theme.of(context).textTheme.headlineSmall
-                        ?.copyWith(color: const Color(0xFFF5F0E6)),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(l10n.adhkarResume),
-                  Text(
-                    l10n.adhkarPosition(
-                      number(progress.completedInGroup(day, current)),
-                      number(progress.groupGoal(current)),
+                  MadarPanel(
+                    radius: const BorderRadius.vertical(
+                      top: Radius.circular(104),
+                      bottom: Radius.circular(22),
                     ),
+                    color: scheme.surfaceContainerHighest,
+                    onTap: () => _openGroup(context, current),
+                    child: Column(
+                      children: [
+                        Text(
+                          l10n.adhkarToday,
+                          style: theme.textTheme.bodySmall,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          current.title.inLanguage(language),
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.headlineLarge?.merge(
+                            AppTheme.headingStyle(FontWeight.w800),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Wrap(
+                          alignment: WrapAlignment.center,
+                          spacing: 6,
+                          children: [
+                            Text(l10n.adhkarResume),
+                            Text(
+                              l10n.adhkarPosition(
+                                number(progress.completedInGroup(day, current)),
+                                number(progress.groupGoal(current)),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        FilledButton(
+                          onPressed: () => _openGroup(context, current),
+                          style: FilledButton.styleFrom(
+                            minimumSize: const Size(120, 44),
+                          ),
+                          child: Text(l10n.homeNowStart),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  LayoutBuilder(
+                    builder: (context, size) => Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      children: [
+                        for (final (index, card) in cards.indexed)
+                          SizedBox(
+                            width: (size.maxWidth - 10) / 2,
+                            child: MadarPanel(
+                              radius: BorderRadiusDirectional.only(
+                                topStart: const Radius.circular(19),
+                                topEnd: const Radius.circular(19),
+                                bottomStart: Radius.circular(
+                                  index.isEven ? 19 : 6,
+                                ),
+                                bottomEnd: Radius.circular(
+                                  index.isEven ? 6 : 19,
+                                ),
+                              ),
+                              color: card.active ? scheme.primary : null,
+                              padding: const EdgeInsets.all(13),
+                              onTap: card.open,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Icon(
+                                    card.icon,
+                                    size: 20,
+                                    color: card.active
+                                        ? scheme.onPrimary
+                                        : scheme.secondary,
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    card.title,
+                                    style: theme.textTheme.titleSmall?.copyWith(
+                                      color: card.active
+                                          ? scheme.onPrimary
+                                          : scheme.onSurface,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    card.progress,
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: card.active
+                                          ? scheme.onPrimary
+                                          : scheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      for (final (id, screen) in [
+                        ('hisn', HisnScreen(catalog: catalog)),
+                        ('merits', MeritsScreen(catalog: catalog)),
+                        ('quranDuas', const QuranDuas()),
+                      ])
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 3),
+                            child: MadarPanel(
+                              radius: BorderRadius.circular(32),
+                              padding: const EdgeInsets.all(10),
+                              onTap: () => openAdhkarPage(context, screen),
+                              child: Text(
+                                catalog.sections[id]!.inLanguage(language),
+                                textAlign: TextAlign.center,
+                                style: theme.textTheme.titleSmall,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 ],
               ),
             ),
-          ),
-          const SizedBox(height: 18),
-          Text(
-            l10n.adhkarToday,
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 8),
-          LayoutBuilder(
-            builder: (context, constraints) => Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                for (final group in groups)
-                  SizedBox(
-                    width: (constraints.maxWidth - 8) / 2,
-                    child: Card(
-                      child: InkWell(
-                        onTap: () => _openGroup(context, group),
-                        child: Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Icon(
-                                _dailyIcon(group.id),
-                                size: 21,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                              const SizedBox(height: 5),
-                              Text(group.title.inLanguage(language)),
-                              Text(
-                                l10n.adhkarPosition(
-                                  number(progress.completedInGroup(day, group)),
-                                  number(progress.groupGoal(group)),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 14),
-          Card(
-            child: ListTile(
-              leading: const Icon(Icons.fact_check_outlined),
-              title: Text(catalog.sections['routine']!.inLanguage(language)),
-              subtitle: Text(
-                l10n.adhkarPosition(
-                  number(done.length),
-                  number(selected.length),
-                ),
-              ),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () =>
-                  openAdhkarPage(context, AdhkarRoutine(catalog: catalog)),
-            ),
-          ),
-          const SizedBox(height: 12),
-          LayoutBuilder(
-            builder: (context, size) => Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                for (final (id, icon, screen) in [
-                  ('hisn', Icons.shield_outlined, HisnScreen(catalog: catalog)),
-                  (
-                    'merits',
-                    Icons.auto_awesome_outlined,
-                    MeritsScreen(catalog: catalog),
-                  ),
-                  ('quranDuas', Icons.menu_book_outlined, const QuranDuas()),
-                ])
-                  SizedBox(
-                    width: size.maxWidth >= 550
-                        ? (size.maxWidth - 16) / 3
-                        : (size.maxWidth - 8) / 2,
-                    child: Card(
-                      child: ListTile(
-                        leading: Icon(icon),
-                        title: Text(catalog.sections[id]!.inLanguage(language)),
-                        onTap: () => openAdhkarPage(context, screen),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

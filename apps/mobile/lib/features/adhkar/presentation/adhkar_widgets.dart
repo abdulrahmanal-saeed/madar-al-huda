@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../core/localization/l10n_extension.dart';
-import '../../../core/widgets/orbit_motif.dart';
+import '../../../core/widgets/madar_panel.dart';
 import '../../settings/application/settings_controller.dart';
 import '../../settings/domain/app_settings.dart';
 
@@ -57,47 +57,18 @@ class AdhkarPage extends StatelessWidget {
   final Widget? bottomNavigationBar;
 
   @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final dark = theme.brightness == Brightness.dark;
-    final scheme = dark
-        ? theme.colorScheme
-        : theme.colorScheme.copyWith(
-            primary: const Color(0xFF0F4A43),
-            surface: const Color(0xFFF5F0E6),
-            surfaceContainerLow: const Color(0xFFFFFDF8),
-            onSurface: const Color(0xFF12332F),
-            outlineVariant: const Color(0xFFE4DCCB),
-          );
-    return Theme(
-      data: theme.copyWith(
-        colorScheme: scheme,
-        cardTheme: theme.cardTheme.copyWith(
-          color: scheme.surfaceContainerLow,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-            side: BorderSide(color: scheme.outlineVariant),
-          ),
-        ),
-        appBarTheme: theme.appBarTheme.copyWith(
-          backgroundColor: scheme.surface,
-        ),
-        scaffoldBackgroundColor: scheme.surface,
-      ),
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(title),
-          actions: [...actions, const AdhkarLanguageButton()],
-        ),
-        body: SafeArea(
-          top: false,
-          bottom: bottomNavigationBar == null,
-          child: body,
-        ),
-        bottomNavigationBar: bottomNavigationBar,
-      ),
-    );
-  }
+  Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(
+      title: Text(title),
+      actions: [...actions, const AdhkarLanguageButton()],
+    ),
+    body: SafeArea(
+      top: false,
+      bottom: bottomNavigationBar == null,
+      child: body,
+    ),
+    bottomNavigationBar: bottomNavigationBar,
+  );
 }
 
 class AdhkarHero extends StatelessWidget {
@@ -107,24 +78,12 @@ class AdhkarHero extends StatelessWidget {
   final VoidCallback? onTap;
 
   @override
-  Widget build(BuildContext context) => Material(
-    color: const Color(0xFF0F4A43),
-    borderRadius: BorderRadius.circular(22),
-    clipBehavior: Clip.antiAlias,
-    child: InkWell(
-      onTap: onTap,
-      child: Stack(
-        children: [
-          const Positioned.fill(child: OrbitMotif(color: Color(0xFFD4AE63))),
-          Padding(
-            padding: const EdgeInsets.all(18),
-            child: DefaultTextStyle.merge(
-              style: const TextStyle(color: Color(0xFFF5F0E6)),
-              child: child,
-            ),
-          ),
-        ],
-      ),
+  Widget build(BuildContext context) => MadarPanel(
+    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+    onTap: onTap,
+    child: DefaultTextStyle.merge(
+      style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+      child: child,
     ),
   );
 }

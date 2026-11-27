@@ -22,10 +22,10 @@ PaperColors paperColors(ReadingPaper paper, ThemeData theme) {
   final dark = theme.brightness == Brightness.dark;
   return switch (paper) {
     ReadingPaper.light => (
-      paper: const Color(0xfffcf8ee),
-      ink: const Color(0xff12332f),
-      border: const Color(0xffe2d4b2),
-      banner: const Color(0xfff3e9cf),
+      paper: const Color(0xfffaf7ff),
+      ink: const Color(0xff1b1530),
+      border: const Color(0xffe4def3),
+      banner: const Color(0xffeee9f8),
     ),
     ReadingPaper.warm => (
       paper: const Color(0xfff3e7cf),

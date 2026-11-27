@@ -8,9 +8,9 @@ import '../../core/localization/search_text.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/app_tokens.dart';
 import '../../core/theme/brand_colors.dart';
+import '../../core/widgets/madar_panel.dart';
 import '../../core/widgets/orbit_motif.dart';
 import '../../core/widgets/responsive_content.dart';
-import '../quran/data/mushaf_edition.dart';
 
 /// A text written on the dashboard in Arabic and, optionally, English.
 typedef NameText = ({String ar, String en});
@@ -147,152 +147,92 @@ class _NamesScreenState extends ConsumerState<NamesScreen> {
     final width = MediaQuery.sizeOf(context).width;
     return Scaffold(
       appBar: AppBar(title: Text(l10n.namesTitle)),
-      body: CustomScrollView(
-        slivers: [
-          SliverToBoxAdapter(
-            child: ResponsiveContent(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  0,
-                  AppSpacing.md,
-                  0,
-                  AppSpacing.md,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const _NamesHero(),
-                    if (names.isNotEmpty) ...[
-                      const SizedBox(height: AppSpacing.lg),
-                      TextField(
-                        key: const Key('names-search'),
-                        onChanged: (text) => setState(() => _query = text),
-                        decoration: InputDecoration(
-                          prefixIcon: const Icon(Icons.search),
-                          hintText: l10n.namesSearch,
-                          isDense: true,
-                          border: const OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(28)),
+      body: MadarBackdrop(
+        child: CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(
+              child: ResponsiveContent(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    0,
+                    AppSpacing.md,
+                    0,
+                    AppSpacing.md,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      if (names.isNotEmpty)
+                        Text(
+                          language == 'ar'
+                              ? '${_digits(names.length, language)} اسمًا'
+                              : '${_digits(names.length, language)} names',
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      if (names.isNotEmpty) ...[
+                        const SizedBox(height: AppSpacing.lg),
+                        TextField(
+                          key: const Key('names-search'),
+                          onChanged: (text) => setState(() => _query = text),
+                          decoration: InputDecoration(
+                            prefixIcon: const Icon(Icons.search),
+                            hintText: l10n.namesSearch,
+                            isDense: true,
+                            border: const OutlineInputBorder(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(28),
+                              ),
+                            ),
                           ),
                         ),
-                      ),
+                      ],
                     ],
-                  ],
-                ),
-              ),
-            ),
-          ),
-          if (value.isLoading && names.isEmpty)
-            const SliverFillRemaining(
-              hasScrollBody: false,
-              child: Center(child: CircularProgressIndicator()),
-            )
-          else if (names.isEmpty)
-            SliverFillRemaining(
-              hasScrollBody: false,
-              child: Padding(
-                padding: const EdgeInsets.all(AppSpacing.xl),
-                child: Text(
-                  l10n.namesComingSoon,
-                  key: const Key('names-empty'),
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-              ),
-            )
-          else
-            SliverPadding(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.gutter,
-                0,
-                AppSpacing.gutter,
-                AppSpacing.xxl,
-              ),
-              sliver: SliverGrid.builder(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: width >= 840
-                      ? 4
-                      : width >= 560
-                      ? 3
-                      : 2,
-                  mainAxisSpacing: AppSpacing.md,
-                  crossAxisSpacing: AppSpacing.md,
-                  childAspectRatio: 0.95,
-                ),
-                itemCount: shown.length,
-                itemBuilder: (context, index) =>
-                    _NameCard(name: shown[index], language: language),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-/// The verse the names are introduced with (Al-A'raf 180), read from the
-/// bundled Mushaf text.
-class _NamesHero extends ConsumerWidget {
-  const _NamesHero();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = context.l10n;
-    final verse = ref
-        .watch(mushafEditionProvider)
-        .asData
-        ?.value
-        .surahs[6]
-        .verses[179];
-    return ClipRRect(
-      borderRadius: AppRadii.xlAll,
-      child: DecoratedBox(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: AlignmentDirectional.topStart,
-            end: AlignmentDirectional.bottomEnd,
-            colors: [BrandColors.primaryGreen, BrandColors.heroGreenEnd],
-          ),
-        ),
-        child: Stack(
-          children: [
-            const Positioned.fill(
-              child: OrbitMotif(color: BrandColors.goldBright),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(AppSpacing.lg),
-              child: Column(
-                children: [
-                  Text(
-                    l10n.namesTitle,
-                    textAlign: TextAlign.center,
-                    style: AppTheme.headingStyle(FontWeight.w600)
-                        .copyWith(fontSize: 30, color: BrandColors.ivory),
                   ),
-                  if (verse != null) ...[
-                    const SizedBox(height: AppSpacing.md),
-                    Text(
-                      verse,
-                      textAlign: TextAlign.center,
-                      textDirection: TextDirection.rtl,
-                      style: const TextStyle(
-                        fontFamily: AppTheme.quranFontFamily,
-                        fontSize: 19,
-                        height: 1.9,
-                        color: BrandColors.goldBright,
-                      ),
-                    ),
-                    Text(
-                      l10n.namesVerseReference,
-                      style: const TextStyle(
-                        color: BrandColors.ivory,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ],
+                ),
               ),
             ),
+            if (value.isLoading && names.isEmpty)
+              const SliverFillRemaining(
+                hasScrollBody: false,
+                child: Center(child: CircularProgressIndicator()),
+              )
+            else if (names.isEmpty)
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.xl),
+                  child: Text(
+                    l10n.namesComingSoon,
+                    key: const Key('names-empty'),
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
+                ),
+              )
+            else
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.gutter,
+                  0,
+                  AppSpacing.gutter,
+                  AppSpacing.xxl,
+                ),
+                sliver: SliverGrid.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: width >= 840
+                        ? 4
+                        : width >= 560
+                        ? 3
+                        : 2,
+                    mainAxisSpacing: AppSpacing.md,
+                    crossAxisSpacing: AppSpacing.md,
+                    mainAxisExtent: MediaQuery.textScalerOf(context).scale(182),
+                  ),
+                  itemCount: shown.length,
+                  itemBuilder: (context, index) =>
+                      _NameCard(name: shown[index], language: language),
+                ),
+              ),
           ],
         ),
       ),
@@ -310,71 +250,61 @@ class _NameCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    return Card(
+    return MadarPanel(
       key: ValueKey('name-${name.id}'),
-      margin: EdgeInsets.zero,
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () => Navigator.of(context).push<void>(
-          MaterialPageRoute(builder: (_) => NameDetailScreen(name: name)),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.md),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              DecoratedBox(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: BrandColors.mutedGold),
-                ),
-                child: SizedBox.square(
-                  dimension: 30,
-                  child: Center(
-                    child: Text(
-                      _digits(name.number, language),
-                      style: theme.textTheme.labelMedium?.copyWith(
-                        color: BrandColors.mutedGold,
-                      ),
-                    ),
-                  ),
-                ),
+      radius: const BorderRadiusDirectional.only(
+        topStart: Radius.circular(21),
+        topEnd: Radius.circular(21),
+        bottomStart: Radius.circular(21),
+        bottomEnd: Radius.circular(6),
+      ),
+      onTap: () => Navigator.of(context).push<void>(
+        MaterialPageRoute(builder: (_) => NameDetailScreen(name: name)),
+      ),
+      padding: const EdgeInsets.all(AppSpacing.md),
+      child: Column(
+        children: [
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: Text(
+              _digits(name.number, language),
+              style: theme.textTheme.titleSmall?.copyWith(
+                color: scheme.primary,
+                fontWeight: FontWeight.w800,
               ),
-              const Spacer(),
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  name.display,
-                  textDirection: TextDirection.rtl,
-                  style: TextStyle(
-                    fontFamily: AppTheme.quranFontFamily,
-                    fontSize: 30,
-                    height: 1.4,
-                    color: scheme.primary,
-                  ),
-                ),
-              ),
-              if (name.transliteration.isNotEmpty)
-                Text(
-                  name.transliteration,
-                  textDirection: TextDirection.ltr,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.labelMedium?.copyWith(
-                    color: scheme.onSurfaceVariant,
-                  ),
-                ),
-              const Spacer(),
-              Text(
-                name.meaning(language),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
-                style: theme.textTheme.bodySmall,
-              ),
-            ],
+            ),
           ),
-        ),
+          const Spacer(),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              name.display,
+              textDirection: TextDirection.rtl,
+              style: TextStyle(
+                fontFamily: AppTheme.quranFontFamily,
+                fontSize: 39,
+                height: 1.42,
+                color: scheme.onSurface,
+              ),
+            ),
+          ),
+          if (name.transliteration.isNotEmpty)
+            Text(
+              name.transliteration,
+              textDirection: TextDirection.ltr,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.labelMedium,
+            ),
+          const Spacer(),
+          Text(
+            name.meaning(language),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.bodySmall,
+          ),
+        ],
       ),
     );
   }

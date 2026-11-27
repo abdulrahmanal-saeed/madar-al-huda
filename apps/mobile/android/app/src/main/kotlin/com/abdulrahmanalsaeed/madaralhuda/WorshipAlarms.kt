@@ -13,6 +13,9 @@ import android.media.AudioAttributes
 import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.media.MediaPlayer
+import android.media.VolumeProvider
+import android.media.session.MediaSession
+import android.media.session.PlaybackState
 import android.net.Uri
 import android.os.Build
 import android.os.Handler
@@ -259,6 +262,7 @@ class WorshipAudioService : Service() {
     private val handler = Handler(Looper.getMainLooper())
     private var player: MediaPlayer? = null
     private var focus: AudioFocusRequest? = null
+    private var volumeSession: MediaSession? = null
     private var activeAdhan = false
     private val audio by lazy { getSystemService(AudioManager::class.java) }
     private val focusListener = AudioManager.OnAudioFocusChangeListener {
@@ -283,6 +287,8 @@ class WorshipAudioService : Service() {
         if (activeAdhan && event.optString("kind") != "adhan") return START_NOT_STICKY
         player?.release()
         player = null
+        volumeSession?.release()
+        volumeSession = null
         handler.removeCallbacksAndMessages(null)
         focus?.let { if (Build.VERSION.SDK_INT >= 26) audio.abandonAudioFocusRequest(it) }
         focus = null
@@ -323,6 +329,18 @@ class WorshipAudioService : Service() {
     }
 
     private fun watchVolume() {
+        // Keep handling the volume command while the phone is locked, even
+        // when Android leaves the physical alarm stream's volume unchanged.
+        volumeSession = MediaSession(this, "MadarAdhan").apply {
+            setPlaybackToRemote(object : VolumeProvider(VolumeProvider.VOLUME_CONTROL_RELATIVE, 1, 0) {
+                override fun onAdjustVolume(direction: Int) {
+                    if (direction != 0) stopSelf()
+                }
+            })
+            setPlaybackState(PlaybackState.Builder()
+                .setState(PlaybackState.STATE_PLAYING, 0, 1f).build())
+            isActive = true
+        }
         val streams = listOf(AudioManager.STREAM_ALARM, AudioManager.STREAM_MUSIC, AudioManager.STREAM_RING)
         val initial = streams.map(audio::getStreamVolume)
         val check = object : Runnable {
@@ -337,6 +355,7 @@ class WorshipAudioService : Service() {
     override fun onDestroy() {
         if (current === this) current = null
         handler.removeCallbacksAndMessages(null)
+        volumeSession?.release()
         player?.release()
         if (Build.VERSION.SDK_INT >= 26) focus?.let(audio::abandonAudioFocusRequest)
         else audio.abandonAudioFocus(focusListener)

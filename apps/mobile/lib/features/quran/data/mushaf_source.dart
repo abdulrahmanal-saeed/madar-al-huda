@@ -4,11 +4,12 @@ import 'package:http/http.dart' as http;
 
 import '../../../core/storage/storage_providers.dart';
 import 'quran_services.dart';
+import 'tajweed_palette.dart';
 
 enum MushafSource {
   tanzil(0, 'Tanzil', 'تنزيل'),
-  madinah(1, 'Madinah · QCF V2', 'مصحف المدينة · QCF V2'),
-  tajweed(19, 'Tajweed · QCF V4', 'مصحف التجويد · QCF V4');
+  madinah(1, 'Madinah Mushaf', 'مصحف المدينة'),
+  tajweed(19, 'Tajweed Mushaf', 'مصحف التجويد');
 
   const MushafSource(this.id, this.en, this.ar);
   final int id;
@@ -43,7 +44,8 @@ class MushafSourceController extends Notifier<MushafSource> {
   }
 }
 
-typedef QcfPage = ({String font, Map<String, String> glyphs});
+typedef _PageFonts = ({String light, String? dark});
+typedef QcfPage = ({_PageFonts fonts, Map<String, String> glyphs});
 
 final qcfPageProvider = FutureProvider.autoDispose
     .family<QcfPage, ({MushafSource source, int page})>((ref, request) async {
@@ -66,8 +68,8 @@ final qcfPageProvider = FutureProvider.autoDispose
         }
         glyphs[key] = glyph;
       }
-      final font = await ref.read(_mushafFontsProvider).load(source, page);
-      return (font: font, glyphs: glyphs);
+      final fonts = await ref.read(_mushafFontsProvider).load(source, page);
+      return (fonts: fonts, glyphs: glyphs);
     });
 
 final _mushafFontsProvider = Provider<_MushafFonts>((ref) {
@@ -79,9 +81,9 @@ final _mushafFontsProvider = Provider<_MushafFonts>((ref) {
 class _MushafFonts {
   _MushafFonts(this.client);
   final http.Client client;
-  final _loaded = <String, Future<String>>{};
+  final _loaded = <String, Future<_PageFonts>>{};
 
-  Future<String> load(MushafSource source, int page) {
+  Future<_PageFonts> load(MushafSource source, int page) {
     final family = 'QCF-${source.name}-$page';
     return _loaded[family] ??= _load(source, page, family).onError((
       error,
@@ -95,7 +97,7 @@ class _MushafFonts {
     });
   }
 
-  Future<String> _load(MushafSource source, int page, String family) async {
+  Future<_PageFonts> _load(MushafSource source, int page, String family) async {
     final version = source == MushafSource.tajweed ? 'v4/colrv1' : 'v2';
     final response = await client
         .get(
@@ -113,6 +115,11 @@ class _MushafFonts {
     final loader = FontLoader(family)
       ..addFont(Future.value(ByteData.sublistView(response.bodyBytes)));
     await loader.load();
-    return family;
+    if (source != MushafSource.tajweed) return (light: family, dark: null);
+    final darkFamily = '$family-dark';
+    final darkLoader = FontLoader(darkFamily)
+      ..addFont(Future.value(qcfDarkPalette(response.bodyBytes)));
+    await darkLoader.load();
+    return (light: family, dark: darkFamily);
   }
 }
