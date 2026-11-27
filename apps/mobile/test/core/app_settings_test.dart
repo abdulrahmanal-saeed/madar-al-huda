@@ -90,12 +90,16 @@ void main() {
       ],
     );
     expect(find.byKey(const ValueKey('home-search')), findsNothing);
-    expect(find.byKey(const ValueKey('quick-access-tasbih')), findsNothing);
-    expect(
-      find.byKey(const ValueKey('quick-access-AppSection.qibla')),
-      findsOneWidget,
-    );
     expect(find.text('Notice'), findsOneWidget);
+    final qibla = find.byKey(const ValueKey('quick-access-AppSection.qibla'));
+    await tester.scrollUntilVisible(
+      qibla,
+      180,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('quick-access-tasbih')), findsNothing);
+    expect(qibla, findsOneWidget);
   });
 
   test('reads the radio stream and prayer verses set on the dashboard', () {

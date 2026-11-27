@@ -90,7 +90,7 @@ void main() {
       cairoRadioStream: live,
       audioPlayer: audio,
     );
-    final tile = find.byKey(const ValueKey('quick-access-radio'));
+    final tile = find.byKey(const ValueKey('home-radio'));
     await tester.ensureVisible(tile);
     await tester.pumpAndSettle();
     // From home too: a failed stream explains and offers the website.

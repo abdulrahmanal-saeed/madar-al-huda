@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/audio/devotional_recording.dart';
 import '../../../core/content/managed_library.dart';
 
 typedef DailyDua = ({
@@ -148,3 +149,17 @@ DailyDua dailyDuaForCivilDay(DateTime day, List<DailyDua> entries) {
   ).difference(DateTime.utc(2026, 1, 1)).inDays;
   return list[offset % list.length];
 }
+
+/// Audio metadata is additive, so text-only feeds and bundled entries work.
+final dailyDuaRecordingsProvider = Provider<Map<String, DevotionalRecording>>((
+  ref,
+) {
+  final feed = ref.watch(managedLibraryProvider).asData?.value;
+  final entries = feed?['dailyDuas'];
+  return {
+    if (entries is List)
+      for (final row in entries)
+        if (row is Map && row['id'] is String)
+          row['id'] as String: ?devotionalRecording(row['recording']),
+  };
+});

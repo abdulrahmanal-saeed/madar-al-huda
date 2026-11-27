@@ -43,11 +43,11 @@ final class LinksEntry extends LibraryEntry {
 const defaultLibraryOrder = [
   'radio',
   'duas',
-  'names',
   'hadith',
+  'names',
+  'stories',
   'fiqh',
   'articles',
-  'stories',
   'lessons',
 ];
 

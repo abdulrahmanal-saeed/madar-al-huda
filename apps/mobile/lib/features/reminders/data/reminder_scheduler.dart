@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -63,37 +63,11 @@ final class LocalReminderScheduler implements ReminderScheduler {
         AndroidFlutterLocalNotificationsPlugin
       >();
 
-  static const _prayer = AndroidNotificationDetails(
-    'madar.reminders.prayer',
-    'Prayer times · مواقيت الصلاة',
-    channelDescription: 'Prayer time reminders',
-    importance: Importance.high,
-    priority: Priority.high,
-    category: AndroidNotificationCategory.reminder,
-    // The verse under the title opens in full.
-    styleInformation: BigTextStyleInformation(''),
-  );
-  static const _adhkar = AndroidNotificationDetails(
-    'madar.reminders.adhkar',
-    'Remembrance · الأذكار',
-    channelDescription:
-        'Morning, evening, after-prayer and bedtime remembrance',
-    category: AndroidNotificationCategory.reminder,
-  );
-  static const _dua = AndroidNotificationDetails(
-    'madar.reminders.dua',
-    'Supplications · الأدعية',
-    channelDescription: 'Supplication reminders',
-    importance: Importance.low,
-    priority: Priority.low,
-    styleInformation: BigTextStyleInformation(''),
-  );
-
   @override
   Future<String?> start(void Function(String route) onOpen) async {
     await _plugin.initialize(
       settings: const InitializationSettings(
-        android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+        android: AndroidInitializationSettings('madar_notification_mark'),
       ),
       onDidReceiveNotificationResponse: (response) {
         final route = response.payload;
@@ -129,33 +103,29 @@ final class LocalReminderScheduler implements ReminderScheduler {
 
   @override
   Future<void> replaceAll(List<PlannedReminder> reminders) async {
-    await _plugin.cancelAllPendingNotifications();
-    if (reminders.isEmpty) return;
-    final exact = (await permissions()).exactAlarms;
-    for (final reminder in reminders) {
-      final android = switch (reminder.kind) {
-        ReminderKind.adhan || ReminderKind.beforePrayer => _prayer,
-        ReminderKind.dua || ReminderKind.dailyDua => _dua,
-        _ => _adhkar,
-      };
-      try {
-        await _plugin.zonedSchedule(
-          id: reminder.id,
-          scheduledDate: reminder.time,
-          notificationDetails: NotificationDetails(android: android),
-          androidScheduleMode: exact
-              ? AndroidScheduleMode.exactAllowWhileIdle
-              : AndroidScheduleMode.inexactAllowWhileIdle,
-          title: reminder.title,
-          body: reminder.body,
-          payload: reminder.route,
-        );
-      } on Object catch (error, stack) {
-        // One reminder the system refuses must not stop the others.
-        FlutterError.reportError(
-          FlutterErrorDetails(exception: error, stack: stack),
-        );
+    if (_android == null) return;
+    // Remove old plugin alarms on upgrade, without canceling other app notifications.
+    for (final previous in await _plugin.pendingNotificationRequests()) {
+      if (previous.id >= 1000 && previous.id < 4000) {
+        await _plugin.cancel(id: previous.id);
       }
     }
+    await worshipAlarms.invokeMethod<void>('replace', [
+      for (final event in reminders)
+        {
+          'id': event.id,
+          'at': event.time.millisecondsSinceEpoch,
+          'kind': event.kind.name,
+          'title': event.title,
+          'body': event.body,
+          'route': event.route,
+          if (event.sound != null) 'sound': event.sound,
+          'stop': RegExp(r'[\u0600-\u06FF]').hasMatch(event.title)
+              ? 'إيقاف'
+              : 'Stop',
+        },
+    ]);
   }
 }
+
+const worshipAlarms = MethodChannel('madar/worship_alarms');

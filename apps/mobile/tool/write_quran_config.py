@@ -16,7 +16,7 @@ try:
     claims = json.loads(base64.urlsafe_b64decode(payload + "=" * (-len(payload) % 4)))
     if (
         endpoint.scheme != "https"
-        or endpoint.path != "/functions/v1/quran"
+        or endpoint.path not in ("/functions/v1/quran", "/functions/v1/quran-dev")
         or not endpoint.hostname
         or not endpoint.hostname.endswith(".supabase.co")
         or endpoint.username is not None

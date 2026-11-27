@@ -138,4 +138,10 @@ if (in_array('sqlite', PDO::getAvailableDrivers(), true)) {
     check($noChange['changed'] === false && $noChange['revision'] === 8);
 }
 
+$registered = ['file' => 'Library-' . str_repeat('a', 32) . '.mp3', 'bytes' => 1234];
+$devotional = ['dailyDuas' => [['id' => 'dua', 'recording' => $registered]]];
+if (publishedLibraryMedia($devotional, $registered['file']) !== $registered ||
+    publishedLibraryMedia([], $registered['file']) !== null) {
+    throw new RuntimeException('Devotional media must be tied to a published entry');
+}
 echo "Library media tests passed.\n";

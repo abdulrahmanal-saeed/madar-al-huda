@@ -21,7 +21,7 @@ import '../helpers/pump_app.dart';
 
 Finder navTab(String label) => find.descendant(
   of: find.byKey(AppShell.navigationBarKey),
-  matching: find.text(label),
+  matching: find.byTooltip(label),
 );
 
 void main() {
@@ -30,7 +30,7 @@ void main() {
     final bar = find.byKey(AppShell.navigationBarKey);
     expect(bar, findsOneWidget);
     expect(
-      find.descendant(of: bar, matching: find.byType(NavigationDestination)),
+      find.descendant(of: bar, matching: find.byType(Tooltip)),
       findsNWidgets(5),
     );
     for (final label in ['Today', 'Quran', 'Adhkar', 'Prayer', 'Library']) {
@@ -208,12 +208,18 @@ void main() {
       store.getString(WorshipLocationController.placeKey),
       contains('Asia/Dubai'),
     );
-    expect(find.text('Dubai, UAE'), findsOneWidget);
+    expect(
+      find.text('Dubai, UAE · ${l10n.locationChosenCity}'),
+      findsOneWidget,
+    );
     // One location only: no list of other cities on the screen.
     expect(find.text('Cairo'), findsNothing);
     await tester.tap(find.byTooltip(l10n.sectionQiblaTitle));
     await tester.pumpAndSettle();
-    expect(find.text('Dubai, UAE'), findsOneWidget);
+    expect(
+      find.text('Dubai, UAE · ${l10n.locationChosenCity}'),
+      findsOneWidget,
+    );
     expect(find.text(l10n.cityBearingApproximate), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
@@ -239,22 +245,31 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(QiblaScreen), findsOneWidget);
-    final bar = tester.widget<NavigationBar>(
-      find.byKey(AppShell.navigationBarKey),
+    final tab = tester.widget<Semantics>(
+      find.ancestor(
+        of: navTab('Prayer'),
+        matching: find.byWidgetPredicate(
+          (widget) =>
+              widget is Semantics && widget.properties.label == 'Prayer',
+        ),
+      ),
     );
-    expect(bar.selectedIndex, 3, reason: 'Prayer tab selected');
+    expect(tab.properties.selected, isTrue, reason: 'Prayer tab selected');
   });
 
-  testWidgets('settings opens above the shell and closes', (tester) async {
+  testWidgets('settings keeps the dock and returns to the previous page', (
+    tester,
+  ) async {
     await pumpMadarApp(tester);
     await tester.tap(find.byKey(SettingsButton.buttonKey));
     await tester.pumpAndSettle();
     expect(find.text('Settings'), findsOneWidget);
-    expect(find.byKey(AppShell.navigationBarKey), findsNothing);
+    expect(find.byKey(AppShell.navigationBarKey), findsOneWidget);
 
     await tester.tap(find.byType(BackButton));
     await tester.pumpAndSettle();
     expect(find.byKey(AppShell.navigationBarKey), findsOneWidget);
+    expect(find.text('Settings'), findsNothing);
   });
 
   testWidgets('unknown routes show a recoverable not-found page', (

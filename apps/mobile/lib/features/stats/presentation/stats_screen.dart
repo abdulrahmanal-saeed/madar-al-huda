@@ -7,6 +7,7 @@ import 'package:material_ui/material_ui.dart';
 import '../../../core/localization/l10n_extension.dart';
 import '../../../core/localization/numbers.dart';
 import '../../../core/theme/app_tokens.dart';
+import '../../../core/widgets/madar_panel.dart';
 import '../../adhkar/data/adhkar_progress.dart';
 import '../../quran/application/memorization.dart';
 import '../../tasbih/application/tasbih_controller.dart';
@@ -69,47 +70,34 @@ class StatsScreen extends ConsumerWidget {
     final verses = memorized.values.fold<int>(0, (a, b) => a + b.length);
     final tasbihToday = tasbih.day == tasbihDay(now) ? tasbih.today : 0;
 
-    Widget tile(String value, String label, IconData icon) => Expanded(
-      child: Card(
-        margin: EdgeInsets.zero,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            vertical: AppSpacing.md,
-            horizontal: AppSpacing.sm,
-          ),
-          child: Column(
-            children: [
-              Icon(icon, color: scheme.primary, size: 22),
-              const SizedBox(height: AppSpacing.xs),
-              Text(
-                value,
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
+    Widget tile(String value, String label, {bool active = false}) => Expanded(
+      child: MadarPanel(
+        radius: BorderRadius.circular(17),
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 7),
+        child: Column(
+          children: [
+            Text(
+              value,
+              style: theme.textTheme.headlineSmall?.copyWith(
+                color: active ? scheme.primary : scheme.onSurface,
+                fontWeight: FontWeight.w800,
               ),
-              Text(
-                label,
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: scheme.onSurfaceVariant,
-                ),
-              ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 7),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              style: theme.textTheme.bodySmall,
+            ),
+          ],
         ),
       ),
     );
 
-    Widget section(String title, IconData icon) => Padding(
+    Widget section(String title) => Padding(
       padding: const EdgeInsets.only(top: AppSpacing.lg, bottom: AppSpacing.sm),
-      child: Row(
-        children: [
-          Icon(icon, size: 20, color: scheme.primary),
-          const SizedBox(width: AppSpacing.sm),
-          Text(title, style: theme.textTheme.titleMedium),
-        ],
-      ),
+      child: Text(title, style: theme.textTheme.titleMedium),
     );
 
     Widget row(List<Widget> tiles) => Row(
@@ -124,123 +112,96 @@ class StatsScreen extends ConsumerWidget {
     final highest = month.fold<int>(1, math.max);
     return Scaffold(
       appBar: AppBar(title: Text(l10n.statsTitle)),
-      body: ListView(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        children: [
-          Text(
-            l10n.statsPrivate,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: scheme.onSurfaceVariant,
+      body: MadarBackdrop(
+        child: ListView(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          children: [
+            Text(
+              l10n.statsPrivate,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: scheme.onSurfaceVariant,
+              ),
             ),
-          ),
-          section(l10n.statsReading, Icons.menu_book_outlined),
-          row([
-            tile(
-              numbers.format(log.pagesOn(now)),
-              l10n.statsToday,
-              Icons.today,
-            ),
-            tile(numbers.format(week), l10n.statsWeek, Icons.date_range),
-            tile(
-              numbers.format(monthTotal),
-              l10n.statsMonth,
-              Icons.calendar_month,
-            ),
-          ]),
-          const SizedBox(height: AppSpacing.sm),
-          row([
-            tile(
-              numbers.format(log.streak(now)),
-              l10n.statsStreak,
-              Icons.local_fire_department_outlined,
-            ),
-            tile(
-              numbers.format(bestStreak(log)),
-              l10n.statsBestStreak,
-              Icons.emoji_events_outlined,
-            ),
-            tile(
-              NumberFormat.percentPattern(
-                numberLocale(Localizations.localeOf(context).languageCode),
-              ).format(plan.pagesRead / DailyReadingPlanController.totalPages),
-              l10n.statsKhatma,
-              Icons.flag_outlined,
-            ),
-          ]),
-          const SizedBox(height: AppSpacing.md),
-          Card(
-            margin: EdgeInsets.zero,
-            child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(l10n.statsLast30, style: theme.textTheme.labelLarge),
-                  const SizedBox(height: AppSpacing.sm),
-                  Wrap(
+            section(l10n.statsReading),
+            row([
+              tile(
+                numbers.format(log.pagesOn(now)),
+                l10n.statsToday,
+                active: true,
+              ),
+              tile(numbers.format(week), l10n.statsWeek),
+              tile(numbers.format(monthTotal), l10n.statsMonth),
+            ]),
+            const SizedBox(height: AppSpacing.sm),
+            row([
+              tile(numbers.format(log.streak(now)), l10n.statsStreak),
+              tile(numbers.format(bestStreak(log)), l10n.statsBestStreak),
+              tile(
+                NumberFormat.percentPattern(
+                  numberLocale(Localizations.localeOf(context).languageCode),
+                ).format(
+                  plan.pagesRead / DailyReadingPlanController.totalPages,
+                ),
+                l10n.statsKhatma,
+              ),
+            ]),
+            section(l10n.statsLast30),
+            MadarPanel(
+              child: LayoutBuilder(
+                builder: (context, size) {
+                  final side = (size.maxWidth - 4 * 9) / 10;
+                  return Wrap(
                     key: const Key('stats-month'),
                     spacing: 4,
                     runSpacing: 4,
                     children: [
-                      for (final pages in month)
+                      for (final (index, pages) in month.indexed)
                         Tooltip(
                           message: numbers.format(pages),
                           child: Container(
-                            width: 22,
-                            height: 22,
+                            width: side,
+                            height: side,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(5),
                               color: pages == 0
                                   ? scheme.surfaceContainerHighest
-                                  : scheme.primary.withValues(
-                                      alpha: 0.25 + 0.75 * pages / highest,
+                                  : index == month.length - 1
+                                  ? scheme.primary
+                                  : scheme.secondary.withValues(
+                                      alpha: .45 + .55 * pages / highest,
                                     ),
                             ),
                           ),
                         ),
                     ],
-                  ),
-                ],
+                  );
+                },
               ),
             ),
-          ),
-          section(l10n.statsMemorize, Icons.psychology_outlined),
-          row([
-            tile(
-              numbers.format(verses),
-              l10n.statsVerses,
-              Icons.format_list_numbered,
-            ),
-            tile(
-              numbers.format(
-                memorized.entries
-                    .where((entry) => entry.value.isNotEmpty)
-                    .length,
+            section(l10n.statsMemorize),
+            row([
+              tile(numbers.format(verses), l10n.statsVerses),
+              tile(
+                numbers.format(
+                  memorized.entries
+                      .where((entry) => entry.value.isNotEmpty)
+                      .length,
+                ),
+                l10n.statsSurahsStarted,
               ),
-              l10n.statsSurahsStarted,
-              Icons.bookmark_added_outlined,
-            ),
-          ]),
-          section(l10n.statsRemembrance, Icons.wb_twilight),
-          row([
-            tile(
-              numbers.format(adhkarDays(adhkar, now)),
-              l10n.statsAdhkarDays,
-              Icons.event_available_outlined,
-            ),
-            tile(
-              numbers.format(tasbihToday),
-              l10n.statsTasbihToday,
-              Icons.touch_app_outlined,
-            ),
-            tile(
-              numbers.format(tasbih.total),
-              l10n.statsTasbihTotal,
-              Icons.all_inclusive,
-            ),
-          ]),
-          const SizedBox(height: AppSpacing.xl),
-        ],
+            ]),
+            section(l10n.statsRemembrance),
+            row([
+              tile(
+                numbers.format(adhkarDays(adhkar, now)),
+                l10n.statsAdhkarDays,
+              ),
+              tile(numbers.format(tasbihToday), l10n.statsTasbihToday),
+              tile(numbers.format(tasbih.total), l10n.statsTasbihTotal),
+            ]),
+            const SizedBox(height: AppSpacing.xl),
+          ],
+        ),
       ),
     );
   }

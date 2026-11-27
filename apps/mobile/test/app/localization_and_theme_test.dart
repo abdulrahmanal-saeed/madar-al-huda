@@ -34,7 +34,7 @@ void main() {
         expect(
           find.descendant(
             of: find.byKey(AppShell.navigationBarKey),
-            matching: find.text(label),
+            matching: find.byTooltip(label),
           ),
           findsOneWidget,
           reason: label,
@@ -54,15 +54,15 @@ void main() {
       tester,
     ) async {
       await pumpMadarApp(tester, deviceLocales: const [Locale('ar')]);
-      final home = tester.getCenter(find.text('اليوم'));
-      final learning = tester.getCenter(find.text('الصلاة'));
+      final home = tester.getCenter(find.byTooltip('اليوم'));
+      final learning = tester.getCenter(find.byTooltip('الصلاة'));
       expect(home.dx, greaterThan(learning.dx));
     });
 
     testWidgets('LTR keeps the first tab on the left', (tester) async {
       await pumpMadarApp(tester);
-      final home = tester.getCenter(find.text('Today').last);
-      final learning = tester.getCenter(find.text('Library'));
+      final home = tester.getCenter(find.byTooltip('Today'));
+      final learning = tester.getCenter(find.byTooltip('Library'));
       expect(home.dx, lessThan(learning.dx));
     });
 

@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """Zero-dependency brand CI check. Run from project root."""
 from pathlib import Path
-import json, re, struct, zlib, xml.etree.ElementTree as ET
+import json, re, struct, subprocess, sys, zlib, xml.etree.ElementTree as ET
 root = Path(__file__).resolve().parents[2]
 d = root / 'design/brand'
+subprocess.run([sys.executable, str(d / 'generate_palette.py'), '--check'], check=True)
 res = root / 'apps/mobile/android/app/src/main/res'
-colors = (root / 'apps/mobile/lib/core/theme/brand_colors.dart').read_text()
-values = json.loads((d / 'tokens.json').read_text())['colors']
+colors = (root / 'apps/mobile/lib/core/theme/brand_colors.dart').read_text(encoding='utf-8')
+values = json.loads((d / 'tokens.json').read_text(encoding='utf-8'))['colors']
 for key in ('primaryGreen', 'mutedGold', 'ivory', 'darkInk'):
     assert re.search(r'\b'+key+r'\s*=\s*Color\('+values[key].replace('#','0xFF')+r'\)', colors), key
 for path in ('icon-master.svg','icon-monochrome.svg','wordmark-ar.svg','wordmark-en.svg'):
@@ -15,7 +16,7 @@ for path in ('icon-master.svg','icon-monochrome.svg','wordmark-ar.svg','wordmark
 for name in ('ic_launcher_foreground.xml','ic_launcher_monochrome.xml'):
     ET.parse(res / 'drawable' / name)
 ET.parse(res / 'mipmap-anydpi-v26/ic_launcher.xml')
-license_text=(root/'apps/mobile/assets/fonts/ibm_plex_sans_arabic/OFL.txt').read_text().upper()
+license_text=(root/'apps/mobile/assets/fonts/ibm_plex_sans_arabic/OFL.txt').read_text(encoding='utf-8').upper()
 assert 'SIL OPEN FONT LICENSE' in license_text
 for density,size in [('mdpi',48),('hdpi',72),('xhdpi',96),('xxhdpi',144),('xxxhdpi',192)]:
     data=(res / ('mipmap-'+density) / 'ic_launcher.png').read_bytes()
@@ -30,7 +31,7 @@ for density,size in [('mdpi',48),('hdpi',72),('xhdpi',96),('xxhdpi',144),('xxxhd
         typ = data[pos+4:pos+8]
         payload = data[pos+8:pos+8+length]
         checksum = struct.unpack('>I',data[pos+8+length:pos+12+length])[0]
-        assert checksum == zlib.crc32(typ+payload) & 0xffffffff, (p,typ)
+        assert checksum == zlib.crc32(typ+payload) & 0xffffffff, (density,typ)
         if typ == b'IHDR':
             assert length == 13, p
             assert payload[8:13] == b'\x08\x02\x00\x00\x00', p

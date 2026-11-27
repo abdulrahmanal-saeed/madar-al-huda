@@ -24,7 +24,7 @@ enum WorshipMoment {
 }
 
 /// How long after a prayer's start the after-prayer remembrance is offered.
-const afterPrayerWindow = Duration(minutes: 30);
+const afterPrayerWindow = Duration(minutes: 15);
 
 /// Default bedtime, as minutes after midnight (22:30).
 const defaultBedtimeMinutes = 22 * 60 + 30;

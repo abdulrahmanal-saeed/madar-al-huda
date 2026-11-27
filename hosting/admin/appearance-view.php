@@ -4,68 +4,72 @@ if (!defined('MADAR_ADMIN')) {
     exit;
 }
 $theme = currentTheme($draft);
-$checks = themeChecks($theme);
-?><link rel="stylesheet" href="./?preview_css=<?= e($revision) ?>">
+$profile = paletteProfile($_GET['profile'] ?? null);
+$colors = currentPalettes($draft)[$profile];
+$checks = paletteChecks($colors);
+$failedChecks = array_filter($checks, fn ($check) => !$check['ok']);
+?><link rel="stylesheet" href="./?preview_css=<?= e($revision) ?>&amp;profile=<?= e($profile) ?>">
 <div class="appearance-grid">
   <div>
     <section class="panel">
-      <h2>قوالب جاهزة</h2>
-      <p>اختيار قالب يملأ الألوان في المسودة، وتقدر تعدّلها بعدها.</p>
-      <form method="post" class="presets">
-        <?php controls('save', $revision); ?>
-        <input type="hidden" name="radius" value="<?= e($theme['radius']) ?>">
-        <input type="hidden" name="textScale" value="<?= e($theme['textScale']) ?>">
-        <input type="hidden" name="ramadanAuto" value="<?= $theme['ramadanAuto'] ? '1' : '0' ?>">
-        <?php foreach (THEME_PRESETS as $id => $preset): ?>
-          <button class="preset<?= $theme['preset'] === $id ? ' current' : '' ?>" name="apply_preset" value="<?= e($id) ?>" aria-pressed="<?= $theme['preset'] === $id ? 'true' : 'false' ?>">
-            <span class="swatches" aria-hidden="true"><span class="swatch preset-<?= e($id) ?>-primary"></span><span class="swatch preset-<?= e($id) ?>-gold"></span><span class="swatch preset-<?= e($id) ?>-background"></span></span>
-            <strong><?= e($preset['name']) ?></strong>
-            <span><?= e($preset['note']) ?></span>
-          </button>
+      <h2>لوحات ألوان التطبيق</h2>
+      <div class="appearance-profiles" role="group" aria-label="اختر الموسم ووضع العرض">
+        <?php foreach (PALETTE_PROFILES as $id => $label): ?>
+          <a class="button<?= $id === $profile ? ' primary' : '' ?>" href="./?section=appearance&amp;profile=<?= e($id) ?>" <?= $id === $profile ? 'aria-current="page"' : '' ?>><?= e($label) ?></a>
         <?php endforeach; ?>
-      </form>
+      </div>
+      <p>التطبيق يختار رمضان والعيد حسب التاريخ الهجري، ويستخدم الوضع الفاتح أو الداكن حسب إعدادات العرض.</p>
     </section>
 
     <section class="panel">
-      <h2>الألوان والشكل</h2>
+      <h2><?= e(PALETTE_PROFILES[$profile]) ?></h2>
       <form method="post">
         <?php controls('save', $revision); ?>
-        <input type="hidden" name="preset" value="<?= e($theme['preset']) ?>">
+        <?php foreach (PALETTE_ROLE_GROUPS as $group => $roles): ?>
+          <details <?= $group === array_key_first(PALETTE_ROLE_GROUPS) ? 'open' : '' ?>>
+            <summary><?= e($group) ?></summary>
+            <div class="fields appearance-colors">
+              <?php foreach ($roles as $key => $label): ?>
+                <label><?= e($label) ?>
+                  <?php if (paletteAlpha($key)): ?>
+                    <input type="text" dir="ltr" name="palette[<?= e($key) ?>]" value="<?= e($colors[$key]) ?>"
+                      pattern="#([0-9a-fA-F]{6}|[0-9a-fA-F]{8})" aria-label="<?= e($label . '، HEX أو AARRGGBB') ?>" required>
+                  <?php else: ?>
+                    <span class="color-row">
+                      <input type="color" name="palette[<?= e($key) ?>]" value="<?= e(strtolower($colors[$key])) ?>">
+                      <bdi dir="ltr"><?= e($colors[$key]) ?></bdi>
+                    </span>
+                  <?php endif; ?>
+                </label>
+              <?php endforeach; ?>
+            </div>
+          </details>
+        <?php endforeach; ?>
         <div class="fields">
-          <?php foreach (THEME_COLORS as $key => $label): ?>
-            <label class="color-field"><?= e($label) ?>
-              <span class="color-row">
-                <input type="color" name="<?= e($key) ?>" value="<?= e(strtolower($theme[$key])) ?>">
-                <bdi dir="ltr"><?= e($theme[$key]) ?></bdi>
-              </span>
-            </label>
-          <?php endforeach; ?>
+          <label>استدارة الزوايا (بكسل)<input type="number" name="radius" min="4" max="32" value="<?= e($theme['radius']) ?>"></label>
+          <label>حجم الخط الأساسي (٪)<input type="number" name="textScale" min="90" max="125" value="<?= e($theme['textScale']) ?>"></label>
         </div>
-        <div class="fields">
-          <label>استدارة الزوايا (بكسل)<input type="number" name="radius" min="4" max="32" step="2" value="<?= e($theme['radius']) ?>"></label>
-          <label>حجم الخط الأساسي (٪)<input type="number" name="textScale" min="90" max="125" step="5" value="<?= e($theme['textScale']) ?>"></label>
-        </div>
-        <label class="check"><input type="checkbox" name="ramadanAuto" value="1" <?= $theme['ramadanAuto'] ? 'checked' : '' ?>>فعّل قالب رمضان تلقائيًا في شهر رمضان</label>
         <button class="primary">حفظ في المسودة</button>
       </form>
       <form method="post" class="delete-form">
         <?php controls('delete', $revision); ?>
-        <button class="quiet">رجوع للهوية الأصلية</button>
+        <button class="quiet">استعادة الألوان الأصلية لهذه اللوحة</button>
       </form>
     </section>
 
     <section class="panel">
       <h2>وضوح الألوان</h2>
-      <?php foreach ($checks as $check): ?>
-        <p class="alert<?= $check['ok'] ? '' : ' error' ?>"><?= $check['ok'] ? 'يجتاز' : 'ضعيف' ?> · <?= e($check['label']) ?> · <bdi dir="ltr"><?= e(number_format($check['ratio'], 1)) ?>:1</bdi></p>
+      <?php if ($failedChecks === []): ?><p class="alert">ألوان هذه اللوحة تجتاز فحوص التباين.</p><?php endif; ?>
+      <?php foreach ($failedChecks as $check): ?>
+        <p class="alert error"><?= e($check['label']) ?> · <bdi dir="ltr"><?= e(number_format($check['ratio'], 2)) ?>:1</bdi></p>
       <?php endforeach; ?>
-      <p>النشر يُرفض لو أي فحص أقل من ٤٫٥:١، عشان النص يفضل مقروء لكل المستخدمين.</p>
+      <p>يلزم تباين ٤٫٥:١ على الأقل لكل زوج معروض قبل النشر.</p>
     </section>
   </div>
 
   <aside aria-label="معاينة" class="preview-wrap">
-    <p>معاينة المسودة</p>
-    <div class="phone">
+    <p>معاينة المسودة · <?= e(PALETTE_PROFILES[$profile]) ?></p>
+    <div class="phone appearance-phone">
       <div class="phone-screen">
         <div class="phone-head"><span class="phone-brand">مدار الهدى</span></div>
         <div class="phone-hero">

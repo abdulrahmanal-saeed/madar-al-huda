@@ -39,6 +39,35 @@
   "@adhkarTakbir": {"description":"adhkar Takbir."},
   "adhkarTahlil": "Count the closing tahlil",
   "@adhkarTahlil": {"description":"adhkar Tahlil."},
+  "adhkarRepetitionTarget": "{phrase} · {count, plural, one{once} other{{number} times}}",
+  "adhkarIstighfarPhrase": "Astaghfirullah",
+  "@adhkarIstighfarPhrase": {"description":"Label for the active repetition step."},
+  "adhkarTasbihPhrase": "Subhan Allah",
+  "@adhkarTasbihPhrase": {"description":"Label for the active repetition step."},
+  "adhkarTahmidPhrase": "Alhamdulillah",
+  "@adhkarTahmidPhrase": {"description":"Label for the active repetition step."},
+  "adhkarTakbirPhrase": "Allahu akbar",
+  "@adhkarTakbirPhrase": {"description":"Label for the active repetition step."},
+  "adhkarTahlilPhrase": "La ilaha illa Allah",
+  "@adhkarTahlilPhrase": {"description":"Label for the active repetition step."},
+  "adhkarEachSurahPhrase": "Each surah",
+  "@adhkarEachSurahPhrase": {"description":"Label for the active repetition step."},
+  "adhkarWipingPhrase": "Recitation and wiping",
+  "@adhkarWipingPhrase": {"description":"Label for the active repetition step."},
+  "@adhkarRepetitionTarget": {
+    "description": "Required count for the active dhikr step.",
+    "placeholders": {
+      "phrase": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      },
+      "number": {
+        "type": "String"
+      }
+    }
+  },
   "adhkarIstighfar": "Count one istighfar",
   "@adhkarIstighfar": {"description":"adhkar Istighfar."},
   "adhkarSavedProgress": "Your progress is saved on this device",
@@ -1536,6 +1565,10 @@
   "@searchVerseCount": {"description":"Count.","placeholders":{"count":{"type":"String"}}},
   "searchShowAll": "Show all {count}",
   "@searchShowAll": {"description":"Count.","placeholders":{"count":{"type":"String"}}},
+  "homePrayerMinutes": "{count, plural, one{1 minute} other{{number} minutes}}",
+  "@homePrayerMinutes": {"description":"Time until the next prayer when it is less than an hour away.","placeholders":{"count":{"type":"int"},"number":{"type":"String"}}},
+  "homePrayerHours": "{hours} h {minutes} min",
+  "@homePrayerHours": {"description":"Compact next-prayer countdown displayed when one hour or more remains.","placeholders":{"hours":{"type":"String"},"minutes":{"type":"String"}}},
   "memorizeTitle": "Memorize",
   "@memorizeTitle": {"description":"Memorization."},
   "memorizeIntro": "Choose a surah and a range, repeat each verse, then hide the text and recite it from memory.",

@@ -17,6 +17,7 @@ abstract final class AppRoutes {
   static const String qibla = '$worship/qibla';
   static const String adhkar = '$worship/adhkar';
   static const String morningAdhkar = '$adhkar/morning';
+  static const String listeningDuas = '$adhkar/listen';
   static const String quranDuas = '$adhkar/quran-duas';
 
   /// One remembrance group by its catalog id, e.g. `evening`.

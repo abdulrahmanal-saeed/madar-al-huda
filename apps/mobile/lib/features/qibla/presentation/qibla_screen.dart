@@ -11,7 +11,7 @@ import '../../../core/localization/numbers.dart';
 import '../../../core/routing/app_sections.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_tokens.dart';
-import '../../../core/theme/brand_colors.dart';
+import '../../../core/widgets/madar_panel.dart';
 import '../../../core/widgets/responsive_content.dart';
 import '../../../core/widgets/section_detail_scaffold.dart';
 import '../../worship/application/worship_location.dart';
@@ -117,194 +117,191 @@ class _QiblaScreenState extends ConsumerState<QiblaScreen> {
       _ => l10n.compassUnavailable,
     };
 
-    Widget stat(String label, String value, IconData icon) => Expanded(
-      child: Card(
-        margin: EdgeInsets.zero,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            vertical: AppSpacing.md,
-            horizontal: AppSpacing.sm,
-          ),
-          child: Column(
-            children: [
-              Icon(icon, size: 20, color: scheme.primary),
-              const SizedBox(height: AppSpacing.xs),
-              Text(
-                value,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
+    Widget stat(String label, String value, {Color? accent}) => Expanded(
+      child: MadarPanel(
+        radius: BorderRadius.circular(18),
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 6),
+        child: Column(
+          children: [
+            Text(
+              value,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.titleLarge?.copyWith(
+                color: accent ?? scheme.onSurface,
+                fontWeight: FontWeight.w800,
               ),
-              Text(
-                label,
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: scheme.onSurfaceVariant,
-                ),
-              ),
-            ],
-          ),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodySmall,
+            ),
+          ],
         ),
       ),
     );
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.sectionQiblaTitle)),
-      body: CustomScrollView(
-        slivers: [
-          SliverResponsiveContent(
-            sliver: SliverList.list(
-              children: [
-                const WorshipLocationPicker(),
-                const SizedBox(height: AppSpacing.lg),
-                if (bearing != null && point != null) ...[
-                  Center(
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 250),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.lg,
-                        vertical: AppSpacing.sm,
-                      ),
-                      decoration: BoxDecoration(
-                        color: aligned
-                            ? scheme.primary
-                            : scheme.surfaceContainerHighest,
-                        borderRadius: AppRadii.xlAll,
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            aligned
-                                ? Icons.check_circle
-                                : turn == null
-                                ? Icons.explore_outlined
-                                : turn > 0
-                                ? Icons.turn_right
-                                : Icons.turn_left,
-                            size: 20,
-                            color: aligned ? scheme.onPrimary : scheme.primary,
-                          ),
-                          const SizedBox(width: AppSpacing.sm),
-                          Text(
-                            aligned
-                                ? l10n.compassAligned
-                                : turn == null
-                                ? l10n.trueBearing(
-                                    numbers.format(bearing.round() % 360),
-                                  )
-                                : turn > 0
-                                ? l10n.compassTurnRight(
-                                    numbers.format(turn.round()),
-                                  )
-                                : l10n.compassTurnLeft(
-                                    numbers.format(turn.abs().round()),
-                                  ),
-                            style: theme.textTheme.titleSmall?.copyWith(
-                              color: aligned ? scheme.onPrimary : null,
+      body: MadarBackdrop(
+        child: CustomScrollView(
+          slivers: [
+            SliverResponsiveContent(
+              sliver: SliverList.list(
+                children: [
+                  const WorshipLocationPicker(compact: true),
+                  const SizedBox(height: AppSpacing.lg),
+                  if (bearing != null && point != null) ...[
+                    Center(
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 250),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.lg,
+                          vertical: AppSpacing.sm,
+                        ),
+                        decoration: BoxDecoration(
+                          color: aligned
+                              ? scheme.primary
+                              : scheme.surfaceContainerHighest,
+                          borderRadius: AppRadii.xlAll,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              aligned
+                                  ? Icons.check_circle
+                                  : turn == null
+                                  ? Icons.explore_outlined
+                                  : turn > 0
+                                  ? Icons.turn_right
+                                  : Icons.turn_left,
+                              size: 20,
+                              color: aligned
+                                  ? scheme.onPrimary
+                                  : scheme.primary,
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: AppSpacing.sm),
+                            Flexible(
+                              child: Text(
+                                aligned
+                                    ? l10n.compassAligned
+                                    : turn == null
+                                    ? l10n.trueBearing(
+                                        numbers.format(bearing.round() % 360),
+                                      )
+                                    : turn > 0
+                                    ? l10n.compassTurnRight(
+                                        numbers.format(turn.round()),
+                                      )
+                                    : l10n.compassTurnLeft(
+                                        numbers.format(turn.abs().round()),
+                                      ),
+                                style: theme.textTheme.titleSmall?.copyWith(
+                                  color: aligned ? scheme.onPrimary : null,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: AppSpacing.lg),
-                  Center(
-                    child: ExcludeSemantics(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 320),
-                        child: AspectRatio(
-                          aspectRatio: 1,
-                          child: CustomPaint(
-                            key: const Key('qibla-dial'),
-                            painter: _CompassDial(
-                              // The dial turns with the phone: north sits
-                              // where north is, the Kaaba where the Qibla is.
-                              north: -(trueHeading ?? 0),
-                              qibla: bearing,
-                              aligned: aligned,
-                              colors: scheme,
-                              cardinals: language == 'ar'
-                                  ? const ['ش', 'ق', 'ج', 'غ']
-                                  : const ['N', 'E', 'S', 'W'],
+                    const SizedBox(height: AppSpacing.lg),
+                    Center(
+                      child: ExcludeSemantics(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 282),
+                          child: AspectRatio(
+                            aspectRatio: 1,
+                            child: CustomPaint(
+                              key: const Key('qibla-dial'),
+                              painter: _CompassDial(
+                                // The dial turns with the phone: north sits
+                                // where north is, the Kaaba where the Qibla is.
+                                north: -(trueHeading ?? 0),
+                                qibla: bearing,
+                                aligned: aligned,
+                                colors: scheme,
+                                northLabel: language == 'ar' ? 'ش' : 'N',
+                              ),
                             ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: AppSpacing.lg),
-                  Row(
-                    children: [
-                      stat(
-                        l10n.qiblaAngle,
-                        '${numbers.format(bearing.round() % 360)}°',
-                        Icons.explore_outlined,
-                      ),
-                      const SizedBox(width: AppSpacing.sm),
-                      stat(
-                        l10n.qiblaDistanceLabel,
-                        l10n.qiblaKilometres(
-                          numbers.format(distanceToKaaba(point).round()),
+                    const SizedBox(height: AppSpacing.lg),
+                    Row(
+                      children: [
+                        stat(
+                          l10n.qiblaAngle,
+                          '${numbers.format(bearing.round() % 360)}°',
+                          accent: scheme.primary,
                         ),
-                        Icons.mosque_outlined,
-                      ),
-                      const SizedBox(width: AppSpacing.sm),
-                      stat(
-                        l10n.qiblaPhoneLabel,
-                        trueHeading == null
-                            ? '—'
-                            : '${numbers.format(trueHeading.round() % 360)}°',
-                        Icons.smartphone,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                  Card(
-                    margin: EdgeInsets.zero,
-                    child: ListTile(
-                      leading: Icon(
-                        heading?.reliable == false
-                            ? Icons.screen_rotation_alt
-                            : turn == null
-                            ? Icons.info_outline
-                            : Icons.stay_current_portrait,
-                        color: scheme.primary,
-                      ),
-                      title: Text(message),
-                      subtitle: location.fromDevice
-                          ? null
-                          : Text(l10n.cityBearingApproximate),
+                        const SizedBox(width: AppSpacing.sm),
+                        stat(
+                          l10n.qiblaDistanceLabel,
+                          l10n.qiblaKilometres(
+                            numbers.format(distanceToKaaba(point).round()),
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.sm),
+                        stat(
+                          l10n.qiblaPhoneLabel,
+                          trueHeading == null
+                              ? '—'
+                              : '${numbers.format(trueHeading.round() % 360)}°',
+                          accent: scheme.secondary,
+                        ),
+                      ],
                     ),
-                  ),
+                    const SizedBox(height: AppSpacing.md),
+                    MadarPanel(
+                      color: scheme.surfaceContainerHighest,
+                      padding: EdgeInsets.zero,
+                      child: ListTile(
+                        leading: Icon(
+                          heading?.reliable == false
+                              ? Icons.screen_rotation_alt
+                              : turn == null
+                              ? Icons.info_outline
+                              : Icons.stay_current_portrait,
+                          color: scheme.primary,
+                        ),
+                        title: Text(message),
+                        subtitle: location.fromDevice
+                            ? null
+                            : Text(l10n.cityBearingApproximate),
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                  ],
+                  const SizedBox(height: AppSpacing.xl),
                 ],
-                const SizedBox(height: AppSpacing.xl),
-              ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
 
-/// A dial that turns with the phone. The fixed mark at the top is where the
-/// phone points; the Kaaba on the ring is the Qibla.
+/// A dial that turns with the phone and points to the Kaaba.
 class _CompassDial extends CustomPainter {
   const _CompassDial({
     required this.north,
     required this.qibla,
     required this.aligned,
     required this.colors,
-    required this.cardinals,
+    required this.northLabel,
   });
 
   final double north;
   final double qibla;
   final bool aligned;
   final ColorScheme colors;
-  final List<String> cardinals;
+  final String northLabel;
 
   Offset _at(Offset center, double degrees, double distance) {
     final radians = (degrees + north) * math.pi / 180;
@@ -314,118 +311,96 @@ class _CompassDial extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final center = size.center(Offset.zero);
-    final radius = size.shortestSide / 2 - 14;
-    final accent = aligned ? BrandColors.goldBright : colors.primary;
-    final paint = Paint()..color = colors.surfaceContainerLow;
+    final radius = size.shortestSide / 2 - 6;
+    final dark = colors.brightness == Brightness.dark;
+    final accent = aligned ? colors.secondary : colors.primary;
+    final bounds = Rect.fromCircle(center: center, radius: radius);
+    final paint = Paint()
+      ..shader = RadialGradient(
+        center: const Alignment(-.34, -.36),
+        radius: .85,
+        colors: [
+          if (dark)
+            Color.alphaBlend(
+              colors.onSurface.withValues(alpha: .3),
+              colors.surfaceContainerLow,
+            )
+          else
+            colors.surfaceBright,
+          colors.surfaceContainerLow,
+          colors.surfaceContainer,
+        ],
+        stops: dark ? const [0, .66, 1] : const [0, .42, 1],
+      ).createShader(bounds);
+    canvas.drawShadow(
+      Path()..addOval(bounds),
+      dark ? colors.shadow : colors.secondary.withValues(alpha: .32),
+      12,
+      false,
+    );
     canvas.drawCircle(center, radius, paint);
     paint
+      ..shader = null
       ..style = PaintingStyle.stroke
-      ..strokeWidth = aligned ? 6 : 3
-      ..color = accent;
+      ..strokeWidth = 4
+      ..color = colors.surfaceContainerHigh;
     canvas.drawCircle(center, radius, paint);
+    paint.strokeWidth = 1.5;
+    canvas.drawCircle(center, radius * .8, paint);
 
-    for (var degrees = 0; degrees < 360; degrees += 5) {
+    for (var degrees = 0; degrees < 360; degrees += 10) {
       final major = degrees % 30 == 0;
       paint
-        ..strokeWidth = major ? 2 : 1
-        ..color = major ? colors.onSurfaceVariant : colors.outlineVariant;
+        ..strokeWidth = major ? 2.2 : 1.1
+        ..color = colors.onSurfaceVariant;
       canvas.drawLine(
-        _at(center, degrees.toDouble(), radius * (major ? .84 : .89)),
-        _at(center, degrees.toDouble(), radius * .95),
+        _at(center, degrees.toDouble(), radius * (major ? .88 : .93)),
+        _at(center, degrees.toDouble(), radius * .97),
         paint,
       );
     }
-    for (final (index, label) in cardinals.indexed) {
-      final text = TextPainter(
-        text: TextSpan(
-          text: label,
-          style: TextStyle(
-            fontFamily: AppTheme.fontFamily,
-            color: index == 0 ? colors.error : colors.onSurface,
-            fontSize: radius * .12,
-            fontWeight: FontWeight.w700,
-          ),
+    final northText = TextPainter(
+      text: TextSpan(
+        text: northLabel,
+        style: TextStyle(
+          fontFamily: AppTheme.fontFamily,
+          color: colors.onSurfaceVariant,
+          fontSize: radius * .1,
         ),
-        textDirection: TextDirection.ltr,
-      )..layout();
-      text.paint(
-        canvas,
-        _at(center, index * 90.0, radius * .7) -
-            Offset(text.width / 2, text.height / 2),
-      );
-      text.dispose();
-    }
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    northText.paint(
+      canvas,
+      _at(center, 0, radius * .69) -
+          Offset(northText.width / 2, northText.height / 2),
+    );
+    northText.dispose();
 
-    // The line from the centre to the Kaaba.
     final kaaba = _at(center, qibla, radius * .78);
     paint
-      ..strokeWidth = 3
+      ..strokeWidth = 4
       ..strokeCap = StrokeCap.round
-      ..color = accent.withValues(alpha: 0.6);
+      ..color = accent;
     canvas.drawLine(center, kaaba, paint);
-    canvas.drawCircle(center, 6, Paint()..color = accent);
-    _paintKaaba(canvas, kaaba, radius * .14);
-
-    // Where the phone points: a fixed mark above the dial.
-    final top = Path()
-      ..moveTo(center.dx, center.dy - radius - 12)
-      ..lineTo(center.dx - 9, center.dy - radius + 4)
-      ..lineTo(center.dx + 9, center.dy - radius + 4)
-      ..close();
-    canvas.drawPath(top, Paint()..color = accent);
-  }
-
-  void _paintKaaba(Canvas canvas, Offset center, double radius) {
-    final paint = Paint()..color = colors.surface;
-    canvas.drawCircle(center, radius, paint);
-    canvas.drawCircle(
-      center,
-      radius,
-      paint
-        ..color = aligned ? BrandColors.goldBright : colors.primary
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2,
-    );
+    paint.style = PaintingStyle.fill;
+    canvas.drawCircle(center, radius * .062, paint..color = colors.onSurface);
+    canvas.drawCircle(kaaba, radius * .12, paint..color = accent);
     canvas
       ..save()
-      ..translate(center.dx, center.dy)
-      ..scale(radius / 12);
-    final front = Path()
-      ..moveTo(-7, -5)
-      ..lineTo(3, -5)
-      ..lineTo(3, 7)
-      ..lineTo(-7, 7)
-      ..close();
-    final side = Path()
-      ..moveTo(3, -5)
-      ..lineTo(7, -8)
-      ..lineTo(7, 4)
-      ..lineTo(3, 7)
-      ..close();
-    paint.style = PaintingStyle.fill;
-    canvas.drawPath(
-      Path()
-        ..moveTo(-7, -5)
-        ..lineTo(-3, -8)
-        ..lineTo(7, -8)
-        ..lineTo(3, -5)
-        ..close(),
-      paint..color = const Color(0xFF4B4035),
+      ..translate(kaaba.dx, kaaba.dy)
+      ..rotate(-.2);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromCenter(
+          center: Offset.zero,
+          width: radius * .1,
+          height: radius * .1,
+        ),
+        const Radius.circular(1.5),
+      ),
+      paint..color = colors.onPrimary,
     );
-    canvas.drawPath(side, paint..color = const Color(0xFF3A3430));
-    canvas.drawPath(front, paint..color = const Color(0xFF211E1B));
-    canvas.drawPath(
-      Path()
-        ..moveTo(-7, -2)
-        ..lineTo(3, -2)
-        ..lineTo(7, -5)
-        ..lineTo(7, -3)
-        ..lineTo(3, 0)
-        ..lineTo(-7, 0)
-        ..close(),
-      paint..color = const Color(0xFFE1BD70),
-    );
-    canvas.drawRect(const Rect.fromLTWH(-2, 2, 2, 4), paint);
     canvas.restore();
   }
 
@@ -434,5 +409,6 @@ class _CompassDial extends CustomPainter {
       old.north != north ||
       old.qibla != qibla ||
       old.aligned != aligned ||
+      old.northLabel != northLabel ||
       old.colors != colors;
 }

@@ -119,6 +119,36 @@ class QuranApi {
     return (url: url, start: Duration(milliseconds: start));
   }
 
+  Future<({Uri url, Map<int, int> starts})> chapterTimings(
+    int surah,
+    int resource,
+    int count,
+  ) async {
+    final json = await _get('recitation', {
+      'surah': '$surah',
+      'resource': '$resource',
+      'timings': '1',
+    });
+    final url = _audioUri(json, surah, resource);
+    final data = json['starts'] as List;
+    final starts = <int, int>{};
+    var previous = -1;
+    for (var i = 0; i < data.length; i++) {
+      final row = data[i] as List;
+      final start = row[1];
+      if (row[0] != '$surah:${i + 1}' || start is! int || start <= previous) {
+        throw const VerseTimingUnavailable();
+      }
+      starts[i + 1] = start;
+      previous = start;
+    }
+    if (starts.length != count) throw const VerseTimingUnavailable();
+    return (url: url, starts: starts);
+  }
+
+  Future<Map<String, dynamic>> mushafPage(int edition, int page) =>
+      _get('mushaf', {'edition': '$edition', 'page': '$page'});
+
   Future<Map<String, dynamic>> _recitation(
     int surah,
     int resource, {

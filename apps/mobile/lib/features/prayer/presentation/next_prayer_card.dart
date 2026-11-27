@@ -7,7 +7,6 @@ import '../../../core/localization/app_locales.dart';
 import '../../../core/localization/l10n_extension.dart';
 import '../../../core/localization/numbers.dart';
 import '../../../core/theme/app_tokens.dart';
-import '../../../core/theme/brand_colors.dart';
 import '../domain/prayer_schedule.dart';
 
 String prayerName(PrayerSlot slot, AppLocalizations l10n) => switch (slot) {
@@ -94,20 +93,22 @@ class NextPrayerCard extends StatelessWidget {
     final language = locale.languageCode;
     final clock = DateFormat.jm(locale.toLanguageTag());
     final l10n = context.l10n;
-    final text = Theme.of(context).textTheme;
+    final theme = Theme.of(context);
+    final text = theme.textTheme;
+    final scheme = theme.colorScheme;
     return DecoratedBox(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         borderRadius: AppRadii.xlAll,
         gradient: LinearGradient(
           begin: AlignmentDirectional.topStart,
           end: AlignmentDirectional.bottomEnd,
-          colors: [BrandColors.primaryGreen, BrandColors.heroGreenEnd],
+          colors: [scheme.surfaceContainerHigh, scheme.surfaceContainer],
         ),
       ),
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.lg),
         child: DefaultTextStyle.merge(
-          style: const TextStyle(color: BrandColors.ivory),
+          style: TextStyle(color: scheme.onSurface),
           child: _Ticking(
             start: now,
             builder: (context, now) {
@@ -127,13 +128,13 @@ class NextPrayerCard extends StatelessWidget {
                             Text(
                               prayerName(next.slot, l10n),
                               style: text.headlineMedium?.copyWith(
-                                color: BrandColors.ivory,
+                                color: scheme.onSurface,
                               ),
                             ),
                             Text(
                               clock.format(next.time),
                               style: text.titleMedium?.copyWith(
-                                color: BrandColors.ivory,
+                                color: scheme.onSurface,
                               ),
                             ),
                           ],
@@ -145,7 +146,7 @@ class NextPrayerCard extends StatelessWidget {
                           Text(
                             l10n.prayerRemaining,
                             style: text.labelMedium?.copyWith(
-                              color: BrandColors.ivory.withValues(alpha: 0.8),
+                              color: scheme.onSurface.withValues(alpha: 0.8),
                             ),
                           ),
                           Text(
@@ -153,7 +154,7 @@ class NextPrayerCard extends StatelessWidget {
                             key: const Key('next-prayer-countdown'),
                             textDirection: TextDirection.ltr,
                             style: text.headlineSmall?.copyWith(
-                              color: BrandColors.goldBright,
+                              color: scheme.primary,
                               fontFeatures: const [
                                 FontFeature.tabularFigures(),
                               ],
@@ -165,7 +166,7 @@ class NextPrayerCard extends StatelessWidget {
                   ),
                   if (showOverview) ...[
                     const SizedBox(height: AppSpacing.sm),
-                    const Divider(color: BrandColors.goldBright),
+                    Divider(color: scheme.outlineVariant),
                     for (final event in schedule.today)
                       _PrayerLine(
                         event: event,
@@ -201,15 +202,17 @@ class _PrayerLine extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final language = Localizations.localeOf(context).languageCode;
-    final text = Theme.of(context).textTheme;
+    final theme = Theme.of(context);
+    final text = theme.textTheme;
+    final scheme = theme.colorScheme;
     final left = event.time.difference(now);
     final passed = left.isNegative;
     final relative = passed
         ? l10n.prayerSince(clockDuration(left, language, seconds: false))
         : l10n.prayerIn(clockDuration(left, language));
     final color = next
-        ? BrandColors.goldBright
-        : BrandColors.ivory.withValues(alpha: passed ? 0.6 : 1);
+        ? scheme.primary
+        : scheme.onSurface.withValues(alpha: passed ? 0.6 : 1);
     final style = text.bodyMedium?.copyWith(
       color: color,
       fontWeight: next ? FontWeight.w700 : null,

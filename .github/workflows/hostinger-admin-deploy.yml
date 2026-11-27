@@ -198,8 +198,17 @@ jobs:
             echo "Health check passed: $1 (HTTP $actual)"
           }
           check '' 200
-          check '?feed=library' 200
-          check '?feed=updates&channel=dev' 200
+          check_json() {
+            actual=$(curl -fsS --max-time 20 --retry 2 -o /dev/null -w '%{http_code} %{content_type}' "$base$1")
+            if [[ "$actual" != '200 application/json'* ]]; then
+              echo "JSON health check failed for $1: $actual"
+              return 1
+            fi
+            echo "JSON health check passed: $1"
+          }
+          check_json '?feed=library'
+          check_json '?feed=updates&channel=dev'
+          check_json '?feed=content-news&channel=dev'
           check 'release-view.php' 403
           check 'privacy.css' 200
           check 'privacy.js' 200

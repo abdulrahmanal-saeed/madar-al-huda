@@ -9,7 +9,7 @@ import '../../../core/localization/l10n_extension.dart';
 import '../../../core/localization/numbers.dart';
 import '../../../core/localization/search_text.dart';
 import '../../../core/theme/app_tokens.dart';
-import '../../../core/theme/brand_colors.dart';
+import '../../../core/widgets/madar_panel.dart';
 import '../../../core/widgets/responsive_content.dart';
 import '../../adhkar/data/adhkar_catalog.dart';
 import '../../learning/data/learning_catalog.dart';
@@ -18,7 +18,6 @@ import '../../learning/data/prophet_stories.dart';
 import '../../library/domain/library_sections.dart';
 import '../../quran/data/chapter_reciters.dart';
 import '../../quran/data/offline_recitations.dart';
-import '../data/download_usage.dart';
 
 /// One place to keep the app working without internet: what is always on
 /// the device, what can be downloaded, and what stays online for rights
@@ -43,7 +42,6 @@ class _DownloadCenterScreenState extends ConsumerState<DownloadCenterScreen> {
     final theme = Theme.of(context);
     final language = Localizations.localeOf(context).languageCode;
     final number = decimalFormat(language).format;
-    final usage = ref.watch(downloadUsageProvider).asData?.value;
     final busy = ref.watch(collectionDownloadsProvider)?.running == true;
     final selection = ref.watch(reciterSelectionProvider);
     final saved =
@@ -96,277 +94,247 @@ class _DownloadCenterScreenState extends ConsumerState<DownloadCenterScreen> {
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.downloadsTitle)),
-      body: ListView(
-        padding: const EdgeInsets.only(bottom: AppSpacing.xxl),
-        children: [
-          ResponsiveContent(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(height: AppSpacing.md),
-                _DeviceSummary(
-                  used: usage == null
-                      ? null
-                      : formatBytes(usage.total, language, number),
-                ),
-                const CollectionDownloadStatus(),
-                const SizedBox(height: AppSpacing.lg),
-                SegmentedButton<_DownloadsTab>(
-                  key: const Key('downloads-tabs'),
-                  showSelectedIcon: false,
-                  segments: [
-                    ButtonSegment(
-                      value: _DownloadsTab.recitations,
-                      icon: const Icon(Icons.headphones_outlined),
-                      label: Text(l10n.downloadsRecitations),
-                    ),
-                    if (stories != null && stories.isNotEmpty)
+      body: MadarBackdrop(
+        child: ListView(
+          padding: const EdgeInsets.only(bottom: AppSpacing.xxl),
+          children: [
+            ResponsiveContent(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const SizedBox(height: AppSpacing.md),
+                  const _DeviceSummary(),
+                  const CollectionDownloadStatus(),
+                  const SizedBox(height: AppSpacing.lg),
+                  SegmentedButton<_DownloadsTab>(
+                    key: const Key('downloads-tabs'),
+                    showSelectedIcon: false,
+                    segments: [
                       ButtonSegment(
-                        value: _DownloadsTab.stories,
-                        icon: const Icon(Icons.auto_stories_outlined),
-                        label: Text(l10n.downloadsStoriesTab),
+                        value: _DownloadsTab.recitations,
+                        icon: const Icon(Icons.headphones_outlined),
+                        label: Text(l10n.downloadsRecitations),
                       ),
-                    ButtonSegment(
-                      value: _DownloadsTab.library,
-                      icon: const Icon(Icons.library_books_outlined),
-                      label: Text(l10n.downloadsLibraryTab),
-                    ),
-                  ],
-                  selected: {_tab},
-                  onSelectionChanged: (value) =>
-                      setState(() => _tab = value.single),
-                ),
-                if (_tab == _DownloadsTab.recitations) ...[
-                  if (allReaders > 6) ...[
-                    const SizedBox(height: AppSpacing.md),
-                    TextField(
-                      key: const Key('downloads-search'),
-                      onChanged: (value) => setState(() => _query = value),
-                      decoration: InputDecoration(
-                        prefixIcon: const Icon(Icons.search),
-                        hintText: l10n.recitationSearchReciter,
-                        isDense: true,
-                        border: const OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(28)),
+                      if (stories != null && stories.isNotEmpty)
+                        ButtonSegment(
+                          value: _DownloadsTab.stories,
+                          icon: const Icon(Icons.auto_stories_outlined),
+                          label: Text(l10n.downloadsStoriesTab),
                         ),
+                      ButtonSegment(
+                        value: _DownloadsTab.library,
+                        icon: const Icon(Icons.library_books_outlined),
+                        label: Text(l10n.downloadsLibraryTab),
                       ),
-                    ),
-                  ],
-                  heading(l10n.downloadsRecitations),
-                  Card(
-                    child: Column(
-                      children: [
-                        if (readers.isEmpty)
-                          ListTile(title: Text(l10n.downloadsNoReciters)),
-                        for (final reader in readers)
-                          _ReciterRow(
-                            reader: reader,
-                            saved: saved,
-                            busy: busy,
-                            number: number,
+                    ],
+                    selected: {_tab},
+                    onSelectionChanged: (value) =>
+                        setState(() => _tab = value.single),
+                  ),
+                  if (_tab == _DownloadsTab.recitations) ...[
+                    if (allReaders > 6) ...[
+                      const SizedBox(height: AppSpacing.md),
+                      TextField(
+                        key: const Key('downloads-search'),
+                        onChanged: (value) => setState(() => _query = value),
+                        decoration: InputDecoration(
+                          prefixIcon: const Icon(Icons.search),
+                          hintText: l10n.recitationSearchReciter,
+                          isDense: true,
+                          border: const OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(28)),
                           ),
-                      ],
-                    ),
-                  ),
-                ],
-                if (_tab == _DownloadsTab.stories &&
-                    stories != null &&
-                    stories.isNotEmpty) ...[
-                  heading(l10n.downloadsStories),
-                  Card(
-                    child: Column(
-                      children: [
-                        for (final series in stories)
-                          _SeriesRow(
-                            series: series,
-                            busy: busy,
-                            number: number,
-                          ),
-                      ],
-                    ),
-                  ),
-                ],
-                if (_tab == _DownloadsTab.library) ...[
-                  heading(l10n.downloadsLibrary),
-                  Card(
-                    child: ListTile(
-                      leading: Icon(
-                        libraryFeed != null
-                            ? Icons.offline_pin
-                            : Icons.cloud_download_outlined,
-                        color: libraryFeed != null
-                            ? theme.colorScheme.primary
-                            : null,
-                      ),
-                      title: Text(l10n.downloadsLibraryBody),
-                      subtitle: Text(
-                        libraryFeed != null
-                            ? l10n.downloadsLibrarySaved
-                            : l10n.downloadsLibraryMissing,
-                      ),
-                      trailing: TextButton(
-                        onPressed: busy
-                            ? null
-                            : () => unawaited(
-                                ref
-                                    .read(collectionDownloadsProvider.notifier)
-                                    .start(l10n.downloadsLibrary, [
-                                      () async {
-                                        if (await ref.refresh(
-                                              managedLibraryProvider.future,
-                                            ) ==
-                                            null) {
-                                          throw StateError(
-                                            'Library unavailable',
-                                          );
-                                        }
-                                      },
-                                      () async => ref.refresh(
-                                        adhkarCatalogProvider.future,
-                                      ),
-                                    ])
-                                    .whenComplete(
-                                      () =>
-                                          ref.invalidate(downloadUsageProvider),
-                                    ),
-                              ),
-                        child: Text(l10n.downloadsUpdate),
-                      ),
-                    ),
-                  ),
-                  for (final section in librarySections)
-                    if (section.seasons.isNotEmpty) ...[
-                      heading(
-                        language == 'ar' ? section.title.ar : section.title.en,
-                      ),
-                      Card(
-                        child: Column(
-                          children: [
-                            for (final series in section.seasons)
-                              _SeriesRow(
-                                series: series,
-                                includeVideo: true,
-                                busy: busy,
-                                number: number,
-                              ),
-                          ],
                         ),
                       ),
                     ],
-                  heading(l10n.downloadsOnlineOnly),
-                  Card(
-                    child: Column(
-                      children: [
-                        ListTile(
-                          leading: const Icon(Icons.cloud_outlined),
-                          title: Text(l10n.sectionTafsirTitle),
-                          subtitle: Text(l10n.downloadsOnlineOnlyBody),
+                    heading(l10n.downloadsRecitations),
+                    Card(
+                      child: Column(
+                        children: [
+                          if (readers.isEmpty)
+                            ListTile(title: Text(l10n.downloadsNoReciters)),
+                          for (final reader in readers)
+                            _ReciterRow(
+                              reader: reader,
+                              saved: saved,
+                              busy: busy,
+                              number: number,
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
+                  if (_tab == _DownloadsTab.stories &&
+                      stories != null &&
+                      stories.isNotEmpty) ...[
+                    heading(l10n.downloadsStories),
+                    Card(
+                      child: Column(
+                        children: [
+                          for (final series in stories)
+                            _SeriesRow(
+                              series: series,
+                              busy: busy,
+                              number: number,
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
+                  if (_tab == _DownloadsTab.library) ...[
+                    heading(l10n.downloadsLibrary),
+                    Card(
+                      child: ListTile(
+                        leading: Icon(
+                          libraryFeed != null
+                              ? Icons.offline_pin
+                              : Icons.cloud_download_outlined,
+                          color: libraryFeed != null
+                              ? theme.colorScheme.primary
+                              : null,
                         ),
-                        ListTile(
-                          leading: const Icon(Icons.cloud_outlined),
-                          title: Text(l10n.sectionHadithTitle),
-                          subtitle: Text(l10n.downloadsOnlineOnlyBody),
+                        title: Text(l10n.downloadsLibraryBody),
+                        subtitle: Text(
+                          libraryFeed != null
+                              ? l10n.downloadsLibrarySaved
+                              : l10n.downloadsLibraryMissing,
+                        ),
+                        trailing: TextButton(
+                          onPressed: busy
+                              ? null
+                              : () => unawaited(
+                                  ref
+                                      .read(
+                                        collectionDownloadsProvider.notifier,
+                                      )
+                                      .start(l10n.downloadsLibrary, [
+                                        () async {
+                                          if (await ref.refresh(
+                                                managedLibraryProvider.future,
+                                              ) ==
+                                              null) {
+                                            throw StateError(
+                                              'Library unavailable',
+                                            );
+                                          }
+                                        },
+                                        () async => ref.refresh(
+                                          adhkarCatalogProvider.future,
+                                        ),
+                                      ]),
+                                ),
+                          child: Text(l10n.downloadsUpdate),
+                        ),
+                      ),
+                    ),
+                    for (final section in librarySections)
+                      if (section.seasons.isNotEmpty) ...[
+                        heading(
+                          language == 'ar'
+                              ? section.title.ar
+                              : section.title.en,
+                        ),
+                        Card(
+                          child: Column(
+                            children: [
+                              for (final series in section.seasons)
+                                _SeriesRow(
+                                  series: series,
+                                  includeVideo: true,
+                                  busy: busy,
+                                  number: number,
+                                ),
+                            ],
+                          ),
                         ),
                       ],
+                    heading(l10n.downloadsOnlineOnly),
+                    Card(
+                      child: Column(
+                        children: [
+                          ListTile(
+                            leading: const Icon(Icons.cloud_outlined),
+                            title: Text(l10n.sectionTafsirTitle),
+                            subtitle: Text(l10n.downloadsOnlineOnlyBody),
+                          ),
+                          ListTile(
+                            leading: const Icon(Icons.cloud_outlined),
+                            title: Text(l10n.sectionHadithTitle),
+                            subtitle: Text(l10n.downloadsOnlineOnlyBody),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
+                  ],
                 ],
-              ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
 
 class _DeviceSummary extends StatelessWidget {
-  const _DeviceSummary({required this.used});
-
-  final String? used;
+  const _DeviceSummary();
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final theme = Theme.of(context);
-    // The card keeps the brand green in light and dark themes alike.
-    const onPrimary = BrandColors.ivory;
+    final scheme = theme.colorScheme;
     final always = [
       l10n.navQuran,
       l10n.sectionAdhkarTitle,
       l10n.sectionPrayerTimesTitle,
       l10n.sectionQiblaTitle,
     ];
-    return DecoratedBox(
-      decoration: const BoxDecoration(
-        borderRadius: AppRadii.xlAll,
-        gradient: LinearGradient(
-          begin: AlignmentDirectional.topStart,
-          end: AlignmentDirectional.bottomEnd,
-          colors: [BrandColors.primaryGreen, BrandColors.heroGreenEnd],
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              l10n.downloadsOnDevice,
-              style: theme.textTheme.titleMedium?.copyWith(color: onPrimary),
-            ),
-            if (used != null)
-              Text(
-                l10n.downloadsUsed(used!),
-                key: const ValueKey('downloads-used'),
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: onPrimary.withValues(alpha: 0.85),
+    return MadarPanel(
+      radius: BorderRadius.circular(23),
+      color: scheme.surfaceContainerHighest,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              CircleAvatar(
+                backgroundColor: scheme.primary,
+                foregroundColor: scheme.onPrimary,
+                child: const Icon(Icons.offline_pin_outlined),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.downloadsOnDevice,
+                      style: theme.textTheme.titleLarge,
+                    ),
+                    Text(
+                      l10n.downloadsAlwaysOffline,
+                      style: theme.textTheme.bodySmall,
+                    ),
+                  ],
                 ),
               ),
-            const SizedBox(height: AppSpacing.md),
-            Text(
-              l10n.downloadsAlwaysOffline,
-              style: theme.textTheme.labelLarge?.copyWith(color: onPrimary),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            Wrap(
-              spacing: AppSpacing.sm,
-              runSpacing: AppSpacing.sm,
-              children: [
-                for (final item in always)
-                  DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: onPrimary.withValues(alpha: 0.14),
-                      borderRadius: AppRadii.xlAll,
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.md,
-                        vertical: AppSpacing.xs + 2,
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            Icons.check_circle,
-                            size: 18,
-                            color: BrandColors.goldBright,
-                          ),
-                          const SizedBox(width: AppSpacing.xs),
-                          Text(
-                            item,
-                            style: theme.textTheme.labelLarge?.copyWith(
-                              color: onPrimary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ],
-        ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Wrap(
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.xs,
+            children: [
+              for (final item in always)
+                Chip(
+                  avatar: Icon(Icons.check, size: 16, color: scheme.secondary),
+                  label: Text(item),
+                  backgroundColor: scheme.surfaceContainerLow,
+                ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -402,9 +370,7 @@ class _ReciterRow extends ConsumerWidget {
     final store = ref.read(offlineAudioStoreProvider);
 
     void refresh() {
-      ref
-        ..invalidate(offlineAudioLibraryProvider)
-        ..invalidate(downloadUsageProvider);
+      ref.invalidate(offlineAudioLibraryProvider);
     }
 
     return ListTile(
@@ -516,7 +482,6 @@ class _SeriesRowState extends ConsumerState<_SeriesRow> {
     final files = ref.read(learningFilesProvider);
     Future<void> after() async {
       await _count();
-      ref.invalidate(downloadUsageProvider);
     }
 
     return ListTile(

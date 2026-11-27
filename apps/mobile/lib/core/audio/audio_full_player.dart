@@ -8,10 +8,10 @@ import '../localization/l10n_extension.dart';
 import '../localization/numbers.dart';
 import '../theme/app_tokens.dart';
 import 'audio_playback.dart';
+import 'playback_speeds.dart';
 
 /// Minutes left on the sleep timer's choices; null turns it off.
 const sleepTimerChoices = <int?>[null, 15, 30, 60];
-const playbackSpeeds = [0.75, 1.0, 1.25, 1.5];
 
 typedef SleepTimerState = ({DateTime at, int minutes});
 

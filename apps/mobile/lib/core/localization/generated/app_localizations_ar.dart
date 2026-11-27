@@ -71,6 +71,40 @@ class AppLocalizationsAr extends AppLocalizations {
   String get adhkarTahlil => 'سجّل التهليل الختامي';
 
   @override
+  String adhkarRepetitionTarget(String phrase, int count, String number) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$number مرة',
+      few: '$number مرات',
+      two: 'مرتين',
+      one: 'مرة واحدة',
+    );
+    return '$phrase · $_temp0';
+  }
+
+  @override
+  String get adhkarIstighfarPhrase => 'أستغفر الله';
+
+  @override
+  String get adhkarTasbihPhrase => 'سبحان الله';
+
+  @override
+  String get adhkarTahmidPhrase => 'الحمد لله';
+
+  @override
+  String get adhkarTakbirPhrase => 'الله أكبر';
+
+  @override
+  String get adhkarTahlilPhrase => 'لا إله إلا الله';
+
+  @override
+  String get adhkarEachSurahPhrase => 'كل سورة';
+
+  @override
+  String get adhkarWipingPhrase => 'القراءة والمسح';
+
+  @override
   String get adhkarIstighfar => 'سجّل استغفارة';
 
   @override
@@ -1787,6 +1821,24 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String searchShowAll(String count) {
     return 'عرض الكل ($count)';
+  }
+
+  @override
+  String homePrayerMinutes(int count, String number) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$number دقيقة',
+      few: '$number دقائق',
+      two: 'دقيقتان',
+      one: 'دقيقة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homePrayerHours(String hours, String minutes) {
+    return '$hours س $minutes د';
   }
 
   @override

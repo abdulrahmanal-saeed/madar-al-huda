@@ -1,12 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:audio_service/audio_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
+import 'package:just_audio/just_audio.dart';
 
 import '../../../core/audio/audio_playback.dart';
-import '../domain/quran_storage_contracts.dart';
 import 'mushaf_edition.dart';
 import 'quran_services.dart';
 
@@ -105,19 +104,21 @@ class VerseTimingApi {
     String source,
     int surah, {
     required int verses,
-    int from = 1,
+    Uri? recording,
   }) {
     final key = '$source|$surah';
     if (source.startsWith('qf:')) {
       final resource = int.tryParse(source.substring(3));
       if (resource == null) return Future.value();
-      // Not cached: each play starts finding from its own first verse.
-      final timeline = VerseTimeline.ahead(
-        (ayah) => _foundationStart(resource, surah, ayah),
-        verses: verses,
-        from: from,
-      );
-      return timeline.prime().then((_) => timeline);
+      if (recording == null) return Future.value();
+      final identity = '$key|$recording';
+      return _timelines[identity] ??=
+          _foundationTimeline(resource, surah, verses, recording).then((
+            timeline,
+          ) {
+            if (timeline == null) unawaited(_forget(identity));
+            return timeline;
+          });
     }
     return _timelines[key] ??= _mp3Quran(source.substring(9), surah).then((
       timeline,
@@ -129,14 +130,18 @@ class VerseTimingApi {
 
   Future<void> _forget(String key) async => _timelines.remove(key);
 
-  Future<int?> _foundationStart(int resource, int surah, int ayah) async {
+  Future<VerseTimeline?> _foundationTimeline(
+    int resource,
+    int surah,
+    int verses,
+    Uri recording,
+  ) async {
     try {
-      final at = await _quran.audioAtVerse(
-        AyahRef(editionId: 'recitation', surah: surah, ayah: ayah),
-        resource,
-      );
-      return at.start.inMilliseconds;
-    } on Object {
+      final chapter = await _quran.chapterTimings(surah, resource, verses);
+      return chapter.url == recording
+          ? VerseTimeline.complete(chapter.starts)
+          : null;
+    } catch (_) {
       return null;
     }
   }
@@ -209,6 +214,18 @@ final verseTimingApiProvider = Provider<VerseTimingApi>((ref) {
 
 typedef RecitedVerse = ({int surah, int ayah});
 
+final unavailableRecitationTimingProvider =
+    NotifierProvider<RecitationTimingStatus, String?>(
+      RecitationTimingStatus.new,
+    );
+
+class RecitationTimingStatus extends Notifier<String?> {
+  @override
+  String? build() => null;
+
+  void report(String? track) => state = track;
+}
+
 /// The verse the reciter is reading now, when the playing recitation has
 /// verse times; null otherwise.
 final recitedVerseProvider =
@@ -227,37 +244,61 @@ class RecitedVerseController extends Notifier<RecitedVerse?> {
     final extras = track?.extras;
     final surah = extras?[recitationSurahExtra];
     final source = extras?[recitationTimingExtra];
-    if (surah is! int || source is! String) return null;
+    if (surah is! int || surah < 1) return null;
     StreamSubscription<Duration>? positions;
     var active = true;
     ref.onDispose(() {
       active = false;
       unawaited(positions?.cancel());
     });
-    unawaited(() async {
-      final edition = await ref.read(mushafEditionProvider.future);
-      if (!active || surah > edition.surahs.length) return;
-      final player = ref.read(audioPlayerProvider);
-      final timeline = await ref
-          .read(verseTimingApiProvider)
-          .timeline(
-            source,
-            surah,
-            verses: edition.surahs[surah - 1].verses.length,
-            from: _firstAyah(track),
-          );
-      if (!active || timeline == null) return;
-      positions = player.positionStream.listen((position) {
-        final ayah = timeline.ayahAt(position);
-        final next = ayah == null ? null : (surah: surah, ayah: ayah);
-        if (next != state) state = next;
-      });
-    }());
-    return null;
-  }
+    unawaited(
+      Future<void>.microtask(() async {
+        if (!active) return;
+        final status = ref.read(unavailableRecitationTimingProvider.notifier);
+        status.report(null);
+        if (source is! String) {
+          status.report(trackId);
+          return;
+        }
+        try {
+          final edition = await ref.read(mushafEditionProvider.future);
+          if (!active || surah > edition.surahs.length) return;
+          final player = ref.read(audioPlayerProvider);
+          final index = player.currentIndex;
+          final sequence = player.sequence;
+          final audio = index != null && index < sequence.length
+              ? sequence[index]
+              : null;
+          final timeline = await ref
+              .read(verseTimingApiProvider)
+              .timeline(
+                source,
+                surah,
+                verses: edition.surahs[surah - 1].verses.length,
+                recording: audio is UriAudioSource ? audio.uri : null,
+              );
+          if (!active) return;
+          if (timeline == null) {
+            status.report(trackId);
+            return;
+          }
+          void update(Duration position) {
+            if (!active ||
+                player.processingState == ProcessingState.completed) {
+              return;
+            }
+            final ayah = timeline.ayahAt(position);
+            final next = ayah == null ? null : (surah: surah, ayah: ayah);
+            if (next != state) state = next;
+          }
 
-  static int _firstAyah(MediaItem? track) {
-    final from = track?.extras?['fromAyah'];
-    return from is int && from >= 1 ? from : 1;
+          positions = player.positionStream.listen(update);
+          update(player.position);
+        } catch (_) {
+          if (active) status.report(trackId);
+        }
+      }),
+    );
+    return null;
   }
 }

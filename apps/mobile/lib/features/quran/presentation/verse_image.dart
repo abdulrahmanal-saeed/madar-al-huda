@@ -10,7 +10,6 @@ import '../../../core/localization/l10n_extension.dart';
 import '../../../core/localization/numbers.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_tokens.dart';
-import '../../../core/theme/brand_colors.dart';
 
 /// Shows the verse as a branded card and shares it as a PNG image.
 Future<void> shareVerseImage(
@@ -43,57 +42,60 @@ class VerseCard extends StatelessWidget {
   final String reference;
 
   @override
-  Widget build(BuildContext context) => Container(
-    width: 360,
-    padding: const EdgeInsets.all(AppSpacing.lg),
-    color: BrandColors.primaryGreen,
-    child: Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.lg,
-        vertical: AppSpacing.xl,
-      ),
-      decoration: BoxDecoration(
-        border: Border.all(color: BrandColors.mutedGold, width: 1.5),
-        borderRadius: AppRadii.lgAll,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            verseText,
-            textAlign: TextAlign.center,
-            textDirection: TextDirection.rtl,
-            style: const TextStyle(
-              fontFamily: AppTheme.quranFontFamily,
-              fontSize: 24,
-              height: 2,
-              color: BrandColors.ivory,
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Container(
+      width: 360,
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      color: scheme.surfaceContainerLow,
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.lg,
+          vertical: AppSpacing.xl,
+        ),
+        decoration: BoxDecoration(
+          border: Border.all(color: scheme.secondary, width: 1.5),
+          borderRadius: AppRadii.lgAll,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              verseText,
+              textAlign: TextAlign.center,
+              textDirection: TextDirection.rtl,
+              style: TextStyle(
+                fontFamily: AppTheme.quranFontFamily,
+                fontSize: 24,
+                height: 2,
+                color: scheme.onSurface,
+              ),
             ),
-          ),
-          const SizedBox(height: AppSpacing.md),
-          Text(
-            reference,
-            textDirection: TextDirection.rtl,
-            style: const TextStyle(
-              fontFamily: AppTheme.fontFamily,
-              fontSize: 15,
-              color: BrandColors.goldBright,
+            const SizedBox(height: AppSpacing.md),
+            Text(
+              reference,
+              textDirection: TextDirection.rtl,
+              style: TextStyle(
+                fontFamily: AppTheme.fontFamily,
+                fontSize: 15,
+                color: scheme.primary,
+              ),
             ),
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          const Text(
-            'مدار الهدى',
-            textDirection: TextDirection.rtl,
-            style: TextStyle(
-              fontFamily: AppTheme.headingFontFamily,
-              fontSize: 14,
-              color: BrandColors.greenGlow,
+            const SizedBox(height: AppSpacing.lg),
+            Text(
+              'مدار الهدى',
+              textDirection: TextDirection.rtl,
+              style: TextStyle(
+                fontFamily: AppTheme.headingFontFamily,
+                fontSize: 14,
+                color: scheme.onSurfaceVariant,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 class _VerseImageDialog extends StatefulWidget {

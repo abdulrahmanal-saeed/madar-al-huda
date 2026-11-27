@@ -10,6 +10,7 @@ import '../features/feedback/feedback_screen.dart';
 import '../features/fiqh/presentation/fiqh_screen.dart';
 import '../features/hadith/presentation/hadith_screen.dart';
 import '../features/home/presentation/home_screen.dart';
+import '../features/home/presentation/listening_duas.dart';
 import '../features/learning/presentation/learning_hub_screen.dart';
 import '../features/learning/presentation/lessons_screen.dart';
 import '../features/learning/presentation/prophet_stories_screen.dart';
@@ -104,6 +105,12 @@ GoRouter buildAppRouter({String initialLocation = AppRoutes.home}) {
                 path: AppRoutes.adhkar,
                 builder: (_, _) => const AdhkarScreen(),
                 routes: [
+                  GoRoute(
+                    path: 'listen',
+                    builder: (_, state) => ListeningDuasScreen(
+                      initialId: state.uri.queryParameters['dua'],
+                    ),
+                  ),
                   _child(
                     AppRoutes.morningAdhkar,
                     AppRoutes.adhkar,
@@ -134,10 +141,12 @@ GoRouter buildAppRouter({String initialLocation = AppRoutes.home}) {
                 path: AppRoutes.worship,
                 builder: (_, _) => const WorshipHubScreen(),
                 routes: [
-                  _child(
-                    AppRoutes.prayerTimes,
-                    AppRoutes.worship,
-                    const PrayerTimesScreen(),
+                  GoRoute(
+                    path: 'prayer-times',
+                    builder: (_, state) => PrayerTimesScreen(
+                      showLocationOnOpen:
+                          state.uri.queryParameters['location'] == '1',
+                    ),
                   ),
                   _child(
                     AppRoutes.qibla,
@@ -172,8 +181,13 @@ GoRouter buildAppRouter({String initialLocation = AppRoutes.home}) {
                   ),
                   GoRoute(
                     path: 's/:id',
-                    builder: (_, state) =>
-                        LinksSectionScreen(id: state.pathParameters['id']!),
+                    builder: (_, state) => LinksSectionScreen(
+                      id: state.pathParameters['id']!,
+                      seasonId: state.uri.queryParameters['season'],
+                      episodeNumber: int.tryParse(
+                        state.uri.queryParameters['episode'] ?? '',
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -205,7 +219,8 @@ GoRouter buildAppRouter({String initialLocation = AppRoutes.home}) {
       GoRoute(
         path: AppRoutes.tasbih,
         parentNavigatorKey: rootNavigatorKey,
-        builder: (_, _) => const TasbihScreen(),
+        builder: (_, _) =>
+            const AppNavigationFrame(index: 2, child: TasbihScreen()),
       ),
       GoRoute(
         path: AppRoutes.ramadan,
@@ -220,7 +235,8 @@ GoRouter buildAppRouter({String initialLocation = AppRoutes.home}) {
       GoRoute(
         path: AppRoutes.stats,
         parentNavigatorKey: rootNavigatorKey,
-        builder: (_, _) => const StatsScreen(),
+        builder: (_, _) =>
+            const AppNavigationFrame(index: 4, child: StatsScreen()),
       ),
       GoRoute(
         path: AppRoutes.memorize,
@@ -235,7 +251,8 @@ GoRouter buildAppRouter({String initialLocation = AppRoutes.home}) {
       GoRoute(
         path: AppRoutes.settings,
         parentNavigatorKey: rootNavigatorKey,
-        builder: (_, _) => const SettingsScreen(),
+        builder: (_, _) =>
+            const AppNavigationFrame(index: 4, child: SettingsScreen()),
         routes: [
           GoRoute(
             path: 'reminders',
@@ -245,7 +262,10 @@ GoRouter buildAppRouter({String initialLocation = AppRoutes.home}) {
           GoRoute(
             path: 'downloads',
             parentNavigatorKey: rootNavigatorKey,
-            builder: (_, _) => const DownloadCenterScreen(),
+            builder: (_, _) => const AppNavigationFrame(
+              index: 4,
+              child: DownloadCenterScreen(),
+            ),
           ),
           GoRoute(
             path: 'feedback',

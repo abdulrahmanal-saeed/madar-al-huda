@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/audio/devotional_recording.dart';
 import '../../../core/content/managed_library.dart';
 import '../../quran/data/mushaf_edition.dart';
 import 'quran_dua_index.dart';
@@ -112,6 +113,7 @@ List<T> _list<T>(Object? value) => (value as List<Object?>).cast<T>();
 class DhikrVariant {
   DhikrVariant.fromJson(Map<String, Object?> data)
     : hadith = data['hadith'] as int?,
+      recording = devotionalRecording(data['recording']),
       steps = [
         for (final step in _list<Map<String, Object?>>(data['repeat'] ?? []))
           (unit: step['unit'] as String, count: step['count'] as int),
@@ -121,6 +123,7 @@ class DhikrVariant {
   /// dashboard with its own text.
   final int? hadith;
   final List<DhikrStep> steps;
+  final DevotionalRecording? recording;
 
   /// Stable part of progress keys: the hadith number, or `own`.
   String get key => hadith == null ? 'own' : '$hadith';

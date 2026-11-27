@@ -7,6 +7,8 @@ import '../../worship/domain/worship_moment.dart';
 class ReminderSettings {
   const ReminderSettings({
     this.adhan = false,
+    this.adhanVoice = AdhanVoice.alternate,
+    this.prayerStatus = false,
     this.beforePrayer = false,
     this.beforePrayerMinutes = 15,
     this.morning = false,
@@ -37,6 +39,12 @@ class ReminderSettings {
     final every = data['duaEveryHours'];
     return ReminderSettings(
       adhan: flag('adhan'),
+      adhanVoice:
+          AdhanVoice.values
+              .where((voice) => voice.name == data['adhanVoice'])
+              .firstOrNull ??
+          AdhanVoice.alternate,
+      prayerStatus: flag('prayerStatus'),
       beforePrayer: flag('beforePrayer'),
       beforePrayerMinutes: number('beforePrayerMinutes', 15, 5, 60),
       morning: flag('morning'),
@@ -70,6 +78,8 @@ class ReminderSettings {
   static const duaIntervals = [0, 3, 5, 8];
 
   final bool adhan;
+  final AdhanVoice adhanVoice;
+  final bool prayerStatus;
   final bool beforePrayer;
   final int beforePrayerMinutes;
   final bool morning;
@@ -101,6 +111,7 @@ class ReminderSettings {
   final int quietEndMinutes;
 
   bool get anyEnabled =>
+      prayerStatus ||
       adhan ||
       beforePrayer ||
       morning ||
@@ -118,6 +129,8 @@ class ReminderSettings {
 
   Map<String, Object?> toJson() => {
     'adhan': adhan,
+    'adhanVoice': adhanVoice.name,
+    'prayerStatus': prayerStatus,
     'beforePrayer': beforePrayer,
     'beforePrayerMinutes': beforePrayerMinutes,
     'morning': morning,
@@ -141,6 +154,8 @@ class ReminderSettings {
 
   ReminderSettings copyWith({
     bool? adhan,
+    AdhanVoice? adhanVoice,
+    bool? prayerStatus,
     bool? beforePrayer,
     int? beforePrayerMinutes,
     bool? morning,
@@ -158,6 +173,8 @@ class ReminderSettings {
     bool? fastOccasions,
   }) => ReminderSettings(
     adhan: adhan ?? this.adhan,
+    adhanVoice: adhanVoice ?? this.adhanVoice,
+    prayerStatus: prayerStatus ?? this.prayerStatus,
     beforePrayer: beforePrayer ?? this.beforePrayer,
     beforePrayerMinutes: beforePrayerMinutes ?? this.beforePrayerMinutes,
     morning: morning ?? this.morning,
@@ -176,4 +193,14 @@ class ReminderSettings {
     quietStartMinutes: quietStartMinutes,
     quietEndMinutes: quietEndMinutes,
   );
+}
+
+enum AdhanVoice {
+  alternate('adhan_alternate', 'أذان أندرو لِر', 'Andrewler'),
+  makkah('adhan_makkah', 'أذان المسجد الحرام', 'Grand Mosque of Makkah');
+
+  const AdhanVoice(this.sound, this.ar, this.en);
+  final String sound;
+  final String ar;
+  final String en;
 }

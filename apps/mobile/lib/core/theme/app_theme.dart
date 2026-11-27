@@ -2,15 +2,17 @@ import 'package:material_ui/material_ui.dart';
 
 import 'app_tokens.dart';
 import 'brand_colors.dart';
+import 'brand_palette.dart';
+import 'brand_season.dart';
 import 'remote_theme.dart';
 
 /// Builds the Madar Al-Huda light and dark themes.
 abstract final class AppTheme {
   /// Bundled UI font (Arabic + Latin). See pubspec.yaml for licensing.
-  static const String fontFamily = 'IBMPlexSansArabic';
-  static const String headingFontFamily = 'ReemKufi';
+  static const String fontFamily = 'NotoSansArabic';
+  static const String headingFontFamily = 'NotoKufiArabic';
   static const String quranFontFamily = 'AmiriQuran';
-  static const String readingFontFamily = 'Amiri';
+  static const String readingFontFamily = 'NotoNaskhArabic';
 
   static TextStyle headingStyle(FontWeight weight) => TextStyle(
     fontFamily: headingFontFamily,
@@ -19,95 +21,42 @@ abstract final class AppTheme {
     fontVariations: [FontVariation.weight(weight.value.toDouble())],
   );
 
-  static const ColorScheme lightScheme = ColorScheme(
-    brightness: Brightness.light,
-    primary: BrandColors.primaryGreen,
-    onPrimary: BrandColors.ivory,
-    primaryContainer: BrandColors.greenMist,
-    onPrimaryContainer: BrandColors.primaryGreen,
-    secondary: BrandColors.goldDeep,
-    onSecondary: Colors.white,
-    secondaryContainer: BrandColors.goldMist,
-    onSecondaryContainer: Color(0xFF3D2E0F),
-    tertiary: Color(0xFF3E6B62),
-    onTertiary: Colors.white,
-    tertiaryContainer: Color(0xFFCDE6DF),
-    onTertiaryContainer: Color(0xFF0F2C26),
-    error: Color(0xFFB3261E),
-    onError: Colors.white,
-    errorContainer: Color(0xFFF9DEDC),
-    onErrorContainer: Color(0xFF410E0B),
-    surface: BrandColors.ivory,
-    onSurface: Color(0xFF1B2826),
-    onSurfaceVariant: Color(0xFF4A5753),
-    surfaceDim: BrandColors.sandDeep,
-    surfaceBright: BrandColors.paper,
-    surfaceContainerLowest: Colors.white,
-    surfaceContainerLow: BrandColors.paper,
-    surfaceContainer: BrandColors.sand,
-    surfaceContainerHigh: BrandColors.sandDeep,
-    surfaceContainerHighest: Color(0xFFE2DAC7),
-    outline: Color(0xFF6F7B76),
-    outlineVariant: BrandColors.line,
-    shadow: Colors.black,
-    scrim: Colors.black,
-    inverseSurface: BrandColors.darkInk,
-    onInverseSurface: BrandColors.ivory,
-    inversePrimary: BrandColors.greenGlow,
-    surfaceTint: Colors.transparent,
-  );
+  static const lightScheme = BrandColors.lightScheme;
+  static const darkScheme = BrandColors.darkScheme;
 
-  static const ColorScheme darkScheme = ColorScheme(
-    brightness: Brightness.dark,
-    primary: BrandColors.greenGlow,
-    onPrimary: Color(0xFF07231D),
-    primaryContainer: BrandColors.primaryGreen,
-    onPrimaryContainer: Color(0xFFDDF0EA),
-    secondary: BrandColors.goldBright,
-    onSecondary: Color(0xFF2B210B),
-    secondaryContainer: Color(0xFF4A3B1C),
-    onSecondaryContainer: Color(0xFFF4E6C6),
-    tertiary: Color(0xFFA8CFC5),
-    onTertiary: Color(0xFF0E2B25),
-    tertiaryContainer: Color(0xFF26453E),
-    onTertiaryContainer: Color(0xFFD3EBE4),
-    error: Color(0xFFF2B8B5),
-    onError: Color(0xFF601410),
-    errorContainer: Color(0xFF8C1D18),
-    onErrorContainer: Color(0xFFF9DEDC),
-    surface: BrandColors.night,
-    onSurface: BrandColors.ivoryDim,
-    onSurfaceVariant: Color(0xFFB9C4BF),
-    surfaceDim: BrandColors.night,
-    surfaceBright: Color(0xFF2B403A),
-    surfaceContainerLowest: Color(0xFF09120F),
-    surfaceContainerLow: BrandColors.nightRaised,
-    surfaceContainer: BrandColors.nightRaised,
-    surfaceContainerHigh: BrandColors.nightHigh,
-    surfaceContainerHighest: BrandColors.nightHighest,
-    outline: Color(0xFF85948E),
-    outlineVariant: BrandColors.nightLine,
-    shadow: Colors.black,
-    scrim: Colors.black,
-    inverseSurface: BrandColors.ivoryDim,
-    onInverseSurface: BrandColors.darkInk,
-    inversePrimary: BrandColors.primaryGreen,
-    surfaceTint: Colors.transparent,
-  );
+  static ThemeData light({
+    bool reduceMotion = false,
+    RemoteTheme? remote,
+    BrandSeason season = BrandSeason.regular,
+  }) => _forMode(false, reduceMotion, remote, season);
 
-  static ThemeData light({bool reduceMotion = false, RemoteTheme? remote}) =>
-      _build(
-        remote == null ? lightScheme : _remoteLight(remote),
-        reduceMotion: reduceMotion,
-        radius: remote?.radius,
-      );
+  static ThemeData dark({
+    bool reduceMotion = false,
+    RemoteTheme? remote,
+    BrandSeason season = BrandSeason.regular,
+  }) => _forMode(true, reduceMotion, remote, season);
 
-  static ThemeData dark({bool reduceMotion = false, RemoteTheme? remote}) =>
-      _build(
-        remote == null ? darkScheme : _remoteDark(remote),
-        reduceMotion: reduceMotion,
-        radius: remote?.radius,
-      );
+  static ThemeData _forMode(
+    bool dark,
+    bool reduceMotion,
+    RemoteTheme? remote,
+    BrandSeason season,
+  ) {
+    final profile = season.profile(dark: dark);
+    final palette = remote?.palettes[profile] ?? BrandColors.fallback(profile);
+    final legacy =
+        remote != null &&
+        remote.palettes.isEmpty &&
+        season == BrandSeason.regular;
+    return _build(
+      legacy
+          ? (dark ? _remoteDark(remote) : _remoteLight(remote))
+          : palette.scheme,
+      reduceMotion: reduceMotion,
+      radius: remote?.radius,
+      chrome: palette.chrome,
+    );
+  }
 
   static bool _isBrand(RemoteTheme theme) =>
       theme.primary == BrandColors.primaryGreen &&
@@ -182,9 +131,11 @@ abstract final class AppTheme {
     ColorScheme scheme, {
     required bool reduceMotion,
     double? radius,
+    required BrandChrome chrome,
   }) {
     final base = ThemeData(
       useMaterial3: true,
+      extensions: [chrome],
       colorScheme: scheme,
       fontFamily: fontFamily,
       scaffoldBackgroundColor: scheme.surface,
@@ -220,7 +171,9 @@ abstract final class AppTheme {
         elevation: 0,
         scrolledUnderElevation: 0.5,
         centerTitle: false,
-        titleTextStyle: text.titleLarge?.copyWith(fontWeight: FontWeight.w600),
+        titleTextStyle: text.headlineSmall?.copyWith(
+          fontWeight: FontWeight.w800,
+        ),
       ),
       cardTheme: CardThemeData(
         color: scheme.surfaceContainerLow,
@@ -229,7 +182,12 @@ abstract final class AppTheme {
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
           borderRadius: radius == null
-              ? AppRadii.lgAll
+              ? const BorderRadiusDirectional.only(
+                  topStart: Radius.circular(18),
+                  topEnd: Radius.circular(18),
+                  bottomStart: Radius.circular(18),
+                  bottomEnd: Radius.circular(5),
+                )
               : BorderRadius.circular(radius),
           side: BorderSide(color: scheme.outlineVariant),
         ),

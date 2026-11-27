@@ -11,9 +11,11 @@ import 'app/first_run.dart';
 import 'core/audio/audio_handler.dart';
 import 'core/audio/audio_playback.dart';
 import 'core/auth/google_account.dart';
+import 'core/content/content_news.dart';
 import 'core/diagnostics/error_log.dart';
 import 'core/storage/key_value_store.dart';
 import 'core/storage/storage_providers.dart';
+import 'core/theme/remote_theme.dart';
 import 'features/adhkar/data/adhkar_progress.dart';
 import 'features/hadith/data/hadith_favorites.dart';
 import 'features/prayer/application/prayer_preferences.dart';
@@ -21,6 +23,7 @@ import 'features/prayer/application/prayer_widget_sync.dart';
 import 'features/quran/application/memorization.dart';
 import 'features/quran/application/reading_preferences.dart';
 import 'features/quran/data/local_quran_bookmarks.dart';
+import 'features/quran/data/mushaf_source.dart';
 import 'features/quran/data/recitation_resume.dart';
 import 'features/reminders/application/reminder_settings_controller.dart';
 import 'features/reminders/data/reminder_scheduler.dart';
@@ -49,6 +52,7 @@ Future<void> main() async {
           androidNotificationChannelId:
               'com.abdulrahmanalsaeed.madar.recitation',
           androidNotificationChannelName: 'Madar Al-Huda audio',
+          androidNotificationIcon: 'drawable/madar_notification_mark',
           androidNotificationOngoing: true,
           androidStopForegroundOnPause: true,
         ),
@@ -98,6 +102,8 @@ final Set<String> storageAllowList = {
   LocalQuranBookmarks.key,
   LocalQuranBookmarks.backupKey,
   ReadingPreferencesController.key,
+  RemoteThemeController.cacheKey,
+  MushafSourceController.key,
   TasbihController.key,
   AdhkarProgressController.key,
   DailyReadingPlanController.key,
@@ -107,6 +113,7 @@ final Set<String> storageAllowList = {
   'quran.reciter.v1',
   firstRunDoneKey,
   lastRecitationKey,
+  ContentNewsPreference.key,
 };
 
 /// Opens on-device preferences. If the platform store is unavailable the app
@@ -186,7 +193,15 @@ void _registerFontLicense() {
       '(creativecommons.org/licenses/by/4.0). Arabic country names: '
       'Unicode CLDR, under the Unicode License.',
     );
-    // Content sources are credited here only, not on the reading screens.
+    for (final (name, folder) in [
+      ('Noto Sans Arabic', 'notosansarabic'),
+      ('Noto Kufi Arabic', 'notokufiarabic'),
+      ('Noto Naskh Arabic', 'notonaskharabic'),
+    ]) {
+      yield LicenseEntryWithLineBreaks([
+        name,
+      ], await rootBundle.loadString('assets/fonts/$folder/OFL.txt'));
+    }
     for (final (name, credit) in _contentSources) {
       yield LicenseEntryWithLineBreaks([name], credit);
     }

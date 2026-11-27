@@ -64,6 +64,8 @@ jobs:
           done
           php hosting/tests/apk_signature_test.php
           php hosting/tests/library_media_test.php
+          php hosting/tests/appearance_test.php
+          php hosting/tests/content_news_test.php
           node --check hosting/admin/admin.js
 
   quran-edge:
@@ -158,7 +160,7 @@ jobs:
 
       - name: Build debug APK
         env:
-          MADAR_QURAN_API_URL: ${{ vars.MADAR_QURAN_API_URL }}
+          MADAR_QURAN_API_URL: ${{ vars.MADAR_DEV_QURAN_API_URL || vars.MADAR_QURAN_API_URL }}
           MADAR_SUPABASE_ANON_KEY: ${{ vars.MADAR_SUPABASE_ANON_KEY }}
         run: |
           if [[ -z "$MADAR_QURAN_API_URL" && -z "$MADAR_SUPABASE_ANON_KEY" ]]; then

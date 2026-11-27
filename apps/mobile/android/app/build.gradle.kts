@@ -60,6 +60,16 @@ android {
         versionCode = flutter.versionCode
         versionName = flutter.versionName
 
+        val firebase = mapOf(
+            "google_app_id" to System.getenv("MADAR_FIREBASE_APP_ID"),
+            "google_api_key" to System.getenv("MADAR_FIREBASE_API_KEY"),
+            "gcm_defaultSenderId" to System.getenv("MADAR_FIREBASE_SENDER_ID"),
+            "project_id" to System.getenv("MADAR_FIREBASE_PROJECT_ID"),
+        )
+        if (firebase.values.all { !it.isNullOrBlank() }) {
+            firebase.forEach { (name, value) -> resValue("string", name, value!!) }
+        }
+
         if (isDevChannel) {
             // Installs beside (never over) a future store build.
             applicationIdSuffix = ".dev"
@@ -102,6 +112,7 @@ flutter {
 }
 
 dependencies {
+    implementation("com.google.firebase:firebase-messaging:26.0.0")
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
     // FileProvider for sharing verse images; same version the plugins use.
     implementation("androidx.core:core:1.19.0")

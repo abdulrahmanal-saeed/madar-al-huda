@@ -5,9 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../../app/deep_links.dart';
+import '../../../core/audio/audio_playback.dart';
 import '../../../core/content/app_settings.dart';
 import '../../../core/content/feature_preview.dart';
 import '../../../core/localization/l10n_extension.dart';
@@ -98,6 +98,7 @@ class _Reader extends ConsumerStatefulWidget {
 class _ReaderState extends ConsumerState<_Reader> {
   late AyahRef _current;
   AyahRef? _selected;
+  AyahRef? _playbackHighlight;
   final _scroll = ItemScrollController();
   final _positions = ItemPositionsListener.create();
   final _pageKeys = <int, GlobalKey<MushafPageViewState>>{};
@@ -118,6 +119,10 @@ class _ReaderState extends ConsumerState<_Reader> {
     _selected = saved == null ? null : _current;
     _positions.itemPositions.addListener(_trackPosition);
     if (_selected != null) _scheduleReveal(_current);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (ref.read(recitedVerseProvider) case final verse?) _follow(verse);
+    });
     // Leaving the app right after a scroll would skip the delayed save;
     // keep the place the reader is looking at now.
     _lifecycle = AppLifecycleListener(onInactive: _saveNow, onHide: _saveNow);
@@ -249,10 +254,14 @@ class _ReaderState extends ConsumerState<_Reader> {
       surah: recited.surah,
       ayah: recited.ayah,
     );
-    if (!widget.edition.contains(verse) || verse == _selected) return;
+    if (!widget.edition.contains(verse) || verse == _playbackHighlight) return;
+    final previousPage = widget.edition.pageOf(_playbackHighlight ?? _current);
+    _playbackHighlight = verse;
     _settle?.cancel();
     final page = widget.edition.pageOf(verse);
-    if (_pageKeys[page]?.currentState == null && _scroll.isAttached) {
+    if (_scroll.isAttached &&
+        (previousPage ~/ _spread != page ~/ _spread ||
+            _pageKeys[page]?.currentState == null)) {
       _scroll.jumpTo(index: page ~/ _spread);
     }
     setState(() {
@@ -272,14 +281,14 @@ class _ReaderState extends ConsumerState<_Reader> {
     unawaited(_save(verse));
   }
 
-  void _navigate(AyahRef verse) {
+  void _navigate(AyahRef verse, {bool highlight = true}) {
     _settle?.cancel();
     final page = widget.edition.pageOf(verse);
     _scheduleReveal(verse);
     if (_scroll.isAttached) _scroll.jumpTo(index: page ~/ _spread);
     setState(() {
       _current = verse;
-      _selected = verse;
+      _selected = highlight ? verse : null;
     });
     unawaited(_save(verse));
   }
@@ -411,8 +420,31 @@ class _ReaderState extends ConsumerState<_Reader> {
     // Tablets and wide windows read a two-page spread.
     final spread = MediaQuery.sizeOf(context).width >= 840 ? 2 : 1;
     _spread = spread;
+    ref.listen(
+      audioPlaybackProvider.select(
+        (playback) => playback.track?.extras?[recitationSurahExtra],
+      ),
+      (previous, current) {
+        if (previous is! int ||
+            current is! int ||
+            current < 1 ||
+            current > widget.edition.surahs.length ||
+            _current.surah == current) {
+          return;
+        }
+        _navigate(
+          AyahRef(editionId: MushafEdition.id, surah: current, ayah: 1),
+          highlight: false,
+        );
+      },
+    );
     ref.listen<RecitedVerse?>(recitedVerseProvider, (_, recited) {
-      if (recited != null) _follow(recited);
+      if (recited != null) {
+        _follow(recited);
+      } else if (_playbackHighlight != null) {
+        if (_selected == _playbackHighlight) setState(() => _selected = null);
+        _playbackHighlight = null;
+      }
     });
     // Keeps the bookmark list loaded for the index sheet without rebuilding
     // the whole reader on every bookmark change; the page header that shows
@@ -434,6 +466,13 @@ class _ReaderState extends ConsumerState<_Reader> {
     final edition = widget.edition;
     final reading = ref.watch(readingPreferencesProvider);
     final focused = ref.watch(readingFocusProvider);
+    final playing = ref.watch(
+      audioPlaybackProvider.select((value) => value.track?.id),
+    );
+    final timingUnavailable =
+        playing != null &&
+        ref.watch(unavailableRecitationTimingProvider) == playing;
+
     return PopScope(
       canPop: !focused,
       onPopInvokedWithResult: (didPop, _) {
@@ -443,10 +482,24 @@ class _ReaderState extends ConsumerState<_Reader> {
         appBar: focused
             ? null
             : AppBar(
+                leading: Padding(
+                  padding: const EdgeInsetsDirectional.only(start: 8),
+                  child: IconButton.filledTonal(
+                    tooltip: l10n.readerIndex,
+                    onPressed: _chooseIndex,
+                    icon: const Icon(Icons.chevron_right),
+                  ),
+                ),
+                titleSpacing: 6,
                 title: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(surah.name(language)),
+                    Text(
+                      surah.name(language),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
                     Text(
                       l10n.readerPageMeta(
                         l10n.readerJuzLabel(
@@ -468,7 +521,14 @@ class _ReaderState extends ConsumerState<_Reader> {
                   ],
                 ),
                 actions: [
-                  IconButton(
+                  if (timingUnavailable)
+                    Tooltip(
+                      message: language == 'ar'
+                          ? 'توقيت الآيات غير متاح لهذا التسجيل'
+                          : 'Verse timing is unavailable for this recording',
+                      child: const Icon(Icons.sync_disabled),
+                    ),
+                  IconButton.filledTonal(
                     tooltip: l10n.searchTitle,
                     onPressed: () => context.push(AppRoutes.search),
                     icon: const Icon(Icons.search),
@@ -485,29 +545,32 @@ class _ReaderState extends ConsumerState<_Reader> {
                     onPressed: () => showReadingSettings(context),
                     icon: const Icon(Icons.text_fields),
                   ),
-                  IconButton(
-                    tooltip: l10n.readerGoToVerse,
-                    onPressed: _chooseAyah,
-                    icon: const Icon(Icons.tag),
-                  ),
-                  IconButton(
-                    tooltip: l10n.readerIndex,
-                    onPressed: _chooseIndex,
-                    icon: const Icon(Icons.list_alt),
-                  ),
-                  PopupMenuButton<Uri?>(
+                  PopupMenuButton<String>(
                     tooltip: l10n.readerSources,
-                    onSelected: (uri) => uri == null
-                        ? showRecitationDownloads(context, edition)
-                        : uri.scheme == 'madar'
-                        ? context.push(AppRoutes.memorize)
-                        : launchUrl(uri),
+                    onSelected: (action) {
+                      switch (action) {
+                        case 'verse':
+                          _chooseAyah();
+                        case 'downloads':
+                          showRecitationDownloads(context, edition);
+                        case 'memorize':
+                          context.push(AppRoutes.memorize);
+                      }
+                    },
                     itemBuilder: (_) => [
+                      PopupMenuItem(
+                        value: 'verse',
+                        child: ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: const Icon(Icons.tag),
+                          title: Text(l10n.readerGoToVerse),
+                        ),
+                      ),
                       if (ref
                           .watch(appSettingsProvider)
                           .shows(AppFeature.memorize))
                         PopupMenuItem(
-                          value: Uri(scheme: 'madar', path: 'memorize'),
+                          value: 'memorize',
                           child: ListTile(
                             contentPadding: EdgeInsets.zero,
                             leading: const Icon(Icons.psychology_outlined),
@@ -515,7 +578,7 @@ class _ReaderState extends ConsumerState<_Reader> {
                           ),
                         ),
                       PopupMenuItem(
-                        value: null,
+                        value: 'downloads',
                         child: ListTile(
                           contentPadding: EdgeInsets.zero,
                           leading: const Icon(Icons.file_download_outlined),

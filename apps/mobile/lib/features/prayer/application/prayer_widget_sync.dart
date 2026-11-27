@@ -4,9 +4,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:material_ui/material_ui.dart';
+import 'package:timezone/timezone.dart' as tz;
 
 import '../../../core/localization/app_locales.dart';
+import '../../../core/localization/civil_hijri_date.dart';
 import '../../../core/localization/l10n_extension.dart';
+import '../../../core/routing/app_routes.dart';
+import '../../reminders/application/reminder_settings_controller.dart';
+import '../../reminders/data/reminder_scheduler.dart';
 import '../../worship/application/worship_location.dart';
 import '../domain/prayer_schedule.dart';
 import '../presentation/next_prayer_card.dart' show prayerName;
@@ -36,6 +41,21 @@ final class NoPrayerWidget implements PrayerWidget {
 final class HomePrayerWidget implements PrayerWidget {
   static const _provider =
       'com.abdulrahmanalsaeed.madaralhuda.NextPrayerWidget';
+
+  Future<void> publishPalette(List<int> palette) async {
+    const keys = [
+      'prayer_widget_bg',
+      'prayer_widget_accent',
+      'prayer_widget_ink',
+      'prayer_widget_muted',
+    ];
+    for (final (index, key) in keys.indexed) {
+      await HomeWidget.saveWidgetData<String>(
+        key,
+        palette[index].toSigned(32).toString(),
+      );
+    }
+  }
 
   @override
   Future<void> publish(List<WidgetPrayer> prayers, String place) async {
@@ -125,11 +145,20 @@ class _PrayerWidgetSyncState extends ConsumerState<PrayerWidgetSync> {
   Widget build(BuildContext context) {
     final widgetTarget = ref.watch(prayerWidgetProvider);
     if (widgetTarget is NoPrayerWidget) return widget.child;
+    final enabled = ref.watch(reminderSettingsProvider).prayerStatus;
     final location = ref.watch(worshipLocationProvider);
     final prayerPlace = ref.watch(prayerPlaceProvider);
     final hanafi = ref.watch(hanafiAsrProvider);
     final l10n = context.l10n;
     final language = Localizations.localeOf(context).languageCode;
+    final scheme = Theme.of(context).colorScheme;
+    final accent = scheme.primary.toARGB32();
+    final widgetPalette = [
+      scheme.surfaceContainerLow.toARGB32(),
+      accent,
+      scheme.onSurface.toARGB32(),
+      scheme.onSurfaceVariant.toARGB32(),
+    ];
     final place =
         location.place?.label(language) ??
         (location.fromDevice ? l10n.deviceLocation : '');
@@ -139,8 +168,10 @@ class _PrayerWidgetSyncState extends ConsumerState<PrayerWidgetSync> {
       prayerPlace?.timeZone,
       prayerPlace?.method.name,
       hanafi,
+      enabled,
       language,
       place,
+      ...widgetPalette,
     ].join('|');
     if (signature != _published) {
       _published = signature;
@@ -159,7 +190,63 @@ class _PrayerWidgetSyncState extends ConsumerState<PrayerWidgetSync> {
                 language: language,
               );
         try {
+          if (widgetTarget is HomePrayerWidget) {
+            await widgetTarget.publishPalette(widgetPalette);
+          }
           await widgetTarget.publish(prayers, place);
+          final now = DateTime.now();
+          final zone = prayerPlace == null
+              ? tz.UTC
+              : PrayerSchedule.zone(prayerPlace.timeZone) ?? tz.UTC;
+          final local = tz.TZDateTime.from(now, zone);
+          final days = [
+            for (var offset = -1; offset < 32; offset++)
+              tz.TZDateTime(zone, local.year, local.month, local.day + offset),
+          ];
+          final clock = DateFormat.jm(language);
+          final statusPrayers = !enabled || prayerPlace == null
+              ? const <PrayerEvent>[]
+              : [
+                  for (final day in days)
+                    ...PrayerSchedule.calculate(
+                      place: prayerPlace,
+                      now: day.add(const Duration(hours: 12)),
+                      hanafi: hanafi,
+                    ).today.where((event) => event.slot != PrayerSlot.sunrise),
+                ];
+          await worshipAlarms.invokeMethod<void>('status', {
+            'enabled': enabled,
+            'place': place,
+            'title': l10n.appTitle,
+            'accent': accent,
+            'lang': language,
+            'route': AppRoutes.prayerTimes,
+            'locationRoute': '${AppRoutes.prayerTimes}?location=1',
+            'open': l10n.sectionPrayerTimesTitle,
+            'refresh': language == 'ar' ? 'تحديث الموقع' : 'Update location',
+            'choose': l10n.locationChooseTitle,
+            'unknown': language == 'ar'
+                ? 'اختار مدينتك لعرض مواقيت الصلاة'
+                : 'Choose your city to show prayer times',
+            'next': l10n.nextPrayer,
+            'last': language == 'ar' ? 'آخر صلاة' : 'Last prayer',
+            'dates': [
+              if (enabled && prayerPlace != null)
+                for (final day in days)
+                  {
+                    'at': day.millisecondsSinceEpoch,
+                    'label': civilHijriDate(day, language) ?? '',
+                  },
+            ],
+            'prayers': [
+              for (final prayer in statusPrayers)
+                {
+                  'label': prayerName(prayer.slot, l10n),
+                  'time': clock.format(prayer.time),
+                  'at': prayer.time.millisecondsSinceEpoch,
+                },
+            ],
+          });
         } on Object catch (error, stack) {
           _published = null;
           FlutterError.reportError(

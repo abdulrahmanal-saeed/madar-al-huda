@@ -5,13 +5,14 @@ import 'package:material_ui/material_ui.dart';
 
 import '../core/localization/app_locales.dart';
 import '../core/localization/l10n_extension.dart';
+import '../core/localization/numbers.dart';
 import '../core/storage/key_value_store.dart';
 import '../core/storage/storage_providers.dart';
 import '../core/theme/app_tokens.dart';
-import '../core/theme/brand_colors.dart';
 import '../features/reminders/application/reminder_settings_controller.dart';
 import '../features/reminders/data/reminder_scheduler.dart';
 import '../features/reminders/domain/reminder_settings.dart';
+import '../features/reminders/presentation/adhan_voice_picker.dart';
 import '../features/settings/application/settings_controller.dart';
 import '../features/settings/domain/app_settings.dart';
 import '../features/worship/application/worship_location.dart';
@@ -218,7 +219,7 @@ class _FirstRunFlowState extends ConsumerState<FirstRunFlow> {
                         margin: const EdgeInsets.symmetric(horizontal: 3),
                         decoration: BoxDecoration(
                           color: step.index <= _step.index
-                              ? BrandColors.mutedGold
+                              ? scheme.primary
                               : scheme.outlineVariant,
                           borderRadius: AppRadii.xlAll,
                         ),
@@ -241,18 +242,19 @@ class _FirstRunFlowState extends ConsumerState<FirstRunFlow> {
 
   Widget _heading(BuildContext context, IconData icon, String title) {
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     return Column(
       children: [
         DecoratedBox(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             shape: BoxShape.circle,
             gradient: LinearGradient(
-              colors: [BrandColors.primaryGreen, BrandColors.heroGreenEnd],
+              colors: [scheme.primaryContainer, scheme.surfaceContainerHigh],
             ),
           ),
           child: Padding(
             padding: const EdgeInsets.all(22),
-            child: Icon(icon, size: 40, color: BrandColors.goldBright),
+            child: Icon(icon, size: 40, color: scheme.onPrimaryContainer),
           ),
         ),
         const SizedBox(height: AppSpacing.lg),
@@ -289,7 +291,7 @@ class _FirstRunFlowState extends ConsumerState<FirstRunFlow> {
           borderRadius: AppRadii.xlAll,
           side: BorderSide(
             color: selected
-                ? BrandColors.mutedGold
+                ? theme.colorScheme.primary
                 : theme.colorScheme.outlineVariant,
             width: selected ? 2 : 1,
           ),
@@ -454,6 +456,41 @@ class _FirstRunFlowState extends ConsumerState<FirstRunFlow> {
                   onChanged: (on) =>
                       setState(() => _choice = reminder.apply(_choice, on)),
                 ),
+              AdhanVoicePicker(
+                value: _choice.adhanVoice,
+                onChanged: (voice) => setState(
+                  () => _choice = _choice.copyWith(adhanVoice: voice),
+                ),
+              ),
+              ListTile(
+                title: Text(l10n.remindersDuaEvery),
+                trailing: DropdownButton<int>(
+                  value: _choice.duaEveryHours,
+                  items: [
+                    for (final hours in ReminderSettings.duaIntervals)
+                      DropdownMenuItem(
+                        value: hours,
+                        child: Text(
+                          hours == 0
+                              ? l10n.remindersDuaOff
+                              : l10n.remindersDuaHours(
+                                  decimalFormat(
+                                    Localizations.localeOf(context)
+                                        .languageCode,
+                                  ).format(hours),
+                                ),
+                        ),
+                      ),
+                  ],
+                  onChanged: (hours) {
+                    if (hours != null) {
+                      setState(
+                        () => _choice = _choice.copyWith(duaEveryHours: hours),
+                      );
+                    }
+                  },
+                ),
+              ),
             ],
           ),
         ),

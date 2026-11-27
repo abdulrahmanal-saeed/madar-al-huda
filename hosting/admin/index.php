@@ -10,6 +10,7 @@ if (($_GET['privacy'] ?? '') === '1') {
     require __DIR__ . '/privacy-public.php';
 }
 require __DIR__ . '/content.php';
+require __DIR__ . '/content-news.php';
 require __DIR__ . '/advanced.php';
 require __DIR__ . '/appearance.php';
 require __DIR__ . '/sections.php';
@@ -30,6 +31,7 @@ try {
     if (isset($_GET['library_media'])) {
         serveLibraryMedia($db, $_GET['library_media']);
     }
+    if (($_GET['feed'] ?? '') === 'content-news') serveContentNews($db);
     if (($_GET['feed'] ?? '') === 'library') {
         serveFeed($db);
     }
@@ -106,6 +108,8 @@ function route(string $section, string $topic = '', string $item = ''): string
     }
     return './?' . http_build_query(array_filter([
         'section' => $section, 'topic' => $topic, 'edit' => $item,
+        'profile' => $section === 'appearance' && isset($_GET['profile'])
+            ? paletteProfile($_GET['profile']) : '',
     ], fn ($value) => $value !== ''));
 }
 
@@ -193,6 +197,7 @@ if ($user !== null && !canSee($user, $section)) {
 $signedIn = null;
 $error = null;
 $confirming = null;
+$publishedNewsId = null;
 const CONFIRMATIONS = [
     'publish' => 'ستُنشر المسودة لكل مستخدمي التطبيق. هل تريد المتابعة؟',
     'delete' => 'سيُحذف هذا العنصر من المسودة. هل تريد المتابعة؟',
@@ -251,7 +256,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // blocks scripts, so the check happens on the server.
             $confirming = ['action' => $action, 'message' => match (true) {
                 $section === 'appearance' && $action === 'delete'
-                    => 'سترجع ألوان التطبيق وشكله إلى الهوية الأصلية في المسودة. هل تريد المتابعة؟',
+                    => 'سترجع ألوان اللوحة المختارة إلى الهوية الأصلية في المسودة. هل تريد المتابعة؟',
                 $section === 'library_sections' && $action === 'delete'
                     => 'سيُحذف هذا القسم وكل روابطه من المسودة. هل تريد المتابعة؟',
                 default => CONFIRMATIONS[$action],
@@ -276,7 +281,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     session_start();
                 }
             } else {
-                updateLibrary($db, $action, $seed, $section, $topic, $user);
+                $publishedNewsId = updateLibrary($db, $action, $seed, $section, $topic, $user);
             }
             $_SESSION['notice'] = match ($action) {
                 'publish' => 'تم نشر تحديث المكتبة.',
@@ -285,6 +290,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'review_approve' => 'اعتُمدت المسألة شرعيًا ويمكن نشرها.',
                 default => 'حُفظت المسودة.',
             };
+        } elseif ($action === 'news_publish') {
+            $id = locked($db, function () use ($db): int {
+                $data = library($db);
+                if (!is_string($data['published'])) throw new InvalidArgumentException('انشر المحتوى أولًا.');
+                return enqueueContentNews($db, json_decode($data['published'], true, 64, JSON_THROW_ON_ERROR), (int) $data['revision']);
+            });
+            $_SESSION['notice'] = deliverContentNews($db, $id) ? 'أُرسل إشعار المحتوى.' : 'حُفظ الإشعار، ويمكن إعادة إرسال الدفع من السجل.';
+        } elseif ($action === 'news_retry') {
+            $id = integer(field('news_id'), 1, PHP_INT_MAX);
+            $_SESSION['notice'] = deliverContentNews($db, $id) ? 'أُرسل إشعار المحتوى.' : 'الإشعار لم يُرسل. راجع حالة الإرسال.';
         } elseif ($action === 'drive_import') {
             // The download can take minutes; release the session so the
             // page can keep polling the progress meanwhile.
@@ -328,6 +343,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['notice'] = changeRelease($db, $action);
         } else {
             throw new InvalidArgumentException('الإجراء غير متاح.');
+        }
+        if ($confirming === null && $action === 'publish' && $publishedNewsId !== null) {
+            if (deliverContentNews($db, $publishedNewsId)) {
+                $_SESSION['notice'] = 'تم نشر المحتوى وأُرسل الإشعار.';
+            } else {
+                $_SESSION['notice'] = 'تم نشر المحتوى وحُفظ الإشعار في السجل.';
+            }
         }
         if ($confirming === null && $action !== 'setup') {
             $who = $signedIn['username'] ?? $user['username'] ?? '?';
@@ -482,10 +504,44 @@ if ($active) {
             <?php endforeach; ?>
             <input type="hidden" name="csrf" value="<?= e($_SESSION['csrf']) ?>">
             <input type="hidden" name="confirmed" value="yes">
+            <?php if ($confirming['action'] === 'publish'): ?>
+              <?php $optionalNews = true; $newsContent = $draft; require __DIR__ . '/content-news-fields.php'; ?>
+            <?php endif; ?>
             <button class="primary<?= in_array($confirming['action'], ['delete', 'archive_story'], true) ? ' danger' : '' ?>">نعم، تابع</button>
           </form>
           <a class="button quiet" href="<?= e(route($section, $topic, is_string($_GET['edit'] ?? null) ? $_GET['edit'] : '')) ?>">إلغاء</a>
         </div>
+      </section>
+    <?php endif; ?>
+
+    <?php if ($section === 'history' && allowedAction($user, 'news_publish', $section)): ?>
+      <section class="panel">
+        <h2>إشعارات المحتوى المنشور</h2>
+        <?php if (is_string($state['published'])): ?>
+          <form method="post">
+            <?php controls('news_publish'); ?>
+            <?php $optionalNews = false; $newsContent = json_decode($state['published'], true); require __DIR__ . '/content-news-fields.php'; ?>
+            <button class="primary">إرسال الإعلان</button>
+          </form>
+        <?php endif; ?>
+        <?php contentNewsTable($db); ?>
+        <?php foreach ($db->query('SELECT * FROM content_news ORDER BY id DESC LIMIT 25')->fetchAll() as $news): ?>
+          <div class="row">
+            <span><?= e($news['title']) ?> · <?= e($news['channel'] === 'dev' ? 'اختبار' : 'عام') ?> · <?= e(match ($news['state']) {
+                'sent' => 'قُبل لدى خدمة الإرسال',
+                'failed' => 'تعذر الإرسال',
+                'sending' => 'جارٍ الإرسال',
+                default => 'بانتظار الإرسال',
+            }) ?></span>
+            <?php if ($news['state'] !== 'sent'): ?>
+              <form method="post">
+                <?php controls('news_retry'); ?>
+                <input type="hidden" name="news_id" value="<?= e($news['id']) ?>">
+                <button class="quiet">إعادة المحاولة</button>
+              </form>
+            <?php endif; ?>
+          </div>
+        <?php endforeach; ?>
       </section>
     <?php endif; ?>
 
@@ -616,7 +672,7 @@ if ($active) {
         <?php if ($current !== null || $edit === 'new'): ?>
         <section class="panel">
           <h2><?= $current !== null ? 'تعديل العنصر' : 'إضافة عنصر' ?></h2>
-          <form method="post">
+          <form method="post" enctype="multipart/form-data">
             <?php controls('save', $revision); ?>
             <input type="hidden" name="original" value="<?= $current !== null ? e($edit) : '' ?>">
             <?php if ($section === 'duas'): ?>
@@ -659,13 +715,52 @@ if ($active) {
                   </fieldset>
                 <?php endif; ?>
                 <details>
-                  <summary>المراجع والتكرار (متقدم)</summary>
+                  <summary>المراجع والصيغ البديلة</summary>
                   <label>مراجع الآيات <span dir="ltr">[[2,255,255]]</span><textarea name="quran" dir="ltr"><?= e(fieldValue($current['quran'] ?? [])) ?></textarea></label>
-                  <label>خطوات التكرار <span dir="ltr">[{"unit":"tasbih","count":33}]</span><textarea name="repeat" dir="ltr"><?= e(fieldValue($current['repeat'] ?? [])) ?></textarea></label>
                   <label>صيغ بديلة للذكر <span dir="ltr">[{"hadith":5490}]</span><textarea name="variants" dir="ltr"><?= e(fieldValue($current['variants'] ?? [])) ?></textarea></label>
                 </details>
+                <?php
+                require_once __DIR__ . '/repeat-view.php';
+                if (!empty($current['variants'])) {
+                    foreach ($current['variants'] as $variant) {
+                        repeatEditor('variant-' . $variant['hadith'], $variant['repeat'] ?? [], 'عدد التكرارات لصيغة الحديث ' . $variant['hadith']);
+                    }
+                } else {
+                    repeatEditor('main', $current['repeat'] ?? [], 'عدد التكرارات');
+                }
+                ?>
                 <?php endif; ?>
               <?php endif; ?>
+            <?php endif; ?>
+            <?php if (in_array($section, ['daily', 'merits', 'daily_duas', 'hisn'], true)): ?>
+              <fieldset>
+                <legend>التسجيلات الصوتية MP3</legend>
+                <?php
+                $recordings = [];
+                if ($section === 'hisn') {
+                    foreach ($current['entries'] ?? [] as $entry) {
+                        $recordings[$entry['id']] = [$entry['title']['ar'], $entry['recording'] ?? null];
+                    }
+                } elseif (!empty($current['variants'])) {
+                    foreach ($current['variants'] as $variant) {
+                        $id = $variant['hadith'];
+                        $recordings['main-' . $id] = ['صيغة الحديث ' . $id, $variant['recording'] ?? null];
+                    }
+                } else {
+                    $recordings['main'] = ['تسجيل العنصر', $current['recording'] ?? null];
+                }
+                ?>
+                <?php foreach ($recordings as $slot => [$label, $audio]): ?>
+                  <label><?= e($label) ?><input type="file" name="devotional[<?= e($slot) ?>]" accept="audio/mpeg,.mp3"></label>
+                  <?php if ($audio !== null): ?>
+                    <p class="hint">تسجيل محفوظ. اختَر ملف MP3 جديدًا لاستبداله.</p>
+                    <label class="check"><input type="checkbox" name="remove_devotional[<?= e($slot) ?>]" value="1">حذف التسجيل الحالي</label>
+                  <?php endif; ?>
+                <?php endforeach; ?>
+                <?php if ($section === 'hisn' || $section === 'daily' || $section === 'merits'): ?>
+                  <p class="hint">احفظ الصيغ الجديدة أولًا ثم أرفق تسجيل كل صيغة من هنا.</p>
+                <?php endif; ?>
+              </fieldset>
             <?php endif; ?>
             <button class="primary">حفظ في المسودة</button>
           </form>

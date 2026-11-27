@@ -62,6 +62,7 @@ Future<InMemoryKeyValueStore> pumpMadarApp(
   String? initialLocation,
   QuranApi? quranApi,
   AudioPlayer? audioPlayer,
+  AdhkarCatalog? adhkarCatalog,
   Uri? cairoRadioStream,
   List<Override> additionalOverrides = const [],
 }) async {
@@ -85,7 +86,9 @@ Future<InMemoryKeyValueStore> pumpMadarApp(
       overrides: [
         keyValueStoreProvider.overrideWithValue(kv),
         mushafEditionProvider.overrideWith((_) => _testMushaf!),
-        adhkarCatalogProvider.overrideWith((_) => _testAdhkar!),
+        adhkarCatalogProvider.overrideWith(
+          (_) => adhkarCatalog ?? _testAdhkar!,
+        ),
         quranDuaIndexProvider.overrideWith((_) => quranDuaIndex),
         managedLibraryProvider.overrideWith((_) => null),
         worldCitiesProvider.overrideWith((_) => testCities()),

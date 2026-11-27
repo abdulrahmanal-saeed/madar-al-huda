@@ -111,8 +111,8 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
     } on Object {
       if (mounted) {
         final message = _ar
-            ? 'اختر صورة PNG أو JPEG بحجم لا يتجاوز 2 ميجابايت.'
-            : 'Choose a PNG or JPEG image no larger than 2 MB.';
+            ? 'اختر صورة PNG أو JPEG أصغر.'
+            : 'Choose a smaller PNG or JPEG image.';
         final snack = SnackBar(content: Text(message));
         ScaffoldMessenger.of(context).showSnackBar(snack);
       }
@@ -170,8 +170,8 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
     final attach = ar ? 'إرفاق صورة (اختياري)' : 'Attach image (optional)';
     final remove = ar ? 'إزالة الصورة' : 'Remove image';
     final help = ar
-        ? 'اختر لقطة شاشة بدون معلومات شخصية (PNG أو JPEG، حتى 2 ميجابايت). تُرسل مع البلاغ إلى الإدارة فقط.'
-        : 'Choose a screenshot without personal information (PNG or JPEG, up to 2 MB). It is sent only to the administrators.';
+        ? 'اختر لقطة شاشة بدون معلومات شخصية (PNG أو JPEG). تُرسل مع البلاغ إلى الإدارة فقط.'
+        : 'Choose a screenshot without personal information (PNG or JPEG). It is sent only to the administrators.';
     final style = Theme.of(context).textTheme.bodySmall;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,

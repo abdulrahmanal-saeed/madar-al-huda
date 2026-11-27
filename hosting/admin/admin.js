@@ -3,6 +3,31 @@
 // post normally.
 'use strict';
 
+for (const editor of document.querySelectorAll('[data-repeat-editor]')) {
+  const rows = editor.querySelector('[data-repeat-rows]');
+  const add = editor.querySelector('[data-repeat-add]');
+  const template = editor.querySelector('template');
+  const update = () => {
+    add.disabled = rows.children.length >= 25;
+    for (const button of rows.querySelectorAll('[data-repeat-remove]')) button.hidden = false;
+  };
+  add.hidden = false;
+  add.addEventListener('click', () => {
+    if (rows.children.length >= 25) return;
+    rows.append(template.content.cloneNode(true));
+    rows.lastElementChild.querySelector('input').focus();
+    update();
+  });
+  rows.addEventListener('click', (event) => {
+    const remove = event.target.closest('[data-repeat-remove]');
+    if (!remove) return;
+    remove.closest('.repeat-step').remove();
+    add.focus();
+    update();
+  });
+  update();
+}
+
 (() => {
   const sizeLabel = (bytes) => {
     if (!bytes) return '';
@@ -309,3 +334,16 @@
     });
   }
 })();
+
+for (const fields of document.querySelectorAll('.content-news-fields')) {
+  const title = fields.querySelector('[name="news_title"]');
+  const body = fields.querySelector('[name="news_body"]');
+  const target = fields.querySelector('[name="news_route"]');
+  const update = () => {
+    fields.querySelector('[data-news-preview-title]').textContent = title.value || 'عنوان الإشعار';
+    fields.querySelector('[data-news-preview-body]').textContent = body.value || 'نص الإشعار';
+    fields.querySelector('[data-news-preview-action]').textContent = 'افتح · ' + target.selectedOptions[0].textContent;
+  };
+  fields.addEventListener('input', update);
+  update();
+}

@@ -84,19 +84,27 @@ function dhikr(string $id, array $ayahCounts): array
         if (!$own) {
             $data['hadith'] = integer(field('hadith'), 1, 99999999);
         }
-        $repeat = optionalJson('repeat');
+        $repeat = postedRepetition('main') ?? optionalJson('repeat');
         if ($repeat !== []) {
             validateRepeat($repeat);
             $data['repeat'] = $repeat;
         }
     } else {
-        foreach ($variants as $variant) {
+        foreach ($variants as &$variant) {
             if (!is_array($variant) || !is_int($variant['hadith'] ?? null) ||
                 $variant['hadith'] < 1 || $variant['hadith'] > 99999999) {
                 throw new InvalidArgumentException('كل صيغة تحتاج رقم حديث صحيحًا.');
             }
+            $steps = postedRepetition('variant-' . $variant['hadith']);
+            if ($steps !== null) {
+                unset($variant['repeat']);
+                if ($steps !== []) {
+                    $variant['repeat'] = $steps;
+                }
+            }
             validateRepeat($variant['repeat'] ?? []);
         }
+        unset($variant);
         $data['variants'] = $variants;
     }
     $ranges = [];
@@ -224,6 +232,35 @@ function hasOwnAdhkar(array $payload): bool
     return false;
 }
 
+/** Null keeps the existing JSON/API path for callers without form rows. */
+function postedRepetition(string $slot): ?array
+{
+    $values = $_POST['repetition'][$slot] ?? null;
+    if (($values['editor'] ?? null) !== '1') {
+        return null;
+    }
+    $units = $values['unit'] ?? [];
+    $counts = $values['count'] ?? [];
+    if (!is_array($units) || !array_is_list($units) || !is_array($counts) ||
+        !array_is_list($counts) || count($units) !== count($counts) || count($units) > 25) {
+        throw new InvalidArgumentException('قائمة التكرار غير صالحة.');
+    }
+    $steps = [];
+    foreach ($units as $index => $unit) {
+        $count = $counts[$index];
+        if (!is_string($unit) || !is_string($count)) {
+            throw new InvalidArgumentException('خطوة التكرار غير صالحة.');
+        }
+        $unit = trim($unit);
+        $count = trim($count);
+        if ($unit === '' && $count === '') {
+            continue;
+        }
+        $steps[] = ['unit' => $unit === '' ? 'recitation' : $unit, 'count' => integer($count, 1, 1000)];
+    }
+    return $steps;
+}
+
 function validateRepeat(mixed $repeat): void
 {
     if (!is_array($repeat) || !array_is_list($repeat) || count($repeat) > 25) {
@@ -303,6 +340,17 @@ function changeContent(array $payload, array $ayahCounts, string $section, strin
             ], fn ($value, $key) => $key !== 'entries' || $value !== [], ARRAY_FILTER_USE_BOTH),
             default => dhikr($original ?: field('id'), $ayahCounts),
         };
+        $previous = $position === null ? [] : $rows[$position];
+        if (in_array($section, ['daily', 'merits', 'daily_duas'], true)) {
+            $item = devotionalEntryAudio($item, $previous, 'main');
+        } elseif ($section === 'hisn' && isset($item['entries'])) {
+            $old = array_column($previous['entries'] ?? [], null, 'id');
+            foreach ($item['entries'] as &$entry) {
+                $id = $entry['id'];
+                $entry = devotionalEntryAudio($entry, $old[$id] ?? [], $id);
+            }
+            unset($entry);
+        }
         // A Hisn topic keeps its id across edits.
         if ($section === 'hisn' && $position !== null && isset($rows[$position]['id'])) {
             $item = ['id' => $rows[$position]['id']] + $item;

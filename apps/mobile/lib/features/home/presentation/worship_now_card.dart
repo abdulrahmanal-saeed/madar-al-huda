@@ -6,6 +6,7 @@ import '../../../core/localization/l10n_extension.dart';
 import '../../../core/localization/numbers.dart';
 import '../../../core/routing/app_routes.dart';
 import '../../../core/theme/app_tokens.dart';
+import '../../../core/widgets/madar_panel.dart';
 import '../../adhkar/data/adhkar_catalog.dart';
 import '../../adhkar/data/adhkar_progress.dart';
 import '../../prayer/domain/prayer_schedule.dart';
@@ -50,89 +51,58 @@ class WorshipNowCard extends ConsumerWidget {
       WorshipMoment.evening => l10n.homeNowEvening,
       WorshipMoment.bedtime => l10n.homeNowBedtime,
     };
-    final onPrimary = scheme.onPrimary;
-    return Card(
+    void open() => context.go(AppRoutes.adhkarGroup(group.id));
+    return MadarPanel(
       key: ValueKey('worship-now-${moment.name}'),
-      color: scheme.primary,
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () => context.go(AppRoutes.adhkarGroup(group.id)),
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: onPrimary.withValues(alpha: 0.14),
-                      borderRadius: AppRadii.lgAll,
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.sm,
-                        vertical: AppSpacing.xxs,
-                      ),
-                      child: Text(
-                        l10n.homeNowLabel,
-                        style: theme.textTheme.labelMedium?.copyWith(
-                          color: onPrimary,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                  Expanded(
-                    child: Text(
-                      kicker,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: onPrimary.withValues(alpha: 0.85),
-                      ),
-                    ),
-                  ),
-                ],
+      radius: BorderRadius.circular(23),
+      onTap: open,
+      padding: const EdgeInsets.all(AppSpacing.md),
+      child: Row(
+        children: [
+          MadarPanel(
+            radius: AppRadii.lgAll,
+            padding: const EdgeInsets.all(12),
+            child: Tooltip(
+              message: kicker,
+              child: Icon(
+                moment == WorshipMoment.morning
+                    ? Icons.wb_twilight
+                    : Icons.nights_stay_outlined,
+                size: 22,
+                color: scheme.primary,
               ),
-              const SizedBox(height: AppSpacing.md),
-              Text(
-                group.title.inLanguage(language),
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  color: onPrimary,
-                ),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              ClipRRect(
-                borderRadius: AppRadii.smAll,
-                child: LinearProgressIndicator(
-                  value: goal == 0 ? 0 : done / goal,
-                  minHeight: 6,
-                  color: scheme.secondary,
-                  backgroundColor: onPrimary.withValues(alpha: 0.18),
-                ),
-              ),
-              const SizedBox(height: AppSpacing.xs),
-              Text(
-                l10n.adhkarPosition(number(done), number(goal)),
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: onPrimary.withValues(alpha: 0.85),
-                ),
-              ),
-              const SizedBox(height: AppSpacing.md),
-              FilledButton.icon(
-                style: FilledButton.styleFrom(
-                  backgroundColor: onPrimary,
-                  foregroundColor: scheme.primary,
-                  minimumSize: const Size.fromHeight(48),
-                ),
-                onPressed: () => context.go(AppRoutes.adhkarGroup(group.id)),
-                icon: const Icon(Icons.play_arrow_rounded),
-                label: Text(
-                  done == 0 ? l10n.homeNowStart : l10n.homeNowContinue,
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  group.title.inLanguage(language),
+                  style: theme.textTheme.titleMedium,
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  l10n.adhkarPosition(number(done), number(goal)),
+                  style: theme.textTheme.bodySmall,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: AppSpacing.md),
+          FilledButton(
+            onPressed: open,
+            style: FilledButton.styleFrom(
+              minimumSize: const Size(68, 42),
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+            ),
+            child: Text(
+              done == 0 ? l10n.homeNowStart : l10n.homeNowContinue,
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ],
       ),
     );
   }
