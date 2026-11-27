@@ -1,3 +1,8 @@
+import 'dart:async';
+
+import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../localization/civil_hijri_date.dart';
 
 enum BrandSeason {
@@ -16,3 +21,18 @@ enum BrandSeason {
     return 'assets/brand/$prefix$kind-${dark ? 'dark' : 'light'}.png';
   }
 }
+
+final brandSeasonProvider = Provider<BrandSeason>((ref) {
+  final now = DateTime.now();
+  final tomorrow = DateTime(now.year, now.month, now.day + 1);
+  final timer = Timer(tomorrow.difference(now), ref.invalidateSelf);
+  final life = AppLifecycleListener(
+    onResume: () {
+      if (BrandSeason.on(DateTime.now()) != BrandSeason.on(now))
+        ref.invalidateSelf();
+    },
+  );
+  ref.onDispose(timer.cancel);
+  ref.onDispose(life.dispose);
+  return BrandSeason.on(now);
+});

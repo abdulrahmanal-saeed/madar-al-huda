@@ -28,9 +28,9 @@ import '../../quran/data/mushaf_edition.dart';
 import '../../quran/data/quran_services.dart';
 import '../../ramadan/presentation/ramadan_screen.dart';
 import '../../settings/presentation/settings_updates.dart';
+import '../../tasbih/application/tasbih_controller.dart';
 import '../../worship/application/cairo_radio_control.dart';
 import '../../worship/application/worship_location.dart';
-import '../../tasbih/application/tasbih_controller.dart';
 import '../data/daily_duas.dart';
 import 'worship_now_card.dart';
 

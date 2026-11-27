@@ -1,3 +1,5 @@
+import '../../../core/audio/audio_playback.dart';
+
 import 'dart:async';
 
 import 'package:flutter/services.dart';
@@ -445,6 +447,13 @@ class _ReaderState extends ConsumerState<_Reader> {
     final edition = widget.edition;
     final reading = ref.watch(readingPreferencesProvider);
     final focused = ref.watch(readingFocusProvider);
+    final playing = ref.watch(
+      audioPlaybackProvider.select((value) => value.track?.id),
+    );
+    final timingUnavailable =
+        playing != null &&
+        ref.watch(unavailableRecitationTimingProvider) == playing;
+
     return PopScope(
       canPop: !focused,
       onPopInvokedWithResult: (didPop, _) {
@@ -479,6 +488,13 @@ class _ReaderState extends ConsumerState<_Reader> {
                   ],
                 ),
                 actions: [
+                  if (timingUnavailable)
+                    Tooltip(
+                      message: language == 'ar'
+                          ? 'توقيت الآيات غير متاح لهذا التسجيل'
+                          : 'Verse timing is unavailable for this recording',
+                      child: const Icon(Icons.sync_disabled),
+                    ),
                   IconButton(
                     tooltip: l10n.searchTitle,
                     onPressed: () => context.push(AppRoutes.search),

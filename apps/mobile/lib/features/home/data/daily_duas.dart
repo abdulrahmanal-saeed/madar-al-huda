@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/content/managed_library.dart';
 import '../../../core/audio/devotional_recording.dart';
+import '../../../core/content/managed_library.dart';
 
 typedef DailyDua = ({
   String id,
@@ -160,7 +160,6 @@ final dailyDuaRecordingsProvider = Provider<Map<String, DevotionalRecording>>((
     if (entries is List)
       for (final row in entries)
         if (row is Map && row['id'] is String)
-          if (devotionalRecording(row['recording']) case final audio?)
-            row['id'] as String: audio,
+          row['id'] as String: ?devotionalRecording(row['recording']),
   };
 });

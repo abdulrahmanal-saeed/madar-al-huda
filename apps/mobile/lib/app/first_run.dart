@@ -483,10 +483,11 @@ class _FirstRunFlowState extends ConsumerState<FirstRunFlow> {
                       ),
                   ],
                   onChanged: (hours) {
-                    if (hours != null)
+                    if (hours != null) {
                       setState(
                         () => _choice = _choice.copyWith(duaEveryHours: hours),
                       );
+                    }
                   },
                 ),
               ),

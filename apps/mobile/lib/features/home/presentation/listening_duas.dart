@@ -17,10 +17,7 @@ class ListeningDuasScreen extends ConsumerWidget {
     final recordings = ref.watch(dailyDuaRecordingsProvider);
     final entries = all.asData?.value ?? bundledDailyDuas;
     final selected = entries.where((dua) => dua.id == initialId).firstOrNull;
-    final ordered = [
-      if (selected != null) selected,
-      ...entries.where((dua) => dua.id != initialId),
-    ];
+    final ordered = [?selected, ...entries.where((dua) => dua.id != initialId)];
     return Scaffold(
       appBar: AppBar(title: Text(ar ? 'أدعية مسموعة' : 'Listen to duas')),
       body: ListView.separated(

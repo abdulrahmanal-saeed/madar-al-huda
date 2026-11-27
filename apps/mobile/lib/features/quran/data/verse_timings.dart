@@ -214,6 +214,18 @@ final verseTimingApiProvider = Provider<VerseTimingApi>((ref) {
 
 typedef RecitedVerse = ({int surah, int ayah});
 
+final unavailableRecitationTimingProvider =
+    NotifierProvider<RecitationTimingStatus, String?>(
+      RecitationTimingStatus.new,
+    );
+
+class RecitationTimingStatus extends Notifier<String?> {
+  @override
+  String? build() => null;
+
+  void report(String? track) => state = track;
+}
+
 /// The verse the reciter is reading now, when the playing recitation has
 /// verse times; null otherwise.
 final recitedVerseProvider =
@@ -232,46 +244,61 @@ class RecitedVerseController extends Notifier<RecitedVerse?> {
     final extras = track?.extras;
     final surah = extras?[recitationSurahExtra];
     final source = extras?[recitationTimingExtra];
-    if (surah is! int || source is! String) return null;
+    if (surah is! int || surah < 1) return null;
     StreamSubscription<Duration>? positions;
     var active = true;
     ref.onDispose(() {
       active = false;
       unawaited(positions?.cancel());
     });
-    unawaited(() async {
-      try {
-        final edition = await ref.read(mushafEditionProvider.future);
-        if (!active || surah > edition.surahs.length) return;
-        final player = ref.read(audioPlayerProvider);
-        final index = player.currentIndex;
-        final sequence = player.sequence;
-        final audio = index != null && index < sequence.length
-            ? sequence[index]
-            : null;
-        final timeline = await ref
-            .read(verseTimingApiProvider)
-            .timeline(
-              source,
-              surah,
-              verses: edition.surahs[surah - 1].verses.length,
-              recording: audio is UriAudioSource ? audio.uri : null,
-            );
-        if (!active || timeline == null) return;
-        void update(Duration position) {
-          if (!active || player.processingState == ProcessingState.completed)
-            return;
-          final ayah = timeline.ayahAt(position);
-          final next = ayah == null ? null : (surah: surah, ayah: ayah);
-          if (next != state) state = next;
+    unawaited(
+      Future<void>.microtask(() async {
+        if (!active) return;
+        final status = ref.read(unavailableRecitationTimingProvider.notifier);
+        status.report(null);
+        if (source is! String) {
+          status.report(trackId);
+          return;
         }
+        try {
+          final edition = await ref.read(mushafEditionProvider.future);
+          if (!active || surah > edition.surahs.length) return;
+          final player = ref.read(audioPlayerProvider);
+          final index = player.currentIndex;
+          final sequence = player.sequence;
+          final audio = index != null && index < sequence.length
+              ? sequence[index]
+              : null;
+          final timeline = await ref
+              .read(verseTimingApiProvider)
+              .timeline(
+                source,
+                surah,
+                verses: edition.surahs[surah - 1].verses.length,
+                recording: audio is UriAudioSource ? audio.uri : null,
+              );
+          if (!active) return;
+          if (timeline == null) {
+            status.report(trackId);
+            return;
+          }
+          void update(Duration position) {
+            if (!active ||
+                player.processingState == ProcessingState.completed) {
+              return;
+            }
+            final ayah = timeline.ayahAt(position);
+            final next = ayah == null ? null : (surah: surah, ayah: ayah);
+            if (next != state) state = next;
+          }
 
-        positions = player.positionStream.listen(update);
-        update(player.position);
-      } catch (_) {
-        // A missing edition or mismatched recording has no highlight.
-      }
-    }());
+          positions = player.positionStream.listen(update);
+          update(player.position);
+        } catch (_) {
+          if (active) status.report(trackId);
+        }
+      }),
+    );
     return null;
   }
 }

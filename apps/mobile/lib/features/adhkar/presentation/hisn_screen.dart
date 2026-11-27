@@ -2,8 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../../core/localization/l10n_extension.dart';
 import '../../../core/audio/devotional_audio_button.dart';
+import '../../../core/localization/l10n_extension.dart';
 import '../../quran/domain/quran_search_text.dart';
 import '../data/adhkar_catalog.dart';
 import '../data/adhkar_progress.dart';

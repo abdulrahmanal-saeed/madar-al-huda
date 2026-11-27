@@ -1,5 +1,3 @@
-import 'adhan_voice_picker.dart';
-
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,6 +11,7 @@ import '../../worship/application/worship_location.dart';
 import '../application/reminder_settings_controller.dart';
 import '../data/reminder_scheduler.dart';
 import '../domain/reminder_settings.dart';
+import 'adhan_voice_picker.dart';
 
 /// Opt-in reminders: prayer times, remembrance and supplications.
 class ReminderSettingsScreen extends ConsumerStatefulWidget {

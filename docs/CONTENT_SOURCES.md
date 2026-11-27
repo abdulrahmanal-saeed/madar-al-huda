@@ -73,3 +73,12 @@ The coverage in [Yousef Heiba's Al-Banna catalog](https://quran.yousefheiba.com/
 The app connects directly to the corresponding MP3Quran publisher assets for these editions. [MP3Quran's published rights notice](https://www.mp3quran.net/privacy-en.html) permits developers to copy publisher material and use its links. The reciter and publisher appear with the recordings. The reader can request downloads for a surah or for all surahs available in the selected edition. Downloads are stored in the app's private audio library and can be deleted from the reader or the downloads list.
 
 The existing Quran Foundation operation supplies verse timestamps and its chapter recording when available. Those requests remain streamed. Subsequent surahs use saved files or the separately licensed MP3Quran edition when available. Verse timestamps apply only to the corresponding Quran Foundation recording. [Quran Foundation audio terms](https://api-docs.quran.com/legal/developer-terms/#storage-and-offline-copies)
+
+### Adhan recordings
+
+Android bundles MP3 transcodes of [Andrewler's Azan](https://commons.wikimedia.org/wiki/File:Azan.ogg)
+under CC BY-SA 4.0 and [Seyfula Islam's recording from Makkah](https://commons.wikimedia.org/wiki/File:Adhan,_Great_Mosque_of_Mecca_-_Jan_21,_2013.webm)
+under CC BY 3.0. The shared Fajr recording is credited to
+[Islamic Center Malmö](https://commons.wikimedia.org/wiki/File:Eid_al-Fitr_Fajr_azan_at_Malm%C3%B6_Mosque_-_19_August_2012.webm)
+under CC BY 3.0. The adaptations extract and re-encode the original audio to
+mono MP3. Attribution appears in the Adhan selection screen.

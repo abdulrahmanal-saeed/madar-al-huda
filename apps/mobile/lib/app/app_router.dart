@@ -1,5 +1,3 @@
-import '../features/home/presentation/listening_duas.dart';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
@@ -12,6 +10,7 @@ import '../features/feedback/feedback_screen.dart';
 import '../features/fiqh/presentation/fiqh_screen.dart';
 import '../features/hadith/presentation/hadith_screen.dart';
 import '../features/home/presentation/home_screen.dart';
+import '../features/home/presentation/listening_duas.dart';
 import '../features/learning/presentation/learning_hub_screen.dart';
 import '../features/learning/presentation/lessons_screen.dart';
 import '../features/learning/presentation/prophet_stories_screen.dart';

@@ -64,6 +64,7 @@ jobs:
           done
           php hosting/tests/apk_signature_test.php
           php hosting/tests/library_media_test.php
+          php hosting/tests/content_news_test.php
           node --check hosting/admin/admin.js
 
   quran-edge:

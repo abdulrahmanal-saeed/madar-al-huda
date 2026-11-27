@@ -2,21 +2,20 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
+import 'package:material_ui/material_ui.dart';
 import 'package:path_provider/path_provider.dart';
 
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:material_ui/material_ui.dart';
-
 import '../../../app/app_router.dart';
-import '../../../core/content/app_settings.dart';
 import '../../../core/audio/devotional_recording.dart';
+import '../../../core/content/app_settings.dart';
 import '../../../core/localization/app_locales.dart';
 import '../../../core/localization/l10n_extension.dart';
 import '../../../core/localization/numbers.dart';
 import '../../adhkar/data/quran_dua_index.dart';
-import '../../prayer/application/prayer_preferences.dart';
 import '../../home/data/daily_duas.dart';
+import '../../prayer/application/prayer_preferences.dart';
 import '../../prayer/domain/prayer_schedule.dart';
 import '../../prayer/presentation/next_prayer_card.dart' as prayer_card;
 import '../../quran/data/mushaf_edition.dart';
@@ -46,6 +45,7 @@ class _ReminderSyncState extends ConsumerState<ReminderSync> {
   Timer? _debounce;
   String? _planned;
   DateTime? _plannedAt;
+  Duration? _plannedOffset;
   late final AppLifecycleListener _lifecycle;
 
   @override
@@ -54,7 +54,10 @@ class _ReminderSyncState extends ConsumerState<ReminderSync> {
     _lifecycle = AppLifecycleListener(
       onResume: () {
         final at = _plannedAt;
-        if (at != null && DateTime.now().difference(at) > _renewAfter) {
+        final now = DateTime.now();
+        if (at != null &&
+            (now.difference(at) > _renewAfter ||
+                _plannedOffset != now.timeZoneOffset)) {
           _planned = null;
           if (mounted) setState(() {});
         }
@@ -184,6 +187,7 @@ class _ReminderSyncState extends ConsumerState<ReminderSync> {
         try {
           await ref.read(reminderSchedulerProvider).replaceAll(reminders);
           _plannedAt = DateTime.now();
+          _plannedOffset = _plannedAt?.timeZoneOffset;
         } on Object catch (error, stack) {
           _planned = null;
           FlutterError.reportError(
@@ -229,17 +233,21 @@ Future<void> _cacheReminderAudio(
       final name = recording.url.queryParameters['library_media']!;
       if (!needed.contains(name)) continue;
       final file = File('${folder.path}/$name');
-      if (await file.exists() && await file.length() == recording.bytes)
+      if (await file.exists() && await file.length() == recording.bytes) {
         continue;
-      final pending = File('${folder.path}/$name.partial');
+      }
+      final pending = File(
+        '${folder.path}/$name.${DateTime.now().microsecondsSinceEpoch}.partial',
+      );
       final client = http.Client();
       try {
         final response = await client
             .send(http.Request('GET', recording.url)..followRedirects = false)
             .timeout(const Duration(seconds: 12));
         if (response.statusCode != 200 ||
-            response.contentLength != recording.bytes)
+            response.contentLength != recording.bytes) {
           continue;
+        }
         var count = 0;
         final handle = await pending.open(mode: FileMode.write);
         try {

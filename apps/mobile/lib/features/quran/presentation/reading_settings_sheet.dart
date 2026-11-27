@@ -63,8 +63,9 @@ class ReadingSettingsSheet extends ConsumerWidget {
                     ),
                 ],
                 onChanged: (value) {
-                  if (value != null)
+                  if (value != null) {
                     ref.read(mushafSourceProvider.notifier).select(value);
+                  }
                 },
               ),
               const SizedBox(height: AppSpacing.lg),

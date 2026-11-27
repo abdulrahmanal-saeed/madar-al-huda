@@ -3,8 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../../core/diagnostics/error_log.dart';
 import '../../../core/content/content_news.dart';
+import '../../../core/diagnostics/error_log.dart';
 import '../../../core/localization/l10n_extension.dart';
 import '../../../core/routing/app_routes.dart';
 import '../../../core/theme/app_tokens.dart';

@@ -1,8 +1,8 @@
 import 'package:flutter/gestures.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/localization/l10n_extension.dart';
 import '../../../core/localization/numbers.dart';

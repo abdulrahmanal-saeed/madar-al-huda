@@ -154,7 +154,9 @@ List<PlannedReminder> planReminders({
       date.year,
       date.month,
       date.day,
-    ).add(Duration(minutes: minutes));
+      minutes ~/ 60,
+      minutes % 60,
+    );
     void add(
       int slot,
       tz.TZDateTime time,
@@ -201,7 +203,7 @@ List<PlannedReminder> planReminders({
             prayerBody(name, day * 5 + i),
             AppRoutes.prayerTimes,
             sound: slot == PrayerSlot.fajr
-                ? "adhan_fajr"
+                ? 'adhan_fajr'
                 : settings.adhanVoice.sound,
           );
         }

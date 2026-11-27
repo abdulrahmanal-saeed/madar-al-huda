@@ -34,7 +34,7 @@ class MadarApp extends ConsumerWidget {
     final settings = ref.watch(settingsControllerProvider);
     final router = ref.watch(appRouterProvider);
     final remote = ref.watch(remoteThemeProvider);
-    final season = BrandSeason.on(DateTime.now());
+    final season = ref.watch(brandSeasonProvider);
 
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,

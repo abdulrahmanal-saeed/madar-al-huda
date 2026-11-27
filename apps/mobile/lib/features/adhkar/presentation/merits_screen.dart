@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
-import '../../../core/localization/l10n_extension.dart';
 import '../../../core/audio/devotional_audio_button.dart';
+import '../../../core/localization/l10n_extension.dart';
 import '../data/adhkar_catalog.dart';
 import '../data/adhkar_progress.dart';
 import 'adhkar_widgets.dart';

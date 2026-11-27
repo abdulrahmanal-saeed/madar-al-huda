@@ -6,10 +6,10 @@ import 'package:intl/intl.dart' show DateFormat;
 import 'package:material_ui/material_ui.dart';
 
 import '../../../core/localization/app_locales.dart';
+import '../../../core/localization/l10n_extension.dart';
 import '../../../core/routing/app_routes.dart';
 import '../../reminders/application/reminder_settings_controller.dart';
 import '../../reminders/data/reminder_scheduler.dart';
-import '../../../core/localization/l10n_extension.dart';
 import '../../worship/application/worship_location.dart';
 import '../domain/prayer_schedule.dart';
 import '../presentation/next_prayer_card.dart' show prayerName;

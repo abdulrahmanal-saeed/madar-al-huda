@@ -499,7 +499,7 @@ export async function handleRequest(request: Request): Promise<Response> {
     if (request.method !== "GET") throw new ApiError(405, "method_not_allowed");
     const url = new URL(request.url);
     const match =
-      /^(?:\/functions\/v1)?\/quran\/v1\/(catalog|tafsir|recitation|mushaf)$/
+      /^(?:\/functions\/v1)?\/quran(?:-dev)?\/v1\/(catalog|tafsir|recitation|mushaf)$/
         .exec(
           url.pathname,
         );

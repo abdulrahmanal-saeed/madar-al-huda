@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:madar_al_huda/core/theme/app_theme.dart';
-import 'package:madar_al_huda/core/theme/brand_colors.dart';
 import 'package:madar_al_huda/core/theme/remote_theme.dart';
 import 'package:material_ui/material_ui.dart';
 

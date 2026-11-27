@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
-import '../../../core/localization/l10n_extension.dart';
 import '../../../core/audio/devotional_audio_button.dart';
+import '../../../core/localization/l10n_extension.dart';
 import '../../../core/localization/numbers.dart';
 import '../data/adhkar_catalog.dart';
 import '../data/adhkar_progress.dart';
@@ -62,8 +62,9 @@ class _DhikrReaderState extends ConsumerState<DhikrReader> {
           .advance(day, group, entry);
       if (!mounted ||
           index != _index ||
-          !ref.read(adhkarProgressProvider).complete(day, group, entry))
+          !ref.read(adhkarProgressProvider).complete(day, group, entry)) {
         return;
+      }
       if (index + 1 < group.entries.length) {
         _go(index + 1);
       } else {
