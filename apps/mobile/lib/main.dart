@@ -11,6 +11,7 @@ import 'app/first_run.dart';
 import 'core/audio/audio_handler.dart';
 import 'core/audio/audio_playback.dart';
 import 'core/auth/google_account.dart';
+import 'core/content/content_news.dart';
 import 'core/diagnostics/error_log.dart';
 import 'core/storage/key_value_store.dart';
 import 'core/storage/storage_providers.dart';
@@ -21,6 +22,7 @@ import 'features/prayer/application/prayer_widget_sync.dart';
 import 'features/quran/application/memorization.dart';
 import 'features/quran/application/reading_preferences.dart';
 import 'features/quran/data/local_quran_bookmarks.dart';
+import 'features/quran/data/mushaf_source.dart';
 import 'features/quran/data/recitation_resume.dart';
 import 'features/reminders/application/reminder_settings_controller.dart';
 import 'features/reminders/data/reminder_scheduler.dart';
@@ -98,6 +100,7 @@ final Set<String> storageAllowList = {
   LocalQuranBookmarks.key,
   LocalQuranBookmarks.backupKey,
   ReadingPreferencesController.key,
+  MushafSourceController.key,
   TasbihController.key,
   AdhkarProgressController.key,
   DailyReadingPlanController.key,
@@ -107,6 +110,7 @@ final Set<String> storageAllowList = {
   'quran.reciter.v1',
   firstRunDoneKey,
   lastRecitationKey,
+  ContentNewsPreference.key,
 };
 
 /// Opens on-device preferences. If the platform store is unavailable the app

@@ -6,24 +6,22 @@ import 'package:material_ui/material_ui.dart';
 import '../storage/storage_providers.dart';
 
 const _channel = MethodChannel('madar/content_news');
-const _preference = 'contentNews.enabled';
 
 final contentNewsProvider = NotifierProvider<ContentNewsPreference, bool>(
   ContentNewsPreference.new,
 );
 
 class ContentNewsPreference extends Notifier<bool> {
+  static const key = 'contentNews.enabled';
   Future<void> _writes = Future.value();
 
   @override
-  bool build() => ref.watch(keyValueStoreProvider).getBool(_preference) ?? true;
+  bool build() => ref.watch(keyValueStoreProvider).getBool(key) ?? true;
 
   Future<void> set(bool enabled) {
     state = enabled;
     final store = ref.read(keyValueStoreProvider);
-    final write = _writes.then(
-      (_) => store.setBool(_preference, value: enabled),
-    );
+    final write = _writes.then((_) => store.setBool(key, value: enabled));
     _writes = write.then<void>((_) {}, onError: (Object _, StackTrace _) {});
     return write;
   }

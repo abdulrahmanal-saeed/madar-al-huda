@@ -22,12 +22,12 @@ final mushafSourceProvider =
     );
 
 class MushafSourceController extends Notifier<MushafSource> {
-  static const _key = 'quran.mushafSource.v1';
+  static const key = 'quran.mushafSource.v1';
   Future<void> _pending = Future.value();
 
   @override
   MushafSource build() {
-    final selected = ref.watch(keyValueStoreProvider).getString(_key);
+    final selected = ref.watch(keyValueStoreProvider).getString(key);
     return MushafSource.values
             .where((source) => source.name == selected)
             .firstOrNull ??
@@ -37,7 +37,7 @@ class MushafSourceController extends Notifier<MushafSource> {
   Future<void> select(MushafSource value) {
     state = value;
     final store = ref.read(keyValueStoreProvider);
-    final write = _pending.then((_) => store.setString(_key, value.name));
+    final write = _pending.then((_) => store.setString(key, value.name));
     _pending = write.then<void>((_) {}, onError: (Object _, StackTrace _) {});
     return write;
   }
