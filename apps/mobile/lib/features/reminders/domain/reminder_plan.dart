@@ -336,12 +336,15 @@ List<PlannedReminder> planReminders({
         sound: duaSound(selection),
       );
     }
-    if (settings.duaEveryHours > 0 && duas.isNotEmpty) {
+    final duaInterval = settings.duaEveryHours;
+    if (duaInterval > 0 && duas.isNotEmpty) {
       var index = 0;
+      // Keep the 09:00 slot and extend its cadence before then. Quiet hours
+      // decide which slots are skipped.
       for (
-        var minutes = 9 * 60;
+        var minutes = (9 % duaInterval) * 60;
         minutes < 24 * 60 && index < 10;
-        minutes += settings.duaEveryHours * 60
+        minutes += duaInterval * 60
       ) {
         if (_quiet(minutes, settings)) continue;
         // Offset from the daily supplication so they differ on the same day.

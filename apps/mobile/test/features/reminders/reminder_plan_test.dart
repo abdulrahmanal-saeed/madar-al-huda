@@ -189,6 +189,23 @@ void main() {
     },
   );
 
+  test('three-hour dua reminders continue overnight outside quiet hours', () {
+    final reminders = planReminders(
+      settings: const ReminderSettings(
+        duaEveryHours: 3,
+        quietStartMinutes: 0,
+        quietEndMinutes: 0,
+      ),
+      scheduleOn: _dubai,
+      now: DateTime.utc(2026, 11, 22, 20, 1),
+      texts: TestReminderTexts(),
+      duas: duas,
+      days: 2,
+    );
+    final hours = reminders.map((r) => r.time.hour);
+    expect(hours, [3, 6, 9, 12, 15, 18, 21, 0, 3, 6, 9, 12, 15, 18, 21]);
+  });
+
   test('remembrance reminders open their adhkar group', () {
     final routes = {
       for (final r in plan(
