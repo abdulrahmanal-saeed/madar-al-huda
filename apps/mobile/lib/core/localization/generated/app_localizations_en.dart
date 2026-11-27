@@ -103,9 +103,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get adhkarWipingPhrase => 'Recitation and wiping';
 
   @override
-  String get adhkarRepeatDhikrPhrase => 'Repeat the remembrance';
-
-  @override
   String get adhkarIstighfar => 'Count one istighfar';
 
   @override

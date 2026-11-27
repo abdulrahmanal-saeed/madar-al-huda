@@ -179,7 +179,7 @@ class _DhikrReaderState extends ConsumerState<DhikrReader> {
                   padding: const EdgeInsets.only(bottom: 6),
                   child: Text(
                     l10n.adhkarRepetitionTarget(
-                      _stepPhrase(context, step.unit),
+                      _stepPhrase(context, step.unit, entry),
                       step.count,
                       number(step.count),
                     ),
@@ -278,7 +278,18 @@ class _DhikrReaderState extends ConsumerState<DhikrReader> {
     );
   }
 
-  String _stepPhrase(BuildContext context, String unit) {
+  String _stepPhrase(BuildContext context, String unit, DhikrEntry entry) {
+    final language = context.adhkarLanguage;
+    final wording = (language == 'ar' ? entry.wording : entry.meaning)
+        ?.trim()
+        .replaceFirst(RegExp(r'[.۔]+$'), '');
+    final entryPhrase =
+        wording != null &&
+            wording.isNotEmpty &&
+            wording.length <= 48 &&
+            !wording.contains('\n')
+        ? wording
+        : entry.title.inLanguage(language);
     final l10n = context.l10n;
     return switch (unit) {
       'seeking_forgiveness' => l10n.adhkarIstighfarPhrase,
@@ -288,7 +299,7 @@ class _DhikrReaderState extends ConsumerState<DhikrReader> {
       'closing_tahlil' => l10n.adhkarTahlilPhrase,
       'each_surah' => l10n.adhkarEachSurahPhrase,
       'full_recitation_and_wiping_cycle' => l10n.adhkarWipingPhrase,
-      _ => l10n.adhkarRepeatDhikrPhrase,
+      _ => entryPhrase,
     };
   }
 

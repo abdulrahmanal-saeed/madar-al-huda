@@ -54,8 +54,6 @@
   "@adhkarEachSurahPhrase": {"description":"Label for the active repetition step."},
   "adhkarWipingPhrase": "Recitation and wiping",
   "@adhkarWipingPhrase": {"description":"Label for the active repetition step."},
-  "adhkarRepeatDhikrPhrase": "Repeat the remembrance",
-  "@adhkarRepeatDhikrPhrase": {"description":"Label for the active repetition step."},
   "@adhkarRepetitionTarget": {
     "description": "Required count for the active dhikr step.",
     "placeholders": {

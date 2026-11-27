@@ -105,9 +105,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get adhkarWipingPhrase => 'القراءة والمسح';
 
   @override
-  String get adhkarRepeatDhikrPhrase => 'تكرار الذكر';
-
-  @override
   String get adhkarIstighfar => 'سجّل استغفارة';
 
   @override

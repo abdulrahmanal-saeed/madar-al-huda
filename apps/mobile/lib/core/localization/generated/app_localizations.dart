@@ -260,12 +260,6 @@ abstract class AppLocalizations {
   /// **'Recitation and wiping'**
   String get adhkarWipingPhrase;
 
-  /// Label for the active repetition step.
-  ///
-  /// In en, this message translates to:
-  /// **'Repeat the remembrance'**
-  String get adhkarRepeatDhikrPhrase;
-
   /// adhkar Istighfar.
   ///
   /// In en, this message translates to:
