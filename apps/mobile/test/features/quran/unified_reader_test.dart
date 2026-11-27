@@ -43,6 +43,28 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('reader search finds a verse with or without a dagger alef', (
+    tester,
+  ) async {
+    const locale = Locale('ar');
+    final l10n = lookupAppLocalizations(locale);
+    await pumpMadarApp(
+      tester,
+      deviceLocales: const [locale],
+      initialLocation: AppRoutes.quran,
+    );
+    await tester.tap(find.byTooltip(l10n.readerIndex));
+    await tester.pumpAndSettle();
+
+    final field = find.widgetWithText(TextField, l10n.readerSearch);
+    for (final query in ['الصواعق', 'الصوعق']) {
+      await tester.enterText(field, query);
+      await tester.pump(const Duration(milliseconds: 200));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('وَيُرْسِلُ ٱلصَّوَٰعِقَ'), findsOneWidget);
+    }
+  });
+
   for (final locale in const [Locale('en'), Locale('ar')]) {
     testWidgets(
       '${locale.languageCode}: long-press opens the selected verse and keeps its position',
