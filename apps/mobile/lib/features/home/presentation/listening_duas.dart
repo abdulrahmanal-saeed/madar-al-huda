@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../core/audio/devotional_audio_button.dart';
+import '../../../core/localization/l10n_extension.dart';
 import '../../../core/theme/app_theme.dart';
 import '../data/daily_duas.dart';
 
@@ -19,7 +20,7 @@ class ListeningDuasScreen extends ConsumerWidget {
     final selected = entries.where((dua) => dua.id == initialId).firstOrNull;
     final ordered = [?selected, ...entries.where((dua) => dua.id != initialId)];
     return Scaffold(
-      appBar: AppBar(title: Text(ar ? 'أدعية مسموعة' : 'Listen to duas')),
+      appBar: AppBar(title: Text(context.l10n.listeningDuasTitle)),
       body: ListView.separated(
         padding: const EdgeInsets.all(16),
         itemCount: ordered.length,

@@ -1772,6 +1772,12 @@ abstract class AppLocalizations {
   /// **'Open the Mushaf'**
   String get homeReadQuran;
 
+  /// Title of the supplication recordings library.
+  ///
+  /// In en, this message translates to:
+  /// **'Listen to duas'**
+  String get listeningDuasTitle;
+
   /// Dua of the day
   ///
   /// In en, this message translates to:

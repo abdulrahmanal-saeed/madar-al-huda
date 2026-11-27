@@ -8,6 +8,7 @@ import 'package:madar_al_huda/core/widgets/content_status_panel.dart';
 import 'package:madar_al_huda/core/widgets/section_card.dart';
 import 'package:madar_al_huda/core/widgets/settings_button.dart';
 import 'package:madar_al_huda/features/home/data/daily_duas.dart';
+import 'package:madar_al_huda/features/home/presentation/listening_duas.dart';
 import 'package:madar_al_huda/features/learning/data/learning_catalog.dart';
 import 'package:madar_al_huda/features/learning/data/learning_files.dart';
 import 'package:madar_al_huda/features/learning/data/prophet_stories.dart';
@@ -337,6 +338,22 @@ void main() {
       find.descendant(of: card, matching: find.text('Listen to duas')),
       findsNothing,
     );
+  });
+
+  testWidgets('the recorded duas still open from the Adhkar tab', (
+    tester,
+  ) async {
+    await pumpMadarApp(tester, initialLocation: AppRoutes.adhkar);
+    final target = find.text('Listen to duas');
+    await tester.scrollUntilVisible(
+      target,
+      150,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(target);
+    await tester.pumpAndSettle();
+    expect(find.byType(ListeningDuasScreen), findsOneWidget);
   });
 
   testWidgets('home shows no fabricated prayer times or religious text', (
