@@ -86,13 +86,13 @@ void main() {
       return launches.length > 1;
     });
     addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
-    await pumpMadarApp(tester, initialLocation: AppRoutes.worship);
+    await pumpMadarApp(tester, initialLocation: AppRoutes.library);
     final l10n = lookupAppLocalizations(const Locale('en'));
     final radio = find.text(l10n.radioTitle);
     await tester.scrollUntilVisible(radio, 160);
     // The radio plays in place from its card: there is no radio page.
-    expect(find.byKey(const Key('worship-radio')), findsOneWidget);
-    expect(find.byIcon(Icons.play_circle_outline), findsOneWidget);
+    expect(find.byKey(const Key('library-radio')), findsOneWidget);
+    expect(find.byIcon(Icons.play_arrow_outlined), findsOneWidget);
     expect(launches, isEmpty);
   });
 }
