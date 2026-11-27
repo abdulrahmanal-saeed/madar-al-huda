@@ -4,6 +4,8 @@ import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.SharedPreferences
+import android.content.res.ColorStateList
+import android.os.Build
 import android.os.SystemClock
 import android.view.View
 import android.widget.RemoteViews
@@ -48,6 +50,7 @@ class NextPrayerWidget : HomeWidgetProvider() {
         }
         for (id in appWidgetIds) {
             val views = RemoteViews(context.packageName, R.layout.next_prayer_widget)
+            applyPalette(views, widgetData)
             if (tap != null) views.setOnClickPendingIntent(R.id.widget_root, tap)
             if (next == null) {
                 views.setTextViewText(R.id.widget_prayer, context.getString(R.string.widget_open_app))
@@ -67,4 +70,22 @@ class NextPrayerWidget : HomeWidgetProvider() {
             appWidgetManager.updateAppWidget(id, views)
         }
     }
+
+    private fun applyPalette(views: RemoteViews, data: SharedPreferences) {
+        val background = data.getString("prayer_widget_bg", null)?.toIntOrNull() ?: return
+        val accent = data.getString("prayer_widget_accent", null)?.toIntOrNull() ?: return
+        val ink = data.getString("prayer_widget_ink", null)?.toIntOrNull() ?: return
+        val muted = data.getString("prayer_widget_muted", null)?.toIntOrNull() ?: return
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            views.setColorStateList(R.id.widget_root, "setBackgroundTintList", ColorStateList.valueOf(background))
+        } else {
+            views.setInt(R.id.widget_root, "setBackgroundColor", background)
+        }
+        views.setTextColor(R.id.widget_heading, accent)
+        views.setTextColor(R.id.widget_prayer, ink)
+        views.setTextColor(R.id.widget_time, ink)
+        views.setTextColor(R.id.widget_countdown, muted)
+        views.setTextColor(R.id.widget_place, muted)
+    }
+
 }

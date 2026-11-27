@@ -15,6 +15,7 @@ import 'core/content/content_news.dart';
 import 'core/diagnostics/error_log.dart';
 import 'core/storage/key_value_store.dart';
 import 'core/storage/storage_providers.dart';
+import 'core/theme/remote_theme.dart';
 import 'features/adhkar/data/adhkar_progress.dart';
 import 'features/hadith/data/hadith_favorites.dart';
 import 'features/prayer/application/prayer_preferences.dart';
@@ -101,6 +102,7 @@ final Set<String> storageAllowList = {
   LocalQuranBookmarks.key,
   LocalQuranBookmarks.backupKey,
   ReadingPreferencesController.key,
+  RemoteThemeController.cacheKey,
   MushafSourceController.key,
   TasbihController.key,
   AdhkarProgressController.key,

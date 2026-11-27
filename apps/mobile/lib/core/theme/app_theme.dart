@@ -2,6 +2,7 @@ import 'package:material_ui/material_ui.dart';
 
 import 'app_tokens.dart';
 import 'brand_colors.dart';
+import 'brand_palette.dart';
 import 'brand_season.dart';
 import 'remote_theme.dart';
 
@@ -27,72 +28,33 @@ abstract final class AppTheme {
     bool reduceMotion = false,
     RemoteTheme? remote,
     BrandSeason season = BrandSeason.regular,
-  }) => _build(
-    season != BrandSeason.regular
-        ? _seasonal(lightScheme, season)
-        : remote == null
-        ? lightScheme
-        : _remoteLight(remote),
-    reduceMotion: reduceMotion,
-    radius: remote?.radius,
-  );
+  }) => _forMode(false, reduceMotion, remote, season);
 
   static ThemeData dark({
     bool reduceMotion = false,
     RemoteTheme? remote,
     BrandSeason season = BrandSeason.regular,
-  }) => _build(
-    season != BrandSeason.regular
-        ? _seasonal(darkScheme, season)
-        : remote == null
-        ? darkScheme
-        : _remoteDark(remote),
-    reduceMotion: reduceMotion,
-    radius: remote?.radius,
-  );
+  }) => _forMode(true, reduceMotion, remote, season);
 
-  static ColorScheme _seasonal(ColorScheme base, BrandSeason season) {
-    final dark = base.brightness == Brightness.dark;
-    final (bg, card, raised, ink, muted, accent, onAccent, secondary) =
-        BrandColors.seasonal(season, dark: dark);
-    return base.copyWith(
-      primary: Color(accent),
-      onPrimary: Color(onAccent),
-      secondary: Color(secondary),
-      onSecondary: _readableOn(
-        Color(onAccent),
-        Color(secondary),
-        Color(ink),
-        4.5,
-      ),
-      tertiary: Color(secondary),
-      tertiaryContainer: Color(raised),
-      onTertiary: _readableOn(
-        Color(onAccent),
-        Color(secondary),
-        Color(ink),
-        4.5,
-      ),
-      onTertiaryContainer: Color(ink),
-      primaryContainer: Color(raised),
-      onPrimaryContainer: Color(ink),
-      secondaryContainer: Color(raised),
-      onSecondaryContainer: Color(ink),
-      surface: Color(bg),
-      onSurface: Color(ink),
-      onSurfaceVariant: _readableOn(Color(muted), Color(bg), Color(ink), 4.5),
-      surfaceDim: Color(bg),
-      surfaceBright: Color(card),
-      surfaceContainerLowest: Color(bg),
-      surfaceContainerLow: Color(card),
-      surfaceContainer: Color(card),
-      surfaceContainerHigh: Color(raised),
-      surfaceContainerHighest: Color(raised),
-      inverseSurface: Color(ink),
-      onInverseSurface: Color(bg),
-      inversePrimary: Color(secondary),
-      outline: Color(muted),
-      outlineVariant: Color(ink).withValues(alpha: .12),
+  static ThemeData _forMode(
+    bool dark,
+    bool reduceMotion,
+    RemoteTheme? remote,
+    BrandSeason season,
+  ) {
+    final profile = season.profile(dark: dark);
+    final palette = remote?.palettes[profile] ?? BrandColors.fallback(profile);
+    final legacy =
+        remote != null &&
+        remote.palettes.isEmpty &&
+        season == BrandSeason.regular;
+    return _build(
+      legacy
+          ? (dark ? _remoteDark(remote) : _remoteLight(remote))
+          : palette.scheme,
+      reduceMotion: reduceMotion,
+      radius: remote?.radius,
+      chrome: palette.chrome,
     );
   }
 
@@ -169,9 +131,11 @@ abstract final class AppTheme {
     ColorScheme scheme, {
     required bool reduceMotion,
     double? radius,
+    required BrandChrome chrome,
   }) {
     final base = ThemeData(
       useMaterial3: true,
+      extensions: [chrome],
       colorScheme: scheme,
       fontFamily: fontFamily,
       scaffoldBackgroundColor: scheme.surface,

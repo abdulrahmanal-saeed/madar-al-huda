@@ -108,6 +108,8 @@ function route(string $section, string $topic = '', string $item = ''): string
     }
     return './?' . http_build_query(array_filter([
         'section' => $section, 'topic' => $topic, 'edit' => $item,
+        'profile' => $section === 'appearance' && isset($_GET['profile'])
+            ? paletteProfile($_GET['profile']) : '',
     ], fn ($value) => $value !== ''));
 }
 
@@ -254,7 +256,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // blocks scripts, so the check happens on the server.
             $confirming = ['action' => $action, 'message' => match (true) {
                 $section === 'appearance' && $action === 'delete'
-                    => 'سترجع ألوان التطبيق وشكله إلى الهوية الأصلية في المسودة. هل تريد المتابعة؟',
+                    => 'سترجع ألوان اللوحة المختارة إلى الهوية الأصلية في المسودة. هل تريد المتابعة؟',
                 $section === 'library_sections' && $action === 'delete'
                     => 'سيُحذف هذا القسم وكل روابطه من المسودة. هل تريد المتابعة؟',
                 default => CONFIRMATIONS[$action],
@@ -713,11 +715,20 @@ if ($active) {
                   </fieldset>
                 <?php endif; ?>
                 <details>
-                  <summary>المراجع والتكرار (متقدم)</summary>
+                  <summary>المراجع والصيغ البديلة</summary>
                   <label>مراجع الآيات <span dir="ltr">[[2,255,255]]</span><textarea name="quran" dir="ltr"><?= e(fieldValue($current['quran'] ?? [])) ?></textarea></label>
-                  <label>خطوات التكرار <span dir="ltr">[{"unit":"tasbih","count":33}]</span><textarea name="repeat" dir="ltr"><?= e(fieldValue($current['repeat'] ?? [])) ?></textarea></label>
                   <label>صيغ بديلة للذكر <span dir="ltr">[{"hadith":5490}]</span><textarea name="variants" dir="ltr"><?= e(fieldValue($current['variants'] ?? [])) ?></textarea></label>
                 </details>
+                <?php
+                require_once __DIR__ . '/repeat-view.php';
+                if (!empty($current['variants'])) {
+                    foreach ($current['variants'] as $variant) {
+                        repeatEditor('variant-' . $variant['hadith'], $variant['repeat'] ?? [], 'عدد التكرارات لصيغة الحديث ' . $variant['hadith']);
+                    }
+                } else {
+                    repeatEditor('main', $current['repeat'] ?? [], 'عدد التكرارات');
+                }
+                ?>
                 <?php endif; ?>
               <?php endif; ?>
             <?php endif; ?>
@@ -742,6 +753,7 @@ if ($active) {
                 <?php foreach ($recordings as $slot => [$label, $audio]): ?>
                   <label><?= e($label) ?><input type="file" name="devotional[<?= e($slot) ?>]" accept="audio/mpeg,.mp3"></label>
                   <?php if ($audio !== null): ?>
+                    <p class="hint">تسجيل محفوظ. اختَر ملف MP3 جديدًا لاستبداله.</p>
                     <label class="check"><input type="checkbox" name="remove_devotional[<?= e($slot) ?>]" value="1">حذف التسجيل الحالي</label>
                   <?php endif; ?>
                 <?php endforeach; ?>

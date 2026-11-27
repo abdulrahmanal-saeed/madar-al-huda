@@ -42,6 +42,21 @@ final class HomePrayerWidget implements PrayerWidget {
   static const _provider =
       'com.abdulrahmanalsaeed.madaralhuda.NextPrayerWidget';
 
+  Future<void> publishPalette(List<int> palette) async {
+    const keys = [
+      'prayer_widget_bg',
+      'prayer_widget_accent',
+      'prayer_widget_ink',
+      'prayer_widget_muted',
+    ];
+    for (final (index, key) in keys.indexed) {
+      await HomeWidget.saveWidgetData<String>(
+        key,
+        palette[index].toSigned(32).toString(),
+      );
+    }
+  }
+
   @override
   Future<void> publish(List<WidgetPrayer> prayers, String place) async {
     await HomeWidget.saveWidgetData<String>(
@@ -136,7 +151,14 @@ class _PrayerWidgetSyncState extends ConsumerState<PrayerWidgetSync> {
     final hanafi = ref.watch(hanafiAsrProvider);
     final l10n = context.l10n;
     final language = Localizations.localeOf(context).languageCode;
-    final accent = Theme.of(context).colorScheme.primary.toARGB32();
+    final scheme = Theme.of(context).colorScheme;
+    final accent = scheme.primary.toARGB32();
+    final widgetPalette = [
+      scheme.surfaceContainerLow.toARGB32(),
+      accent,
+      scheme.onSurface.toARGB32(),
+      scheme.onSurfaceVariant.toARGB32(),
+    ];
     final place =
         location.place?.label(language) ??
         (location.fromDevice ? l10n.deviceLocation : '');
@@ -149,7 +171,7 @@ class _PrayerWidgetSyncState extends ConsumerState<PrayerWidgetSync> {
       enabled,
       language,
       place,
-      accent,
+      ...widgetPalette,
     ].join('|');
     if (signature != _published) {
       _published = signature;
@@ -168,6 +190,9 @@ class _PrayerWidgetSyncState extends ConsumerState<PrayerWidgetSync> {
                 language: language,
               );
         try {
+          if (widgetTarget is HomePrayerWidget) {
+            await widgetTarget.publishPalette(widgetPalette);
+          }
           await widgetTarget.publish(prayers, place);
           final now = DateTime.now();
           final zone = prayerPlace == null

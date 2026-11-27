@@ -322,11 +322,15 @@ class NameDetailScreen extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final language = Localizations.localeOf(context).languageCode;
-    Widget block(String title, String body, {TextDirection? direction}) => Card(
+    Widget block(
+      String title,
+      List<({String text, TextDirection direction})> body,
+    ) => Card(
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: AppSpacing.sm,
           children: [
             Text(
               title,
@@ -334,16 +338,18 @@ class NameDetailScreen extends StatelessWidget {
                 color: scheme.primary,
               ),
             ),
-            const SizedBox(height: AppSpacing.sm),
-            SelectableText(
-              body,
-              textDirection: direction,
-              style: theme.textTheme.bodyLarge?.copyWith(height: 1.8),
-            ),
+            for (final line in body)
+              SelectableText(
+                line.text,
+                textAlign: TextAlign.start,
+                textDirection: line.direction,
+                style: theme.textTheme.bodyLarge?.copyWith(height: 1.8),
+              ),
           ],
         ),
       ),
     );
+    final isEnglish = language == 'en';
     return Scaffold(
       appBar: AppBar(title: Text(l10n.namesTitle)),
       body: ListView(
@@ -352,6 +358,7 @@ class NameDetailScreen extends StatelessWidget {
           ResponsiveContent(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: AppSpacing.lg,
               children: [
                 ClipRRect(
                   borderRadius: AppRadii.xlAll,
@@ -411,16 +418,14 @@ class NameDetailScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: AppSpacing.lg),
-                block(l10n.namesMeaning, name.meaningAr),
-                if (language == 'en' && name.meaningEn.isNotEmpty)
-                  block(
-                    'Meaning',
-                    name.meaningEn,
-                    direction: TextDirection.ltr,
-                  ),
-                // Explanations follow the reader's language; the evidence
-                // and the supplication keep their Arabic wording too.
+                block(l10n.namesMeaning, [
+                  if (isEnglish && name.meaningEn.isNotEmpty)
+                    (text: name.meaningEn, direction: TextDirection.ltr),
+                  if (name.meaningAr.isNotEmpty)
+                    (text: name.meaningAr, direction: TextDirection.rtl)
+                  else if (!isEnglish && name.meaningEn.isNotEmpty)
+                    (text: name.meaningEn, direction: TextDirection.ltr),
+                ]),
                 for (final (title, text, keepArabic) in [
                   (l10n.namesDescription, name.description, false),
                   (l10n.namesEvidence, name.evidence, true),
@@ -428,15 +433,13 @@ class NameDetailScreen extends StatelessWidget {
                   (l10n.namesDua, name.dua, true),
                 ])
                   if (text.ar.isNotEmpty || text.en.isNotEmpty)
-                    if (language == 'en' && text.en.isNotEmpty)
-                      block(
-                        title,
-                        keepArabic && text.ar.isNotEmpty
-                            ? '${text.ar}\n\n${text.en}'
-                            : text.en,
-                      )
-                    else
-                      block(title, text.ar.isNotEmpty ? text.ar : text.en),
+                    block(title, [
+                      if (text.ar.isNotEmpty &&
+                          (!isEnglish || text.en.isEmpty || keepArabic))
+                        (text: text.ar, direction: TextDirection.rtl),
+                      if (text.en.isNotEmpty && (isEnglish || text.ar.isEmpty))
+                        (text: text.en, direction: TextDirection.ltr),
+                    ]),
                 if (name.source case final source?)
                   Align(
                     alignment: AlignmentDirectional.centerStart,

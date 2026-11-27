@@ -212,6 +212,60 @@ abstract class AppLocalizations {
   /// **'Count the closing tahlil'**
   String get adhkarTahlil;
 
+  /// Required count for the active dhikr step.
+  ///
+  /// In en, this message translates to:
+  /// **'{phrase} · {count, plural, one{once} other{{number} times}}'**
+  String adhkarRepetitionTarget(String phrase, int count, String number);
+
+  /// Label for the active repetition step.
+  ///
+  /// In en, this message translates to:
+  /// **'Astaghfirullah'**
+  String get adhkarIstighfarPhrase;
+
+  /// Label for the active repetition step.
+  ///
+  /// In en, this message translates to:
+  /// **'Subhan Allah'**
+  String get adhkarTasbihPhrase;
+
+  /// Label for the active repetition step.
+  ///
+  /// In en, this message translates to:
+  /// **'Alhamdulillah'**
+  String get adhkarTahmidPhrase;
+
+  /// Label for the active repetition step.
+  ///
+  /// In en, this message translates to:
+  /// **'Allahu akbar'**
+  String get adhkarTakbirPhrase;
+
+  /// Label for the active repetition step.
+  ///
+  /// In en, this message translates to:
+  /// **'La ilaha illa Allah'**
+  String get adhkarTahlilPhrase;
+
+  /// Label for the active repetition step.
+  ///
+  /// In en, this message translates to:
+  /// **'Each surah'**
+  String get adhkarEachSurahPhrase;
+
+  /// Label for the active repetition step.
+  ///
+  /// In en, this message translates to:
+  /// **'Recitation and wiping'**
+  String get adhkarWipingPhrase;
+
+  /// Label for the active repetition step.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat the remembrance'**
+  String get adhkarRepeatDhikrPhrase;
+
   /// adhkar Istighfar.
   ///
   /// In en, this message translates to:

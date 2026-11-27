@@ -71,6 +71,41 @@ class AppLocalizationsEn extends AppLocalizations {
   String get adhkarTahlil => 'Count the closing tahlil';
 
   @override
+  String adhkarRepetitionTarget(String phrase, int count, String number) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$number times',
+      one: 'once',
+    );
+    return '$phrase · $_temp0';
+  }
+
+  @override
+  String get adhkarIstighfarPhrase => 'Astaghfirullah';
+
+  @override
+  String get adhkarTasbihPhrase => 'Subhan Allah';
+
+  @override
+  String get adhkarTahmidPhrase => 'Alhamdulillah';
+
+  @override
+  String get adhkarTakbirPhrase => 'Allahu akbar';
+
+  @override
+  String get adhkarTahlilPhrase => 'La ilaha illa Allah';
+
+  @override
+  String get adhkarEachSurahPhrase => 'Each surah';
+
+  @override
+  String get adhkarWipingPhrase => 'Recitation and wiping';
+
+  @override
+  String get adhkarRepeatDhikrPhrase => 'Repeat the remembrance';
+
+  @override
   String get adhkarIstighfar => 'Count one istighfar';
 
   @override

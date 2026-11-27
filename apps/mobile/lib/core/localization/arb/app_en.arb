@@ -39,6 +39,37 @@
   "@adhkarTakbir": {"description":"adhkar Takbir."},
   "adhkarTahlil": "Count the closing tahlil",
   "@adhkarTahlil": {"description":"adhkar Tahlil."},
+  "adhkarRepetitionTarget": "{phrase} · {count, plural, one{once} other{{number} times}}",
+  "adhkarIstighfarPhrase": "Astaghfirullah",
+  "@adhkarIstighfarPhrase": {"description":"Label for the active repetition step."},
+  "adhkarTasbihPhrase": "Subhan Allah",
+  "@adhkarTasbihPhrase": {"description":"Label for the active repetition step."},
+  "adhkarTahmidPhrase": "Alhamdulillah",
+  "@adhkarTahmidPhrase": {"description":"Label for the active repetition step."},
+  "adhkarTakbirPhrase": "Allahu akbar",
+  "@adhkarTakbirPhrase": {"description":"Label for the active repetition step."},
+  "adhkarTahlilPhrase": "La ilaha illa Allah",
+  "@adhkarTahlilPhrase": {"description":"Label for the active repetition step."},
+  "adhkarEachSurahPhrase": "Each surah",
+  "@adhkarEachSurahPhrase": {"description":"Label for the active repetition step."},
+  "adhkarWipingPhrase": "Recitation and wiping",
+  "@adhkarWipingPhrase": {"description":"Label for the active repetition step."},
+  "adhkarRepeatDhikrPhrase": "Repeat the remembrance",
+  "@adhkarRepeatDhikrPhrase": {"description":"Label for the active repetition step."},
+  "@adhkarRepetitionTarget": {
+    "description": "Required count for the active dhikr step.",
+    "placeholders": {
+      "phrase": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      },
+      "number": {
+        "type": "String"
+      }
+    }
+  },
   "adhkarIstighfar": "Count one istighfar",
   "@adhkarIstighfar": {"description":"adhkar Istighfar."},
   "adhkarSavedProgress": "Your progress is saved on this device",

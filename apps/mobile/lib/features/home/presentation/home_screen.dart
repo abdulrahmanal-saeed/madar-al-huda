@@ -18,6 +18,7 @@ import '../../../core/routing/app_sections.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_tokens.dart';
 import '../../../core/theme/brand_colors.dart';
+import '../../../core/theme/brand_palette.dart';
 import '../../../core/theme/brand_season.dart';
 import '../../../core/widgets/madar_panel.dart';
 import '../../../core/widgets/responsive_content.dart';
@@ -311,7 +312,7 @@ class _HomeHeader extends StatelessWidget {
   }
 }
 
-class _HomeShortcut extends ConsumerWidget {
+class _HomeShortcut extends StatelessWidget {
   const _HomeShortcut(this.icon, this.label, this.route, {super.key});
 
   final IconData icon;
@@ -319,20 +320,18 @@ class _HomeShortcut extends ConsumerWidget {
   final String route;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final iconFile = switch (route) {
-      AppRoutes.dailyReading => '1_book',
-      AppRoutes.qibla => '2_compass',
-      AppRoutes.tasbih => '3_hand',
-      AppRoutes.morningAdhkar => '5_sun',
-      AppRoutes.hadith => '6_quote',
-      AppRoutes.stories => '7_story',
-      AppRoutes.reminders => '8_bell',
-      _ => null,
+    final secondary = switch (route) {
+      AppRoutes.qibla ||
+      AppRoutes.memorize ||
+      AppRoutes.morningAdhkar ||
+      AppRoutes.stories => true,
+      _ => false,
     };
-    final tone = theme.brightness == Brightness.dark ? 'dark' : 'light';
+    final accent = secondary ? scheme.secondary : scheme.primary;
+    final foreground = secondary ? scheme.onSecondary : scheme.onPrimary;
     return Semantics(
       button: true,
       child: InkWell(
@@ -351,24 +350,27 @@ class _HomeShortcut extends ConsumerWidget {
           padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
           child: Column(
             children: [
-              if (iconFile != null &&
-                  ref.watch(brandSeasonProvider) == BrandSeason.regular)
-                Image.asset(
-                  'assets/brand/shortcuts/qa_${iconFile}_$tone.png',
-                  width: 52,
-                  height: 52,
-                  excludeFromSemantics: true,
-                )
-              else
-                Container(
-                  width: 52,
-                  height: 52,
-                  decoration: BoxDecoration(
-                    color: scheme.primaryContainer,
-                    borderRadius: AppRadii.lgAll,
+              Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  borderRadius: AppRadii.lgAll,
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [accent, Color.lerp(accent, scheme.scrim, .16)!],
                   ),
-                  child: Icon(icon, color: scheme.onPrimaryContainer),
+                  border: Border.all(color: foreground.withValues(alpha: .18)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: accent.withValues(alpha: .26),
+                      blurRadius: 9,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
+                child: Icon(icon, color: foreground),
+              ),
               const SizedBox(height: AppSpacing.xs),
               Flexible(
                 child: Text(
@@ -408,13 +410,17 @@ class _ContinueReading extends ConsumerWidget {
         : null;
     final page = verse == null ? null : book!.pageOf(verse) + 1;
     final theme = Theme.of(context);
-    final colors = BrandColors.readingHero(season);
+    final chrome =
+        theme.extension<BrandChrome>() ??
+        BrandColors.fallback(
+          season.profile(dark: theme.brightness == Brightness.dark),
+        ).chrome;
     return ClipRRect(
       borderRadius: BorderRadius.circular(26),
       child: DecoratedBox(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: colors,
+            colors: [chrome.heroStart, chrome.heroEnd],
             begin: AlignmentDirectional.topStart,
             end: AlignmentDirectional.bottomEnd,
           ),
@@ -443,14 +449,14 @@ class _ContinueReading extends ConsumerWidget {
                     Text(
                       l10n.homeContinueReading,
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: Colors.white70,
+                        color: chrome.heroInk,
                       ),
                     ),
                     if (verse != null)
                       Text(
                         book!.surahs[verse.surah - 1].name(locale),
                         style: theme.textTheme.headlineSmall?.copyWith(
-                          color: Colors.white,
+                          color: chrome.heroInk,
                         ),
                       ),
                     const SizedBox(height: AppSpacing.sm),

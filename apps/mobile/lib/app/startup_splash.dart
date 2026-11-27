@@ -4,6 +4,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../core/localization/l10n_extension.dart';
 import '../core/theme/brand_colors.dart';
+import '../core/theme/brand_palette.dart';
 import '../core/theme/brand_season.dart';
 
 class StartupSplash extends StatefulWidget {
@@ -71,7 +72,9 @@ class _SplashScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final dark = Theme.of(context).brightness == Brightness.dark;
     final l10n = context.l10n;
-    final background = BrandColors.splash(season, dark: dark);
+    final background =
+        Theme.of(context).extension<BrandChrome>()?.splash ??
+        BrandColors.fallback(season.profile(dark: dark)).chrome.splash;
     return Material(
       color: background,
       child: Semantics(

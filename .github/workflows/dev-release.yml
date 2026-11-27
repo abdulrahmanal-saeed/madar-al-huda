@@ -37,13 +37,15 @@ jobs:
     # Only after a successful CI run triggered by a push to main
     # (never for pull requests), or when started manually.
     if: >-
-      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_dispatch' &&
+       (inputs.verify_only || github.ref == 'refs/heads/main')) ||
       (github.event.workflow_run.conclusion == 'success' &&
        github.event.workflow_run.event == 'push')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
       contents: write
+      actions: read
     defaults:
       run:
         working-directory: apps/mobile
@@ -69,6 +71,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ env.COMMIT_SHA }}
+          fetch-depth: 0
 
       - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
         with:
@@ -153,6 +156,78 @@ jobs:
           path: ${{ steps.verify.outputs.file }}
           retention-days: 14
 
+      - name: Verify the hosted changes are deployed
+        if: "!inputs.verify_only"
+        working-directory: .
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          workflows="repos/$GITHUB_REPOSITORY/actions/workflows"
+          if [[ "$GITHUB_EVENT_NAME" == workflow_dispatch ]]; then
+            passed=$(gh api -X GET "$workflows/mobile-ci.yml/runs" -f head_sha="$COMMIT_SHA" -f status=success -F per_page=1 --jq '.total_count')
+            if [[ "$passed" == 0 ]]; then
+              echo "::error::Mobile CI must pass for $COMMIT_SHA before publishing."
+              exit 1
+            fi
+          fi
+          workflow="$workflows/hostinger-admin-deploy.yml/runs"
+          hosted=(hosting/admin hosting/prepare_admin.py hosting/web/privacy hosting/web/.well-known/assetlinks.json .github/workflows/hostinger-admin-deploy.yml)
+          # A hosted deployment of the exact commit, or an already deployed
+          # ancestor with identical hosted files, is sufficient.
+          for attempt in $(seq 1 18); do
+            runs=$(gh api -X GET "$workflow" -f branch=main -f status=success -F per_page=50 --jq '.workflow_runs[].head_sha')
+            for deployed in $runs; do
+              if git merge-base --is-ancestor "$deployed" "$COMMIT_SHA" &&
+                  git diff --quiet "$deployed" "$COMMIT_SHA" -- "${hosted[@]}"; then
+                echo "Healthy Hostinger deployment: $deployed"
+                exit 0
+              fi
+            done
+            outcome=$(gh api -X GET "$workflow" -f head_sha="$COMMIT_SHA" -F per_page=1 --jq '.workflow_runs[0].conclusion // ""')
+            case "$outcome" in
+              failure|cancelled|timed_out|action_required)
+                echo "::error::Hostinger deployment did not succeed ($outcome)."
+                exit 1
+                ;;
+            esac
+            if [[ "$attempt" != 18 ]]; then sleep 20; fi
+          done
+          echo "::error::Hostinger has not deployed the hosted files for $COMMIT_SHA."
+          exit 1
+
+      - name: Publish to the app's update channel
+        if: "!inputs.verify_only"
+        # Sends the same verified APK to the admin, which checks the signer
+        # and build number again before offering it to installed apps.
+        env:
+          ADMIN_TOKEN: ${{ secrets.MADAR_ADMIN_RELEASE_TOKEN }}
+          APK: ${{ steps.verify.outputs.file }}
+          CODE: ${{ steps.version.outputs.code }}
+          NAME: ${{ steps.version.outputs.name }}
+          SHA256: ${{ steps.verify.outputs.sha256 }}
+        run: |
+          if [[ -z "$ADMIN_TOKEN" ]]; then
+            echo "::error::MADAR_ADMIN_RELEASE_TOKEN is required to publish the mirrored APK."
+            exit 1
+          fi
+          subject=$(git log -1 --format=%s "$COMMIT_SHA" 2>/dev/null || true)
+          notes=$(SUBJECT="$subject" python3 -c 'import base64, json, os; print(base64.b64encode(json.dumps({"ar": "تحديث تجريبي جديد من مدار الهدى.", "en": os.environ["SUBJECT"] or "New development build."}).encode()).decode())')
+          status=$(curl -sS --retry 3 --max-time 600 -o "$RUNNER_TEMP/admin.json" -w '%{http_code}' \
+            -X POST "https://quran.abdulrahmanalsaeed.com/admin/?ci=release" \
+            -H "X-Madar-Token: $ADMIN_TOKEN" \
+            -H "X-Release-Code: $CODE" \
+            -H "X-Release-Name: $NAME" \
+            -H "X-Release-Notes: $notes" \
+            -H "Content-Type: application/vnd.android.package-archive" \
+            --data-binary @"$APK")
+          cat "$RUNNER_TEMP/admin.json"; echo
+          # 409: this build (or a newer one) is already on the channel.
+          [[ "$status" == 201 || "$status" == 409 ]]
+          curl -fsS --retry 3 --max-time 20 "https://quran.abdulrahmanalsaeed.com/admin/?feed=updates&channel=dev" |
+            jq -e --argjson code "$CODE" --arg name "$NAME" --arg hash "$SHA256" \
+              '.release | .code == $code and .name == $name and .sha256 == $hash' >/dev/null
+
       - name: Publish prerelease
         if: "!inputs.verify_only"
         env:
@@ -176,34 +251,6 @@ jobs:
             --title "Dev build ${{ steps.version.outputs.name }}" \
             --notes-file "$RUNNER_TEMP/notes.md" \
             --prerelease
-
-      - name: Publish to the app's update channel
-        if: "!inputs.verify_only"
-        # Sends the same verified APK to the admin, which checks the signer
-        # and build number again before offering it to installed apps.
-        env:
-          ADMIN_TOKEN: ${{ secrets.MADAR_ADMIN_RELEASE_TOKEN }}
-          APK: ${{ steps.verify.outputs.file }}
-          CODE: ${{ steps.version.outputs.code }}
-          NAME: ${{ steps.version.outputs.name }}
-        run: |
-          if [[ -z "$ADMIN_TOKEN" ]]; then
-            echo "MADAR_ADMIN_RELEASE_TOKEN is not set; skipping."
-            exit 0
-          fi
-          subject=$(git log -1 --format=%s "$COMMIT_SHA" 2>/dev/null || true)
-          notes=$(SUBJECT="$subject" python3 -c 'import base64, json, os; print(base64.b64encode(json.dumps({"ar": "تحديث تجريبي جديد من مدار الهدى.", "en": os.environ["SUBJECT"] or "New development build."}).encode()).decode())')
-          status=$(curl -sS --retry 3 --max-time 600 -o "$RUNNER_TEMP/admin.json" -w '%{http_code}' \
-            -X POST "https://quran.abdulrahmanalsaeed.com/admin/?ci=release" \
-            -H "X-Madar-Token: $ADMIN_TOKEN" \
-            -H "X-Release-Code: $CODE" \
-            -H "X-Release-Name: $NAME" \
-            -H "X-Release-Notes: $notes" \
-            -H "Content-Type: application/vnd.android.package-archive" \
-            --data-binary @"$APK")
-          cat "$RUNNER_TEMP/admin.json"; echo
-          # 409: this build (or a newer one) is already on the channel.
-          [[ "$status" == 201 || "$status" == 409 ]]
 
       - name: Keep only the newest dev releases
         if: "!inputs.verify_only"

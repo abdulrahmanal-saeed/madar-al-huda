@@ -92,6 +92,7 @@ class _DhikrReaderState extends ConsumerState<DhikrReader> {
     final saved = progress.saved.contains(savedKey);
     final shownCount = progress.count(day, group, entry);
     final complete = shownCount == variant.goal;
+    final step = variant.steps.isEmpty ? null : variant.stepAt(shownCount);
     final number = decimalFormat(language).format;
     final l10n = context.l10n;
     return AdhkarPage(
@@ -173,9 +174,22 @@ class _DhikrReaderState extends ConsumerState<DhikrReader> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              if (step != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 6),
+                  child: Text(
+                    l10n.adhkarRepetitionTarget(
+                      _stepPhrase(context, step.unit),
+                      step.count,
+                      number(step.count),
+                    ),
+                    textAlign: TextAlign.start,
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
+                ),
               Row(
                 children: [
-                  if (variant.steps.isNotEmpty) ...[
+                  if (step != null) ...[
                     Semantics(
                       liveRegion: true,
                       label: l10n.adhkarPosition(
@@ -219,12 +233,9 @@ class _DhikrReaderState extends ConsumerState<DhikrReader> {
                       child: Text(
                         complete
                             ? l10n.adhkarCompleted
-                            : variant.steps.isEmpty
+                            : step == null
                             ? l10n.adhkarMarkRead
-                            : _counterLabel(
-                                context,
-                                variant.stepAt(shownCount).unit,
-                              ),
+                            : _counterLabel(context, step.unit),
                       ),
                     ),
                   ),
@@ -265,6 +276,20 @@ class _DhikrReaderState extends ConsumerState<DhikrReader> {
         ),
       ),
     );
+  }
+
+  String _stepPhrase(BuildContext context, String unit) {
+    final l10n = context.l10n;
+    return switch (unit) {
+      'seeking_forgiveness' => l10n.adhkarIstighfarPhrase,
+      'tasbih' => l10n.adhkarTasbihPhrase,
+      'tahmid' => l10n.adhkarTahmidPhrase,
+      'takbir' => l10n.adhkarTakbirPhrase,
+      'closing_tahlil' => l10n.adhkarTahlilPhrase,
+      'each_surah' => l10n.adhkarEachSurahPhrase,
+      'full_recitation_and_wiping_cycle' => l10n.adhkarWipingPhrase,
+      _ => l10n.adhkarRepeatDhikrPhrase,
+    };
   }
 
   String _counterLabel(BuildContext context, String unit) {

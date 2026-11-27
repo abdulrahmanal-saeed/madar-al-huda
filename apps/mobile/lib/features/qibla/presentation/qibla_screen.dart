@@ -154,6 +154,61 @@ class _QiblaScreenState extends ConsumerState<QiblaScreen> {
                   const SizedBox(height: AppSpacing.lg),
                   if (bearing != null && point != null) ...[
                     Center(
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 250),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.lg,
+                          vertical: AppSpacing.sm,
+                        ),
+                        decoration: BoxDecoration(
+                          color: aligned
+                              ? scheme.primary
+                              : scheme.surfaceContainerHighest,
+                          borderRadius: AppRadii.xlAll,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              aligned
+                                  ? Icons.check_circle
+                                  : turn == null
+                                  ? Icons.explore_outlined
+                                  : turn > 0
+                                  ? Icons.turn_right
+                                  : Icons.turn_left,
+                              size: 20,
+                              color: aligned
+                                  ? scheme.onPrimary
+                                  : scheme.primary,
+                            ),
+                            const SizedBox(width: AppSpacing.sm),
+                            Flexible(
+                              child: Text(
+                                aligned
+                                    ? l10n.compassAligned
+                                    : turn == null
+                                    ? l10n.trueBearing(
+                                        numbers.format(bearing.round() % 360),
+                                      )
+                                    : turn > 0
+                                    ? l10n.compassTurnRight(
+                                        numbers.format(turn.round()),
+                                      )
+                                    : l10n.compassTurnLeft(
+                                        numbers.format(turn.abs().round()),
+                                      ),
+                                style: theme.textTheme.titleSmall?.copyWith(
+                                  color: aligned ? scheme.onPrimary : null,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+                    Center(
                       child: ExcludeSemantics(
                         child: ConstrainedBox(
                           constraints: const BoxConstraints(maxWidth: 282),
@@ -220,59 +275,6 @@ class _QiblaScreenState extends ConsumerState<QiblaScreen> {
                       ),
                     ),
                     const SizedBox(height: AppSpacing.md),
-                    Center(
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 250),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.lg,
-                          vertical: AppSpacing.sm,
-                        ),
-                        decoration: BoxDecoration(
-                          color: aligned
-                              ? scheme.primary
-                              : scheme.surfaceContainerHighest,
-                          borderRadius: AppRadii.xlAll,
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              aligned
-                                  ? Icons.check_circle
-                                  : turn == null
-                                  ? Icons.explore_outlined
-                                  : turn > 0
-                                  ? Icons.turn_right
-                                  : Icons.turn_left,
-                              size: 20,
-                              color: aligned
-                                  ? scheme.onPrimary
-                                  : scheme.primary,
-                            ),
-                            const SizedBox(width: AppSpacing.sm),
-                            Text(
-                              aligned
-                                  ? l10n.compassAligned
-                                  : turn == null
-                                  ? l10n.trueBearing(
-                                      numbers.format(bearing.round() % 360),
-                                    )
-                                  : turn > 0
-                                  ? l10n.compassTurnRight(
-                                      numbers.format(turn.round()),
-                                    )
-                                  : l10n.compassTurnLeft(
-                                      numbers.format(turn.abs().round()),
-                                    ),
-                              style: theme.textTheme.titleSmall?.copyWith(
-                                color: aligned ? scheme.onPrimary : null,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
                   ],
                   const SizedBox(height: AppSpacing.xl),
                 ],

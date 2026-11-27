@@ -39,6 +39,7 @@ void main() {
     for (var index = 0; index < 2; index++) {
       await tapVisible(tester, find.text(l10n.adhkarMarkRead));
     }
+    expect(find.text('كل سورة · ٣ مرات'), findsOneWidget);
     await tapVisible(tester, find.text(l10n.adhkarThreeSurahCycle));
     expect(
       store.getString(AdhkarProgressController.key),

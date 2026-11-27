@@ -16,6 +16,8 @@ enum BrandSeason {
     _ => regular,
   };
 
+  String profile({required bool dark}) => '$name-${dark ? 'dark' : 'light'}';
+
   String asset(String kind, {required bool dark}) {
     final prefix = this == regular ? '' : '$name-';
     return 'assets/brand/$prefix$kind-${dark ? 'dark' : 'light'}.png';
