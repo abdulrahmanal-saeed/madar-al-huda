@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:madar_al_huda/core/localization/app_locales.dart';
 import 'package:madar_al_huda/core/routing/app_routes.dart';
 import 'package:madar_al_huda/features/downloads/data/download_usage.dart';
+import 'package:madar_al_huda/features/downloads/presentation/download_center_screen.dart';
 import 'package:madar_al_huda/features/learning/data/learning_catalog.dart';
 import 'package:madar_al_huda/features/learning/data/learning_files.dart';
 import 'package:madar_al_huda/features/learning/data/prophet_stories.dart';
@@ -91,7 +92,12 @@ void main() {
     );
     // Library content and online-only items sit in their own tab.
     expect(find.text(l10n.downloadsOnlineOnlyBody), findsNothing);
-    await tester.tap(find.text(l10n.downloadsLibraryTab));
+    await tester.tap(
+      find.descendant(
+        of: find.byType(DownloadCenterScreen),
+        matching: find.text(l10n.downloadsLibraryTab),
+      ),
+    );
     await tester.pumpAndSettle();
     expect(find.text(l10n.downloadsOnlineOnlyBody), findsNWidgets(2));
     await tester.tap(find.text(l10n.downloadsRecitations).first);

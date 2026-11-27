@@ -182,7 +182,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       physics: const NeverScrollableScrollPhysics(),
                       mainAxisSpacing: AppSpacing.sm,
                       crossAxisSpacing: AppSpacing.sm,
-                      childAspectRatio: 0.82,
+                      childAspectRatio: 0.92,
                       children: [
                         _HomeShortcut(
                           Icons.menu_book_outlined,
