@@ -208,12 +208,18 @@ void main() {
       store.getString(WorshipLocationController.placeKey),
       contains('Asia/Dubai'),
     );
-    expect(find.text('Dubai, UAE'), findsOneWidget);
+    expect(
+      find.text('Dubai, UAE · ${l10n.locationChosenCity}'),
+      findsOneWidget,
+    );
     // One location only: no list of other cities on the screen.
     expect(find.text('Cairo'), findsNothing);
     await tester.tap(find.byTooltip(l10n.sectionQiblaTitle));
     await tester.pumpAndSettle();
-    expect(find.text('Dubai, UAE'), findsOneWidget);
+    expect(
+      find.text('Dubai, UAE · ${l10n.locationChosenCity}'),
+      findsOneWidget,
+    );
     expect(find.text(l10n.cityBearingApproximate), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
