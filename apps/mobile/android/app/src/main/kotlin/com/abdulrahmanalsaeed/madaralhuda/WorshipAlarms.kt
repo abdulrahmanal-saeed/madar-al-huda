@@ -9,7 +9,6 @@ import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.graphics.drawable.Icon
 import android.media.AudioAttributes
 import android.media.AudioFocusRequest
 import android.media.AudioManager
@@ -239,7 +238,6 @@ internal object WorshipAlarms {
         }
         val b = builder(context, UPCOMING)
             .setContentTitle(heading.ifBlank { title })
-            .setLargeIcon(Icon.createWithResource(context, R.drawable.madar_launcher_mark))
             .setColor(0xffe4502f.toInt())
             .setOnlyAlertOnce(true).setOngoing(true)
             .setContentIntent(if (next == null) location else times)
@@ -254,13 +252,22 @@ internal object WorshipAlarms {
                 .setUsesChronometer(true).setChronometerCountDown(true)
             if (last != null && Build.VERSION.SDK_INT >= 24) {
                 val clock = SystemClock.elapsedRealtime()
+                val lastLabel = prayerLine(last)
                 val expanded = RemoteViews(context.packageName, R.layout.prayer_notification_expanded).apply {
                     setTextViewText(R.id.prayer_status_place, heading.ifBlank { title })
-                    setTextViewText(R.id.prayer_status_next, prefs.optString("next") + " · " + label)
-                    setTextViewText(R.id.prayer_status_last, prefs.optString("last") + " · " + prayerLine(last))
-                    setChronometer(R.id.prayer_status_countdown, clock + next.optLong("at") - now, null, true)
+                    setTextViewText(R.id.prayer_status_next, label)
+                    setContentDescription(R.id.prayer_status_next, prefs.optString("next") + " · " + label)
+                    setTextViewText(R.id.prayer_status_last, lastLabel)
+                    setContentDescription(R.id.prayer_status_last, prefs.optString("last") + " · " + lastLabel)
+                    setChronometer(
+                        R.id.prayer_status_countdown, clock + next.optLong("at") - now,
+                        if (arabic) "بعد %s" else "in %s", true,
+                    )
                     setChronometerCountDown(R.id.prayer_status_countdown, true)
-                    setChronometer(R.id.prayer_status_elapsed, clock + last.optLong("at") - now, null, true)
+                    setChronometer(
+                        R.id.prayer_status_elapsed, clock + last.optLong("at") - now,
+                        if (arabic) "منذ %s" else "%s ago", true,
+                    )
                 }
                 b.setStyle(Notification.DecoratedCustomViewStyle()).setCustomBigContentView(expanded)
             }
