@@ -55,6 +55,21 @@ void main() {
       expect(results.verses, hasLength(5));
     });
 
+    test('finds verses with or without a written dagger alef', () {
+      for (final query in ['الصواعق', 'الصوعق', 'ٱلصَّوَٰعِقَ']) {
+        final results = index.search(query);
+        expect(
+          results.verses.map((verse) => (verse.ref.surah, verse.ref.ayah)),
+          [(2, 19), (13, 13)],
+          reason: query,
+        );
+        expect(results.versesTotal, 2);
+      }
+
+      final verse = index.search('ظلمت ورعد وبرق يجعلون أصابعهم').verses.single;
+      expect((verse.ref.surah, verse.ref.ayah), (2, 19));
+    });
+
     test('finds app sections, adhkar and hadith topics', () {
       expect(index.search('قبله').shortcuts.single.id, 'qibla');
       expect(index.search('الصلاة').hadithTopics.single.id, '50');

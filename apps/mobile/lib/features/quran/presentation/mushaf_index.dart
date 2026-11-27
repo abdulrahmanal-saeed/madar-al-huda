@@ -37,7 +37,7 @@ class _MushafIndexState extends State<MushafIndex> {
   /// Search text for every verse, normalized once instead of on every
   /// keystroke (6,236 verses).
   late final List<String> _verseSearchText = [
-    for (final verse in widget.edition.verses) quranSearchText(verse.text),
+    for (final verse in widget.edition.verses) quranVerseSearchText(verse.text),
   ];
   late final List<(int, String, String)> _surahSearchText = [
     for (final surah in widget.edition.surahs)
@@ -97,11 +97,12 @@ class _MushafIndexState extends State<MushafIndex> {
           if (arabic.contains(query) || english.contains(query)) id,
       };
       final texts = _verseSearchText;
+      final versePattern = quranVerseSearchPattern(query);
       results = [
         for (var i = 0; i < edition.verses.length; i++)
           if ((edition.verses[i].ref.ayah == 1 &&
                   matchingSurahs.contains(edition.verses[i].ref.surah)) ||
-              texts[i].contains(query))
+              versePattern.hasMatch(texts[i]))
             edition.verses[i],
       ];
     }

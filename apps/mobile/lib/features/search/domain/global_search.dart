@@ -45,7 +45,7 @@ class GlobalSearchIndex {
     this.adhkar,
     this.hadith,
   }) : _verses = [
-         for (final verse in edition.verses) quranSearchText(verse.text),
+         for (final verse in edition.verses) quranVerseSearchText(verse.text),
        ],
        _surahs = [
          for (final surah in edition.surahs)
@@ -108,8 +108,9 @@ class GlobalSearchIndex {
     final verses = <MushafVerse>[];
     var total = 0;
     if (quran.length >= 2) {
+      final versePattern = quranVerseSearchPattern(quran);
       for (var i = 0; i < _verses.length; i++) {
-        if (_verses[i].contains(quran)) {
+        if (versePattern.hasMatch(_verses[i])) {
           total++;
           if (verses.length < verseLimit) verses.add(edition.verses[i]);
         }
