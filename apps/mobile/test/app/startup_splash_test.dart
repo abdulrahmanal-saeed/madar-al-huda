@@ -81,8 +81,10 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, l10n.useLocation).last);
     await tester.pumpAndSettle();
     expect(requests, [false, true]);
-    expect(find.text(l10n.locationFromDevice), findsWidgets);
-    expect(find.text('Cairo, Egypt'), findsWidgets);
+    expect(
+      find.text('Cairo, Egypt · ${l10n.locationFromDevice}'),
+      findsOneWidget,
+    );
     expect(store.values, {
       firstRunDoneKey: true,
       WorshipLocationController.deviceLocationKey: true,
@@ -93,7 +95,10 @@ void main() {
     await tester.tap(find.byTooltip(l10n.sectionQiblaTitle));
     await tester.pumpAndSettle();
     expect(find.text(l10n.trueBearing('136')), findsOneWidget);
-    expect(find.text(l10n.locationFromDevice), findsWidgets);
+    expect(
+      find.text('Cairo, Egypt · ${l10n.locationFromDevice}'),
+      findsOneWidget,
+    );
     debugDefaultTargetPlatformOverride = null;
   });
 }

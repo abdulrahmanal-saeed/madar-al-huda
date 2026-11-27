@@ -149,11 +149,7 @@ class _PrayerTimesState extends ConsumerState<_PrayerTimes> {
             SliverResponsiveContent(
               sliver: SliverList.list(
                 children: [
-                  const WorshipLocationPicker(),
-                  if (AppSection.prayerTimes.status.isGated) ...[
-                    const SizedBox(height: AppSpacing.sm),
-                    Text(l10n.prayerPreview, style: theme.textTheme.bodySmall),
-                  ],
+                  const WorshipLocationPicker(compact: true),
                   if (schedule != null && shown != null && place != null) ...[
                     const SizedBox(height: AppSpacing.md),
                     _NextPrayerHero(
@@ -216,6 +212,10 @@ class _PrayerTimesState extends ConsumerState<_PrayerTimes> {
                         ),
                       ),
                     ),
+                  ],
+                  if (AppSection.prayerTimes.status.isGated) ...[
+                    const SizedBox(height: AppSpacing.lg),
+                    Text(l10n.prayerPreview, style: theme.textTheme.bodySmall),
                   ],
                   const SizedBox(height: AppSpacing.xl),
                 ],
@@ -391,44 +391,42 @@ class _DayBar extends StatelessWidget {
     final locale = Localizations.localeOf(context);
     final hijri = civilHijriDate(date, locale.languageCode);
     final scheme = theme.colorScheme;
-    return Row(
+    final label = theme.textTheme.bodySmall;
+    return Wrap(
+      spacing: 6,
+      runSpacing: 4,
+      alignment: WrapAlignment.center,
+      crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        IconButton(
-          tooltip: l10n.prayerPreviousDay,
-          onPressed: offset > -30 ? () => onChange(offset - 1) : null,
-          icon: const Icon(Icons.chevron_left),
-        ),
-        Expanded(
-          child: Wrap(
-            spacing: 6,
-            runSpacing: 4,
-            alignment: WrapAlignment.center,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              ActionChip(
-                onPressed: () => onChange(0),
-                backgroundColor: offset == 0 ? scheme.primary : null,
-                label: Text(
-                  l10n.prayerToday,
-                  style: TextStyle(
-                    color: offset == 0 ? scheme.onPrimary : null,
-                  ),
-                ),
-              ),
-              Chip(
-                label: Text(
-                  DateFormat.MMMEd(locale.toLanguageTag()).format(date),
-                ),
-              ),
-              if (hijri != null) Chip(label: Text(hijri)),
-            ],
+        ActionChip(
+          onPressed: () => onChange(0),
+          backgroundColor: offset == 0 ? scheme.primary : null,
+          label: Text(
+            l10n.prayerToday,
+            style: label?.copyWith(
+              color: offset == 0 ? scheme.onPrimary : null,
+            ),
           ),
         ),
-        IconButton(
-          tooltip: l10n.prayerNextDay,
-          onPressed: offset < 30 ? () => onChange(offset + 1) : null,
-          icon: const Icon(Icons.chevron_right),
+        PopupMenuButton<int>(
+          onSelected: onChange,
+          itemBuilder: (_) => [
+            if (offset > -30)
+              PopupMenuItem(
+                value: offset - 1,
+                child: Text(l10n.prayerPreviousDay),
+              ),
+            if (offset < 30)
+              PopupMenuItem(value: offset + 1, child: Text(l10n.prayerNextDay)),
+          ],
+          child: Chip(
+            label: Text(
+              DateFormat.MMMEd(locale.toLanguageTag()).format(date),
+              style: label,
+            ),
+          ),
         ),
+        if (hijri != null) Chip(label: Text(hijri, style: label)),
       ],
     );
   }

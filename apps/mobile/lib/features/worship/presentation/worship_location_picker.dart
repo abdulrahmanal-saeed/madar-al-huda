@@ -11,7 +11,9 @@ import '../domain/world_cities.dart';
 
 /// The user's one location, with a way to change it: GPS or any city.
 class WorshipLocationPicker extends ConsumerWidget {
-  const WorshipLocationPicker({super.key});
+  const WorshipLocationPicker({this.compact = false, super.key});
+
+  final bool compact;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -44,6 +46,26 @@ class WorshipLocationPicker extends ConsumerWidget {
         : location.fromDevice
         ? l10n.locationFromDevice
         : l10n.locationChosenCity;
+
+    if (compact && place != null && message == null && !location.loading) {
+      return Align(
+        alignment: AlignmentDirectional.centerStart,
+        child: InkWell(
+          key: const Key('worship-location'),
+          borderRadius: AppRadii.lgAll,
+          onTap: () => showWorshipLocationSheet(context),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+            child: Text(
+              '$title · $subtitle',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
 
     return Card(
       clipBehavior: Clip.antiAlias,

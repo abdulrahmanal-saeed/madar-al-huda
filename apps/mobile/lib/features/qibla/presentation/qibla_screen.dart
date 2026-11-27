@@ -151,7 +151,7 @@ class _QiblaScreenState extends ConsumerState<QiblaScreen> {
             SliverResponsiveContent(
               sliver: SliverList.list(
                 children: [
-                  const WorshipLocationPicker(),
+                  const WorshipLocationPicker(compact: true),
                   const SizedBox(height: AppSpacing.lg),
                   if (bearing != null && point != null) ...[
                     Center(
