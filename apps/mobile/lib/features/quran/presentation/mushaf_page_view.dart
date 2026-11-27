@@ -184,6 +184,10 @@ class MushafPageViewState extends ConsumerState<MushafPageView> {
           : widget.preferences.paper,
       theme,
     );
+    final highlight = Color.alphaBlend(
+      colors.primary.withValues(alpha: .24),
+      paper,
+    );
     final quranStyle = TextStyle(
       fontFamily: AppTheme.quranFontFamily,
       fontSize: widget.preferences.fontSize,
@@ -229,7 +233,7 @@ class MushafPageViewState extends ConsumerState<MushafPageView> {
                       child: Text(
                         '$pageSurah · ${context.l10n.readerJuzLabel(juz == lastJuz ? juz : '$juz–$lastJuz')}',
                         style: theme.textTheme.labelMedium?.copyWith(
-                          color: colors.onSurfaceVariant,
+                          color: ink.withValues(alpha: .85),
                         ),
                       ),
                     ),
@@ -288,12 +292,7 @@ class MushafPageViewState extends ConsumerState<MushafPageView> {
                       textScaler: MediaQuery.textScalerOf(context),
                       text: TextSpan(
                         style: quranStyle,
-                        children: _verseSpans(
-                          entry.value,
-                          colors.secondaryContainer,
-                          colors.secondary,
-                          qcf,
-                        ),
+                        children: _verseSpans(entry.value, highlight, ink, qcf),
                       ),
                     ),
                   ),
