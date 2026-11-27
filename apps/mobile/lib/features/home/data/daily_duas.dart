@@ -156,10 +156,12 @@ final dailyDuaRecordingsProvider = Provider<Map<String, DevotionalRecording>>((
 ) {
   final feed = ref.watch(managedLibraryProvider).asData?.value;
   final entries = feed?['dailyDuas'];
+  if (entries is! List ||
+      identical(decodeDailyDuas(entries), bundledDailyDuas)) {
+    return const {};
+  }
   return {
-    if (entries is List)
-      for (final row in entries)
-        if (row is Map && row['id'] is String)
-          row['id'] as String: ?devotionalRecording(row['recording']),
+    for (final row in entries.cast<Map<String, Object?>>())
+      (row['id'] as String).trim(): ?devotionalRecording(row['recording']),
   };
 });

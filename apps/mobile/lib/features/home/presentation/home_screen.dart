@@ -639,22 +639,11 @@ class _DuaOfDay extends ConsumerWidget {
             ),
             if (!ar) Text(dua.en),
             Text(ar ? dua.sourceAr : dua.sourceEn),
-            Row(
-              children: [
-                Expanded(
-                  child: TextButton.icon(
-                    onPressed: () => context.go(AppRoutes.listeningDuas),
-                    icon: const Icon(Icons.headphones),
-                    label: Text(ar ? 'أدعية مسموعة' : 'Listen to duas'),
-                  ),
-                ),
-                if (recording != null)
-                  DevotionalAudioButton(
-                    recording: recording,
-                    title: ar ? dua.ar : dua.en,
-                  ),
-              ],
-            ),
+            if (recording != null)
+              DevotionalAudioButton(
+                recording: recording,
+                title: ar ? dua.ar : dua.en,
+              ),
           ],
         ),
       ),

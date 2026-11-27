@@ -157,6 +157,55 @@ void main() {
     expect(reminders.map((r) => r.route).toSet(), {AppRoutes.quranDuas});
   });
 
+  test(
+    'daily and three-hour dua reminders keep the recording with its text',
+    () {
+      const ids = ['first', 'second', 'third'];
+      const sounds = <String, String>{
+        'first': 'Library-11111111111111111111111111111111.mp3',
+        'second': 'Library-22222222222222222222222222222222.mp3',
+      };
+      final reminders = planReminders(
+        settings: const ReminderSettings(dailyDua: true, duaEveryHours: 3),
+        scheduleOn: _dubai,
+        now: now,
+        texts: TestReminderTexts(),
+        duas: duas,
+        duaIds: ids,
+        duaSounds: sounds,
+        days: 1,
+      );
+      expect(reminders.map((r) => r.time.hour), [8, 9, 12, 15, 18, 21]);
+      for (final reminder in reminders) {
+        final route = Uri.parse(reminder.route);
+        final id = route.queryParameters['dua']!;
+        final dua = duas[ids.indexOf(id)];
+        expect(route.path, AppRoutes.listeningDuas);
+        expect(reminder.body, '${dua.text} · ${dua.source}');
+        expect(reminder.sound, sounds[id]);
+      }
+      expect(reminders.any((r) => r.sound == null), isTrue);
+      expect(reminders.any((r) => r.sound != null), isTrue);
+    },
+  );
+
+  test('three-hour dua reminders continue overnight outside quiet hours', () {
+    final reminders = planReminders(
+      settings: const ReminderSettings(
+        duaEveryHours: 3,
+        quietStartMinutes: 0,
+        quietEndMinutes: 0,
+      ),
+      scheduleOn: _dubai,
+      now: DateTime.utc(2026, 11, 22, 20, 1),
+      texts: TestReminderTexts(),
+      duas: duas,
+      days: 2,
+    );
+    final hours = reminders.map((r) => r.time.hour);
+    expect(hours, [3, 6, 9, 12, 15, 18, 21, 0, 3, 6, 9, 12, 15, 18, 21]);
+  });
+
   test('remembrance reminders open their adhkar group', () {
     final routes = {
       for (final r in plan(

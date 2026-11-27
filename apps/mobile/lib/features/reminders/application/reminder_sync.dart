@@ -42,6 +42,7 @@ class _ReminderSyncState extends ConsumerState<ReminderSync> {
   static const _renewAfter = Duration(hours: 6);
 
   Future<void>? _started;
+  Future<void> _audioCache = Future.value();
   Timer? _debounce;
   String? _planned;
   DateTime? _plannedAt;
@@ -182,7 +183,14 @@ class _ReminderSyncState extends ConsumerState<ReminderSync> {
         if (!kIsWeb &&
             defaultTargetPlatform == TargetPlatform.android &&
             recordings.isNotEmpty) {
-          unawaited(_cacheReminderAudio(recordings.values, reminders));
+          _audioCache = _audioCache.then(
+            (_) => _cacheReminderAudio(
+              recordings.values,
+              reminders,
+              isCurrent: () => mounted && signature == _planned,
+            ),
+          );
+          unawaited(_audioCache);
         }
         try {
           await ref.read(reminderSchedulerProvider).replaceAll(reminders);
@@ -219,8 +227,10 @@ const prayerVerseRefs = [
 /// basmala that opens a surah's first verse in this text.
 Future<void> _cacheReminderAudio(
   Iterable<DevotionalRecording> recordings,
-  List<PlannedReminder> reminders,
-) async {
+  List<PlannedReminder> reminders, {
+  required bool Function() isCurrent,
+}) async {
+  if (!isCurrent()) return;
   final needed = reminders
       .map((reminder) => reminder.sound)
       .whereType<String>()
@@ -229,9 +239,15 @@ Future<void> _cacheReminderAudio(
     final root = await getApplicationSupportDirectory();
     final folder = Directory('${root.path}/devotional')
       ..createSync(recursive: true);
-    for (final recording in recordings) {
-      final name = recording.url.queryParameters['library_media']!;
-      if (!needed.contains(name)) continue;
+    final byName = {
+      for (final recording in recordings)
+        recording.url.queryParameters['library_media']!: recording,
+    };
+    // planReminders returns time order. Download the first alarms' audio first.
+    for (final name in needed) {
+      if (!isCurrent()) break;
+      final recording = byName[name];
+      if (recording == null) continue;
       final file = File('${folder.path}/$name');
       if (await file.exists() && await file.length() == recording.bytes) {
         continue;
@@ -244,8 +260,9 @@ Future<void> _cacheReminderAudio(
         final response = await client
             .send(http.Request('GET', recording.url)..followRedirects = false)
             .timeout(const Duration(seconds: 12));
+        final length = response.contentLength;
         if (response.statusCode != 200 ||
-            response.contentLength != recording.bytes) {
+            (length != null && length != recording.bytes)) {
           continue;
         }
         var count = 0;
