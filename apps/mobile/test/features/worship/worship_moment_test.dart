@@ -47,6 +47,15 @@ void main() {
     );
   });
 
+  test('Maghrib and Fajr suggestions change at fifteen minutes', () {
+    const before = Duration(minutes: 14, seconds: 59);
+    const boundary = Duration(minutes: 15);
+    expect(moment(at(PrayerSlot.maghrib, before)), WorshipMoment.afterPrayer);
+    expect(moment(at(PrayerSlot.maghrib, boundary)), WorshipMoment.evening);
+    expect(moment(at(PrayerSlot.fajr, before)), WorshipMoment.afterPrayer);
+    expect(moment(at(PrayerSlot.fajr, boundary)), WorshipMoment.morning);
+  });
+
   test('nothing is suggested between Dhuhr and Asr', () {
     expect(moment(at(PrayerSlot.dhuhr, const Duration(hours: 1))), isNull);
   });

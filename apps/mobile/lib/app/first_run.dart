@@ -9,7 +9,6 @@ import '../core/localization/numbers.dart';
 import '../core/storage/key_value_store.dart';
 import '../core/storage/storage_providers.dart';
 import '../core/theme/app_tokens.dart';
-import '../core/theme/brand_colors.dart';
 import '../features/reminders/application/reminder_settings_controller.dart';
 import '../features/reminders/data/reminder_scheduler.dart';
 import '../features/reminders/domain/reminder_settings.dart';
@@ -220,7 +219,7 @@ class _FirstRunFlowState extends ConsumerState<FirstRunFlow> {
                         margin: const EdgeInsets.symmetric(horizontal: 3),
                         decoration: BoxDecoration(
                           color: step.index <= _step.index
-                              ? BrandColors.mutedGold
+                              ? scheme.primary
                               : scheme.outlineVariant,
                           borderRadius: AppRadii.xlAll,
                         ),
@@ -243,18 +242,19 @@ class _FirstRunFlowState extends ConsumerState<FirstRunFlow> {
 
   Widget _heading(BuildContext context, IconData icon, String title) {
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     return Column(
       children: [
         DecoratedBox(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             shape: BoxShape.circle,
             gradient: LinearGradient(
-              colors: [BrandColors.primaryGreen, BrandColors.heroGreenEnd],
+              colors: [scheme.primaryContainer, scheme.surfaceContainerHigh],
             ),
           ),
           child: Padding(
             padding: const EdgeInsets.all(22),
-            child: Icon(icon, size: 40, color: BrandColors.goldBright),
+            child: Icon(icon, size: 40, color: scheme.onPrimaryContainer),
           ),
         ),
         const SizedBox(height: AppSpacing.lg),
@@ -291,7 +291,7 @@ class _FirstRunFlowState extends ConsumerState<FirstRunFlow> {
           borderRadius: AppRadii.xlAll,
           side: BorderSide(
             color: selected
-                ? BrandColors.mutedGold
+                ? theme.colorScheme.primary
                 : theme.colorScheme.outlineVariant,
             width: selected ? 2 : 1,
           ),

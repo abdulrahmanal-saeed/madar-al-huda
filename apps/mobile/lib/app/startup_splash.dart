@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:material_ui/material_ui.dart';
 
 import '../core/localization/l10n_extension.dart';
+import '../core/theme/brand_colors.dart';
 import '../core/theme/brand_season.dart';
 
 class StartupSplash extends StatefulWidget {
@@ -70,14 +71,7 @@ class _SplashScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final dark = Theme.of(context).brightness == Brightness.dark;
     final l10n = context.l10n;
-    final background = switch ((season, dark)) {
-      (BrandSeason.regular, false) => const Color(0xFFEDEAF6),
-      (BrandSeason.regular, true) => const Color(0xFF151220),
-      (BrandSeason.ramadan, false) => const Color(0xFFFBF5E6),
-      (BrandSeason.ramadan, true) => const Color(0xFF0C1626),
-      (BrandSeason.eid, false) => const Color(0xFFF1FAF5),
-      (BrandSeason.eid, true) => const Color(0xFF0B1B17),
-    };
+    final background = BrandColors.splash(season, dark: dark);
     return Material(
       color: background,
       child: Semantics(

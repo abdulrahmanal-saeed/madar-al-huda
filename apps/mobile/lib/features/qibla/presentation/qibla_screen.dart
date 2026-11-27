@@ -11,7 +11,6 @@ import '../../../core/localization/numbers.dart';
 import '../../../core/routing/app_sections.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_tokens.dart';
-import '../../../core/theme/brand_colors.dart';
 import '../../../core/widgets/madar_panel.dart';
 import '../../../core/widgets/responsive_content.dart';
 import '../../../core/widgets/section_detail_scaffold.dart';
@@ -312,7 +311,7 @@ class _CompassDial extends CustomPainter {
     final center = size.center(Offset.zero);
     final radius = size.shortestSide / 2 - 6;
     final dark = colors.brightness == Brightness.dark;
-    final accent = aligned ? BrandColors.goldBright : colors.primary;
+    final accent = aligned ? colors.secondary : colors.primary;
     final bounds = Rect.fromCircle(center: center, radius: radius);
     final paint = Paint()
       ..shader = RadialGradient(

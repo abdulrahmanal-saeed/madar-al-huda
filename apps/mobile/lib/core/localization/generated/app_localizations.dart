@@ -3212,6 +3212,18 @@ abstract class AppLocalizations {
   /// **'Show all {count}'**
   String searchShowAll(String count);
 
+  /// No description provided for @homePrayerMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{1 minute} other{{number} minutes}}'**
+  String homePrayerMinutes(int count, String number);
+
+  /// No description provided for @homePrayerHours.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} h {minutes} min'**
+  String homePrayerHours(String hours, String minutes);
+
   /// Memorization.
   ///
   /// In en, this message translates to:

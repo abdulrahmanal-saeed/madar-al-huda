@@ -46,6 +46,17 @@ class MushafEdition {
   final List<int> juzStarts;
   final List<int> hizbStarts;
 
+  /// Al-Fatihah counts the basmala as an ayah and At-Tawbah has no opening.
+  String? openingBasmala(int surah, int firstAyah) =>
+      firstAyah == 1 && surah != 1 && surah != 9
+      ? surahs.first.verses.first
+      : null;
+
+  static String withoutOpeningBasmala(String text, String? basmala) =>
+      basmala != null && text.startsWith('$basmala ')
+      ? text.substring(basmala.length + 1)
+      : text;
+
   bool contains(AyahRef ref) =>
       ref.editionId == id && ref.ayah <= surahs[ref.surah - 1].verses.length;
 

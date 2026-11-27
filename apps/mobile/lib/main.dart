@@ -51,6 +51,7 @@ Future<void> main() async {
           androidNotificationChannelId:
               'com.abdulrahmanalsaeed.madar.recitation',
           androidNotificationChannelName: 'Madar Al-Huda audio',
+          androidNotificationIcon: 'drawable/madar_notification_mark',
           androidNotificationOngoing: true,
           androidStopForegroundOnPause: true,
         ),

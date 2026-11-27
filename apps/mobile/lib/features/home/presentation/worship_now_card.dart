@@ -90,18 +90,16 @@ class WorshipNowCard extends ConsumerWidget {
               ],
             ),
           ),
-          const SizedBox(width: 5),
-          Flexible(
-            child: FilledButton(
-              onPressed: open,
-              style: FilledButton.styleFrom(
-                minimumSize: const Size(68, 42),
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-              ),
-              child: Text(
-                done == 0 ? l10n.homeNowStart : l10n.homeNowContinue,
-                textAlign: TextAlign.center,
-              ),
+          const SizedBox(width: AppSpacing.md),
+          FilledButton(
+            onPressed: open,
+            style: FilledButton.styleFrom(
+              minimumSize: const Size(68, 42),
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+            ),
+            child: Text(
+              done == 0 ? l10n.homeNowStart : l10n.homeNowContinue,
+              textAlign: TextAlign.center,
             ),
           ),
         ],

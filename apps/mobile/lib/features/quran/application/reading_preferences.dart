@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../core/storage/storage_providers.dart';
+import '../../../core/theme/brand_colors.dart';
 
 /// Background of the Mushaf page, independent of the app theme.
 enum ReadingPaper { auto, light, warm, night, amber }
@@ -21,40 +22,18 @@ PaperColors paperColors(ReadingPaper paper, ThemeData theme) {
   final colors = theme.colorScheme;
   final dark = theme.brightness == Brightness.dark;
   return switch (paper) {
-    ReadingPaper.light => (
-      paper: const Color(0xfffaf7ff),
-      ink: const Color(0xff1b1530),
-      border: const Color(0xffe4def3),
-      banner: const Color(0xffeee9f8),
+    ReadingPaper.light => BrandColors.lightReadingPaper,
+    ReadingPaper.warm => BrandColors.warmReadingPaper,
+    ReadingPaper.night => BrandColors.nightReadingPaper,
+    ReadingPaper.amber => BrandColors.amberReadingPaper,
+    ReadingPaper.auto => (
+      paper: dark
+          ? colors.surfaceContainerLow
+          : Color.lerp(colors.surface, colors.surfaceContainerLow, .5)!,
+      ink: colors.onSurface,
+      border: dark ? colors.outline : colors.surfaceContainerHigh,
+      banner: dark ? colors.secondaryContainer : colors.surfaceContainer,
     ),
-    ReadingPaper.warm => (
-      paper: const Color(0xfff3e7cf),
-      ink: const Color(0xff3a2a12),
-      border: const Color(0xffd9c79f),
-      banner: const Color(0xffeadbbb),
-    ),
-    ReadingPaper.night => (
-      paper: const Color(0xff0d1917),
-      ink: const Color(0xffece6d8),
-      border: const Color(0xff34473f),
-      banner: const Color(0xff223631),
-    ),
-    // Warm amber text on brown: dimmer than [night] for reading in the dark.
-    ReadingPaper.amber => (
-      paper: const Color(0xff1d1711),
-      ink: const Color(0xffe9d3a6),
-      border: const Color(0xff4a3a26),
-      banner: const Color(0xff2c2218),
-    ),
-    ReadingPaper.auto =>
-      dark
-          ? (
-              paper: colors.surfaceContainerLow,
-              ink: colors.onSurface,
-              border: colors.outline,
-              banner: colors.secondaryContainer,
-            )
-          : paperColors(ReadingPaper.light, theme),
   };
 }
 

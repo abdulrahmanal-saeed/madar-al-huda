@@ -67,7 +67,7 @@ class LinksSectionScreen extends ConsumerWidget {
                         ),
                         const SizedBox(height: AppSpacing.md),
                       ],
-                      for (final season in entry.seasons)
+                      for (final season in entry.seasons) ...[
                         Card(
                           child: ListTile(
                             key: ValueKey(season.id),
@@ -89,6 +89,8 @@ class LinksSectionScreen extends ConsumerWidget {
                             ),
                           ),
                         ),
+                        const SizedBox(height: AppSpacing.md),
+                      ],
                       if (entry.links.isNotEmpty)
                         Card(
                           child: Column(

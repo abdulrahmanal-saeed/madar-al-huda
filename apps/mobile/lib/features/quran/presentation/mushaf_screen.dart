@@ -255,10 +255,13 @@ class _ReaderState extends ConsumerState<_Reader> {
       ayah: recited.ayah,
     );
     if (!widget.edition.contains(verse) || verse == _playbackHighlight) return;
+    final previousPage = widget.edition.pageOf(_playbackHighlight ?? _current);
     _playbackHighlight = verse;
     _settle?.cancel();
     final page = widget.edition.pageOf(verse);
-    if (_pageKeys[page]?.currentState == null && _scroll.isAttached) {
+    if (_scroll.isAttached &&
+        (previousPage ~/ _spread != page ~/ _spread ||
+            _pageKeys[page]?.currentState == null)) {
       _scroll.jumpTo(index: page ~/ _spread);
     }
     setState(() {

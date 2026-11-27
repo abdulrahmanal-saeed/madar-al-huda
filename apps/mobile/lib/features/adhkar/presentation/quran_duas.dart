@@ -11,6 +11,7 @@ import '../../quran/data/local_quran_bookmarks.dart';
 import '../../quran/data/mushaf_edition.dart';
 import '../../quran/domain/quran_search_text.dart';
 import '../../quran/domain/quran_storage_contracts.dart';
+import '../../quran/presentation/basmala_line.dart';
 import '../../quran/presentation/quran_meaning_view.dart';
 import '../data/adhkar_catalog.dart';
 import '../data/quran_dua_index.dart';
@@ -240,6 +241,7 @@ class _DuaCardState extends State<_DuaCard> {
     final numbers = decimalFormat(language);
     final range = widget.range;
     final surah = widget.edition.surahs[range.surah - 1];
+    final basmala = widget.edition.openingBasmala(range.surah, range.first);
     final first = numbers.format(range.first);
     final last = numbers.format(range.last);
     return Card(
@@ -251,9 +253,13 @@ class _DuaCardState extends State<_DuaCard> {
         onExpansionChanged: (expanded) => setState(() => _expanded = expanded),
         childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
         children: [
+          if (basmala != null) BasmalaLine(basmala),
           for (var index = range.first - 1; index < range.last; index++)
             Text(
-              surah.verses[index],
+              MushafEdition.withoutOpeningBasmala(
+                surah.verses[index],
+                index == range.first - 1 ? basmala : null,
+              ),
               textDirection: TextDirection.rtl,
               style: const TextStyle(
                 fontFamily: AppTheme.quranFontFamily,

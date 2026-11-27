@@ -201,14 +201,19 @@ class _RadioBanner extends ConsumerWidget {
     final playback = ref.watch(audioPlaybackProvider);
     final on = cairoRadioOn(playback);
     final l10n = context.l10n;
-    final text = Theme.of(context).textTheme;
+    final theme = Theme.of(context);
+    final text = theme.textTheme;
+    final scheme = theme.colorScheme;
     return MadarPanel(
       key: const ValueKey('library-radio'),
       radius: BorderRadius.circular(23),
-      gradient: const LinearGradient(
+      gradient: LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
-        colors: [Color(0xffff7959), Color(0xffd93f23)],
+        colors: [
+          scheme.primary,
+          Color.lerp(scheme.primary, scheme.onPrimaryContainer, .13)!,
+        ],
       ),
       onTap: () => toggleCairoRadio(context, ref),
       child: Row(
@@ -216,14 +221,14 @@ class _RadioBanner extends ConsumerWidget {
           CircleAvatar(
             key: const Key('library-radio-play'),
             radius: 23,
-            backgroundColor: Colors.white,
-            foregroundColor: const Color(0xffd93f23),
+            backgroundColor: scheme.onPrimary,
+            foregroundColor: scheme.primary,
             child: cairoRadioConnecting(playback)
-                ? const SizedBox.square(
+                ? SizedBox.square(
                     dimension: 22,
                     child: CircularProgressIndicator(
                       strokeWidth: 3,
-                      color: Color(0xffd93f23),
+                      color: scheme.primary,
                     ),
                   )
                 : Icon(
@@ -239,13 +244,13 @@ class _RadioBanner extends ConsumerWidget {
               children: [
                 Text(
                   l10n.libraryLive,
-                  style: text.labelMedium?.copyWith(color: Colors.white),
+                  style: text.labelMedium?.copyWith(color: scheme.onPrimary),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   l10n.radioTitle,
                   style: text.titleMedium?.copyWith(
-                    color: Colors.white,
+                    color: scheme.onPrimary,
                     fontWeight: FontWeight.w800,
                   ),
                 ),

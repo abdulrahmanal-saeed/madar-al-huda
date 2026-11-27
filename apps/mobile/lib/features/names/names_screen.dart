@@ -7,7 +7,6 @@ import '../../core/localization/l10n_extension.dart';
 import '../../core/localization/search_text.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/app_tokens.dart';
-import '../../core/theme/brand_colors.dart';
 import '../../core/widgets/madar_panel.dart';
 import '../../core/widgets/orbit_motif.dart';
 import '../../core/widgets/responsive_content.dart';
@@ -288,7 +287,8 @@ class _NameCard extends StatelessWidget {
               ),
             ),
           ),
-          if (name.transliteration.isNotEmpty)
+          if (name.transliteration.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.sm),
             Text(
               name.transliteration,
               textDirection: TextDirection.ltr,
@@ -296,6 +296,7 @@ class _NameCard extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: theme.textTheme.labelMedium,
             ),
+          ],
           const Spacer(),
           Text(
             name.meaning(language),
@@ -319,6 +320,7 @@ class NameDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     final language = Localizations.localeOf(context).languageCode;
     Widget block(String title, String body, {TextDirection? direction}) => Card(
       child: Padding(
@@ -329,7 +331,7 @@ class NameDetailScreen extends StatelessWidget {
             Text(
               title,
               style: theme.textTheme.titleSmall?.copyWith(
-                color: BrandColors.mutedGold,
+                color: scheme.primary,
               ),
             ),
             const SizedBox(height: AppSpacing.sm),
@@ -354,18 +356,18 @@ class NameDetailScreen extends StatelessWidget {
                 ClipRRect(
                   borderRadius: AppRadii.xlAll,
                   child: DecoratedBox(
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          BrandColors.primaryGreen,
-                          BrandColors.heroGreenEnd,
+                          scheme.primaryContainer,
+                          scheme.surfaceContainerHigh,
                         ],
                       ),
                     ),
                     child: Stack(
                       children: [
-                        const Positioned.fill(
-                          child: OrbitMotif(color: BrandColors.goldBright),
+                        Positioned.fill(
+                          child: OrbitMotif(color: scheme.secondary),
                         ),
                         Container(
                           width: double.infinity,
@@ -377,31 +379,31 @@ class NameDetailScreen extends StatelessWidget {
                             children: [
                               Text(
                                 _digits(name.number, language),
-                                style: const TextStyle(
-                                  color: BrandColors.goldBright,
-                                ),
+                                style: TextStyle(color: scheme.primary),
                               ),
                               Text(
                                 name.display,
                                 key: const Key('name-detail-title'),
                                 textAlign: TextAlign.center,
                                 textDirection: TextDirection.rtl,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontFamily: AppTheme.quranFontFamily,
                                   fontSize: 52,
                                   height: 1.5,
-                                  color: BrandColors.ivory,
+                                  color: scheme.onPrimaryContainer,
                                 ),
                               ),
-                              if (name.transliteration.isNotEmpty)
+                              if (name.transliteration.isNotEmpty) ...[
+                                const SizedBox(height: AppSpacing.md),
                                 Text(
                                   name.transliteration,
                                   textDirection: TextDirection.ltr,
-                                  style: const TextStyle(
-                                    color: BrandColors.goldBright,
+                                  style: TextStyle(
+                                    color: scheme.onPrimaryContainer,
                                     letterSpacing: 1,
                                   ),
                                 ),
+                              ],
                             ],
                           ),
                         ),

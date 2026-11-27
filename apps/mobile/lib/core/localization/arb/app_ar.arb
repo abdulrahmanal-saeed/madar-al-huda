@@ -530,6 +530,8 @@
   "searchHadithTopics": "موضوعات الحديث",
   "searchVerseCount": "{count} آية",
   "searchShowAll": "عرض الكل ({count})",
+  "homePrayerMinutes": "{count, plural, one{دقيقة} two{دقيقتان} few{{number} دقائق} other{{number} دقيقة}}",
+  "homePrayerHours": "{hours} س {minutes} د",
   "memorizeTitle": "التحفيظ",
   "memorizeIntro": "اختر سورة ومقطعًا، كرّر كل آية، ثم أخفِ النص وسمّع من حفظك.",
   "memorizeFindSurah": "ابحث عن سورة",

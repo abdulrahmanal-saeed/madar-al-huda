@@ -7,6 +7,7 @@ import '../../../core/localization/numbers.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/madar_panel.dart';
 import '../../../core/widgets/responsive_content.dart';
+import '../../worship/application/current_worship_moment.dart';
 import '../data/adhkar_catalog.dart';
 import '../data/adhkar_progress.dart';
 import 'adhkar_widgets.dart';
@@ -24,15 +25,13 @@ class AdhkarHub extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final language = context.adhkarLanguage;
     final l10n = context.l10n;
-    final day = adhkarDayKey(DateTime.now());
+    final now = ref.watch(adhkarClockProvider).asData?.value ?? DateTime.now();
+    final day = adhkarDayKey(now);
     final progress = ref.watch(adhkarProgressProvider);
-    final current = catalog.groups.firstWhere(
-      (group) =>
-          group.id == progress.lastGroup ||
-          (group.isAfterPrayer &&
-              (progress.lastGroup?.startsWith('after-prayer-') ?? false)),
-      orElse: () => catalog.groups.first,
-    );
+    final moment = ref.watch(currentWorshipMomentProvider);
+    final current = catalog.groups
+        .where((group) => group.id == moment?.groupId)
+        .firstOrNull;
     final groups = catalog.groups;
     final number = decimalFormat(language).format;
     final selected = groups.where(
@@ -86,52 +85,55 @@ class AdhkarHub extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  MadarPanel(
-                    radius: const BorderRadius.vertical(
-                      top: Radius.circular(104),
-                      bottom: Radius.circular(22),
-                    ),
-                    color: scheme.surfaceContainerHighest,
-                    onTap: () => _openGroup(context, current),
-                    child: Column(
-                      children: [
-                        Text(
-                          l10n.adhkarToday,
-                          style: theme.textTheme.bodySmall,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          current.title.inLanguage(language),
-                          textAlign: TextAlign.center,
-                          style: theme.textTheme.headlineLarge?.merge(
-                            AppTheme.headingStyle(FontWeight.w800),
+                  if (current != null)
+                    MadarPanel(
+                      radius: const BorderRadius.vertical(
+                        top: Radius.circular(104),
+                        bottom: Radius.circular(22),
+                      ),
+                      color: scheme.surfaceContainerHighest,
+                      onTap: () => _openGroup(context, current),
+                      child: Column(
+                        children: [
+                          Text(
+                            l10n.adhkarToday,
+                            style: theme.textTheme.bodySmall,
                           ),
-                        ),
-                        const SizedBox(height: 10),
-                        Wrap(
-                          alignment: WrapAlignment.center,
-                          spacing: 6,
-                          children: [
-                            Text(l10n.adhkarResume),
-                            Text(
-                              l10n.adhkarPosition(
-                                number(progress.completedInGroup(day, current)),
-                                number(progress.groupGoal(current)),
-                              ),
+                          const SizedBox(height: 8),
+                          Text(
+                            current.title.inLanguage(language),
+                            textAlign: TextAlign.center,
+                            style: theme.textTheme.headlineLarge?.merge(
+                              AppTheme.headingStyle(FontWeight.w800),
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        FilledButton(
-                          onPressed: () => _openGroup(context, current),
-                          style: FilledButton.styleFrom(
-                            minimumSize: const Size(120, 44),
                           ),
-                          child: Text(l10n.homeNowStart),
-                        ),
-                      ],
+                          const SizedBox(height: 10),
+                          Wrap(
+                            alignment: WrapAlignment.center,
+                            spacing: 6,
+                            children: [
+                              Text(l10n.adhkarResume),
+                              Text(
+                                l10n.adhkarPosition(
+                                  number(
+                                    progress.completedInGroup(day, current),
+                                  ),
+                                  number(progress.groupGoal(current)),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          FilledButton(
+                            onPressed: () => _openGroup(context, current),
+                            style: FilledButton.styleFrom(
+                              minimumSize: const Size(120, 44),
+                            ),
+                            child: Text(l10n.homeNowStart),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
                   const SizedBox(height: 10),
                   LayoutBuilder(
                     builder: (context, size) => Wrap(
@@ -191,30 +193,36 @@ class AdhkarHub extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      for (final (id, screen) in [
-                        ('hisn', HisnScreen(catalog: catalog)),
-                        ('merits', MeritsScreen(catalog: catalog)),
-                        ('quranDuas', const QuranDuas()),
-                      ])
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 3),
-                            child: MadarPanel(
-                              radius: BorderRadius.circular(32),
-                              padding: const EdgeInsets.all(10),
-                              onTap: () => openAdhkarPage(context, screen),
-                              child: Text(
-                                catalog.sections[id]!.inLanguage(language),
-                                textAlign: TextAlign.center,
-                                style: theme.textTheme.titleSmall,
+                  IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        for (final (id, screen) in [
+                          ('hisn', HisnScreen(catalog: catalog)),
+                          ('merits', MeritsScreen(catalog: catalog)),
+                          ('quranDuas', const QuranDuas()),
+                        ])
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 3,
+                              ),
+                              child: MadarPanel(
+                                radius: BorderRadius.circular(32),
+                                padding: const EdgeInsets.all(10),
+                                onTap: () => openAdhkarPage(context, screen),
+                                child: Center(
+                                  child: Text(
+                                    catalog.sections[id]!.inLanguage(language),
+                                    textAlign: TextAlign.center,
+                                    style: theme.textTheme.titleSmall,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -275,8 +283,10 @@ class AdhkarRoutine extends ConsumerWidget {
                   dimension: 66,
                   child: CircularProgressIndicator(
                     value: total == 0 ? 0 : finished / total,
-                    color: const Color(0xFFD4AE63),
-                    backgroundColor: const Color(0xFF4C756E),
+                    color: Theme.of(context).colorScheme.primary,
+                    backgroundColor: Theme.of(context)
+                        .colorScheme
+                        .outlineVariant,
                   ),
                 ),
                 const SizedBox(width: 16),

@@ -27,7 +27,7 @@ class MadarPanel extends StatelessWidget {
     final border = BorderSide(
       color: Colors.white.withValues(alpha: dark ? .07 : .78),
     );
-    final shadow = dark ? Colors.black : const Color(0xff462da0);
+    final shadow = dark ? scheme.shadow : scheme.secondary;
     return DecoratedBox(
       decoration: BoxDecoration(
         borderRadius: radius,

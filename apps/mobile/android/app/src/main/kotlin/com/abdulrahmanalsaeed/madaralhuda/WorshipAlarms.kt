@@ -238,7 +238,7 @@ internal object WorshipAlarms {
         }
         val b = builder(context, UPCOMING)
             .setContentTitle(heading.ifBlank { title })
-            .setColor(0xffe4502f.toInt())
+            .setColor(prefs.optLong("accent").toInt())
             .setOnlyAlertOnce(true).setOngoing(true)
             .setContentIntent(if (next == null) location else times)
             .addAction(Notification.Action.Builder(null, openLabel, times).build())

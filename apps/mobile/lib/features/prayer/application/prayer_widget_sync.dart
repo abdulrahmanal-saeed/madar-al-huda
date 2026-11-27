@@ -136,6 +136,7 @@ class _PrayerWidgetSyncState extends ConsumerState<PrayerWidgetSync> {
     final hanafi = ref.watch(hanafiAsrProvider);
     final l10n = context.l10n;
     final language = Localizations.localeOf(context).languageCode;
+    final accent = Theme.of(context).colorScheme.primary.toARGB32();
     final place =
         location.place?.label(language) ??
         (location.fromDevice ? l10n.deviceLocation : '');
@@ -148,6 +149,7 @@ class _PrayerWidgetSyncState extends ConsumerState<PrayerWidgetSync> {
       enabled,
       language,
       place,
+      accent,
     ].join('|');
     if (signature != _published) {
       _published = signature;
@@ -191,6 +193,7 @@ class _PrayerWidgetSyncState extends ConsumerState<PrayerWidgetSync> {
             'enabled': enabled,
             'place': place,
             'title': l10n.appTitle,
+            'accent': accent,
             'lang': language,
             'route': AppRoutes.prayerTimes,
             'locationRoute': '${AppRoutes.prayerTimes}?location=1',

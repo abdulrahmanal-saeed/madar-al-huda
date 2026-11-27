@@ -7,6 +7,7 @@ import '../../../core/localization/l10n_extension.dart';
 import '../../../core/localization/numbers.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_tokens.dart';
+import '../../../core/theme/brand_colors.dart';
 import '../../../core/widgets/madar_panel.dart';
 import '../application/tasbih_controller.dart';
 
@@ -258,17 +259,9 @@ class _TasbihBeads extends StatelessWidget {
                       shape: BoxShape.circle,
                       gradient: RadialGradient(
                         center: const Alignment(-.42, -.42),
-                        colors: index == 2
-                            ? const [
-                                Color(0xffffe4da),
-                                Color(0xffff8d71),
-                                Color(0xffa94331),
-                              ]
-                            : const [
-                                Color(0xfff2e9ff),
-                                Color(0xffb49cf6),
-                                Color(0xff563fb6),
-                              ],
+                        colors: BrandColors.beadShades(
+                          index == 2 ? scheme.primary : scheme.secondary,
+                        ),
                         stops: const [0, .43, 1],
                       ),
                       boxShadow: [

@@ -106,14 +106,13 @@ class MushafPageViewState extends ConsumerState<MushafPageView> {
   ) {
     final numbers = decimalFormat('ar');
     final spans = <InlineSpan>[];
-    final basmala = widget.edition.surahs.first.verses.first;
     var index = 0;
     for (final verse in verses) {
       final ref = verse.ref;
-      final text =
-          ref.surah > 1 && ref.ayah == 1 && verse.text.startsWith('$basmala ')
-          ? verse.text.substring(basmala.length + 1)
-          : verse.text;
+      final text = MushafEdition.withoutOpeningBasmala(
+        verse.text,
+        widget.edition.openingBasmala(ref.surah, ref.ayah),
+      );
       final marker = '\u06dd${numbers.format(ref.ayah)}';
       final glyph = qcf?.glyphs['${ref.surah}:${ref.ayah}'];
       final display = glyph == null ? '$text $marker' : '\u202E$glyph\u202C';

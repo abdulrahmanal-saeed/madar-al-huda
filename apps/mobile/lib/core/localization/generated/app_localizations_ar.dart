@@ -1790,6 +1790,24 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String homePrayerMinutes(int count, String number) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$number دقيقة',
+      few: '$number دقائق',
+      two: 'دقيقتان',
+      one: 'دقيقة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homePrayerHours(String hours, String minutes) {
+    return '$hours س $minutes د';
+  }
+
+  @override
   String get memorizeTitle => 'التحفيظ';
 
   @override

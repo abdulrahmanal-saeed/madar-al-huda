@@ -7,6 +7,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/madar_panel.dart';
 import '../../hadith/data/hadeeth_enc.dart';
 import '../../quran/data/mushaf_edition.dart';
+import '../../quran/presentation/basmala_line.dart';
 import '../../quran/presentation/quran_meaning_view.dart';
 import '../data/adhkar_catalog.dart';
 import 'adhkar_widgets.dart';
@@ -68,11 +69,18 @@ class DhikrContent extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   for (final range in verses) ...[
+                    if (mushaf.openingBasmala(range.surah, range.first)
+                        case final basmala?)
+                      BasmalaLine(basmala),
                     Text(
                       numberedQuranRange(
                         mushaf.surahs[range.surah - 1].verses,
                         first: range.first,
                         last: range.last,
+                        openingBasmala: mushaf.openingBasmala(
+                          range.surah,
+                          range.first,
+                        ),
                       ),
                       textDirection: TextDirection.rtl,
                       textAlign: TextAlign.right,
@@ -201,10 +209,11 @@ String numberedQuranRange(
   List<String> verses, {
   required int first,
   required int last,
+  String? openingBasmala,
 }) {
   final numbers = decimalFormat('ar');
   return [
     for (var ayah = first; ayah <= last; ayah++)
-      '${verses[ayah - 1]} \u06dd${numbers.format(ayah)}',
+      '${MushafEdition.withoutOpeningBasmala(verses[ayah - 1], ayah == first ? openingBasmala : null)} \u06dd${numbers.format(ayah)}',
   ].join(' ');
 }

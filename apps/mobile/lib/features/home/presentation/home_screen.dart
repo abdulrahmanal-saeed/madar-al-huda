@@ -17,6 +17,7 @@ import '../../../core/routing/app_routes.dart';
 import '../../../core/routing/app_sections.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_tokens.dart';
+import '../../../core/theme/brand_colors.dart';
 import '../../../core/theme/brand_season.dart';
 import '../../../core/widgets/madar_panel.dart';
 import '../../../core/widgets/responsive_content.dart';
@@ -29,7 +30,6 @@ import '../../quran/data/mushaf_edition.dart';
 import '../../quran/data/quran_services.dart';
 import '../../ramadan/presentation/ramadan_screen.dart';
 import '../../settings/presentation/settings_updates.dart';
-import '../../tasbih/application/tasbih_controller.dart';
 import '../../worship/application/cairo_radio_control.dart';
 import '../../worship/application/worship_location.dart';
 import '../data/daily_duas.dart';
@@ -80,7 +80,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ? PrayerSchedule.calculate(place: place, now: now, hanafi: hanafi)
         : null;
     final date = schedule?.today.first.time ?? now;
-    final season = BrandSeason.on(date);
+    final season = ref.watch(brandSeasonProvider);
     final hijri = civilHijriDate(date, locale.languageCode);
     final edition = showMushaf
         ? ref.watch(mushafEditionProvider).asData?.value
@@ -155,11 +155,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     Row(
                       children: [
                         Expanded(
-                          child: _WorshipTile(schedule: schedule, now: now),
+                          child: _PrayerTile(schedule: schedule, now: now),
                         ),
-                        if (shows(AppFeature.tasbih)) ...[
+                        if (shows(AppFeature.radio)) ...[
                           const SizedBox(width: AppSpacing.sm),
-                          Expanded(child: _WorshipTile(tasbih: true, now: now)),
+                          const Expanded(child: _RadioTile()),
                         ],
                       ],
                     ),
@@ -169,6 +169,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       const SizedBox(height: AppSpacing.sm),
                       WorshipNowCard(schedule: schedule, now: now),
                       if (shows(AppFeature.ramadan)) RamadanHomeCard(now: now),
+                    ],
+                    if (edition != null &&
+                        (!AppSection.adhkar.status.isGated ||
+                            managedReleaseEnabled)) ...[
+                      const SizedBox(height: AppSpacing.md),
+                      _DuaOfDay(day: date),
                     ],
                     const SizedBox(height: AppSpacing.lg),
                     Text(
@@ -205,15 +211,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             AppRoutes.tasbih,
                             key: const ValueKey('quick-access-tasbih'),
                           ),
-                        if (shows(AppFeature.radio))
+                        if (shows(AppFeature.memorize))
                           _HomeShortcut(
-                            cairoRadioOn(ref.watch(audioPlaybackProvider))
-                                ? Icons.stop_circle_outlined
-                                : Icons.radio_outlined,
-                            l10n.homeRadio,
-                            AppRoutes.cairoRadio,
-                            key: const ValueKey('quick-access-radio'),
-                            onTap: () => toggleCairoRadio(context, ref),
+                            Icons.psychology_outlined,
+                            l10n.memorizeTitle,
+                            AppRoutes.memorize,
                           ),
                         _HomeShortcut(
                           Icons.wb_twilight,
@@ -239,12 +241,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         ),
                       ],
                     ),
-                    if (edition != null &&
-                        (!AppSection.adhkar.status.isGated ||
-                            managedReleaseEnabled)) ...[
-                      const SizedBox(height: AppSpacing.lg),
-                      _DuaOfDay(day: date),
-                    ],
                     const SizedBox(height: AppSpacing.xl),
                   ],
                 ),
@@ -315,31 +311,21 @@ class _HomeHeader extends StatelessWidget {
   }
 }
 
-class _HomeShortcut extends StatelessWidget {
-  const _HomeShortcut(
-    this.icon,
-    this.label,
-    this.route, {
-    this.onTap,
-    super.key,
-  });
+class _HomeShortcut extends ConsumerWidget {
+  const _HomeShortcut(this.icon, this.label, this.route, {super.key});
 
   final IconData icon;
   final String label;
   final String route;
 
-  /// Acts in place instead of opening [route] (the radio).
-  final VoidCallback? onTap;
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final iconFile = switch (route) {
       AppRoutes.dailyReading => '1_book',
       AppRoutes.qibla => '2_compass',
       AppRoutes.tasbih => '3_hand',
-      AppRoutes.cairoRadio when icon == Icons.radio_outlined => '4_radio',
       AppRoutes.morningAdhkar => '5_sun',
       AppRoutes.hadith => '6_quote',
       AppRoutes.stories => '7_story',
@@ -351,22 +337,22 @@ class _HomeShortcut extends StatelessWidget {
       button: true,
       child: InkWell(
         borderRadius: AppRadii.lgAll,
-        onTap:
-            onTap ??
-            () {
-              if (route == AppRoutes.dailyReading ||
-                  route == AppRoutes.tasbih ||
-                  route.startsWith(AppRoutes.settings)) {
-                context.push(route);
-              } else {
-                context.go(route);
-              }
-            },
+        onTap: () {
+          if (route == AppRoutes.dailyReading ||
+              route == AppRoutes.tasbih ||
+              route == AppRoutes.memorize ||
+              route.startsWith(AppRoutes.settings)) {
+            context.push(route);
+          } else {
+            context.go(route);
+          }
+        },
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
           child: Column(
             children: [
-              if (iconFile != null)
+              if (iconFile != null &&
+                  ref.watch(brandSeasonProvider) == BrandSeason.regular)
                 Image.asset(
                   'assets/brand/shortcuts/qa_${iconFile}_$tone.png',
                   width: 52,
@@ -422,11 +408,7 @@ class _ContinueReading extends ConsumerWidget {
         : null;
     final page = verse == null ? null : book!.pageOf(verse) + 1;
     final theme = Theme.of(context);
-    final colors = switch (season) {
-      BrandSeason.regular => const [Color(0xFF3A2A99), Color(0xFF1F1558)],
-      BrandSeason.ramadan => const [Color(0xFF14606B), Color(0xFF0A2230)],
-      BrandSeason.eid => const [Color(0xFF0E8A62), Color(0xFF063D2C)],
-    };
+    final colors = BrandColors.readingHero(season);
     return ClipRRect(
       borderRadius: BorderRadius.circular(26),
       child: DecoratedBox(
@@ -495,44 +477,40 @@ class _ContinueReading extends ConsumerWidget {
   }
 }
 
-class _WorshipTile extends ConsumerWidget {
-  const _WorshipTile({required this.now, this.schedule, this.tasbih = false});
+class _PrayerTile extends StatelessWidget {
+  const _PrayerTile({required this.now, required this.schedule});
 
   final DateTime now;
   final PrayerSchedule? schedule;
-  final bool tasbih;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final next = schedule?.next;
     final l10n = context.l10n;
     final theme = Theme.of(context);
-    final language = Localizations.localeOf(context).languageCode;
+    final number = decimalFormat(Localizations.localeOf(context).languageCode)
+        .format;
     final remaining = next?.time.difference(now);
-    final state = tasbih ? ref.watch(tasbihProvider) : null;
-    final number = decimalFormat(language).format;
+    final minutes = remaining == null ? null : (remaining.inSeconds + 59) ~/ 60;
+    final label = minutes == null
+        ? null
+        : minutes < 60
+        ? l10n.homePrayerMinutes(minutes, number(minutes))
+        : l10n.homePrayerHours(number(minutes ~/ 60), number(minutes % 60));
     return Card(
       child: InkWell(
-        onTap: () {
-          if (tasbih) {
-            context.push(AppRoutes.tasbih);
-          } else {
-            context.go(AppRoutes.prayerTimes);
-          }
-        },
+        onTap: () => context.go(AppRoutes.prayerTimes),
         child: ConstrainedBox(
           constraints: const BoxConstraints(minHeight: 116),
           child: Center(
             child: Stack(
               alignment: Alignment.center,
               children: [
-                if (remaining != null)
+                if (minutes != null)
                   SizedBox.square(
-                    dimension: 99,
+                    dimension: 102,
                     child: CircularProgressIndicator(
-                      value: (1 - remaining.inMinutes / 360)
-                          .clamp(.02, 1)
-                          .toDouble(),
+                      value: (1 - minutes / 360).clamp(.02, 1).toDouble(),
                       strokeWidth: 5,
                       strokeCap: StrokeCap.round,
                       backgroundColor: theme.colorScheme.primaryContainer,
@@ -541,54 +519,65 @@ class _WorshipTile extends ConsumerWidget {
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (next == null && state == null)
-                      const Icon(Icons.mosque_outlined),
+                    if (next == null) const Icon(Icons.mosque_outlined),
                     Text(
-                      state != null
-                          ? l10n.tasbihTitle
-                          : next == null
+                      next == null
                           ? l10n.sectionPrayerTimesTitle
                           : prayerName(next.slot, l10n),
                       style: theme.textTheme.titleMedium,
                       textAlign: TextAlign.center,
                     ),
-                    if (remaining != null)
+                    if (label != null)
                       Text(
-                        clockDuration(remaining, language, seconds: false),
+                        label,
                         key: const Key('next-prayer-countdown'),
-                        textDirection: TextDirection.ltr,
-                      ),
-                    if (state != null)
-                      Container(
-                        width: 52,
-                        height: 52,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: RadialGradient(
-                            center: const Alignment(-.45, -.5),
-                            colors: [
-                              theme.colorScheme.primaryContainer,
-                              theme.colorScheme.primary,
-                            ],
-                          ),
-                        ),
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text(
-                            number(
-                              state.day == tasbihDay(now) ? state.today : 0,
-                            ),
-                            style: theme.textTheme.titleLarge,
-                          ),
-                        ),
-                      ),
-                    if (state != null && state.goal > 0)
-                      Text(
-                        number(state.goal),
-                        style: theme.textTheme.bodySmall,
+                        style: theme.textTheme.labelSmall,
+                        textAlign: TextAlign.center,
                       ),
                   ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _RadioTile extends ConsumerWidget {
+  const _RadioTile();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final playback = ref.watch(audioPlaybackProvider);
+    final playing = cairoRadioOn(playback);
+    final theme = Theme.of(context);
+    return Card(
+      child: InkWell(
+        key: const ValueKey('home-radio'),
+        onTap: () => toggleCairoRadio(context, ref),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 116),
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  playing
+                      ? Icons.stop_circle_outlined
+                      : Icons.play_circle_outline,
+                  color: theme.colorScheme.primary,
+                  size: 30,
+                  semanticLabel: playing ? l10n.radioStop : l10n.radioPlay,
+                ),
+                Text(l10n.homeRadio, style: theme.textTheme.titleMedium),
+                Text(
+                  cairoRadioConnecting(playback)
+                      ? l10n.radioConnecting
+                      : l10n.radioLive,
+                  style: theme.textTheme.labelSmall,
                 ),
               ],
             ),
