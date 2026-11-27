@@ -125,7 +125,7 @@ internal object WorshipAlarms {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
     }
 
-    private fun showShort(context: Context, reminder: JSONObject, audible: Boolean = true) {
+    fun showShort(context: Context, reminder: JSONObject, audible: Boolean = true) {
         val id = reminder.optInt("id") + 110_000
         val text = reminder.optString("body")
         val b = builder(context, if (audible) SHORT else PLAYING)
@@ -328,7 +328,7 @@ class WorshipAudioService : Service() {
         activeAdhan = event.optString("kind") == "adhan"
         startForeground(31_018, WorshipAlarms.playbackNotice(this, event))
         if (audio.getStreamVolume(AudioManager.STREAM_ALARM) == 0) {
-            stopSelf()
+            playbackFailed(event, audible = false)
             return START_NOT_STICKY
         }
         val attrs = AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_ALARM)
@@ -342,7 +342,7 @@ class WorshipAudioService : Service() {
             audio.requestAudioFocus(focusListener, AudioManager.STREAM_ALARM, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
         }
         if (granted != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-            stopSelf()
+            playbackFailed(event, audible = false)
             return START_NOT_STICKY
         }
         runCatching {
@@ -352,12 +352,22 @@ class WorshipAudioService : Service() {
             WorshipAlarms.source(this, media, event.getString("sound"))
             media.setOnPreparedListener { if (player === it) it.start() }
             media.setOnCompletionListener { stopSelf() }
-            media.setOnErrorListener { _, _, _ -> stopSelf(); true }
+            media.setOnErrorListener { failed, _, _ ->
+                if (player === failed) playbackFailed(event, audible = true)
+                true
+            }
             media.prepareAsync()
             if (activeAdhan) watchVolume()
             handler.postDelayed({ stopSelf() }, 10 * 60_000L)
-        }.onFailure { stopSelf() }
+        }.onFailure { playbackFailed(event, audible = true) }
         return START_NOT_STICKY
+    }
+
+    private fun playbackFailed(event: JSONObject, audible: Boolean) {
+        if (event.optString("kind") in setOf("dailyDua", "dua")) {
+            WorshipAlarms.showShort(this, event, audible)
+        }
+        stopSelf()
     }
 
     private fun watchVolume() {

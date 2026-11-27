@@ -288,6 +288,29 @@ void main() {
     expect(find.byKey(AppShell.navigationBarKey), findsNothing);
   });
 
+  testWidgets('the Home dua card keeps the text without a library shortcut', (
+    tester,
+  ) async {
+    await pumpMadarApp(tester);
+    final title = find.text('Dua of the day');
+    await tester.scrollUntilVisible(
+      title,
+      150,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    final card = find.ancestor(of: title, matching: find.byType(Card)).first;
+    final dua = dailyDuaForCivilDay(DateTime.now(), bundledDailyDuas);
+    expect(
+      find.descendant(of: card, matching: find.text(dua.ar)),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: card, matching: find.text('Listen to duas')),
+      findsNothing,
+    );
+  });
+
   testWidgets('home shows no fabricated prayer times or religious text', (
     tester,
   ) async {
