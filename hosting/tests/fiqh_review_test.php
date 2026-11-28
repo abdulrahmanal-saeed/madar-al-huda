@@ -87,4 +87,25 @@ frCheck(fiqhReviewCurrent($db,'synthetic',2)['state']==='archived','archive even
 frCheck((int)fiqhLatestRevision($db,'synthetic')['revision']===3,'new draft retained');
 frCheck((int)$db->query('SELECT COUNT(*) FROM fiqh_permission_events')->fetchColumn()===4,'permission audit');
 frReject(fn()=>$db->exec('DELETE FROM fiqh_permission_events'));
-echo "Fiqh review checks passed\n";
+// Existing v4 history stays immutable; direct publishing uses no fake approval.
+fiqhDirectMigration($db);
+fiqhDirectMigration($db);
+frCheck(fiqhDirectReady($db),'v5 active');
+frReject(fn()=>fiqhPublishDraft($db,2,'synthetic',3,0));
+frReject(fn()=>fiqhPublishDraft($db,1,'synthetic',2,0));
+frCheck(fiqhPublicCatalog($db)['issues']===[],'draft still private');
+$direct=fiqhPublishDraft($db,1,'synthetic',3,0);
+frCheck($direct['changed']===true,'owner directly publishes');
+frCheck(fiqhReviewCurrent($db,'synthetic',3)['state']==='published','no fictional approval');
+frCheck(fiqhReviewCurrent($db,'synthetic',3)['qualifications']===null,'no fictional qualifications');
+frCheck(fiqhPublicCatalog($db)['issues'][0]['revision']===3,'direct snapshot public');
+frReject(fn()=>fiqhPublishDraft($db,1,'synthetic',3,0));
+$issue['summary']['en']='Another unpublished edit';
+fiqhSaveDraft($db,$issue,3,'user:2');
+frCheck(fiqhPublicCatalog($db)['issues'][0]['revision']===3,'old publication retained');
+frReject(fn()=>frTransition($db,1,'synthetic',4,'submit'));
+fiqhArchivePublication($db,1,'synthetic',3,'synthetic withdrawal');
+frCheck(fiqhPublicCatalog($db)['issues']===[],'owner withdraws without special grants');
+fiqhPublishDraft($db,1,'synthetic',4,0);
+frCheck(fiqhPublicCatalog($db)['issues'][0]['revision']===4,'new draft published directly');
+echo "Fiqh review and direct editorial publishing checks passed\n";

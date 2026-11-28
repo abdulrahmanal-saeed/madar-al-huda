@@ -223,6 +223,7 @@ function fiqhIndependentReviewer(PDO $db,string $id,int $userId):bool
 function fiqhReviewTransition(PDO $db, int $userId, string $id, int $expectedRevision, int $expectedEventId, string $action, string $notes = '', string $corrections = ''): array
 {
     return fiqhTransaction($db, function () use ($db,$userId,$id,$expectedRevision,$expectedEventId,$action,$notes,$corrections): array {
+        if (fiqhDirectReady($db)) throw new InvalidArgumentException('Use direct editorial publishing');
         $user = fiqhHumanUser($db, $userId);
         $revision = fiqhLatestRevision($db, $id);
         if ($revision === null || (int)$revision['revision'] !== $expectedRevision) {
@@ -297,7 +298,9 @@ function fiqhPublishedRevision(PDO $db, string $id): ?array
     $q = $db->prepare("SELECT r.*, p.approval_id, p.published_at FROM fiqh_published p
         JOIN fiqh_revisions r ON r.issue_id=p.issue_id AND r.revision=p.revision
         JOIN fiqh_review_events e ON e.id=p.approval_id AND e.issue_id=r.issue_id AND e.revision=r.revision
-        AND e.state='approved' AND e.content_hash=r.content_hash WHERE p.issue_id=?");
+        AND e.content_hash=r.content_hash
+        AND (e.state='approved' OR (e.state='published' AND e.actor_id=p.publisher_id))
+        WHERE p.issue_id=?");
     $q->execute([$id]);
     return $q->fetch(PDO::FETCH_ASSOC) ?: null;
 }
@@ -308,7 +311,8 @@ function fiqhArchivePublication(PDO $db, int $userId, string $id, int $expectedP
 {
     return fiqhTransaction($db, function () use ($db,$userId,$id,$expectedPublishedRevision,$reason): array {
         $user = fiqhHumanUser($db,$userId);
-        fiqhAssertPublisher($db,$user);
+        if (fiqhDirectReady($db)) fiqhAssertEditorialPublisher($user);
+        else fiqhAssertPublisher($db,$user);
         if (trim($reason) === '') throw new InvalidArgumentException('Archive reason required');
         $published = fiqhPublishedRevision($db,$id);
         if ($published === null || (int)$published['revision'] !== $expectedPublishedRevision) {
@@ -347,4 +351,69 @@ function fiqhAvailableReviewActions(PDO $db, int $userId, array $revision): arra
         if ($state === 'approved') $actions[] = 'publish';
     } catch (InvalidArgumentException) { }
     return $actions;
+}
+
+/** v5: ordinary editorial publishing, preserving historical review records.
+ * approval_id is the historical column name; new pointers reference the actual
+ * immutable publication event, never a fabricated scholarly approval. */
+function fiqhDirectMigration(PDO $db,bool $withinTransaction=false):void
+{
+    $work=function() use($db):void {
+        if (!fiqhReviewReady($db)) throw new RuntimeException('Schema versions 1–4 required');
+        if (fiqhDirectReady($db)) return;
+        $db->exec('DROP TRIGGER fiqh_publish_guard_insert');
+        $db->exec('DROP TRIGGER fiqh_publish_guard_update');
+        foreach (['insert'=>'INSERT','update'=>'UPDATE'] as $name=>$operation) {
+            $db->exec("CREATE TRIGGER fiqh_publish_guard_$name BEFORE $operation ON fiqh_published
+                WHEN NOT EXISTS (
+                    SELECT 1 FROM fiqh_review_events e JOIN fiqh_revisions r
+                    ON r.issue_id=e.issue_id AND r.revision=e.revision
+                    WHERE e.id=NEW.approval_id AND e.issue_id=NEW.issue_id AND e.revision=NEW.revision
+                      AND e.state='published' AND e.actor_id=NEW.publisher_id AND e.content_hash=r.content_hash
+                      AND e.id=(SELECT MAX(id) FROM fiqh_review_events WHERE issue_id=e.issue_id AND revision=e.revision)
+                      AND r.revision=(SELECT MAX(revision) FROM fiqh_revisions WHERE issue_id=r.issue_id)
+                ) BEGIN SELECT RAISE(ABORT, 'current editorial publication required'); END");
+        }
+        $db->prepare('INSERT INTO fiqh_migrations VALUES (5,?)')->execute([time()]);
+    };
+    if ($withinTransaction) $work();
+    else fiqhTransaction($db,$work);
+}
+
+function fiqhDirectReady(PDO $db):bool
+{
+    return (bool)$db->query('SELECT 1 FROM fiqh_migrations WHERE version=5')->fetchColumn();
+}
+
+/** Same human publishing roles as the existing library. */
+function fiqhAssertEditorialPublisher(array $user):void
+{
+    if (!in_array($user['role']??null,['owner','reviewer'],true))
+        throw new InvalidArgumentException('صلاحية النشر مطلوبة.');
+}
+
+function fiqhPublishDraft(PDO $db,int $userId,string $id,int $expectedRevision,int $expectedEventId):array
+{
+    return fiqhTransaction($db,function() use($db,$userId,$id,$expectedRevision,$expectedEventId):array {
+        if (!fiqhDirectReady($db)) throw new InvalidArgumentException('Editorial migration required');
+        $user=fiqhHumanUser($db,$userId);
+        fiqhAssertEditorialPublisher($user);
+        $revision=fiqhLatestRevision($db,$id);
+        if ($revision===null||(int)$revision['revision']!==$expectedRevision)
+            throw new InvalidArgumentException('حُفظ إصدار أحدث. أعد فتح المسألة.');
+        $last=fiqhReviewCurrent($db,$id,$expectedRevision);
+        if ((int)($last['id']??0)!==$expectedEventId)
+            throw new InvalidArgumentException('تغيرت حالة النشر. أعد فتح المسألة.');
+        $errors=fiqhReviewErrors($revision);
+        if ($errors!==[]) throw new InvalidArgumentException('أكمل بيانات المسألة قبل النشر: '.implode(', ',$errors));
+        $published=fiqhPublishedRevision($db,$id);
+        if ($published!==null&&(int)$published['revision']===$expectedRevision)
+            return ['id'=>$id,'revision'=>$expectedRevision,'state'=>'published','changed'=>false];
+        $event=fiqhAppendReview($db,$revision,'published',$user,null,'Editorial publication','');
+        $db->prepare('INSERT INTO fiqh_published VALUES (?,?,?,?,?) ON CONFLICT(issue_id)
+            DO UPDATE SET revision=excluded.revision,approval_id=excluded.approval_id,
+            publisher_id=excluded.publisher_id,published_at=excluded.published_at')
+            ->execute([$id,$expectedRevision,$event,$userId,time()]);
+        return ['id'=>$id,'revision'=>$expectedRevision,'state'=>'published','eventId'=>$event,'changed'=>true];
+    });
 }

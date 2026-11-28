@@ -136,14 +136,16 @@ function fiqhPublicCatalog(PDO $db): array
         $categories=array_values($visible);
         usort($categories,fn($a,$b)=>[$a['order'],$a['id']]<=>[$b['order'],$b['id']]);
         $issues=[];
-        // Require matching immutable approval AND an actual publication event after it.
+        // Historical approved pointers and direct editorial publication pointers
+        // must both match the actual immutable publication event and body hash.
         $sql="SELECT r.*,p.published_at FROM fiqh_published p
             JOIN fiqh_revisions r ON r.issue_id=p.issue_id AND r.revision=p.revision
             JOIN fiqh_review_events a ON a.id=p.approval_id AND a.issue_id=r.issue_id AND a.revision=r.revision
-              AND a.state='approved' AND a.content_hash=r.content_hash
+              AND a.content_hash=r.content_hash
             JOIN fiqh_review_events e ON e.id=(SELECT MAX(id) FROM fiqh_review_events
                 WHERE issue_id=r.issue_id AND revision=r.revision)
-              AND e.state='published' AND e.id>a.id AND e.content_hash=r.content_hash AND e.actor_id=p.publisher_id";
+              AND e.state='published' AND e.content_hash=r.content_hash AND e.actor_id=p.publisher_id
+              AND ((a.state='approved' AND e.id>a.id) OR (a.state='published' AND e.id=a.id))";
         foreach ($db->query($sql)->fetchAll(PDO::FETCH_ASSOC) as $row) {
             if (!isset($visible[$row['category_id']])||($row['subcategory_id']!==null&&!isset($visible[$row['subcategory_id']]))) continue;
             if (fiqhReviewErrors($row)!==[]) continue;

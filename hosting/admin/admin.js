@@ -460,7 +460,7 @@ for (const fields of document.querySelectorAll('.content-news-fields')) {
 
 
 // Draft-only, opt-in autosave. Never retry an ambiguous write or advance a
-// review form's revision; a reload is required before review.
+// publication form's revision; a reload is required before publishing.
 (() => {
   const form = document.querySelector('[data-fiqh-editor]');
   const toggle = form?.querySelector('[data-fiqh-autosave]');
@@ -509,7 +509,7 @@ for (const fields of document.querySelectorAll('.content-news-fields')) {
       revision.value = String(result.revision);
       saved = before;
       changed = changed || result.changed === true;
-      status.textContent = 'حُفظت المسودة v' + result.revision + '؛ أعد فتح الصفحة قبل المراجعة.';
+      status.textContent = 'حُفظت المسودة v' + result.revision + '؛ أعد فتح الصفحة قبل النشر.';
       // Existing unsaved guard stays conservative; clearing it without
       // refreshing the server-rendered review/preview could mislead editors.
     } catch {

@@ -29,7 +29,7 @@ try {
         fpCheck(!$db->query("SELECT 1 FROM sqlite_master WHERE name='fiqh_migrations'")->fetchColumn(),'all versions rolled back');
         $db=null;
         $result=fiqhProductionMigrate($source,$backup,$seed);
-        fpCheck($result['status']==='migrated'&&$result['schemaVersions']===[1,2,3,4],'migration');
+        fpCheck($result['status']==='migrated'&&$result['schemaVersions']===[1,2,3,4,5],'migration');
         fpCheck($result['publicEnabled']===!$hasLegacy,'legacy display protection');
         fpCheck($result['counts']['issues']===0&&$result['counts']['publish_grants']===0,'no content or grants');
         $db=fiqhStageConnection($source);

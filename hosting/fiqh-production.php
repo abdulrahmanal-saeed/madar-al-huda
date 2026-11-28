@@ -20,9 +20,17 @@ function fiqhProductionMigrate(string $source,string $backup,array $seed):array
         fiqhStageIntegrity($db);
         $exists=(bool)$db->query("SELECT 1 FROM sqlite_master WHERE name='fiqh_migrations'")->fetchColumn();
         $versions=$exists?array_map('intval',$db->query('SELECT version FROM fiqh_migrations ORDER BY version')->fetchAll(PDO::FETCH_COLUMN)):[];
-        if ($versions===[1,2,3,4]) {
+        if ($versions===[1,2,3,4]||$versions===[1,2,3,4,5]) {
+            $upgraded=$versions===[1,2,3,4];
+            if ($upgraded) {
+                $legacy=fiqhStageLegacyDigest($db);
+                fiqhDirectMigration($db,true);
+                if (!hash_equals($legacy,fiqhStageLegacyDigest($db))) throw new RuntimeException('Legacy data changed');
+                fiqhStageIntegrity($db);
+            }
+            $versions=[1,2,3,4,5];
             $enabled=$db->query("SELECT body FROM fiqh_settings WHERE key='public_enabled'")->fetchColumn()==='true';
-            return ['status'=>'already_migrated','schemaVersions'=>$versions,'counts'=>fiqhStageCounts($db),'publicEnabled'=>$enabled];
+            return ['status'=>$upgraded?'upgraded':'already_migrated','schemaVersions'=>$versions,'counts'=>fiqhStageCounts($db),'publicEnabled'=>$enabled];
         }
         if ($exists||$db->query("SELECT 1 FROM sqlite_master WHERE substr(name,1,5)='fiqh_' LIMIT 1")->fetchColumn())
             throw new RuntimeException('Unexpected existing fiqh schema; manual reconciliation required');
@@ -31,6 +39,7 @@ function fiqhProductionMigrate(string $source,string $backup,array $seed):array
         fiqhMetadataMigration($db,true);
         fiqhReviewMigration($db,true);
         fiqhPermissionMigration($db,true);
+        fiqhDirectMigration($db,true);
         $counts=fiqhStageCounts($db);
         if ($counts!==['categories'=>11,'sources'=>17,'introductions'=>8,'issues'=>0,'revisions'=>0,
             'review_profiles'=>0,'publish_grants'=>0,'review_events'=>0,'published'=>0]
@@ -44,7 +53,7 @@ function fiqhProductionMigrate(string $source,string $backup,array $seed):array
         $enable=is_array($legacyFiqh)&&$legacyFiqh===[];
         $db->prepare('INSERT INTO fiqh_settings(key,body) VALUES (?,?)')->execute(['public_enabled',$enable?'true':'false']);
         fiqhStageIntegrity($db);
-        return ['status'=>'migrated','schemaVersions'=>[1,2,3,4],'counts'=>$counts,
+        return ['status'=>'migrated','schemaVersions'=>[1,2,3,4,5],'counts'=>$counts,
             'legacyPreserved'=>true,'publicEnabled'=>$enable,'legacyPublicationRetained'=>!$enable];
     });
 }

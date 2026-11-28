@@ -63,7 +63,7 @@ function fiqhAgentContract(PDO $db): array
         'evidenceFields'=>['id','type','text','reference','explanation','grading','gradingAttribution','sourceIds','madhhabs','quranLocator','hadithLocator','url'],
         'quranLocator'=>['surah'=>'Integer 1–114','firstAyah'=>'Positive integer','lastAyah'=>'Inclusive final ayah within surah'],
         'hadithLocator'=>['collectionSourceId'=>'Existing ID also in evidence sourceIds','number'=>'Bilingual edition-specific identifier','book'=>'Bilingual book','chapter'=>'Bilingual chapter','editionLocator'=>'Bilingual verified edition and location'],
-        'evidenceLocatorRules'=>'Quran and hadith locators required for review, not draft creation. Hadith needs editionLocator and number or chapter; no guessed numbers. Optional URL must be HTTPS. Text accuracy and grading require human verification.',
+        'evidenceLocatorRules'=>'Quran and hadith locators required for publication, not draft creation. Hadith needs editionLocator and number or chapter; no guessed numbers. Optional URL must be HTTPS. Verify text accuracy and grading before publication.',
         'reviewBlocks'=>'Use applicable boolean plus bilingual entries or bilingual justification.',
         'restrictions'=>'Drafts only. Do not invent evidence, locators or source editions. No approval, publication or ranking. Create revision=0; update uses exact latest revision. Preview and owner approval required.'];
 }

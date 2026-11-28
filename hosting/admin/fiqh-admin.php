@@ -106,28 +106,17 @@ function fiqhAdminChange(PDO $db, array $user, string $action): string
         $result = fiqhSaveMetadata($db, $kind, $row, field('edit_token') ?: null, $actor);
         return 'حُفظت بيانات المسودة: ' . $result['id'];
     }
-    if (in_array($action,['fiqh_review_action','fiqh_archive','fiqh_reviewer_profile','fiqh_publisher_grant'],true)) {
-        if (!fiqhReviewReady($db)) throw new InvalidArgumentException('Review migration required');
-        if (field('fiqh_confirm') !== 'yes') throw new InvalidArgumentException('Explicit confirmation required');
-        $uid = (int)$user['id'];
-        if ($action === 'fiqh_review_action') {
-            $result = fiqhReviewTransition($db,$uid,field('id'),integer(field('fiqh_revision'),1,PHP_INT_MAX),
-                integer(field('fiqh_review_event'),0,PHP_INT_MAX),field('review_action'),field('notes'),field('corrections'));
-            return 'تم تسجيل قرار المراجعة: ' . $result['state'];
+    if (in_array($action,['fiqh_publish','fiqh_archive'],true)) {
+        if (!fiqhDirectReady($db)) throw new InvalidArgumentException('يلزم اكتمال تحديث قاعدة البيانات.');
+        if (field('fiqh_confirm') !== 'yes') throw new InvalidArgumentException('أكد الإجراء أولًا.');
+        $uid=(int)$user['id'];
+        if ($action==='fiqh_publish') {
+            fiqhPublishDraft($db,$uid,field('id'),integer(field('fiqh_revision'),1,PHP_INT_MAX),
+                integer(field('fiqh_review_event'),0,PHP_INT_MAX));
+            return 'تم نشر المسألة على التطبيق والموقع.';
         }
-        if ($action === 'fiqh_archive') {
-            fiqhArchivePublication($db,$uid,field('id'),integer(field('fiqh_revision'),1,PHP_INT_MAX),field('notes'));
-            return 'تم سحب الإصدار من مؤشر النشر التجريبي.';
-        }
-        $subject = integer(field('subject_id'),1,PHP_INT_MAX);
-        $activeValue = field('enabled');
-        if (!in_array($activeValue,['yes','no'],true)) throw new InvalidArgumentException('Invalid permission state');
-        if ($action === 'fiqh_reviewer_profile') {
-            fiqhSetReviewerProfile($db,$uid,$subject,field('reviewer_name'),field('qualifications'),$activeValue === 'yes');
-            return 'حُفظ ملف المراجع.';
-        }
-        fiqhSetPublisherGrant($db,$uid,$subject,$activeValue === 'yes');
-        return 'حُفظت صلاحية الناشر.';
+        fiqhArchivePublication($db,$uid,field('id'),integer(field('fiqh_revision'),1,PHP_INT_MAX),field('notes'));
+        return 'تم سحب المسألة من النشر مع الاحتفاظ بالمسودة والسجل.';
     }
     throw new InvalidArgumentException('Unknown draft action');
 }
@@ -141,15 +130,10 @@ function fiqhAdminStats(PDO $db): array
     $total = (int) $db->query('SELECT COUNT(*) FROM fiqh_issues')->fetchColumn();
     $stats = ['planned' => $planned, 'created' => $total, 'draft' => $total, 'published' => 0];
     if (fiqhReviewReady($db)) {
-        $stats['published'] = (int)$db->query('SELECT COUNT(*) FROM fiqh_published')->fetchColumn();
-        $stats['draft'] = 0;
-        foreach (['ready_for_review','under_review','changes_requested','approved','archived'] as $state) $stats[$state] = 0;
-        $rows = $db->query("SELECT COALESCE((SELECT e.state FROM fiqh_review_events e
-            WHERE e.issue_id=r.issue_id AND e.revision=r.revision ORDER BY e.id DESC LIMIT 1),'draft') AS state
-            FROM fiqh_revisions r WHERE r.revision=(SELECT MAX(rr.revision) FROM fiqh_revisions rr WHERE rr.issue_id=r.issue_id)");
-        foreach ($rows->fetchAll(PDO::FETCH_COLUMN) as $state) {
-            if ($state !== 'published' && array_key_exists($state,$stats)) $stats[$state]++;
-        }
+        $stats['published']=(int)$db->query('SELECT COUNT(*) FROM fiqh_published')->fetchColumn();
+        $stats['draft']=(int)$db->query("SELECT COUNT(*) FROM fiqh_issues i
+            WHERE NOT EXISTS (SELECT 1 FROM fiqh_published p WHERE p.issue_id=i.id
+            AND p.revision=(SELECT MAX(r.revision) FROM fiqh_revisions r WHERE r.issue_id=i.id))")->fetchColumn();
     }
     return $stats;
 }
