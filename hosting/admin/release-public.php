@@ -39,10 +39,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'HEAD') {
       <?php if ($notes['ar'] !== ''): ?><p><?= e($notes['ar']) ?></p><?php endif; ?>
       <?php if ($notes['en'] !== ''): ?><p lang="en" dir="ltr"><?= e($notes['en']) ?></p><?php endif; ?>
       <a class="button primary" href="./?apk=<?= e($channel . '-' . $released['code']) ?>">تنزيل APK لأندرويد</a>
-      <details class="download-hash">
-        <summary>بصمة الملف SHA-256</summary>
-        <p dir="ltr"><code><?= e($released['sha256']) ?></code></p>
-      </details>
     <?php endif; ?>
   </section>
 </main>
