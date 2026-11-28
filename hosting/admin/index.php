@@ -25,6 +25,7 @@ require __DIR__ . '/manage.php';
 require __DIR__ . '/governance.php';
 require __DIR__ . '/reports.php';
 require __DIR__ . '/agent.php';
+require __DIR__ . '/fiqh-admin.php';
 
 try {
     $db = database();
@@ -137,7 +138,7 @@ $sections = [
     'daily' => 'أذكار اليوم', 'daily_duas' => 'دعاء اليوم', 'merits' => 'فضائل الذكر',
     'hisn' => 'حصن المسلم', 'duas' => 'الأدعية القرآنية',
     'stories' => 'قصص الأنبياء', 'history' => 'سجل النشر',
-    'fiqh' => 'الفقه المقارن', 'articles' => 'المقالات',
+    'fiqh' => 'الفقه المقارن', 'fiqh_editor' => 'الفقه المقارن (تجريبي)', 'articles' => 'المقالات',
     'lessons' => 'الدروس والاختبارات', 'names' => 'أسماء الله الحسنى', 'reciters' => 'القراء',
     'appearance' => 'الثيم والألوان', 'library_sections' => 'أقسام المكتبة',
     'releases' => 'إصدارات التطبيق', 'app_settings' => 'إعدادات التطبيق',
@@ -251,6 +252,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif (!allowedAction($user, $action, $section)) {
             http_response_code(403);
             throw new InvalidArgumentException('صلاحيات حسابك لا تسمح بهذا الإجراء. اطلبه من المالك.');
+        } elseif (($section === 'fiqh_editor' && !in_array($action, ['fiqh_draft_save', 'fiqh_metadata_save', 'logout'], true))
+            || ($section !== 'fiqh_editor' && in_array($action, ['fiqh_draft_save', 'fiqh_metadata_save'], true))) {
+            throw new InvalidArgumentException('Invalid fiqh editor action');
         } elseif (isset(CONFIRMATIONS[$action]) && field('confirmed') !== 'yes') {
             // Irreversible actions show a confirmation page first; the CSP
             // blocks scripts, so the check happens on the server.
@@ -264,6 +268,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif ($action === 'logout') {
             $_SESSION = [];
             session_destroy();
+        } elseif (in_array($action, ['fiqh_draft_save', 'fiqh_metadata_save'], true)) {
+            $_SESSION['notice'] = fiqhAdminChange($db, $user, $action);
         } elseif (in_array($action, ['save', 'delete', 'publish', 'restore', 'review_approve'], true)) {
             $seed = require __DIR__ . '/seed.php';
             $isDuaDrive = $action === 'save' && $section === 'daily_duas' && field('op') === 'drive_dua_audio';
@@ -387,7 +393,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $keepDua = $section === 'daily_duas' && $action !== 'delete' && ($_GET['edit'] ?? '') !== 'new';
             $keep = ($section === 'library_sections' || $keepDua) && is_string($_GET['edit'] ?? null)
                 ? $_GET['edit'] : '';
-            header('Location: ' . route($section, $topic, $keep), true, 303);
+            $target = route($section, $topic, $keep);
+            if ($section === 'fiqh_editor' && $action === 'fiqh_draft_save') {
+                $target .= '&issue=' . rawurlencode(field('id')) . '#fiqh-issue';
+            }
+            header('Location: ' . $target, true, 303);
             exit;
         }
     } catch (InvalidArgumentException $failure) {
@@ -423,7 +433,7 @@ if ($active) {
     }
     $rows = in_array($section, BOOK_SECTIONS, true)
         ? ($draft['library'][$section] ?? [])
-        : (in_array($section, ['stories', 'history', 'reciters', 'releases', 'appearance', 'library_sections', 'account', 'app_settings', 'story_titles', 'adhkar_groups', 'users', 'audit', 'reports', 'chatgpt'], true)
+        : (in_array($section, ['stories', 'history', 'reciters', 'releases', 'appearance', 'library_sections', 'account', 'app_settings', 'story_titles', 'adhkar_groups', 'users', 'audit', 'reports', 'chatgpt', 'fiqh_editor'], true)
             ? [] : contentRows($draft, $section, $topic));
     $current = null;
     foreach ($rows as $index => $row) {
@@ -496,7 +506,7 @@ if ($active) {
     <?php
       $navigation = [
           'الأذكار والأدعية' => ['daily', 'daily_duas', 'merits', 'hisn', 'duas', 'adhkar_groups'],
-          'المكتبة' => ['stories', 'story_titles', 'fiqh', 'articles', 'lessons', 'names', 'reciters'],
+          'المكتبة' => ['stories', 'story_titles', 'fiqh', 'fiqh_editor', 'articles', 'lessons', 'names', 'reciters'],
           'التطبيق والنشر' => ['appearance', 'library_sections', 'app_settings', 'releases', 'history'],
           'الإدارة' => ['reports', 'chatgpt', 'users', 'audit', 'account'],
       ];
@@ -519,14 +529,14 @@ if ($active) {
   <main id="admin-content" tabindex="-1">
     <header class="section-head">
       <div><h1><?= e($sections[$section]) ?></h1>
-        <?php if (!in_array($section, ['stories', 'releases', 'reports', 'chatgpt'], true)): ?>
+        <?php if (!in_array($section, ['stories', 'releases', 'reports', 'chatgpt', 'fiqh_editor'], true)): ?>
           <div class="section-meta">
             <span class="badge <?= $dirty ? 'warn' : 'published' ?>"><?= $dirty ? 'مسودة غير منشورة' : 'المكتبة محدثة' ?></span>
             <span>حجم المسودة <?= e(feedSizeLabel(strlen($state['draft']))) ?></span>
           </div>
         <?php endif; ?>
       </div>
-      <?php if ($dirty && !in_array($section, ['stories', 'releases', 'reports', 'chatgpt'], true)): ?>
+      <?php if ($dirty && !in_array($section, ['stories', 'releases', 'reports', 'chatgpt', 'fiqh_editor'], true)): ?>
         <?php if (allowedAction($user, 'publish', $section)): ?>
         <form method="post" action="<?= e(route($section, $topic, $edit)) ?>#confirm-action">
           <?php controls('publish', $revision); ?><button class="primary">نشر المسودة للتطبيق</button>
@@ -680,6 +690,8 @@ if ($active) {
           </div>
         <?php endforeach; ?>
       </section>
+    <?php elseif ($section === 'fiqh_editor'): ?>
+      <?php require __DIR__ . '/fiqh-admin-view.php'; ?>
     <?php elseif (in_array($section, BOOK_SECTIONS, true) || $section === 'reciters'): ?>
       <?php require __DIR__ . '/advanced-view.php'; ?>
     <?php elseif (in_array($section, ['account', 'app_settings', 'story_titles', 'adhkar_groups', 'users', 'audit', 'reports', 'chatgpt'], true)): ?>
