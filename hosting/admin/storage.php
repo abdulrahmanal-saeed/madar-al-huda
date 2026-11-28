@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__ . '/fiqh-legacy.php';
 
 const ROOT = __DIR__ . '/..';
 // The app refuses a library feed above this size (HostedFeed.maxBytes).
@@ -173,6 +174,7 @@ function library(PDO $db): array
 
 function updateLibrary(PDO $db, string $action, array $seed, string $section, string $topic, ?array $user = null, ?string $staged = null, ?string $filename = null): ?int
 {
+    fiqhLegacyAssertAction($section,$action);
     $revision = integer(field('revision'), 1, PHP_INT_MAX);
     return locked($db, function () use ($db, $revision, $action, $seed, $section, $topic, $user, $staged, $filename): ?int {
         $row = library($db);
@@ -183,12 +185,9 @@ function updateLibrary(PDO $db, string $action, array $seed, string $section, st
         if ($action === 'publish') {
             $payload = json_decode($draft, true, 64, JSON_THROW_ON_ERROR);
             assertReadableTheme($payload);
-            // Fiqh goes out only as a scholarly reviewer approved it.
-            $pending = unreviewedFiqh($payload);
-            if ($pending !== []) {
-                throw new InvalidArgumentException('مسائل فقه تحتاج اعتمادًا شرعيًا قبل النشر: '
-                    . implode('، ', array_map(fn ($item) => $item['title']['ar'] ?? $item['id'], $pending)) . '.');
-            }
+            // Freeze legacy fiqh at its already-published value; new structured fiqh is separate.
+            $payload = fiqhGeneralPublication($payload,json_decode($row['published'] ?? 'null',true,64,JSON_THROW_ON_ERROR));
+            $draft = encode($payload);
             if (strlen($draft) > FEED_MAX_BYTES) {
                 throw new InvalidArgumentException('حجم المكتبة ' . feedSizeLabel(strlen($draft)) .
                     ' ويتجاوز الحد الذي يقبله التطبيق (' . feedSizeLabel(FEED_MAX_BYTES) . '). احذف أو اختصر بعض المحتوى ثم انشر.');
@@ -207,6 +206,9 @@ function updateLibrary(PDO $db, string $action, array $seed, string $section, st
             if ($draft === false) {
                 throw new InvalidArgumentException('الإصدار غير موجود.');
             }
+            // Restoring unrelated content must not replace the legacy fiqh draft.
+            $draft = encode(fiqhPreserveLegacy(json_decode($draft,true,64,JSON_THROW_ON_ERROR),
+                json_decode($row['draft'],true,64,JSON_THROW_ON_ERROR)));
         } else {
             $content = json_decode($draft, true, 64, JSON_THROW_ON_ERROR);
             $delete = $action === 'delete';

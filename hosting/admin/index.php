@@ -426,7 +426,9 @@ if ($active) {
     $state = library($db);
     $draft = json_decode($state['draft'], true, 64, JSON_THROW_ON_ERROR);
     $revision = (int) $state['revision'];
-    $dirty = $state['published'] !== $state['draft'];
+    $publishedPayload = json_decode($state['published'] ?? 'null',true,64,JSON_THROW_ON_ERROR);
+    $publishableDraft = fiqhGeneralPublication($draft,$publishedPayload);
+    $dirty = fiqhGeneralChanged($draft,$publishedPayload);
     $edit = $_GET['edit'] ?? '';
     if (!is_string($edit)) {
         $edit = '';
@@ -542,7 +544,7 @@ if ($active) {
           <?php controls('publish', $revision); ?><button class="primary">نشر المسودة للتطبيق</button>
         </form>
         <?php else: ?><p>النشر للمراجع الشرعي أو المالك.</p><?php endif; ?>
-        <?php $changes = libraryDiff(json_decode($state['published'] ?? 'null', true), $draft); ?>
+        <?php $changes = libraryDiff($publishedPayload, $publishableDraft); ?>
         <details class="changes">
           <summary>عرض التغييرات قبل النشر (<?= e(arabicDigits((string) count($changes))) ?>)</summary>
           <?php require __DIR__ . '/diff-view.php'; ?>
@@ -562,7 +564,7 @@ if ($active) {
         <h2 id="confirm-title">تأكيد الإجراء</h2>
         <p><?= e($confirming['message']) ?></p>
         <?php if ($confirming['action'] === 'publish'): ?>
-          <?php $changes = libraryDiff(json_decode($state['published'] ?? 'null', true), $draft); ?>
+          <?php $changes = libraryDiff($publishedPayload, $publishableDraft); ?>
           <h3>ما سيتغيّر في التطبيق</h3>
           <?php require __DIR__ . '/diff-view.php'; ?>
         <?php endif; ?>
@@ -688,6 +690,16 @@ if ($active) {
             <span>الإصدار <?= e(arabicDigits((string) $publication['revision'])) ?><?php if ($publication['published_at'] !== null): ?> · <bdi><?= e(publishedLabel((int) $publication['published_at'])) ?></bdi><?php endif; ?></span>
             <form method="post"><?php controls('restore', $revision); ?><input type="hidden" name="publication" value="<?= e($publication['revision']) ?>"><button class="quiet">استعادة إلى المسودة</button></form>
           </div>
+        <?php endforeach; ?>
+      </section>
+    <?php elseif ($section === 'fiqh'): ?>
+      <section class="panel"><h2>الفقه القديم — قراءة فقط</h2>
+        <p>تم تجميد التعديل والاعتماد والنشر القديم لحين ترحيل المسائل. نشر الأقسام الأخرى لا يغير الفقه المنشور سابقًا.</p>
+        <p><a href="<?= e(route('fiqh_editor')) ?>">فتح محرر الفقه التجريبي</a></p>
+        <?php foreach ($rows as $legacyIssue): ?>
+          <details><summary><?= e($legacyIssue['title']['ar'] ?? $legacyIssue['id'] ?? '') ?></summary>
+            <pre dir="auto"><?= e(json_encode($legacyIssue,JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR)) ?></pre>
+          </details>
         <?php endforeach; ?>
       </section>
     <?php elseif ($section === 'fiqh_editor'): ?>

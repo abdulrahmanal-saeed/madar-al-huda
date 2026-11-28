@@ -24,7 +24,7 @@ const AGENT_SECTIONS = [
     'names' => 'أسماء الله الحسنى (the Beautiful Names of Allah)',
     'articles' => 'المقالات (articles)',
     'lessons' => 'الدروس والاختبارات (lessons with optional quizzes)',
-    'fiqh' => 'الفقه المقارن (comparative fiqh; needs scholarly approval before it can be published)',
+    'fiqh' => 'الفقه المقارن القديم (legacy read-only; no edits or publication until migration)',
 ];
 
 /** The form fields each section's save takes, for the model to read. */
@@ -428,6 +428,8 @@ function agentCall(PDO $db, array $key, string $tool, array $args): array
 {
     $state = library($db);
     $draft = json_decode($state['draft'], true, 64, JSON_THROW_ON_ERROR);
+    $published = json_decode($state['published'] ?? 'null',true,64,JSON_THROW_ON_ERROR);
+    $publishable = fiqhGeneralPublication($draft,$published);
     switch ($tool) {
         case 'list_sections':
             return ['sections' => array_map(
@@ -489,6 +491,7 @@ function agentCall(PDO $db, array $key, string $tool, array $args): array
             return $item;
         case 'save_item':
             $section = agentSection($args);
+            if ($section === 'fiqh') throw new AgentError('Legacy fiqh is read-only pending migration.');
             $topic = $section === 'duas' ? agentTopic($args) : '';
             $fields = is_array($args['fields'] ?? null) ? $args['fields'] : [];
             $id = (string) ($args['id'] ?? '');
@@ -535,6 +538,7 @@ function agentCall(PDO $db, array $key, string $tool, array $args): array
                 'note' => 'Recording saved in the draft. It reaches the app after publication.'];
         case 'delete_item':
             $section = agentSection($args);
+            if ($section === 'fiqh') throw new AgentError('Legacy fiqh is read-only pending migration.');
             $topic = $section === 'duas' ? agentTopic($args) : '';
             $id = (string) ($args['id'] ?? '');
             if (!array_key_exists($id, agentRows($draft, $section, $topic))) {
@@ -543,16 +547,16 @@ function agentCall(PDO $db, array $key, string $tool, array $args): array
             agentChange($db, $key, 'delete', $section, $topic, ['original' => $id]);
             return ['deleted' => true, 'note' => 'Removed from the draft.'];
         case 'draft_changes':
-            $changes = libraryDiff(json_decode($state['published'] ?? 'null', true), $draft);
+            $changes = libraryDiff($published,$publishable);
             return ['changes' => count($changes), 'lines' => array_slice($changes, 0, 80)];
         case 'publish':
             if (agentPublishMode($db) !== 'chat') {
                 throw new AgentError('Publishing from ChatGPT is turned off. Use request_publish; the owner approves it in the dashboard.');
             }
-            if ($state['published'] === $state['draft']) {
+            if (!fiqhGeneralChanged($draft,$published)) {
                 throw new AgentError('The draft has no changes to publish.');
             }
-            $count = count(libraryDiff(json_decode($state['published'] ?? 'null', true), $draft));
+            $count = count(libraryDiff($published,$publishable));
             $_POST = ['revision' => (string) $state['revision']];
             try {
                 updateLibrary($db, 'publish', require __DIR__ . '/seed.php', 'daily', 'forgiveness',
@@ -566,7 +570,7 @@ function agentCall(PDO $db, array $key, string $tool, array $args): array
             $db->prepare("UPDATE publish_requests SET status = 'superseded' WHERE status = 'pending'")->execute();
             return ['published' => true, 'changes' => $count, 'note' => 'Published. The app picks it up on its next refresh.'];
         case 'request_publish':
-            if ($state['published'] === $state['draft']) {
+            if (!fiqhGeneralChanged($draft,$published)) {
                 throw new AgentError('The draft has no changes to publish.');
             }
             $db->prepare('UPDATE publish_requests SET status = ? WHERE status = ?')->execute(['superseded', 'pending']);
