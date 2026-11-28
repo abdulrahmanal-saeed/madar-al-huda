@@ -27,13 +27,16 @@ Map<String, Object?> fixture() => {
 };
 
 void main() {
-  test('published feed accepts only supported shape and searches both languages', () {
-    final catalog = FiqhCatalog.decode(fixture());
-    expect(catalog.search('اختبار'), hasLength(1));
-    expect(catalog.search('EXAMPLE'), hasLength(1));
-    expect(catalog.search('FIQH-999'), hasLength(1));
-    expect(catalog.search('', category: 'missing'), isEmpty);
-  });
+  test(
+    'published feed accepts only supported shape and searches both languages',
+    () {
+      final catalog = FiqhCatalog.decode(fixture());
+      expect(catalog.search('اختبار'), hasLength(1));
+      expect(catalog.search('EXAMPLE'), hasLength(1));
+      expect(catalog.search('FIQH-999'), hasLength(1));
+      expect(catalog.search('', category: 'missing'), isEmpty);
+    },
+  );
 
   test('rejects draft rows and incomplete school sets', () {
     final feed = fixture();

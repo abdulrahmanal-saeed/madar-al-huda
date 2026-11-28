@@ -7,11 +7,9 @@ import '../../../core/content/hosted_feed.dart';
 import '../../../core/localization/search_text.dart';
 
 const fiqhSchools = ['hanafi', 'maliki', 'shafii', 'hanbali'];
-final fiqhFeedUrl = Uri.https(
-  'quran.abdulrahmanalsaeed.com',
-  '/admin/',
-  {'feed': 'fiqh'},
-);
+final fiqhFeedUrl = Uri.https('quran.abdulrahmanalsaeed.com', '/admin/', {
+  'feed': 'fiqh',
+});
 
 typedef FiqhRecord = Map<String, Object?>;
 
