@@ -1,6 +1,7 @@
 """Stage the public landing page with the app's existing brand assets."""
 
 from argparse import ArgumentParser
+from hashlib import sha256
 from pathlib import Path
 import shutil
 
@@ -29,9 +30,13 @@ def main() -> None:
     destination = parser.parse_args().destination
     files = destination / "madar-web"
     files.mkdir(parents=True, exist_ok=False)
-    shutil.copyfile(WEB / "index.html", destination / "index.html")
+    landing = (WEB / "index.html").read_text(encoding="utf-8")
     for name in ("brand.css", "landing.css"):
-        shutil.copyfile(WEB / "madar-web" / name, files / name)
+        css = (WEB / "madar-web" / name).read_bytes()
+        (files / name).write_bytes(css)
+        href = f"madar-web/{name}"
+        landing = landing.replace(f'href="{href}"', f'href="{href}?v={sha256(css).hexdigest()[:12]}"')
+    (destination / "index.html").write_text(landing, encoding="utf-8", newline="\n")
     for source, target in BRAND_FILES.items():
         shutil.copyfile(ASSETS / source, files / target)
 
