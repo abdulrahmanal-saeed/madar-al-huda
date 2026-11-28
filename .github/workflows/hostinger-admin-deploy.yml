@@ -1,24 +1,10 @@
-name: Deploy hosted admin to Hostinger
+# Operations-only branch. Never merge this workflow into main.
+name: Hostinger private fiqh staging rehearsal
 
 on:
   push:
-    branches: [main]
+    branches: [ops/fiqh-staging-rehearsal]
     paths:
-      - 'hosting/admin/**'
-      - 'hosting/prepare_admin.py'
-      - 'hosting/prepare_site.py'
-      - 'hosting/web/index.html'
-      - 'hosting/web/madar-web/**'
-      - 'hosting/web/privacy/**'
-      - 'hosting/web/.well-known/assetlinks.json'
-      - 'apps/mobile/assets/brand/logo-dark.png'
-      - 'apps/mobile/assets/brand/book-dark.png'
-      - 'apps/mobile/assets/brand/shortcuts/qa_1_book_light.png'
-      - 'apps/mobile/assets/brand/shortcuts/qa_2_compass_light.png'
-      - 'apps/mobile/assets/brand/shortcuts/qa_5_sun_light.png'
-      - 'apps/mobile/assets/brand/shortcuts/qa_7_story_light.png'
-      - 'apps/mobile/assets/fonts/ibm_plex_sans_arabic/**'
-      - 'apps/mobile/assets/fonts/reem_kufi/**'
       - '.github/workflows/hostinger-admin-deploy.yml'
   workflow_dispatch:
 
@@ -30,34 +16,22 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  deploy:
-    if: github.ref == 'refs/heads/main'
+  rehearse:
+    if: github.ref == 'refs/heads/ops/fiqh-staging-rehearsal'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           persist-credentials: false
-
-      - name: Prepare and validate code-only update
+      - name: Prepare tested staging-only code
         shell: bash
         run: |
           set -euo pipefail
-          python3 hosting/prepare_admin.py "$RUNNER_TEMP/madar-admin" --update
-          test ! -e "$RUNNER_TEMP/madar-admin/seed.php"
-          test ! -e "$RUNNER_TEMP/madar-admin/setup-config.php"
-          for file in "$RUNNER_TEMP/madar-admin/"*.php; do
-            php -l "$file"
-          done
-          php hosting/tests/apk_signature_test.php
-          php -l hosting/web/privacy/index.php
-          python3 hosting/prepare_site.py "$RUNNER_TEMP/madar-web"
-          tar -czf "$RUNNER_TEMP/madar-web.tar.gz" -C "$RUNNER_TEMP/madar-web" .
-          cp hosting/web/privacy/index.php "$RUNNER_TEMP/privacy-index.php"
-          python3 -m json.tool hosting/web/.well-known/assetlinks.json > "$RUNNER_TEMP/assetlinks.json"
-          tar -czf "$RUNNER_TEMP/madar-admin.tar.gz" -C "$RUNNER_TEMP/madar-admin" .
-
-      - name: Deploy over verified SSH
+          php -l hosting/fiqh-stage.php
+          php hosting/tests/fiqh_stage_test.php
+          tar -czf "$RUNNER_TEMP/fiqh-stage.tar.gz" hosting/fiqh-stage.php hosting/admin/fiqh-model.php hosting/admin/fiqh-storage.php hosting/admin/fiqh-metadata.php hosting/admin/fiqh-review.php docs/content/fiqh/seed.json
+      - name: Rehearse on private Hostinger snapshot (no deployment)
         shell: bash
         env:
           HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
@@ -65,236 +39,46 @@ jobs:
           KEY: ${{ secrets.HOSTINGER_SSH_KEY }}
         run: |
           set -euo pipefail
-          : "${HOST:?Set HOSTINGER_SSH_HOST}" "${USER:?Set HOSTINGER_SSH_USER}" "${KEY:?Set HOSTINGER_SSH_KEY}"
+          : "${HOST:?Missing HOSTINGER_SSH_HOST}" "${USER:?Missing HOSTINGER_SSH_USER}" "${KEY:?Missing HOSTINGER_SSH_KEY}"
           [[ "$HOST" =~ ^[a-zA-Z0-9.-]+$ && "$USER" =~ ^[a-zA-Z0-9_-]+$ ]]
           umask 077
-          key="$RUNNER_TEMP/madar-ssh-key"
-          known="$RUNNER_TEMP/madar-known-hosts"
+          key="$RUNNER_TEMP/fiqh-ssh-key"
+          known="$RUNNER_TEMP/fiqh-known-hosts"
           printf '%s\n' "$KEY" | tr -d '\r' > "$key"
           unset KEY
           chmod 600 "$key"
           trap 'rm -f "$key" "$known"' EXIT
           ssh-keyscan -T 15 -p 65002 -t ed25519 "$HOST" > "$known"
           fingerprint=$(ssh-keygen -E sha256 -lf "$known" | awk '{print $2}' | sort -u)
-          test "$fingerprint" = 'SHA256:4bu/oKsT8DDL7MCC81qLK+ZdKYS8XFne24v/qd13dfs' || {
-            echo 'Hostinger SSH host fingerprint mismatch; refusing deployment.'
-            exit 1
-          }
+          test "$fingerprint" = 'SHA256:4bu/oKsT8DDL7MCC81qLK+ZdKYS8XFne24v/qd13dfs'
           opts=(-i "$key" -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o "UserKnownHostsFile=$known" -o ConnectTimeout=15)
           target="$USER@$HOST"
-          stage=$(ssh "${opts[@]}" -p 65002 "$target" 'umask 077; mktemp -d "$HOME/.madar-deploy.XXXXXX"')
-          [[ "$stage" =~ ^/home/[a-zA-Z0-9_-]+/\.madar-deploy\.[a-zA-Z0-9]+$ ]]
+          stage=$(ssh "${opts[@]}" -p 65002 "$target" 'umask 077; mktemp -d "$HOME/.madar-fiqh-stage.XXXXXX"')
+          [[ "$stage" =~ ^/home/[a-zA-Z0-9_-]+/\.madar-fiqh-stage\.[a-zA-Z0-9]+$ ]]
           cleanup() {
             ssh "${opts[@]}" -p 65002 "$target" "rm -rf -- '$stage'" >/dev/null 2>&1 || true
             rm -f "$key" "$known"
           }
           trap cleanup EXIT
-          scp "${opts[@]}" -P 65002 "$RUNNER_TEMP/madar-admin.tar.gz" "$target:$stage/update.tar.gz"
-          scp "${opts[@]}" -P 65002 "$RUNNER_TEMP/madar-web.tar.gz" "$target:$stage/web.tar.gz"
-          scp "${opts[@]}" -P 65002 "$RUNNER_TEMP/privacy-index.php" "$target:$stage/privacy-index.php"
-          scp "${opts[@]}" -P 65002 "$RUNNER_TEMP/assetlinks.json" "$target:$stage/assetlinks.json"
+          scp "${opts[@]}" -P 65002 "$RUNNER_TEMP/fiqh-stage.tar.gz" "$target:$stage/code.tar.gz"
           ssh "${opts[@]}" -p 65002 "$target" bash -s -- "$stage" <<'REMOTE'
           set -euo pipefail
           umask 077
           stage="$1"
           root="$HOME/domains/quran.abdulrahmanalsaeed.com"
-          public="$root/public_html"
-          admin="$root/public_html/admin"
           private="$root/.madar-admin"
-          privacy="$root/public_html/privacy"
-          links_dir="$root/public_html/.well-known"
-          links="$links_dir/assetlinks.json"
-          web_assets="$public/madar-web"
-          [[ ! -L "$web_assets" && ! -L "$public/index.html" ]]
-          if [[ -e "$web_assets" ]]; then test -d "$web_assets"; fi
-          if [[ -e "$public/index.html" ]]; then test -f "$public/index.html"; fi
-          test ! -L "$links_dir" && test ! -L "$links"
-          if [[ -e "$links_dir" ]]; then test -d "$links_dir"; fi
-          if [[ -e "$links" ]]; then test -f "$links"; fi
-          test ! -L "$privacy" && test ! -L "$privacy/index.php"
-          if [[ -e "$privacy" ]]; then test -d "$privacy"; fi
-          if [[ -e "$privacy/index.php" ]]; then test -f "$privacy/index.php"; fi
-          # Do not overwrite an existing non-PHP landing page.
-          test ! -e "$privacy/index.html" && test ! -L "$privacy/index.html"
-          php -l "$stage/privacy-index.php"
-          test -d "$admin" && test -f "$admin/seed.php" && test -f "$private/library.sqlite3"
-          test ! -L "$admin" && test ! -L "$private"
-          mkdir "$stage/code"
-          tar -xzf "$stage/update.tar.gz" -C "$stage/code"
-          mkdir "$stage/web"
-          tar -xzf "$stage/web.tar.gz" -C "$stage/web"
-          test -f "$stage/code/index.php" && test -f "$stage/code/.htaccess"
-          [[ -f "$stage/web/index.html" && -f "$stage/web/madar-web/landing.css" ]]
-          shopt -s dotglob nullglob
-          files=()
-          for source in "$stage/code/"*; do
-            name=${source##*/}
-            [[ "$name" =~ ^[a-zA-Z0-9_-]+\.(php|css|js)$ || "$name" = .htaccess ]]
-            [[ "$name" != seed.php && "$name" != setup-config.php ]]
-            test -f "$source" && test ! -L "$source"
-            test ! -L "$admin/$name"
-            if [[ -e "$admin/$name" ]]; then test -f "$admin/$name"; fi
-            if [[ "$name" == *.php ]]; then php -l "$source"; fi
-            if [[ "$name" != index.php ]]; then files+=("$name"); fi
-          done
-          files+=(index.php)
-          web_files=()
-          for source in "$stage/web/madar-web/"*; do
-            name=${source##*/}
-            [[ "$name" =~ ^[a-zA-Z0-9_-]+\.(css|png|ttf|txt)$ ]]
-            [[ -f "$source" && ! -L "$source" && ! -L "$web_assets/$name" ]]
-            if [[ -e "$web_assets/$name" ]]; then test -f "$web_assets/$name"; fi
-            web_files+=("madar-web/$name")
-          done
-          web_files+=(index.html)
-
+          source="$private/library.sqlite3"
+          [[ -d "$private" && ! -L "$private" && -f "$source" && ! -L "$source" ]]
+          [[ ! -L "$private/backups" ]]
           mkdir -p "$private/backups"
-          backup=$(mktemp -d "$private/backups/admin-ci.XXXXXX")
-          mkdir "$backup/code"
-          mkdir -p "$backup/web/madar-web"
-          for name in "${files[@]}"; do
-            if [[ -f "$admin/$name" ]]; then cp -p "$admin/$name" "$backup/code/$name"; fi
-          done
-          if [[ -f "$privacy/index.php" ]]; then cp -p "$privacy/index.php" "$backup/privacy-index.php"; fi
-          if [[ -f "$links" ]]; then cp -p "$links" "$backup/assetlinks.json"; fi
-          for name in "${web_files[@]}"; do
-            if [[ -f "$public/$name" ]]; then cp -p "$public/$name" "$backup/web/$name"; fi
-          done
-          # SQLite online snapshot; no direct copy of a live database.
-          php -r '$db = new PDO("sqlite:" . $argv[1]); $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); $db->exec("PRAGMA busy_timeout=5000"); $db->exec("VACUUM INTO " . $db->quote($argv[2]));' "$private/library.sqlite3" "$backup/library.sqlite3"
-          echo "Private backup created."
-          changed=()
-          web_changed=()
-          web_assets_created=0
-          privacy_changed=0
-          privacy_created=0
-          links_changed=0
-          links_created=0
-          rollback() {
-            rc=$?
-            trap - EXIT
-            if (( rc != 0 )); then
-              echo 'Deployment failed; restoring changed code files (not the live database).'
-              failed=0
-              for (( i=${#changed[@]}-1; i>=0; i-- )); do
-                name=${changed[i]}
-                if [[ -f "$backup/code/$name" ]]; then
-                  cp -p "$backup/code/$name" "$stage/restore" && mv -f "$stage/restore" "$admin/$name" || failed=1
-                else
-                  rm -f "$admin/$name" || failed=1
-                fi
-              done
-              for (( i=${#web_changed[@]}-1; i>=0; i-- )); do
-                name=${web_changed[i]}
-                if [[ -f "$backup/web/$name" ]]; then
-                  cp -p "$backup/web/$name" "$stage/restore" && mv -f "$stage/restore" "$public/$name" || failed=1
-                else
-                  rm -f "$public/$name" || failed=1
-                fi
-              done
-              if (( web_assets_created )); then rmdir "$web_assets" || failed=1; fi
-              if (( privacy_changed )); then
-                if [[ -f "$backup/privacy-index.php" ]]; then
-                  cp -p "$backup/privacy-index.php" "$stage/restore" && mv -f "$stage/restore" "$privacy/index.php" || failed=1
-                else
-                  rm -f "$privacy/index.php" || failed=1
-                fi
-              fi
-              if (( privacy_created )); then rmdir "$privacy" || failed=1; fi
-              if (( links_changed )); then
-                if [[ -f "$backup/assetlinks.json" ]]; then
-                  cp -p "$backup/assetlinks.json" "$stage/restore" && mv -f "$stage/restore" "$links" || failed=1
-                else
-                  rm -f "$links" || failed=1
-                fi
-              fi
-              if (( links_created )); then rmdir "$links_dir" || failed=1; fi
-              if (( failed )); then echo 'WARNING: rollback incomplete; restore code from the private backup manually.'; fi
-              echo "Backup directory: ${backup##*/}"
-            fi
-            exit "$rc"
-          }
-          trap rollback EXIT
-          if [[ ! -d "$web_assets" ]]; then
-            mkdir -m 755 "$web_assets"
-            web_assets_created=1
-          fi
-          for name in "${web_files[@]}"; do
-            web_changed+=("$name")
-            install -m 644 "$stage/web/$name" "$stage/next"
-            mv -f "$stage/next" "$public/$name"
-          done
-          for name in "${files[@]}"; do
-            changed+=("$name")
-            install -m 644 "$stage/code/$name" "$stage/next"
-            mv -f "$stage/next" "$admin/$name"
-          done
-          if [[ ! -d "$privacy" ]]; then
-            mkdir -m 755 "$privacy"
-            privacy_created=1
-          fi
-          privacy_changed=1
-          install -m 644 "$stage/privacy-index.php" "$stage/next"
-          mv -f "$stage/next" "$privacy/index.php"
-          if [[ ! -d "$links_dir" ]]; then
-            mkdir -m 755 "$links_dir"
-            links_created=1
-          fi
-          links_changed=1
-          install -m 644 "$stage/assetlinks.json" "$stage/next"
-          mv -f "$stage/next" "$links"
-          base=https://quran.abdulrahmanalsaeed.com/admin/
-          check() {
-            actual=$(curl -sS --max-time 20 --retry 2 -o /dev/null -w '%{http_code}' "$base$1")
-            if [[ "$actual" != "$2" ]]; then
-              echo "Health check failed for $1: HTTP $actual (expected $2)"
-              return 1
-            fi
-            echo "Health check passed: $1 (HTTP $actual)"
-          }
-          check '' 200
-          check_json() {
-            actual=$(curl -fsS --max-time 20 --retry 2 -o /dev/null -w '%{http_code} %{content_type}' "$base$1")
-            if [[ "$actual" != '200 application/json'* ]]; then
-              echo "JSON health check failed for $1: $actual"
-              return 1
-            fi
-            echo "JSON health check passed: $1"
-          }
-          check_json '?feed=library'
-          check_json '?feed=updates&channel=dev'
-          check_json '?feed=content-news&channel=dev'
-          check 'release-view.php' 403
-          check 'privacy.css' 200
-          check 'privacy.js' 200
-          site=https://quran.abdulrahmanalsaeed.com
-          curl -fsS --max-time 20 --retry 2 "$site/?check=landing" -o "$stage/landing-live.html"
-          grep -Fq 'id="hero-title"' "$stage/landing-live.html"
-          for name in brand.css landing.css; do
-            checksum=$(sha256sum "$stage/web/madar-web/$name" | cut -d' ' -f1)
-            curl -fsS --max-time 20 --retry 2 "$site/madar-web/$name?check=$checksum" -o "$stage/web-live"
-            cmp "$stage/web/madar-web/$name" "$stage/web-live"
-          done
-          # The public server may optimize PNGs. Verify the exact source on disk
-          # and a decodable image with the correct media type over HTTP.
-          for name in mark.png mushaf.png; do
-            cmp "$stage/web/madar-web/$name" "$web_assets/$name"
-            checksum=$(sha256sum "$stage/web/madar-web/$name" | cut -d' ' -f1)
-            type=$(curl -fsS --max-time 20 --retry 2 "$site/madar-web/$name?check=$checksum" -o "$stage/web-live" -w '%{content_type}')
-            [[ "$type" == image/* ]]
-            php -r 'if (getimagesize($argv[1]) === false) { exit(1); }' "$stage/web-live"
-          done
-          echo 'Public landing page and brand assets health check passed.'
-          privacy_url=https://quran.abdulrahmanalsaeed.com/privacy
-          status=$(curl -fsSL --max-time 20 -o "$stage/privacy.html" -w '%{http_code}' "$privacy_url")
-          test "$status" = 200
-          grep -Fq 'Madar Al-Huda Privacy Policy' "$stage/privacy.html"
-          grep -Fq 'id="privacy-request"' "$stage/privacy.html"
-          echo 'Public privacy policy health check passed.'
-          status=$(curl -fsS --max-time 20 --retry 2 -o "$stage/assetlinks-live.json" -w '%{http_code} %{content_type}' https://quran.abdulrahmanalsaeed.com/.well-known/assetlinks.json)
-          [[ "$status" == '200 application/json'* ]]
-          cmp "$stage/assetlinks.json" "$stage/assetlinks-live.json"
-          echo 'Public Android App Links health check passed.'
-          trap - EXIT
-          echo "DEPLOYMENT SUCCESSFUL. Backup: ${backup##*/}"
+          [[ -d "$private/backups" && ! -L "$private/backups" ]]
+          mkdir "$stage/code"
+          tar -xzf "$stage/code.tar.gz" -C "$stage/code"
+          suffix=${stage##*.}
+          destination="$private/backups/fiqh-rehearsal-$suffix"
+          php "$stage/code/hosting/fiqh-stage.php" "$source" "$destination" > "$stage/result.json"
+          # Only aggregate pass/fail and counts reach GitHub. Both database copies
+          # and the complete checksum report remain in private Hostinger storage.
+          php -r '$r=json_decode(file_get_contents($argv[1]),true,64,JSON_THROW_ON_ERROR); if (($r["status"]??null)!=="passed" || $r["sourceMigrated"]!==false || $r["publicEnabled"]!==false || $r["schemaVersions"]!==[1,2,3,4] || $r["legacyPreserved"]!==true || $r["integrityVerified"]!==true || $r["idempotent"]!==true) exit(1); echo json_encode(["status"=>$r["status"],"schemaVersions"=>$r["schemaVersions"],"counts"=>$r["counts"],"legacyPreserved"=>true,"integrityVerified"=>true,"idempotent"=>true,"publicEnabled"=>false,"sourceMigrated"=>false],JSON_THROW_ON_ERROR|JSON_PRETTY_PRINT),PHP_EOL;' "$stage/result.json"
+          echo "Private staging rehearsal completed; no production migration or code deployment."
           REMOTE
