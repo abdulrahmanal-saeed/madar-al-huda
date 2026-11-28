@@ -12,6 +12,7 @@ const OWNER_SECTIONS = ['appearance', 'app_settings', 'library_sections', 'recit
 /** Actions and the roles allowed to take them. */
 const ACTION_ROLES = [
     'fiqh_draft_save' => ['owner', 'reviewer', 'editor'],
+    'fiqh_autosave' => ['owner', 'reviewer', 'editor'],
     'fiqh_metadata_save' => ['owner', 'reviewer', 'editor'],
     'fiqh_import_preview' => ['owner','reviewer','editor'],
     'fiqh_import_commit' => ['owner','reviewer','editor'],

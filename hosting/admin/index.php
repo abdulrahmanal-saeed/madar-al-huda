@@ -275,8 +275,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif (!allowedAction($user, $action, $section)) {
             http_response_code(403);
             throw new InvalidArgumentException('صلاحيات حسابك لا تسمح بهذا الإجراء. اطلبه من المالك.');
-        } elseif (($section === 'fiqh_editor' && !in_array($action, ['fiqh_draft_save', 'fiqh_metadata_save', 'fiqh_review_action', 'fiqh_archive', 'fiqh_reviewer_profile', 'fiqh_publisher_grant', 'fiqh_import_preview', 'fiqh_import_commit', 'logout'], true))
-            || ($section !== 'fiqh_editor' && in_array($action, ['fiqh_draft_save', 'fiqh_metadata_save', 'fiqh_review_action', 'fiqh_archive', 'fiqh_reviewer_profile', 'fiqh_publisher_grant', 'fiqh_import_preview', 'fiqh_import_commit'], true))) {
+        } elseif (($section === 'fiqh_editor' && !in_array($action, ['fiqh_draft_save', 'fiqh_metadata_save', 'fiqh_review_action', 'fiqh_archive', 'fiqh_reviewer_profile', 'fiqh_publisher_grant', 'fiqh_import_preview', 'fiqh_import_commit', 'fiqh_autosave', 'logout'], true))
+            || ($section !== 'fiqh_editor' && in_array($action, ['fiqh_draft_save', 'fiqh_metadata_save', 'fiqh_review_action', 'fiqh_archive', 'fiqh_reviewer_profile', 'fiqh_publisher_grant', 'fiqh_import_preview', 'fiqh_import_commit', 'fiqh_autosave'], true))) {
             throw new InvalidArgumentException('Invalid fiqh editor action');
         } elseif (isset(CONFIRMATIONS[$action]) && field('confirmed') !== 'yes') {
             // Irreversible actions show a confirmation page first; the CSP
@@ -291,6 +291,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif ($action === 'logout') {
             $_SESSION = [];
             session_destroy();
+        } elseif ($action === 'fiqh_autosave') {
+            if (!wantsJson()) throw new InvalidArgumentException('JSON response required');
+            $result=fiqhAdminAutosave($db,$user,$_POST);
+            header('Content-Type: application/json; charset=utf-8');
+            echo encode(['ok'=>true,'id'=>$result['id'],'revision'=>$result['revision'],'changed'=>$result['changed']]);
+            exit;
         } elseif ($action === 'fiqh_import_preview') {
             $fiqhImportPreview = fiqhAdminImportPreview($db,$user,field('import_payload'),field('import_format'));
         } elseif (in_array($action, ['fiqh_draft_save', 'fiqh_metadata_save', 'fiqh_review_action', 'fiqh_archive', 'fiqh_reviewer_profile', 'fiqh_publisher_grant', 'fiqh_import_commit'], true)) {

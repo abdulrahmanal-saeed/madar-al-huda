@@ -200,3 +200,18 @@ function fiqhAdminImportPreview(PDO $db,array $user,string $raw,string $format):
     $payload=$format==='csv'?fiqhParseMetadataCsv($raw):fiqhAdminJson($raw);
     return ['payload'=>$payload,'result'=>fiqhImportRun($db,$payload,'user:'.(int)$user['id'])];
 }
+
+
+/** Autosave is explicitly enabled in an existing editor, never a creation or
+ * review action. The same immutable revision lease and validation apply. */
+function fiqhAdminAutosave(PDO $db,array $user,array $post):array
+{
+    if (!fiqhAdminReady($db)||!in_array($user['role'] ?? '', ['owner','editor','reviewer'],true)
+        ||(int)($user['id'] ?? 0)<1||($post['autosave_enabled'] ?? null)!=='yes')
+        throw new InvalidArgumentException('Autosave not authorized');
+    $raw=$post['fiqh_revision'] ?? null;
+    $revision=is_string($raw)?filter_var($raw,FILTER_VALIDATE_INT,['options'=>['min_range'=>1]]):false;
+    if ($revision===false) throw new InvalidArgumentException('Save the initial draft manually');
+    $body=fiqhAdminIssueFromPost($post);
+    return fiqhSaveDraft($db,$body,$revision,'user:'.(int)$user['id']);
+}

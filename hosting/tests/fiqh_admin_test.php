@@ -27,4 +27,11 @@ faCheck(count($diff) === 1 && $diff[0]['path'] === 'title.en' && $diff[0]['befor
 faCheck(fiqhRevisionDiff(['a'=>1], ['a'=>1]) === []);
 faCheck(fiqhRevisionDiff(['a'=>null], ['b'=>null])[0]['kind'] === 'removed');
 faCheck(fiqhGetRevision($db, 'missing', 1) === null);
+faReject(fn()=>fiqhAdminAutosave($db,['role'=>'editor','id'=>2],$post+['fiqh_revision'=>'0','autosave_enabled'=>'yes']));
+faReject(fn()=>fiqhAdminAutosave($db,['role'=>'publisher','id'=>2],$post+['fiqh_revision'=>'1','autosave_enabled'=>'yes']));
+fiqhSaveDraft($db,$body,0,'user:2');
+$auto=$post+['fiqh_revision'=>'1','autosave_enabled'=>'yes','summary_ar'=>'اختبار','summary_en'=>'Synthetic change'];
+faCheck(fiqhAdminAutosave($db,['role'=>'editor','id'=>2],$auto)['revision']===2);
+try { fiqhAdminAutosave($db,['role'=>'editor','id'=>2],$auto); throw new LogicException('Stale autosave accepted'); }
+catch (RuntimeException $error) { faCheck($error->getMessage()==='Fiqh revision conflict'); }
 echo "Fiqh admin checks passed\n";

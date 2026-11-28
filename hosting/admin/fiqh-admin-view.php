@@ -148,7 +148,35 @@ $previous = $selected !== null && $comparison !== false ? fiqhGetRevision($db, $
       </details>
     <?php endforeach; ?>
     <?php foreach (fiqhAdminSections() as $key=>$label): ?>
-      <details><summary><?= e($label) ?></summary><label>JSON<textarea name="<?= e($key) ?>" dir="ltr" rows="8"><?= e($fv($key, $pretty($issue[$key] ?? []))) ?></textarea></label></details>
+      <details><summary><?= e($label) ?></summary>
+        <?php if ($key==='evidence'): ?>
+          <div data-fiqh-evidence-builder hidden>
+            <p>أضف دليلًا موثقًا إلى النموذج دون إنشاء نص أو مرجع تلقائي.</p>
+            <label>معرّف الدليل<input data-evidence-id dir="ltr"></label>
+            <label>النوع<select data-evidence-type><?php foreach (FIQH_EVIDENCE_TYPES as $type): ?><option value="<?= e($type) ?>"><?= e($type) ?></option><?php endforeach; ?></select></label>
+            <?php foreach (['text'=>'النص','reference'=>'المرجع','explanation'=>'وجه الاستدلال'] as $field=>$heading):
+              foreach (['ar'=>'rtl','en'=>'ltr'] as $lang=>$dir): ?>
+                <label><?= e($heading.' '.$lang) ?><textarea data-evidence-field="<?= e($field.'_'.$lang) ?>" dir="<?= e($dir) ?>" rows="2"></textarea></label>
+            <?php endforeach; endforeach; ?>
+            <label>المصدر<select data-evidence-source><option value="">اختر</option>
+              <?php foreach ($sources as $entry): $s=$entry['record']; ?><option value="<?= e($s['id']) ?>"><?= e($s['title']['ar'].' · '.$s['id']) ?></option><?php endforeach; ?>
+            </select></label>
+            <div data-evidence-quran hidden>
+              <label>رقم السورة<input data-evidence-surah type="number" min="1" max="114"></label>
+              <label>أول آية<input data-evidence-first type="number" min="1"></label>
+              <label>آخر آية<input data-evidence-last type="number" min="1"></label>
+            </div>
+            <div data-evidence-hadith hidden>
+              <?php foreach (['number'=>'رقم الحديث','book'=>'الكتاب','chapter'=>'الباب','editionLocator'=>'الطبعة والموضع','grading'=>'درجة الحديث','gradingAttribution'=>'صاحب الحكم'] as $field=>$heading):
+                foreach (['ar'=>'rtl','en'=>'ltr'] as $lang=>$dir): ?>
+                <label><?= e($heading.' '.$lang) ?><input data-evidence-field="<?= e($field.'_'.$lang) ?>" dir="<?= e($dir) ?>"></label>
+              <?php endforeach; endforeach; ?>
+            </div>
+            <button type="button" data-evidence-add>إضافة الدليل إلى النموذج</button><p data-evidence-status role="status"></p>
+          </div>
+        <?php endif; ?>
+        <label>JSON<textarea name="<?= e($key) ?>" dir="ltr" rows="8"><?= e($fv($key, $pretty($issue[$key] ?? []))) ?></textarea></label>
+      </details>
     <?php endforeach; ?>
     <details><summary>المصادر المتاحة / Sources</summary>
       <p>اختر المرجع والمذهب واكتب موضع الاستشهاد الموثق باللغتين. لا تُضاف أرقام أو بيانات طبعات تلقائيًا.</p>
@@ -193,6 +221,11 @@ $previous = $selected !== null && $comparison !== false ? fiqhGetRevision($db, $
         <?php endforeach; ?>
       <?php endif; ?>
     </details>
+    <?php if ($selected !== null): ?>
+      <label data-fiqh-autosave-option hidden><input type="checkbox" data-fiqh-autosave> تفعيل الحفظ التلقائي للمسودة في هذه الصفحة فقط</label>
+      <p data-fiqh-autosave-status role="status"></p>
+      <p>بعد الحفظ التلقائي، أعد فتح الصفحة لتحديث معاينة الإصدار وسجل المراجعة. لا يُعتمد المحتوى تلقائيًا.</p>
+    <?php endif; ?>
     <p data-fiqh-dirty role="status" hidden>توجد تعديلات لم تُحفظ.</p>
     <button class="primary">حفظ مسودة المسألة</button>
   </form>

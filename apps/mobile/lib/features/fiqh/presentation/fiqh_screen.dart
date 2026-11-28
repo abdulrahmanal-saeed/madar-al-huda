@@ -529,7 +529,6 @@ class _ComparisonScreen extends ConsumerWidget {
   }
 }
 
-
 List<Widget> _evidenceLocators(
   FiqhRecord evidence,
   FiqhRecord sources,
@@ -545,7 +544,10 @@ List<Widget> _evidenceLocators(
       ),
     if (hadith.isNotEmpty) ...[
       Text(
-        fiqhText(fiqhRecord(sources[hadith['collectionSourceId']])['title'], ar),
+        fiqhText(
+          fiqhRecord(sources[hadith['collectionSourceId']])['title'],
+          ar,
+        ),
       ),
       for (final key in ['number', 'book', 'chapter', 'editionLocator'])
         if (fiqhText(hadith[key], ar).isNotEmpty)
