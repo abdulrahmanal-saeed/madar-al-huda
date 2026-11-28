@@ -41,9 +41,9 @@ function fiqhCanonical(mixed $value): mixed
     return array_map('fiqhCanonical', $value);
 }
 
-function fiqhMigration(PDO $db, array $seed): void
+function fiqhMigration(PDO $db, array $seed, bool $withinTransaction = false): void
 {
-    fiqhTransaction($db, function () use ($db, $seed): void {
+    $work = function () use ($db, $seed): void {
         $db->exec('CREATE TABLE IF NOT EXISTS fiqh_migrations (version INTEGER PRIMARY KEY, applied_at INTEGER NOT NULL)');
         if ($db->query('SELECT 1 FROM fiqh_migrations WHERE version = 1')->fetchColumn()) {
             return;
@@ -144,7 +144,9 @@ SQL);
         }
         $db->prepare('INSERT INTO fiqh_settings VALUES (?, ?)')->execute(['disclaimer', fiqhJson($seed['disclaimer'])]);
         $db->prepare('INSERT INTO fiqh_migrations VALUES (1, ?)')->execute([$now]);
-    });
+    };
+    if ($withinTransaction) $work();
+    else fiqhTransaction($db, $work);
 }
 
 /** All link identifiers must be explicit, distinct and valid. */

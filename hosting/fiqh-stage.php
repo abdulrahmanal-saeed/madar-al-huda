@@ -33,10 +33,13 @@ function fiqhStageLegacyDigest(PDO $db):string
 
 function fiqhStageMigrate(PDO $db,array $seed):void
 {
-    fiqhMigration($db,$seed);
-    fiqhMetadataMigration($db);
-    fiqhReviewMigration($db);
-    fiqhPermissionMigration($db);
+    // All schema versions become visible together; failures roll back everything.
+    fiqhTransaction($db,function() use($db,$seed):void {
+        fiqhMigration($db,$seed,true);
+        fiqhMetadataMigration($db,true);
+        fiqhReviewMigration($db,true);
+        fiqhPermissionMigration($db,true);
+    });
 }
 
 function fiqhStageCounts(PDO $db):array

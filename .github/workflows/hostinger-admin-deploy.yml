@@ -6,6 +6,9 @@ on:
     paths:
       - 'hosting/admin/**'
       - 'hosting/prepare_admin.py'
+      - 'hosting/fiqh-stage.php'
+      - 'hosting/fiqh-production.php'
+      - 'docs/content/fiqh/seed.json'
       - 'hosting/prepare_site.py'
       - 'hosting/web/index.html'
       - 'hosting/web/madar-web/**'
@@ -50,6 +53,10 @@ jobs:
             php -l "$file"
           done
           php hosting/tests/apk_signature_test.php
+          php -l hosting/fiqh-production.php
+          php hosting/tests/fiqh_stage_test.php
+          php hosting/tests/fiqh_production_test.php
+          tar -czf "$RUNNER_TEMP/fiqh-migration.tar.gz" hosting/fiqh-production.php hosting/fiqh-stage.php hosting/admin/fiqh-model.php hosting/admin/fiqh-storage.php hosting/admin/fiqh-metadata.php hosting/admin/fiqh-review.php docs/content/fiqh/seed.json
           php -l hosting/web/privacy/index.php
           python3 hosting/prepare_site.py "$RUNNER_TEMP/madar-web"
           tar -czf "$RUNNER_TEMP/madar-web.tar.gz" -C "$RUNNER_TEMP/madar-web" .
@@ -90,6 +97,7 @@ jobs:
           }
           trap cleanup EXIT
           scp "${opts[@]}" -P 65002 "$RUNNER_TEMP/madar-admin.tar.gz" "$target:$stage/update.tar.gz"
+          scp "${opts[@]}" -P 65002 "$RUNNER_TEMP/fiqh-migration.tar.gz" "$target:$stage/fiqh-migration.tar.gz"
           scp "${opts[@]}" -P 65002 "$RUNNER_TEMP/madar-web.tar.gz" "$target:$stage/web.tar.gz"
           scp "${opts[@]}" -P 65002 "$RUNNER_TEMP/privacy-index.php" "$target:$stage/privacy-index.php"
           scp "${opts[@]}" -P 65002 "$RUNNER_TEMP/assetlinks.json" "$target:$stage/assetlinks.json"
@@ -295,6 +303,21 @@ jobs:
           [[ "$status" == '200 application/json'* ]]
           cmp "$stage/assetlinks.json" "$stage/assetlinks-live.json"
           echo 'Public Android App Links health check passed.'
+          # Migrate only after successful code health checks and a private backup.
+          # Never restore a whole old database during code rollback.
+          mkdir "$stage/fiqh"
+          tar -xzf "$stage/fiqh-migration.tar.gz" -C "$stage/fiqh"
+          php "$stage/fiqh/hosting/fiqh-production.php" "$private/library.sqlite3" "$backup/library.sqlite3" > "$stage/fiqh-result.json"
+          cat "$stage/fiqh-result.json"
+          expected=$(php -r '$r=json_decode(file_get_contents($argv[1]),true,64,JSON_THROW_ON_ERROR); echo $r["publicEnabled"]?"200":"404";' "$stage/fiqh-result.json")
+          check '?feed=fiqh' "$expected"
+          if [[ "$expected" = 200 ]]; then
+            check_json '?feed=fiqh'
+            check 'fiqh/ar/' 200
+            check 'fiqh/en/' 200
+          fi
+          check_json '?feed=library'
+          echo 'Production fiqh schema and public-feed boundary verified.'
           trap - EXIT
           echo "DEPLOYMENT SUCCESSFUL. Backup: ${backup##*/}"
           REMOTE

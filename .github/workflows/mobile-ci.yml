@@ -76,6 +76,8 @@ jobs:
           php hosting/tests/fiqh_agent_test.php
           php -l hosting/fiqh-stage.php
           php hosting/tests/fiqh_stage_test.php
+          php -l hosting/fiqh-production.php
+          php hosting/tests/fiqh_production_test.php
           node --check hosting/admin/admin.js
 
   quran-edge:

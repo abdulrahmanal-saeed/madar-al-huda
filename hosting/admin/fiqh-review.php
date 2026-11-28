@@ -3,9 +3,9 @@ declare(strict_types=1);
 require_once __DIR__ . '/fiqh-metadata.php';
 
 /** Explicit staging migration. Existing users do not receive review/publish grants automatically. */
-function fiqhReviewMigration(PDO $db): void
+function fiqhReviewMigration(PDO $db, bool $withinTransaction = false): void
 {
-    fiqhTransaction($db, function () use ($db): void {
+    $work = function () use ($db): void {
         if (!$db->query('SELECT 1 FROM fiqh_migrations WHERE version = 2')->fetchColumn()) {
             throw new RuntimeException('Apply fiqh schema versions 1 and 2 first');
         }
@@ -69,13 +69,15 @@ WHEN NOT EXISTS (
 BEGIN SELECT RAISE(ABORT, 'current approved revision required'); END;
 SQL);
         $db->prepare('INSERT INTO fiqh_migrations VALUES (3, ?)')->execute([time()]);
-    });
+    };
+    if ($withinTransaction) $work();
+    else fiqhTransaction($db, $work);
 }
 
 /** Version 4 is required before enabling permission administration. */
-function fiqhPermissionMigration(PDO $db): void
+function fiqhPermissionMigration(PDO $db, bool $withinTransaction = false): void
 {
-    fiqhTransaction($db, function () use ($db): void {
+    $work = function () use ($db): void {
         if (!$db->query('SELECT 1 FROM fiqh_migrations WHERE version=3')->fetchColumn()) {
             throw new RuntimeException('Apply fiqh schema version 3 first');
         }
@@ -92,7 +94,9 @@ CREATE TRIGGER fiqh_permission_no_delete BEFORE DELETE ON fiqh_permission_events
 BEGIN SELECT RAISE(ABORT, 'immutable permission event'); END;
 SQL);
         $db->prepare('INSERT INTO fiqh_migrations VALUES (4,?)')->execute([time()]);
-    });
+    };
+    if ($withinTransaction) $work();
+    else fiqhTransaction($db, $work);
 }
 
 function fiqhPermissionEvent(PDO $db, int $actor, int $subject, string $action, array $details): void

@@ -3,10 +3,11 @@ declare(strict_types=1);
 if (!defined('MADAR_ADMIN') || !$active || $user === null) exit;
 ?>
 <section class="panel">
-  <h2>إدارة الفقه المقارن — النسخة التجريبية</h2>
-  <p>واجهة تجريبية للمسودات والمراجعة. مؤشر النشر الداخلي لا يتصل بالتطبيق أو الموقع العام. قسم الفقه السابق منفصل إلى حين ترحيله.</p>
+  <h2>إدارة الفقه المقارن</h2>
+  <p>المسودات لا تظهر للمستخدمين. النشر يتطلب اعتمادًا شرعيًا وصلاحية ناشر. قسم الفقه السابق محفوظ إلى حين ترحيله.</p>
+  <?php if (fiqhAdminReady($db)): ?><p role="status"><?= fiqhPublicEnabled($db) ? 'المحتوى العام مفعّل للمسائل المعتمدة والمنشورة فقط.' : 'المحرر مفعّل؛ المحتوى العام الجديد غير مفعّل حفاظًا على المحتوى السابق.' ?></p><?php endif; ?>
   <?php if (!fiqhAdminReady($db)): ?>
-    <p role="status">قاعدة الفقه الجديدة غير مفعّلة. يلزم تنفيذ الترحيل على نسخة اختبارية أولًا.</p>
+    <p role="status">قاعدة الفقه الجديدة غير مفعّلة. يلزم اكتمال ترحيل قاعدة البيانات عبر النشر.</p>
   <?php endif; ?>
 </section>
 <?php if (fiqhAdminReady($db)): ?>
@@ -31,11 +32,11 @@ $previous = $selected !== null && $comparison !== false ? fiqhGetRevision($db, $
 ?>
 <section class="panel">
   <h2>نظرة عامة</h2>
-  <?php foreach (['planned' => 'المخطط', 'created' => 'المسائل المنشأة', 'draft' => 'المسودات', 'published' => 'مؤشر النشر التجريبي','ready_for_review'=>'جاهزة للمراجعة','under_review'=>'قيد المراجعة',
+  <?php foreach (['planned' => 'المخطط', 'created' => 'المسائل المنشأة', 'draft' => 'المسودات', 'published' => 'المسائل المنشورة','ready_for_review'=>'جاهزة للمراجعة','under_review'=>'قيد المراجعة',
     'changes_requested'=>'طلب تصحيحات','approved'=>'معتمدة','archived'=>'مؤرشفة'] as $key => $label): if (!array_key_exists($key,$stats)) continue; ?>
     <div class="row"><span><?= e($label) ?></span><strong><?= e($stats[$key]) ?></strong></div>
   <?php endforeach; ?>
-  <?php if (!$reviewReady): ?><p>يلزم ترحيل المراجعة (3 و4) على نسخة اختبارية أولًا.</p><?php endif; ?>
+  <?php if (!$reviewReady): ?><p>يلزم اكتمال ترحيل المراجعة (3 و4).</p><?php endif; ?>
 </section>
 <section class="panel" id="fiqh-import">
   <h2>الاستيراد والتصدير</h2>
@@ -236,12 +237,12 @@ $previous = $selected !== null && $comparison !== false ? fiqhGetRevision($db, $
     $reviewActions = fiqhAvailableReviewActions($db,(int)$user['id'],$selected);
     $published = fiqhPublishedRevision($db,$issue['id']);
     $reviewErrors = fiqhReviewErrors($selected);
-    $labels = ['submit'=>'إرسال للمراجعة','start'=>'بدء المراجعة','request_changes'=>'طلب تصحيحات','approve'=>'اعتماد شرعي','publish'=>'نشر داخلي تجريبي'];
+    $labels = ['submit'=>'إرسال للمراجعة','start'=>'بدء المراجعة','request_changes'=>'طلب تصحيحات','approve'=>'اعتماد شرعي','publish'=>'نشر الإصدار المعتمد'];
 ?>
 <section class="panel" id="fiqh-review">
   <h2>المراجعة الشرعية للإصدار <?= e($selected['revision']) ?></h2>
   <p>الحالة: <bdi><?= e($reviewState['state'] ?? 'draft') ?></bdi> · الاعتماد يخص النسخة المحفوظة فقط.</p>
-  <?php if ($published !== null): ?><p>مؤشر النشر الداخلي: v<?= e($published['revision']) ?></p><?php endif; ?>
+  <?php if ($published !== null): ?><p>الإصدار المنشور: v<?= e($published['revision']) ?></p><?php endif; ?>
   <?php foreach ($reviewErrors as $missing): ?><p><bdi><?= e($missing) ?></bdi></p><?php endforeach; ?>
   <?php foreach ($reviewActions as $op): ?>
     <details><summary><?= e($labels[$op]) ?></summary>
@@ -262,7 +263,7 @@ $previous = $selected !== null && $comparison !== false ? fiqhGetRevision($db, $
     $canArchive = true;
     try { fiqhAssertPublisher($db,fiqhHumanUser($db,(int)$user['id'])); } catch (InvalidArgumentException) { $canArchive=false; }
     if ($canArchive): ?>
-      <details><summary>سحب الإصدار المنشور داخليًا</summary>
+      <details><summary>سحب الإصدار المنشور</summary>
         <form method="post" action="<?= e($fiqhLink(['issue'=>$issue['id']])) ?>">
           <?php controls('fiqh_archive'); ?>
           <input type="hidden" name="id" value="<?= e($issue['id']) ?>"><input type="hidden" name="fiqh_revision" value="<?= e($published['revision']) ?>">

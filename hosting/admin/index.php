@@ -142,7 +142,7 @@ $sections = [
     'daily' => 'أذكار اليوم', 'daily_duas' => 'دعاء اليوم', 'merits' => 'فضائل الذكر',
     'hisn' => 'حصن المسلم', 'duas' => 'الأدعية القرآنية',
     'stories' => 'قصص الأنبياء', 'history' => 'سجل النشر',
-    'fiqh' => 'الفقه المقارن', 'fiqh_editor' => 'الفقه المقارن (تجريبي)', 'articles' => 'المقالات',
+    'fiqh' => 'الفقه المقارن', 'fiqh_editor' => 'إدارة الفقه المقارن', 'articles' => 'المقالات',
     'lessons' => 'الدروس والاختبارات', 'names' => 'أسماء الله الحسنى', 'reciters' => 'القراء',
     'appearance' => 'الثيم والألوان', 'library_sections' => 'أقسام المكتبة',
     'releases' => 'إصدارات التطبيق', 'app_settings' => 'إعدادات التطبيق',
@@ -726,7 +726,7 @@ if ($active) {
     <?php elseif ($section === 'fiqh'): ?>
       <section class="panel"><h2>الفقه القديم — قراءة فقط</h2>
         <p>تم تجميد التعديل والاعتماد والنشر القديم لحين ترحيل المسائل. نشر الأقسام الأخرى لا يغير الفقه المنشور سابقًا.</p>
-        <p><a href="<?= e(route('fiqh_editor')) ?>">فتح محرر الفقه التجريبي</a></p>
+        <p><a href="<?= e(route('fiqh_editor')) ?>">فتح محرر الفقه المقارن</a></p>
         <?php foreach ($rows as $legacyIssue): ?>
           <details><summary><?= e($legacyIssue['title']['ar'] ?? $legacyIssue['id'] ?? '') ?></summary>
             <pre dir="auto"><?= e(json_encode($legacyIssue,JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR)) ?></pre>

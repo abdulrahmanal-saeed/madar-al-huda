@@ -4,9 +4,9 @@ declare(strict_types=1);
 require_once __DIR__ . '/fiqh-storage.php';
 
 /** Explicit additive migration after fiqhMigration; not wired to production. */
-function fiqhMetadataMigration(PDO $db): void
+function fiqhMetadataMigration(PDO $db, bool $withinTransaction = false): void
 {
-    fiqhTransaction($db, function () use ($db): void {
+    $work = function () use ($db): void {
         if (!$db->query('SELECT 1 FROM fiqh_migrations WHERE version = 1')->fetchColumn()) {
             throw new RuntimeException('Apply fiqh schema version 1 first');
         }
@@ -25,7 +25,9 @@ CREATE TRIGGER fiqh_metadata_event_no_delete BEFORE DELETE ON fiqh_metadata_even
 BEGIN SELECT RAISE(ABORT, 'immutable metadata event'); END;
 SQL);
         $db->prepare('INSERT INTO fiqh_migrations VALUES (2, ?)')->execute([time()]);
-    });
+    };
+    if ($withinTransaction) $work();
+    else fiqhTransaction($db, $work);
 }
 
 /** Opaque edit token based on stored bytes; null is create-only. */
