@@ -54,7 +54,7 @@ button, .button { display: inline-flex; align-items: center; justify-content: ce
 .menu-glyph { display: inline-block; width: .95rem; height: .72rem; border-block: 2px solid; background: linear-gradient(currentColor, currentColor) center / 100% 2px no-repeat; }
 .layout { padding-block: 1.2rem 2.25rem; display: grid; grid-template-columns: 14.4rem minmax(0, 1fr); gap: clamp(.9rem, 2vw, 1.8rem); align-items: start; }
 .layout > main { min-inline-size: 0; }
-#admin-content, #content-items, #entry-editor { scroll-margin-block-start: 1rem; }
+#admin-content, #content-items, #entry-editor, #confirm-action { scroll-margin-block-start: 1rem; }
 .sidebar { position: sticky; inset-block-start: 1rem; max-block-size: calc(100dvh - 2rem); overflow: auto; display: grid; gap: .85rem; padding: .8rem; background: var(--paper); border: 1px solid var(--line); border-radius: 1rem; }
 .nav-group > p { padding: .1rem .65rem .3rem; font-size: .8rem; font-weight: 700; }
 .nav-group ul { display: grid; gap: .13rem; margin: 0; padding: 0; list-style: none; }

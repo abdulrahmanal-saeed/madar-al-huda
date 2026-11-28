@@ -528,7 +528,9 @@ if ($active) {
       </div>
       <?php if ($dirty && !in_array($section, ['stories', 'releases', 'reports', 'chatgpt'], true)): ?>
         <?php if (allowedAction($user, 'publish', $section)): ?>
-        <form method="post"><?php controls('publish', $revision); ?><button class="primary">نشر المسودة للتطبيق</button></form>
+        <form method="post" action="<?= e(route($section, $topic, $edit)) ?>#confirm-action">
+          <?php controls('publish', $revision); ?><button class="primary">نشر المسودة للتطبيق</button>
+        </form>
         <?php else: ?><p>النشر للمراجع الشرعي أو المالك.</p><?php endif; ?>
         <?php $changes = libraryDiff(json_decode($state['published'] ?? 'null', true), $draft); ?>
         <details class="changes">
@@ -546,7 +548,7 @@ if ($active) {
     <?php if ($error): ?><p class="alert error" role="alert"><?= e($error) ?></p><?php endif; ?>
 
     <?php if ($confirming !== null): ?>
-      <section class="panel confirm" aria-labelledby="confirm-title">
+      <section class="panel confirm" id="confirm-action" aria-labelledby="confirm-title" tabindex="-1">
         <h2 id="confirm-title">تأكيد الإجراء</h2>
         <p><?= e($confirming['message']) ?></p>
         <?php if ($confirming['action'] === 'publish'): ?>
