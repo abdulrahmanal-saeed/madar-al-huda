@@ -216,15 +216,18 @@ function fiqhIndependentReviewer(PDO $db,string $id,int $userId):bool
     return !$q->fetchColumn();
 }
 
-function fiqhReviewTransition(PDO $db, int $userId, string $id, int $expectedRevision, string $action, string $notes = '', string $corrections = ''): array
+function fiqhReviewTransition(PDO $db, int $userId, string $id, int $expectedRevision, int $expectedEventId, string $action, string $notes = '', string $corrections = ''): array
 {
-    return fiqhTransaction($db, function () use ($db,$userId,$id,$expectedRevision,$action,$notes,$corrections): array {
+    return fiqhTransaction($db, function () use ($db,$userId,$id,$expectedRevision,$expectedEventId,$action,$notes,$corrections): array {
         $user = fiqhHumanUser($db, $userId);
         $revision = fiqhLatestRevision($db, $id);
         if ($revision === null || (int)$revision['revision'] !== $expectedRevision) {
             throw new InvalidArgumentException('Current issue revision required');
         }
         $last = fiqhReviewCurrent($db, $id, $expectedRevision);
+        if ($expectedEventId !== (int)($last['id'] ?? 0)) {
+            throw new InvalidArgumentException('Review decision changed; reload the current review');
+        }
         $state = $last['state'] ?? 'draft';
         $profile = null;
         $next = match ($action) {
@@ -267,7 +270,10 @@ function fiqhReviewTransition(PDO $db, int $userId, string $id, int $expectedRev
         if ($action === 'publish') {
             fiqhAssertPublisher($db, $user);
             // Re-check active scholarly qualification and revision binding at publication time.
-            fiqhReviewerProfile($db, fiqhHumanUser($db, (int)$last['actor_id']));
+            $currentProfile=fiqhReviewerProfile($db, fiqhHumanUser($db, (int)$last['actor_id']));
+            if ($currentProfile['reviewer_name']!==$last['actor_name']||$currentProfile['qualifications']!==$last['qualifications']) {
+                throw new InvalidArgumentException('Reviewer identity or qualification changed; a fresh review is required');
+            }
             if (!hash_equals($revision['content_hash'], $last['content_hash'])) {
                 throw new InvalidArgumentException('Approval hash mismatch');
             }

@@ -211,10 +211,8 @@ Future<void> _saveReading(BuildContext context, Future<void> write) async {
 Future<void> _shareIssue(BuildContext context, String text) async {
   final ar = _arabic(context);
   try {
-    await const MethodChannel('madar/share').invokeMethod<void>(
-      'shareText',
-      text,
-    );
+    await const MethodChannel('madar/share')
+        .invokeMethod<void>('shareText', text);
     return;
   } on MissingPluginException {
     // The native Android share channel is not available on every platform.

@@ -249,6 +249,7 @@ $previous = $selected !== null && $comparison !== false ? fiqhGetRevision($db, $
         <?php controls('fiqh_review_action'); ?>
         <input type="hidden" name="id" value="<?= e($issue['id']) ?>">
         <input type="hidden" name="fiqh_revision" value="<?= e($selected['revision']) ?>">
+        <input type="hidden" name="fiqh_review_event" value="<?= e((int)($reviewState['id'] ?? 0)) ?>">
         <input type="hidden" name="review_action" value="<?= e($op) ?>">
         <label>ملاحظات<textarea name="notes" rows="3" <?= in_array($op,['approve','request_changes'],true) ? 'required' : '' ?>></textarea></label>
         <?php if ($op === 'request_changes'): ?><label>التصحيحات المطلوبة<textarea name="corrections" required rows="4"></textarea></label><?php endif; ?>

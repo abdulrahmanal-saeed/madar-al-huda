@@ -112,7 +112,7 @@ function fiqhAdminChange(PDO $db, array $user, string $action): string
         $uid = (int)$user['id'];
         if ($action === 'fiqh_review_action') {
             $result = fiqhReviewTransition($db,$uid,field('id'),integer(field('fiqh_revision'),1,PHP_INT_MAX),
-                field('review_action'),field('notes'),field('corrections'));
+                integer(field('fiqh_review_event'),0,PHP_INT_MAX),field('review_action'),field('notes'),field('corrections'));
             return 'تم تسجيل قرار المراجعة: ' . $result['state'];
         }
         if ($action === 'fiqh_archive') {
