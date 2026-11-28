@@ -4,7 +4,7 @@ if (!defined('MADAR_ADMIN') || !$active || $user === null) exit;
 ?>
 <section class="panel">
   <h2>إدارة الفقه المقارن — النسخة التجريبية</h2>
-  <p>إعداد المسودات فقط. لا تتصل هذه الواجهة بالنشر أو الاعتماد الشرعي. قسم الفقه السابق ما زال منفصلًا إلى حين ترحيله.</p>
+  <p>واجهة تجريبية للمسودات والمراجعة. مؤشر النشر الداخلي لا يتصل بالتطبيق أو الموقع العام. قسم الفقه السابق منفصل إلى حين ترحيله.</p>
   <?php if (!fiqhAdminReady($db)): ?>
     <p role="status">قاعدة الفقه الجديدة غير مفعّلة. يلزم تنفيذ الترحيل على نسخة اختبارية أولًا.</p>
   <?php endif; ?>
@@ -12,6 +12,7 @@ if (!defined('MADAR_ADMIN') || !$active || $user === null) exit;
 <?php if (fiqhAdminReady($db)): ?>
 <?php
 $stats = fiqhAdminStats($db);
+$reviewReady = fiqhReviewReady($db);
 $categories = fiqhListMetadata($db, 'category');
 $sources = fiqhListMetadata($db, 'source');
 $fiqhPage = filter_var($_GET['page'] ?? 1, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 100000]]) ?: 1;
@@ -30,10 +31,11 @@ $previous = $selected !== null && $comparison !== false ? fiqhGetRevision($db, $
 ?>
 <section class="panel">
   <h2>نظرة عامة</h2>
-  <?php foreach (['planned' => 'المخطط', 'created' => 'المسائل المنشأة', 'draft' => 'المسودات', 'published' => 'المنشور من النظام الجديد'] as $key => $label): ?>
+  <?php foreach (['planned' => 'المخطط', 'created' => 'المسائل المنشأة', 'draft' => 'المسودات', 'published' => 'مؤشر النشر التجريبي','ready_for_review'=>'جاهزة للمراجعة','under_review'=>'قيد المراجعة',
+    'changes_requested'=>'طلب تصحيحات','approved'=>'معتمدة','archived'=>'مؤرشفة'] as $key => $label): if (!array_key_exists($key,$stats)) continue; ?>
     <div class="row"><span><?= e($label) ?></span><strong><?= e($stats[$key]) ?></strong></div>
   <?php endforeach; ?>
-  <p>حالات المراجعة الشرعية ومؤشرات النشر التفصيلية غير مفعّلة بعد.</p>
+  <?php if (!$reviewReady): ?><p>يلزم ترحيل المراجعة (3 و4) على نسخة اختبارية أولًا.</p><?php endif; ?>
 </section>
 <section class="panel">
   <h2>الأقسام والمراجع</h2>
@@ -137,7 +139,7 @@ $previous = $selected !== null && $comparison !== false ? fiqhGetRevision($db, $
       </div>
       <?php foreach ($sources as $entry): ?><p><bdi><?= e($entry['record']['id']) ?></bdi> · <?= e($entry['record']['title']['ar']) ?></p><?php endforeach; ?>
     </details>
-    <details><summary>المراجعة الشرعية / Review</summary><p>غير متاحة في هذه المرحلة.</p>
+    <details><summary>التحقق من اكتمال المسودة / Validation</summary><p>يُستخدم التحقق لتحديد الحقول الناقصة؛ لا يُعد اعتمادًا شرعيًا.</p>
       <?php if ($selected !== null): foreach (fiqhCompletenessErrors($issue) as $missing): ?><p><bdi><?= e($missing) ?></bdi></p><?php endforeach; endif; ?>
     </details>
     <details><summary>معاينة المسودة / Preview</summary><p>معاينة بيانات الإصدار المحفوظ، وليست محاكاة Flutter.</p><pre dir="ltr"><?= e($pretty($issue)) ?></pre></details>
@@ -168,4 +170,86 @@ $previous = $selected !== null && $comparison !== false ? fiqhGetRevision($db, $
     <button class="primary">حفظ مسودة المسألة</button>
   </form>
 </section>
+
+<?php if ($reviewReady && $selected !== null):
+    $reviewState = fiqhReviewCurrent($db,$issue['id'],(int)$selected['revision']);
+    $reviewActions = fiqhAvailableReviewActions($db,(int)$user['id'],$selected);
+    $published = fiqhPublishedRevision($db,$issue['id']);
+    $reviewErrors = fiqhReviewErrors($selected);
+    $labels = ['submit'=>'إرسال للمراجعة','start'=>'بدء المراجعة','request_changes'=>'طلب تصحيحات','approve'=>'اعتماد شرعي','publish'=>'نشر داخلي تجريبي'];
+?>
+<section class="panel" id="fiqh-review">
+  <h2>المراجعة الشرعية للإصدار <?= e($selected['revision']) ?></h2>
+  <p>الحالة: <bdi><?= e($reviewState['state'] ?? 'draft') ?></bdi> · الاعتماد يخص النسخة المحفوظة فقط.</p>
+  <?php if ($published !== null): ?><p>مؤشر النشر الداخلي: v<?= e($published['revision']) ?></p><?php endif; ?>
+  <?php foreach ($reviewErrors as $missing): ?><p><bdi><?= e($missing) ?></bdi></p><?php endforeach; ?>
+  <?php foreach ($reviewActions as $op): ?>
+    <details><summary><?= e($labels[$op]) ?></summary>
+      <form method="post" action="<?= e($fiqhLink(['issue'=>$issue['id']])) ?>">
+        <?php controls('fiqh_review_action'); ?>
+        <input type="hidden" name="id" value="<?= e($issue['id']) ?>">
+        <input type="hidden" name="fiqh_revision" value="<?= e($selected['revision']) ?>">
+        <input type="hidden" name="review_action" value="<?= e($op) ?>">
+        <label>ملاحظات<textarea name="notes" rows="3" <?= in_array($op,['approve','request_changes'],true) ? 'required' : '' ?>></textarea></label>
+        <?php if ($op === 'request_changes'): ?><label>التصحيحات المطلوبة<textarea name="corrections" required rows="4"></textarea></label><?php endif; ?>
+        <label><input type="checkbox" name="fiqh_confirm" value="yes" required> أؤكد الإجراء على هذا الإصدار المحفوظ.</label>
+        <button class="primary"><?= e($labels[$op]) ?></button>
+      </form>
+    </details>
+  <?php endforeach; ?>
+  <?php if ($published !== null):
+    $canArchive = true;
+    try { fiqhAssertPublisher($db,fiqhHumanUser($db,(int)$user['id'])); } catch (InvalidArgumentException) { $canArchive=false; }
+    if ($canArchive): ?>
+      <details><summary>سحب الإصدار المنشور داخليًا</summary>
+        <form method="post" action="<?= e($fiqhLink(['issue'=>$issue['id']])) ?>">
+          <?php controls('fiqh_archive'); ?>
+          <input type="hidden" name="id" value="<?= e($issue['id']) ?>"><input type="hidden" name="fiqh_revision" value="<?= e($published['revision']) ?>">
+          <label>سبب السحب<textarea name="notes" required></textarea></label>
+          <label><input type="checkbox" name="fiqh_confirm" value="yes" required> أؤكد سحب v<?= e($published['revision']) ?> دون حذف السجل.</label>
+          <button>سحب الإصدار</button>
+        </form>
+      </details>
+    <?php endif; endif; ?>
+  <details><summary>سجل القرارات</summary>
+    <?php $events=$db->prepare('SELECT revision,state,actor_name,qualifications,notes,corrections,at FROM fiqh_review_events WHERE issue_id=? ORDER BY id DESC LIMIT 100');
+    $events->execute([$issue['id']]); foreach ($events->fetchAll(PDO::FETCH_ASSOC) as $event): ?>
+      <div class="row"><div><strong><bdi>v<?= e($event['revision']) ?> · <?= e($event['state']) ?></bdi></strong>
+        <p><?= e($event['actor_name']) ?> · <?= e(publishedLabel((int)$event['at'])) ?></p>
+        <?php if ($event['qualifications'] !== null): ?><p><?= e($event['qualifications']) ?></p><?php endif; ?>
+        <p><?= e($event['notes']) ?></p><p><?= e($event['corrections']) ?></p>
+      </div></div>
+    <?php endforeach; ?>
+  </details>
+</section>
+<?php endif; ?>
+<?php if ($reviewReady && $user['role'] === 'owner'):
+    $accounts=$db->query('SELECT id,username,role FROM users WHERE disabled=0 ORDER BY username')->fetchAll(PDO::FETCH_ASSOC);
+    $profiles=$db->query('SELECT user_id,reviewer_name,qualifications,active FROM fiqh_review_profiles ORDER BY user_id')->fetchAll(PDO::FETCH_ASSOC);
+    $grants=$db->query('SELECT user_id FROM fiqh_publish_grants ORDER BY user_id')->fetchAll(PDO::FETCH_COLUMN);
+?>
+<section class="panel">
+  <h2>إدارة المراجعين والناشرين</h2>
+  <p>لا تسجل مؤهلات غير متحقق منها. هذا القسم للمالك فقط، ولا يمنح المالك صلاحية الاعتماد الشرعي.</p>
+  <?php foreach ($profiles as $profile): ?><p><?= e($profile['reviewer_name']) ?> · <?= e($profile['qualifications']) ?> · <?= $profile['active'] ? 'نشط' : 'موقوف' ?></p><?php endforeach; ?>
+  <form method="post" action="<?= e($fiqhLink([])) ?>">
+    <?php controls('fiqh_reviewer_profile'); ?>
+    <label>حساب المراجع<select name="subject_id" required><option value="">اختر</option><?php foreach ($accounts as $account): if ($account['role'] !== 'reviewer') continue; ?>
+      <option value="<?= e($account['id']) ?>"><?= e($account['username']) ?></option><?php endforeach; ?></select></label>
+    <label>الاسم الحقيقي<input name="reviewer_name" required></label>
+    <label>المؤهلات الشرعية التي تحققت منها<textarea name="qualifications" required></textarea></label>
+    <label>الصلاحية<select name="enabled"><option value="yes">تفعيل</option><option value="no">إيقاف</option></select></label>
+    <label><input type="checkbox" name="fiqh_confirm" value="yes" required> أؤكد التحقق من هوية المراجع ومؤهلاته.</label>
+    <button>حفظ الملف</button>
+  </form>
+  <form method="post" action="<?= e($fiqhLink([])) ?>">
+    <?php controls('fiqh_publisher_grant'); ?>
+    <label>حساب الناشر<select name="subject_id" required><option value="">اختر</option><?php foreach ($accounts as $account): ?>
+      <option value="<?= e($account['id']) ?>"><?= e($account['username']) ?><?= in_array((int)$account['id'],array_map('intval',$grants),true) ? ' — لديه صلاحية نشر' : '' ?></option><?php endforeach; ?></select></label>
+    <label>الصلاحية<select name="enabled"><option value="yes">منح</option><option value="no">سحب</option></select></label>
+    <label><input type="checkbox" name="fiqh_confirm" value="yes" required> أؤكد تغيير صلاحية النشر.</label>
+    <button>حفظ الصلاحية</button>
+  </form>
+</section>
+<?php endif; ?>
 <?php endif; ?>

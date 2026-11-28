@@ -72,6 +72,35 @@ SQL);
     });
 }
 
+/** Version 4 is required before enabling permission administration. */
+function fiqhPermissionMigration(PDO $db): void
+{
+    fiqhTransaction($db, function () use ($db): void {
+        if (!$db->query('SELECT 1 FROM fiqh_migrations WHERE version=3')->fetchColumn()) {
+            throw new RuntimeException('Apply fiqh schema version 3 first');
+        }
+        if ($db->query('SELECT 1 FROM fiqh_migrations WHERE version=4')->fetchColumn()) return;
+        $db->exec(<<<'SQL'
+CREATE TABLE fiqh_permission_events (
+    id INTEGER PRIMARY KEY, actor_id INTEGER NOT NULL REFERENCES users(id),
+    subject_id INTEGER NOT NULL REFERENCES users(id), action TEXT NOT NULL,
+    details TEXT NOT NULL CHECK(json_valid(details)), at INTEGER NOT NULL
+);
+CREATE TRIGGER fiqh_permission_no_update BEFORE UPDATE ON fiqh_permission_events
+BEGIN SELECT RAISE(ABORT, 'immutable permission event'); END;
+CREATE TRIGGER fiqh_permission_no_delete BEFORE DELETE ON fiqh_permission_events
+BEGIN SELECT RAISE(ABORT, 'immutable permission event'); END;
+SQL);
+        $db->prepare('INSERT INTO fiqh_migrations VALUES (4,?)')->execute([time()]);
+    });
+}
+
+function fiqhPermissionEvent(PDO $db, int $actor, int $subject, string $action, array $details): void
+{
+    $db->prepare('INSERT INTO fiqh_permission_events (actor_id,subject_id,action,details,at) VALUES (?,?,?,?,?)')
+        ->execute([$actor,$subject,$action,fiqhJson($details),time()]);
+}
+
 function fiqhHumanUser(PDO $db, int $id): array
 {
     $query = $db->prepare('SELECT id, username, role FROM users WHERE id = ? AND disabled = 0');
@@ -95,6 +124,8 @@ function fiqhSetReviewerProfile(PDO $db, int $ownerId, int $reviewerId, string $
             qualifications=excluded.qualifications, active=excluded.active,
             verified_by=excluded.verified_by, verified_at=excluded.verified_at')
             ->execute([$reviewerId, trim($name), trim($qualifications), (int)$active, $ownerId, time()]);
+        fiqhPermissionEvent($db,$ownerId,$reviewerId,'reviewer_profile',
+            ['name'=>trim($name),'qualifications'=>trim($qualifications),'active'=>$active]);
     });
 }
 
@@ -112,6 +143,7 @@ function fiqhSetPublisherGrant(PDO $db, int $ownerId, int $publisherId, bool $ac
         } else {
             $db->prepare('DELETE FROM fiqh_publish_grants WHERE user_id=?')->execute([$publisherId]);
         }
+        fiqhPermissionEvent($db,$ownerId,$publisherId,'publisher_grant',['active'=>$active]);
     });
 }
 
@@ -246,4 +278,51 @@ function fiqhPublishedRevision(PDO $db, string $id): ?array
         AND e.state='approved' AND e.content_hash=r.content_hash WHERE p.issue_id=?");
     $q->execute([$id]);
     return $q->fetch(PDO::FETCH_ASSOC) ?: null;
+}
+
+
+/** Withdraw the exact published revision; newer drafts remain untouched. */
+function fiqhArchivePublication(PDO $db, int $userId, string $id, int $expectedPublishedRevision, string $reason): array
+{
+    return fiqhTransaction($db, function () use ($db,$userId,$id,$expectedPublishedRevision,$reason): array {
+        $user = fiqhHumanUser($db,$userId);
+        fiqhAssertPublisher($db,$user);
+        if (trim($reason) === '') throw new InvalidArgumentException('Archive reason required');
+        $published = fiqhPublishedRevision($db,$id);
+        if ($published === null || (int)$published['revision'] !== $expectedPublishedRevision) {
+            throw new InvalidArgumentException('Published revision changed or absent');
+        }
+        $db->prepare('DELETE FROM fiqh_published WHERE issue_id=? AND revision=?')
+            ->execute([$id,$expectedPublishedRevision]);
+        $event = fiqhAppendReview($db,$published,'archived',$user,null,trim($reason),'');
+        return ['id'=>$id,'revision'=>$expectedPublishedRevision,'state'=>'archived','eventId'=>$event];
+    });
+}
+
+function fiqhReviewReady(PDO $db): bool
+{
+    return (bool)$db->query('SELECT 1 FROM fiqh_migrations WHERE version=4')->fetchColumn();
+}
+
+/** UI affordances only. All authorization is rechecked by the service. */
+function fiqhAvailableReviewActions(PDO $db, int $userId, array $revision): array
+{
+    $user = fiqhHumanUser($db,$userId);
+    $last = fiqhReviewCurrent($db,$revision['issue_id'],(int)$revision['revision']);
+    $state = $last['state'] ?? 'draft';
+    $actions = [];
+    if (in_array($state,['draft','changes_requested'],true)) $actions[] = 'submit';
+    try {
+        fiqhReviewerProfile($db,$user);
+        if ($state === 'ready_for_review') $actions[] = 'start';
+        if ($state === 'under_review' && (int)$last['actor_id'] === $userId) {
+            $actions[] = 'request_changes';
+            if ($revision['actor'] !== 'user:' . $userId) $actions[] = 'approve';
+        }
+    } catch (InvalidArgumentException) { }
+    try {
+        fiqhAssertPublisher($db,$user);
+        if ($state === 'approved') $actions[] = 'publish';
+    } catch (InvalidArgumentException) { }
+    return $actions;
 }

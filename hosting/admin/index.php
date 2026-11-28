@@ -252,8 +252,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif (!allowedAction($user, $action, $section)) {
             http_response_code(403);
             throw new InvalidArgumentException('صلاحيات حسابك لا تسمح بهذا الإجراء. اطلبه من المالك.');
-        } elseif (($section === 'fiqh_editor' && !in_array($action, ['fiqh_draft_save', 'fiqh_metadata_save', 'logout'], true))
-            || ($section !== 'fiqh_editor' && in_array($action, ['fiqh_draft_save', 'fiqh_metadata_save'], true))) {
+        } elseif (($section === 'fiqh_editor' && !in_array($action, ['fiqh_draft_save', 'fiqh_metadata_save', 'fiqh_review_action', 'fiqh_archive', 'fiqh_reviewer_profile', 'fiqh_publisher_grant', 'logout'], true))
+            || ($section !== 'fiqh_editor' && in_array($action, ['fiqh_draft_save', 'fiqh_metadata_save', 'fiqh_review_action', 'fiqh_archive', 'fiqh_reviewer_profile', 'fiqh_publisher_grant'], true))) {
             throw new InvalidArgumentException('Invalid fiqh editor action');
         } elseif (isset(CONFIRMATIONS[$action]) && field('confirmed') !== 'yes') {
             // Irreversible actions show a confirmation page first; the CSP
@@ -268,7 +268,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif ($action === 'logout') {
             $_SESSION = [];
             session_destroy();
-        } elseif (in_array($action, ['fiqh_draft_save', 'fiqh_metadata_save'], true)) {
+        } elseif (in_array($action, ['fiqh_draft_save', 'fiqh_metadata_save', 'fiqh_review_action', 'fiqh_archive', 'fiqh_reviewer_profile', 'fiqh_publisher_grant'], true)) {
             $_SESSION['notice'] = fiqhAdminChange($db, $user, $action);
         } elseif (in_array($action, ['save', 'delete', 'publish', 'restore', 'review_approve'], true)) {
             $seed = require __DIR__ . '/seed.php';
@@ -394,7 +394,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $keep = ($section === 'library_sections' || $keepDua) && is_string($_GET['edit'] ?? null)
                 ? $_GET['edit'] : '';
             $target = route($section, $topic, $keep);
-            if ($section === 'fiqh_editor' && $action === 'fiqh_draft_save') {
+            if ($section === 'fiqh_editor' && in_array($action, ['fiqh_draft_save','fiqh_review_action','fiqh_archive'], true)) {
                 $target .= '&issue=' . rawurlencode(field('id')) . '#fiqh-issue';
             }
             header('Location: ' . $target, true, 303);
