@@ -14,6 +14,7 @@ const ACTION_ROLES = [
     'fiqh_draft_save' => ['owner', 'reviewer', 'editor'],
     'fiqh_autosave' => ['owner', 'reviewer', 'editor'],
     'fiqh_metadata_save' => ['owner', 'reviewer', 'editor'],
+    'fiqh_sources_bulk' => ['owner', 'reviewer', 'editor'],
     'fiqh_import_preview' => ['owner','reviewer','editor'],
     'fiqh_import_commit' => ['owner','reviewer','editor'],
     'fiqh_publish' => ['owner', 'reviewer'],

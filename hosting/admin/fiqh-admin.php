@@ -100,11 +100,18 @@ function fiqhAdminChange(PDO $db, array $user, string $action): string
         $result = fiqhSaveDraft($db, $body, integer(field('fiqh_revision'), 0, PHP_INT_MAX), $actor);
         return 'حُفظت المسودة فقط: ' . $result['id'] . ' · v' . $result['revision'];
     }
+    if ($action==='fiqh_sources_bulk') {
+        if (field('fiqh_confirm')!=='yes') throw new InvalidArgumentException('أكد حفظ المصادر في المسودة.');
+        $rows=fiqhAdminJson(field('source_rows'));
+        $result=fiqhBulkSources($db,$rows,$actor);
+        return 'حُفظت المصادر: '.count($result['results']).' · المسائل المرتبطة المفحوصة: '.count($result['affectedIssues']);
+    }
     if ($action === 'fiqh_metadata_save') {
         $kind = field('kind');
         $row = fiqhAdminJson(field('record'));
         $result = fiqhSaveMetadata($db, $kind, $row, field('edit_token') ?: null, $actor);
-        return 'حُفظت بيانات المسودة: ' . $result['id'];
+        return 'حُفظت بيانات المسودة: ' . $result['id']
+            .($kind==='source'?' · المسائل المرتبطة المفحوصة: '.count($result['affectedIssues']??[]):'');
     }
     if (in_array($action,['fiqh_publish','fiqh_archive'],true)) {
         if (!fiqhDirectReady($db)) throw new InvalidArgumentException('يلزم اكتمال تحديث قاعدة البيانات.');

@@ -635,7 +635,7 @@ function serveMcp(PDO $db, string $secret): never
                 'capabilities' => ['tools' => ['listChanged' => false]],
                 'serverInfo' => ['name' => 'Madar Al-Huda dashboard', 'version' => '1.2.0'],
                 'instructions' => 'Edit the content of the Madar Al-Huda app (adhkar, duas, Hisn al-Muslim, Names of Allah, articles, lessons, fiqh, and custom library episode titles). '
-                    . 'Call list_sections first. Every content edit goes to the DRAFT only. Before save_item, attach_dua_audio, delete_item, update_episode, bulk_update_episode_titles or fiqh_commit_import, show the owner exactly what you will write and wait for approval. Structured fiqh requires fiqh_preview_import before fiqh_commit_import; it cannot be approved or published by MCP, including general publish. '
+                    . 'Call list_sections first. Every content edit goes to the DRAFT only. Before save_item, attach_dua_audio, delete_item, update_episode, bulk_update_episode_titles or fiqh_commit_import, fiqh_create_source, fiqh_update_source or fiqh_bulk_upsert_sources (commit), show the owner exactly what you will write and wait for approval. Structured fiqh requires fiqh_preview_import before fiqh_commit_import; it cannot be approved or published by MCP, including general publish. '
                     . (agentPublishMode($db) === 'chat'
                         ? 'To put changes in the app, call draft_changes, show the owner the changes, ask whether to publish, and call publish only after an explicit yes. Every publish needs its own yes. '
                         : 'To put changes in the app, call request_publish: the owner approves it in the dashboard; you cannot publish yourself. ')
