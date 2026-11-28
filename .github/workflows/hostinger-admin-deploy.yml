@@ -56,6 +56,8 @@ jobs:
           php -l hosting/fiqh-production.php
           php hosting/tests/fiqh_stage_test.php
           php hosting/tests/fiqh_production_test.php
+          php hosting/tests/fiqh_sources_test.php
+          php hosting/tests/fiqh_agent_test.php
           tar -czf "$RUNNER_TEMP/fiqh-migration.tar.gz" hosting/fiqh-production.php hosting/fiqh-stage.php hosting/admin/fiqh-model.php hosting/admin/fiqh-storage.php hosting/admin/fiqh-metadata.php hosting/admin/fiqh-review.php docs/content/fiqh/seed.json
           php -l hosting/web/privacy/index.php
           python3 hosting/prepare_site.py "$RUNNER_TEMP/madar-web"

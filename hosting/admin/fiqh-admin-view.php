@@ -67,9 +67,23 @@ $previous = $selected !== null && $comparison !== false ? fiqhGetRevision($db, $
 <section class="panel">
   <h2>الأقسام والمراجع</h2>
   <?php foreach (['category' => $categories, 'source' => $sources] as $kind => $records): ?>
-    <details><summary><?= $kind === 'category' ? 'إدارة الأقسام' : 'إدارة المراجع' ?> (<?= count($records) ?>)</summary>
+    <details <?= $kind==='source'&&isset($_GET['source'])?'open':'' ?>><summary><?= $kind === 'category' ? 'إدارة الأقسام' : 'إدارة المراجع' ?> (<?= count($records) ?>)</summary>
+    <?php if ($kind==='source'): ?>
+      <p>أنواع المصادر: book، hadith_collection، quran، institution، article، collection، other. لا تخمّن الطبعات أو المؤلفين. حالة التوثيق pending أو documented (توثيق البيانات فقط).</p>
+      <details><summary>إضافة أو تحديث المصادر دفعة واحدة (JSON)</summary>
+        <form method="post" action="<?= e($fiqhLink([])) ?>">
+          <?php controls('fiqh_sources_bulk'); ?>
+          <p>مصفوفة من سجلات كاملة، expectedToken = null للإضافة أو رمز الإصدار الحالي للتعديل. العملية تحفظ المسودات فقط وتعيد فحص المسائل المرتبطة.</p>
+          <textarea name="source_rows" dir="ltr" rows="12" required><?= e($pretty(array_map(fn($r)=>['record'=>$r['record'],'expectedToken'=>$r['editToken']],$sources))) ?></textarea>
+          <label><input type="checkbox" name="fiqh_confirm" value="yes" required> أؤكد حفظ هذه المصادر في المسودة.</label>
+          <button class="primary">حفظ المصادر دفعة واحدة</button>
+        </form>
+      </details>
+    <?php endif; ?>
     <?php foreach ($records as $record): ?>
-      <details><summary><?= e($record['record']['title']['ar']) ?> · <bdi><?= e($record['record']['id']) ?></bdi></summary>
+      <?php $sourceId=$record['record']['id']; $sourceMissing=$kind==='source'?fiqhSourceMissing($record['record']):[]; ?>
+      <details <?= $kind==='source'?'id="source-'.e($sourceId).'"':'' ?> <?= $kind==='source'&&($_GET['source']??null)===$sourceId?'open':'' ?>><summary><?= e($record['record']['title']['ar']) ?> · <bdi><?= e($sourceId) ?></bdi><?= $sourceMissing?' · '.count($sourceMissing).' حقول ناقصة':'' ?></summary>
+        <?php if ($sourceMissing): ?><p>البيانات الناقصة: <bdi><?= e(implode('، ',$sourceMissing)) ?></bdi></p><?php endif; ?>
         <form method="post" action="<?= e($fiqhLink([])) ?>">
           <?php controls('fiqh_metadata_save'); ?>
           <input type="hidden" name="kind" value="<?= e($kind) ?>">
@@ -84,7 +98,7 @@ $previous = $selected !== null && $comparison !== false ? fiqhGetRevision($db, $
         <?php controls('fiqh_metadata_save'); ?><input type="hidden" name="kind" value="<?= e($kind) ?>">
         <label>سجل JSON جديد<textarea name="record" dir="ltr" rows="12" required><?= e($pretty($kind === 'category'
           ? ['id'=>'', 'title'=>['ar'=>'','en'=>''], 'description'=>['ar'=>'','en'=>''], 'icon'=>'book', 'order'=>0, 'parentId'=>null, 'plannedIssueCount'=>0, 'visible'=>true, 'status'=>'draft']
-          : ['id'=>'', 'title'=>['ar'=>'','en'=>''], 'author'=>['ar'=>'','en'=>''], 'madhhab'=>null, 'sourceType'=>'book', 'status'=>'placeholder'])) ?></textarea></label>
+          : ['id'=>'', 'title'=>['ar'=>'','en'=>''], 'author'=>['ar'=>'','en'=>''], 'editor'=>['ar'=>'','en'=>''], 'madhhab'=>null, 'sourceType'=>'book', 'publisher'=>'', 'edition'=>'', 'publicationYear'=>null, 'url'=>null, 'license'=>'', 'documentationStatus'=>'pending', 'status'=>'placeholder'])) ?></textarea></label>
         <button class="primary">إضافة مسودة</button>
       </form>
     </details></details>
@@ -195,7 +209,11 @@ $previous = $selected !== null && $comparison !== false ? fiqhGetRevision($db, $
       <?php foreach ($sources as $entry): ?><p><bdi><?= e($entry['record']['id']) ?></bdi> · <?= e($entry['record']['title']['ar']) ?></p><?php endforeach; ?>
     </details>
     <details><summary>التحقق من اكتمال المسودة / Validation</summary><p>يُستخدم التحقق لتحديد الحقول والمصادر الناقصة قبل النشر.</p>
-      <?php if ($selected !== null): foreach (fiqhCompletenessErrors($issue) as $missing): ?><p><bdi><?= e($missing) ?></bdi></p><?php endforeach; endif; ?>
+      <?php if ($selected !== null): foreach (fiqhDraftValidationErrors($selected) as $missing): ?>
+      <?php if (preg_match('/^sources\.([a-z0-9_-]+)\.(.+)$/D',$missing,$m)): ?>
+        <p><a href="<?= e($fiqhLink(['issue'=>$issue['id'],'source'=>$m[1]])) ?>#source-<?= e($m[1]) ?>"><?= e($m[1].' — '.$m[2]) ?></a></p>
+      <?php else: ?><p><a href="#fiqh-issue" data-fiqh-error="<?= e($missing) ?>"><bdi><?= e($missing) ?></bdi></a></p><?php endif; ?>
+    <?php endforeach; endif; ?>
     </details>
     <details><summary>معاينة المسودة / Preview</summary><p>معاينة بيانات الإصدار المحفوظ، وليست محاكاة Flutter.</p><pre dir="ltr"><?= e($pretty($issue)) ?></pre></details>
     <details <?= $previous !== null ? 'open' : '' ?>><summary>سجل الإصدارات / History</summary>
@@ -245,7 +263,11 @@ $previous = $selected !== null && $comparison !== false ? fiqhGetRevision($db, $
   <?php if (!$currentPublished): ?>
     <?php if ($errors): ?>
       <details open><summary>البيانات الناقصة قبل النشر (<?= count($errors) ?>)</summary>
-        <?php foreach ($errors as $missing): ?><p><bdi><?= e($missing) ?></bdi></p><?php endforeach; ?>
+        <?php foreach ($errors as $missing): ?>
+          <?php if (preg_match('/^sources\.([a-z0-9_-]+)\.(.+)$/D',$missing,$m)): ?>
+            <p><a href="<?= e($fiqhLink(['issue'=>$issue['id'],'source'=>$m[1]])) ?>#source-<?= e($m[1]) ?>"><?= e($m[1].' — '.$m[2]) ?></a></p>
+          <?php else: ?><p><a href="#fiqh-issue" data-fiqh-error="<?= e($missing) ?>"><bdi><?= e($missing) ?></bdi></a></p><?php endif; ?>
+        <?php endforeach; ?>
       </details>
     <?php endif; ?>
     <?php if ($canPublish): ?>

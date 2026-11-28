@@ -177,30 +177,14 @@ function fiqhReviewCurrent(PDO $db, string $id, int $revision): ?array
 }
 
 /** Editorial completeness; reviewer still verifies attribution, editions and reasoning. */
-function fiqhReviewErrors(array $revision): array
+function fiqhReviewErrors(array $revision,bool $strict=true):array
 {
-    $body = json_decode($revision['body'], true, 64, JSON_THROW_ON_ERROR);
-    $sources = json_decode($revision['source_snapshot'], true, 64, JSON_THROW_ON_ERROR);
     if (!fiqhRevisionHashValid($revision)) return ['revision.hash'];
+    $body=json_decode($revision['body'],true,64,JSON_THROW_ON_ERROR);
+    $sources=json_decode($revision['source_snapshot'],true,64,JSON_THROW_ON_ERROR);
     $shape=fiqhShapeErrors($body);
     if ($shape!==[]) return $shape;
-    $errors = fiqhCompletenessErrors($body);
-    foreach (fiqhCollectSources($body) as $id) {
-        $source = $sources[$id] ?? [];
-        try { fiqhValidateSource($source); }
-        catch (InvalidArgumentException) { $errors[]='sources.'.$id.'.shape'; continue; }
-        if (($source['id'] ?? null)!==$id || ($source['status'] ?? null) !== 'draft' || !fiqhBilingual($source['title'] ?? null)
-            || !is_string($source['license'] ?? null) || trim($source['license']) === '') {
-            $errors[] = 'sources.' . $id . '.metadata';
-        }
-        if (($source['sourceType'] ?? null) === 'book'
-            && (!fiqhBilingual($source['author'] ?? null) || !is_string($source['edition'] ?? null)
-                || trim($source['edition']) === '' || !is_string($source['publisher'] ?? null)
-                || trim($source['publisher']) === '')) {
-            $errors[] = 'sources.' . $id . '.edition';
-        }
-    }
-    return array_values(array_unique($errors));
+    return array_values(array_unique(array_merge(fiqhCompletenessErrors($body),fiqhSourceIssueErrors($body,$sources,$strict))));
 }
 
 function fiqhAppendReview(PDO $db, array $revision, string $state, array $user, ?array $profile, string $notes, string $corrections): int

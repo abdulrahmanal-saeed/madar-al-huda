@@ -43,6 +43,7 @@ function fiqhPublicSource(array $source): array
 {
     $result=['id'=>$source['id'],'title'=>fiqhPublicBi($source['title'] ?? null),
         'author'=>fiqhPublicBi($source['author'] ?? null)];
+    if (isset($source['editor'])) $result['editor']=fiqhPublicBi($source['editor']);
     foreach (['madhhab','sourceType','publisher','edition','publicationYear','volume','pages','chapter','section','license'] as $key) {
         if (is_string($source[$key] ?? null)||($key==='publicationYear'&&is_int($source[$key] ?? null))) $result[$key]=$source[$key];
     }
@@ -148,7 +149,7 @@ function fiqhPublicCatalog(PDO $db): array
               AND ((a.state='approved' AND e.id>a.id) OR (a.state='published' AND e.id=a.id))";
         foreach ($db->query($sql)->fetchAll(PDO::FETCH_ASSOC) as $row) {
             if (!isset($visible[$row['category_id']])||($row['subcategory_id']!==null&&!isset($visible[$row['subcategory_id']]))) continue;
-            if (fiqhReviewErrors($row)!==[]) continue;
+            if (fiqhReviewErrors($row,false)!==[]) continue;
             $issues[]=fiqhPublicIssue($row);
         }
         $issueIds=array_column($issues,'id');

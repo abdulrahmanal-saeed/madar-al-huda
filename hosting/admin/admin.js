@@ -582,3 +582,26 @@ for (const fields of document.querySelectorAll('.content-news-fields')) {
     }
   });
 })();
+
+// Navigate a validation path to the corresponding editor field or JSON section.
+document.addEventListener('click', event => {
+  const link = event.target.closest('[data-fiqh-error]');
+  const form = document.querySelector('[data-fiqh-editor]');
+  if (!link || !form) return;
+  const parts = link.dataset.fiqhError.split('.');
+  let name = parts[0];
+  if (name === 'positions' && parts[1]) {
+    name = ['ruling','explanation','reasoning'].includes(parts[2])
+      ? parts[1] + '_' + parts[2] + '_ar' : parts[1] + '_details';
+  } else if (['title','summary','introduction','scope','scholarlySummary'].includes(name)) {
+    name += '_ar';
+  }
+  const field = form.elements.namedItem(name);
+  if (!(field instanceof HTMLElement)) return;
+  event.preventDefault();
+  for (let parent = field.parentElement; parent; parent = parent.parentElement) {
+    if (parent.tagName === 'DETAILS') parent.open = true;
+  }
+  field.scrollIntoView({block:'center'});
+  field.focus();
+});

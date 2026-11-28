@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-require_once __DIR__.'/fiqh-storage.php';
+require_once __DIR__.'/fiqh-metadata.php';
 
 /** Canonical draft-only import: no user-supplied lifecycle, review, or publish state.
  * Preview uses the same transaction and write path as commit, then rolls back.
@@ -49,7 +49,7 @@ function fiqhImportRun(PDO $db,array $payload,string $actor,?string $confirmatio
                 $body=$row['issue'];
                 $saved=fiqhSaveDraftLocked($db,$body,$row['expectedRevision'],$actor);
                 $latest=fiqhLatestRevision($db,$body['id']);
-                $results[]=$saved+['contentHash'=>$latest['content_hash'],'completenessErrors'=>fiqhCompletenessErrors($body)];
+                $results[]=$saved+['contentHash'=>$latest['content_hash'],'completenessErrors'=>fiqhDraftValidationErrors($latest)];
             } catch (Exception $error) {
                 throw new InvalidArgumentException('Import row '.($i+1).' rejected: '.$error->getMessage(),0,$error);
             }
