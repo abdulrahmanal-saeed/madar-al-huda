@@ -1,0 +1,35 @@
+@font-face {
+  font-family: "Madar Arabic";
+  src: url("arabic-regular.ttf") format("truetype");
+  font-display: swap;
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "Madar Arabic";
+  src: url("arabic-bold.ttf") format("truetype");
+  font-display: swap;
+  font-weight: 600 800;
+}
+
+@font-face {
+  font-family: "Madar Kufi";
+  src: url("kufi.ttf") format("truetype");
+  font-display: swap;
+}
+
+:root {
+  --madar-body: "Madar Arabic", "Segoe UI", Tahoma, sans-serif;
+  --madar-display: "Madar Kufi", var(--madar-body);
+  --madar-night: #161123;
+  --madar-night-raised: #221a34;
+  --madar-light: #f5f1fa;
+  --madar-paper: #fff;
+  --madar-ink: #201732;
+  --madar-muted: #655b75;
+  --madar-lavender: #ede6f9;
+  --madar-line: #e2d9ee;
+  --madar-purple: #583bb4;
+  --madar-coral: #ff896c;
+  --madar-coral-ink: #411708;
+}
