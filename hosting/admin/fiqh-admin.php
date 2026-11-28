@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 require_once __DIR__ . '/fiqh-review.php';
+require_once __DIR__ . '/fiqh-import.php';
 
 function fiqhAdminReady(PDO $db): bool
 {
@@ -86,6 +87,14 @@ function fiqhAdminChange(PDO $db, array $user, string $action): string
         throw new InvalidArgumentException('Fiqh staging is unavailable or access denied');
     }
     $actor = 'user:' . (int) $user['id'];
+    if ($action === 'fiqh_import_commit') {
+        if (field('fiqh_confirm') !== 'yes') throw new InvalidArgumentException('Confirm the preview first');
+        $payload=fiqhAdminJson(field('import_payload'));
+        $token=field('import_confirmation');
+        if ($token==='') throw new InvalidArgumentException('Preview token required');
+        $result=fiqhImportRun($db,$payload,$actor,$token);
+        return 'حُفظت الدفعة في المسودات فقط: ' . count($result['results']);
+    }
     if ($action === 'fiqh_draft_save') {
         $body = fiqhAdminIssueFromPost($_POST);
         $result = fiqhSaveDraft($db, $body, integer(field('fiqh_revision'), 0, PHP_INT_MAX), $actor);
@@ -180,4 +189,14 @@ function fiqhGetRevision(PDO $db, string $id, int $revision): ?array
     $stmt->execute([$id, $revision]);
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
     return $row === false ? null : $row;
+}
+
+function fiqhAdminImportPreview(PDO $db,array $user,string $raw,string $format):array
+{
+    if (!fiqhAdminReady($db) || !in_array($user['role'] ?? '', ['owner','editor','reviewer'],true))
+        throw new InvalidArgumentException('Fiqh staging is unavailable or access denied');
+    if (!in_array($format,['json','csv'],true)) throw new InvalidArgumentException('Invalid format');
+    if (strlen($raw)>524288) throw new InvalidArgumentException('Maximum admin input: 512 KiB');
+    $payload=$format==='csv'?fiqhParseMetadataCsv($raw):fiqhAdminJson($raw);
+    return ['payload'=>$payload,'result'=>fiqhImportRun($db,$payload,'user:'.(int)$user['id'])];
 }

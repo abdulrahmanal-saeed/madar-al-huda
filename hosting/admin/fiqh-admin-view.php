@@ -37,6 +37,33 @@ $previous = $selected !== null && $comparison !== false ? fiqhGetRevision($db, $
   <?php endforeach; ?>
   <?php if (!$reviewReady): ?><p>يلزم ترحيل المراجعة (3 و4) على نسخة اختبارية أولًا.</p><?php endif; ?>
 </section>
+<section class="panel" id="fiqh-import">
+  <h2>الاستيراد والتصدير</h2>
+  <p>دفعة من 1 إلى 50 مسألة. JSON يدعم الإنشاء والتحديث بالإصدار المحدد؛ CSV ينشئ بيانات أساسية فقط ولا يستبدل مسألة موجودة. لا اعتماد أو نشر.</p>
+  <p><a href="<?= e($fiqhLink(['fiqh_export'=>'json','offset'=>($fiqhPage-1)*50])) ?>">تنزيل JSON (صفحة <?= e($fiqhPage) ?> من جميع المسودات)</a>
+   · <a href="<?= e($fiqhLink(['fiqh_export'=>'csv','offset'=>($fiqhPage-1)*50])) ?>">تنزيل CSV للبيانات الأساسية</a></p>
+  <form method="post" action="<?= e($fiqhLink([])) ?>#fiqh-import">
+    <?php controls('fiqh_import_preview'); ?>
+    <label>الصيغة<select name="import_format"><option value="json">JSON</option><option value="csv">CSV</option></select></label>
+    <label>المحتوى<textarea name="import_payload" dir="ltr" rows="10" required><?= e(is_string($_POST['import_payload'] ?? null) ? $_POST['import_payload'] : '') ?></textarea></label>
+    <p dir="ltr"><code>id,number,slug,categoryId,title_ar,title_en</code></p>
+    <button class="primary">معاينة دون حفظ</button>
+  </form>
+  <?php if ($fiqhImportPreview !== null): ?>
+    <h3>نتيجة المعاينة — لم تُحفظ الدفعة</h3>
+    <?php foreach ($fiqhImportPreview['result']['results'] as $result): ?>
+      <p><bdi><?= e($result['id']) ?> · v<?= e($result['revision']) ?></bdi> · <?= $result['changed'] ? 'تغيير' : 'دون تغيير' ?> · <?= count($result['completenessErrors']) ?> حقل ناقص</p>
+    <?php endforeach; ?>
+    <details><summary>عرض المحتوى الذي سيُحفظ</summary><pre dir="auto"><?= e($pretty($fiqhImportPreview['payload'])) ?></pre></details>
+    <form method="post" action="<?= e($fiqhLink([])) ?>#fiqh-import">
+      <?php controls('fiqh_import_commit'); ?>
+      <input type="hidden" name="import_confirmation" value="<?= e($fiqhImportPreview['result']['confirmation']) ?>">
+      <textarea name="import_payload" hidden><?= e(fiqhJson($fiqhImportPreview['payload'])) ?></textarea>
+      <label><input type="checkbox" name="fiqh_confirm" value="yes" required> أؤكد حفظ هذه الدفعة في المسودات فقط.</label>
+      <button class="primary">حفظ الدفعة</button>
+    </form>
+  <?php endif; ?>
+</section>
 <section class="panel">
   <h2>الأقسام والمراجع</h2>
   <?php foreach (['category' => $categories, 'source' => $sources] as $kind => $records): ?>

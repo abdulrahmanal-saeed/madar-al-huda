@@ -82,3 +82,43 @@ function fiqhExportDrafts(PDO $db,int $limit=50,int $offset=0): array
         'operation'=>'update','expectedRevision'=>(int)$row['revision'],
         'issue'=>json_decode($row['body'],true,64,JSON_THROW_ON_ERROR)],$q->fetchAll(PDO::FETCH_ASSOC))];
 }
+
+/** CSV is metadata-only, create-only, exact header, UTF-8; never overwrite an existing full issue. */
+function fiqhParseMetadataCsv(string $raw): array
+{
+    if (strlen($raw)>524288||preg_match('//u',$raw)!==1) throw new InvalidArgumentException('Invalid UTF-8 CSV or size');
+    $stream=fopen('php://temp','r+');
+    if ($stream===false) throw new RuntimeException('CSV stream unavailable');
+    try {
+        fwrite($stream,preg_replace('/^\xEF\xBB\xBF/','',$raw)); rewind($stream);
+        $header=['id','number','slug','categoryId','title_ar','title_en'];
+        if (fgetcsv($stream,0,',','"','')!==$header) throw new InvalidArgumentException('Unexpected CSV header');
+        $rows=[];
+        while (($row=fgetcsv($stream,0,',','"',''))!==false) {
+            if ($row===[null]) continue;
+            if (count($row)!==count($header)||count($rows)>=50) throw new InvalidArgumentException('Invalid CSV row or batch size');
+            $data=array_combine($header,$row);
+            $rows[]=['operation'=>'create','expectedRevision'=>0,'issue'=>[
+                'id'=>$data['id'],'number'=>$data['number'],'slug'=>$data['slug'],'categoryId'=>$data['categoryId'],
+                'title'=>['ar'=>$data['title_ar'],'en'=>$data['title_en']]]];
+        }
+        $payload=['schemaVersion'=>1,'issues'=>$rows]; fiqhImportRows($payload); return $payload;
+    } finally { fclose($stream); }
+}
+
+function fiqhExportMetadataCsv(PDO $db,int $limit=50,int $offset=0): string
+{
+    $payload=fiqhExportDrafts($db,$limit,$offset);
+    $stream=fopen('php://temp','r+');
+    if ($stream===false) throw new RuntimeException('CSV stream unavailable');
+    // Spreadsheet formula protection: CSV is a reporting format, not lossless roundtrip.
+    $safe=static fn(string $value):string=>preg_match('/^[\s\x00-\x1f]*[=+@-]|^[\t\r\n]/u',$value) ? "'".$value : $value;
+    try {
+        fputcsv($stream,['id','number','slug','categoryId','title_ar','title_en'],',','"','');
+        foreach ($payload['issues'] as $row) {
+            $i=$row['issue'];
+            fputcsv($stream,array_map($safe,[$i['id'],$i['number'],$i['slug'],$i['categoryId'],$i['title']['ar'],$i['title']['en']]),',','"','');
+        }
+        rewind($stream); return (string)stream_get_contents($stream);
+    } finally { fclose($stream); }
+}

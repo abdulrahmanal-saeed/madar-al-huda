@@ -195,8 +195,27 @@ if (isset($_GET['report_image'])) {
 if ($user !== null && !canSee($user, $section)) {
     $section = 'daily';
 }
+if ($active && $user !== null && $section === 'fiqh_editor' && isset($_GET['fiqh_export'])) {
+    if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'GET' || !fiqhAdminReady($db)) {
+        http_response_code(404); exit;
+    }
+    $format=$_GET['fiqh_export'];
+    $offset=filter_var($_GET['offset'] ?? 0,FILTER_VALIDATE_INT,['options'=>['min_range'=>0]]);
+    if (!in_array($format,['json','csv'],true)||$offset===false) { http_response_code(400); exit; }
+    if ($format==='json') {
+        header('Content-Type: application/json; charset=utf-8');
+        header('Content-Disposition: attachment; filename="fiqh-drafts.json"');
+        echo fiqhJson(fiqhExportDrafts($db,50,$offset));
+    } else {
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename="fiqh-metadata.csv"');
+        echo fiqhExportMetadataCsv($db,50,$offset);
+    }
+    exit;
+}
 $signedIn = null;
 $error = null;
+$fiqhImportPreview = null;
 $confirming = null;
 $publishedNewsId = null;
 const CONFIRMATIONS = [
@@ -252,8 +271,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif (!allowedAction($user, $action, $section)) {
             http_response_code(403);
             throw new InvalidArgumentException('صلاحيات حسابك لا تسمح بهذا الإجراء. اطلبه من المالك.');
-        } elseif (($section === 'fiqh_editor' && !in_array($action, ['fiqh_draft_save', 'fiqh_metadata_save', 'fiqh_review_action', 'fiqh_archive', 'fiqh_reviewer_profile', 'fiqh_publisher_grant', 'logout'], true))
-            || ($section !== 'fiqh_editor' && in_array($action, ['fiqh_draft_save', 'fiqh_metadata_save', 'fiqh_review_action', 'fiqh_archive', 'fiqh_reviewer_profile', 'fiqh_publisher_grant'], true))) {
+        } elseif (($section === 'fiqh_editor' && !in_array($action, ['fiqh_draft_save', 'fiqh_metadata_save', 'fiqh_review_action', 'fiqh_archive', 'fiqh_reviewer_profile', 'fiqh_publisher_grant', 'fiqh_import_preview', 'fiqh_import_commit', 'logout'], true))
+            || ($section !== 'fiqh_editor' && in_array($action, ['fiqh_draft_save', 'fiqh_metadata_save', 'fiqh_review_action', 'fiqh_archive', 'fiqh_reviewer_profile', 'fiqh_publisher_grant', 'fiqh_import_preview', 'fiqh_import_commit'], true))) {
             throw new InvalidArgumentException('Invalid fiqh editor action');
         } elseif (isset(CONFIRMATIONS[$action]) && field('confirmed') !== 'yes') {
             // Irreversible actions show a confirmation page first; the CSP
@@ -268,7 +287,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif ($action === 'logout') {
             $_SESSION = [];
             session_destroy();
-        } elseif (in_array($action, ['fiqh_draft_save', 'fiqh_metadata_save', 'fiqh_review_action', 'fiqh_archive', 'fiqh_reviewer_profile', 'fiqh_publisher_grant'], true)) {
+        } elseif ($action === 'fiqh_import_preview') {
+            $fiqhImportPreview = fiqhAdminImportPreview($db,$user,field('import_payload'),field('import_format'));
+        } elseif (in_array($action, ['fiqh_draft_save', 'fiqh_metadata_save', 'fiqh_review_action', 'fiqh_archive', 'fiqh_reviewer_profile', 'fiqh_publisher_grant', 'fiqh_import_commit'], true)) {
             $_SESSION['notice'] = fiqhAdminChange($db, $user, $action);
         } elseif (in_array($action, ['save', 'delete', 'publish', 'restore', 'review_approve'], true)) {
             $seed = require __DIR__ . '/seed.php';
@@ -379,7 +400,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $who = $signedIn['username'] ?? $user['username'] ?? '?';
             audit($db, $who, $action, $section, auditDetail($action));
         }
-        if ($confirming === null && wantsJson()) {
+        if ($confirming === null && wantsJson() && $fiqhImportPreview === null) {
             header('Content-Type: application/json; charset=utf-8');
             $response = ['ok' => true, 'message' => $_SESSION['notice'] ?? ''];
             if ($action === 'save' && $section === 'library_sections') {
@@ -389,7 +410,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             unset($_SESSION['notice']);
             exit;
         }
-        if ($confirming === null) {
+        if ($confirming === null && $fiqhImportPreview === null) {
             $keepDua = $section === 'daily_duas' && $action !== 'delete' && ($_GET['edit'] ?? '') !== 'new';
             $keep = ($section === 'library_sections' || $keepDua) && is_string($_GET['edit'] ?? null)
                 ? $_GET['edit'] : '';
