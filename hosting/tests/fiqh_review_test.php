@@ -1,0 +1,50 @@
+<?php
+declare(strict_types=1);
+require __DIR__ . '/../admin/fiqh-review.php';
+function frCheck(bool $condition, string $message): void { if (!$condition) throw new RuntimeException($message); }
+function frReject(callable $work): void { try { $work(); } catch (Exception) { return; } throw new RuntimeException('Expected rejection'); }
+$db = new PDO('sqlite::memory:', null, null, [PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
+$db->exec('CREATE TABLE users (id INTEGER PRIMARY KEY, username TEXT, role TEXT, disabled INTEGER)');
+$db->exec("INSERT INTO users VALUES (1,'synthetic-owner','owner',0),(2,'synthetic-editor','editor',0),(3,'synthetic-reviewer','reviewer',0),(4,'synthetic-publisher','editor',0)");
+$seed=json_decode(file_get_contents(__DIR__.'/../../docs/content/fiqh/seed.json'),true,64,JSON_THROW_ON_ERROR);
+fiqhMigration($db,$seed); fiqhMetadataMigration($db); fiqhReviewMigration($db); fiqhReviewMigration($db);
+$bi=['ar'=>'اختبار اصطناعي فقط','en'=>'Synthetic test only'];
+$source=['id'=>'test-source','title'=>$bi,'author'=>$bi,'sourceType'=>'book','edition'=>'synthetic','publisher'=>'synthetic','license'=>'test only','status'=>'draft'];
+fiqhSaveMetadata($db,'source',$source,null,'user:2');
+$issue=['id'=>'synthetic','number'=>'FIQH-999','slug'=>'synthetic','categoryId'=>'taharah','title'=>$bi];
+fiqhSaveDraft($db,$issue,0,'user:2');
+frReject(fn()=>fiqhReviewTransition($db,2,'synthetic',1,'submit'));
+frReject(fn()=>fiqhSetReviewerProfile($db,2,3,'Synthetic','Test only',true));
+fiqhSetReviewerProfile($db,1,3,'Synthetic reviewer','Synthetic qualification fixture',true);
+fiqhSetPublisherGrant($db,1,4,true);
+foreach(['summary','introduction','scope','scholarlySummary'] as $key) $issue[$key]=$bi;
+$issue['evidence']=[['id'=>'e1','type'=>'other','text'=>$bi,'explanation'=>$bi,'reference'=>$bi,'sourceIds'=>['test-source']]];
+foreach(FIQH_SCHOOLS as $school) $issue['positions'][$school]=['ruling'=>$bi,'explanation'=>$bi,'reasoning'=>$bi,
+    'sourceReferences'=>[['sourceId'=>'test-source','locator'=>$bi]],'evidenceIds'=>['e1']];
+foreach(['agreements','disagreements','reasonsForDifferences'] as $key) $issue[$key]=['applicable'=>true,'entries'=>[$bi]];
+fiqhSaveDraft($db,$issue,1,'user:2');
+frCheck(fiqhReviewErrors(fiqhLatestRevision($db,'synthetic'))===[],'complete synthetic fixture');
+frReject(fn()=>fiqhReviewTransition($db,1,'synthetic',2,'approve','test'));
+frReject(fn()=>fiqhReviewTransition($db,4,'synthetic',2,'publish'));
+fiqhReviewTransition($db,2,'synthetic',2,'submit');
+frReject(fn()=>fiqhReviewTransition($db,1,'synthetic',2,'start'));
+fiqhReviewTransition($db,3,'synthetic',2,'start');
+frReject(fn()=>fiqhReviewTransition($db,3,'synthetic',2,'approve'));
+fiqhReviewTransition($db,3,'synthetic',2,'request_changes','test','synthetic correction');
+fiqhReviewTransition($db,2,'synthetic',2,'submit');
+fiqhReviewTransition($db,3,'synthetic',2,'start');
+$approved=fiqhReviewTransition($db,3,'synthetic',2,'approve','synthetic approval');
+frReject(fn()=>fiqhReviewTransition($db,1,'synthetic',2,'publish'));
+frReject(fn()=>fiqhReviewTransition($db,0,'synthetic',2,'publish'));
+fiqhReviewTransition($db,4,'synthetic',2,'publish');
+frCheck((int)fiqhPublishedRevision($db,'synthetic')['revision']===2,'approved pointer');
+$issue['summary']['en']='New synthetic revision';
+fiqhSaveDraft($db,$issue,2,'user:2');
+frCheck(fiqhReviewCurrent($db,'synthetic',3)===null,'new revision not approved');
+frCheck((int)fiqhPublishedRevision($db,'synthetic')['revision']===2,'old publication retained');
+frReject(fn()=>fiqhReviewTransition($db,4,'synthetic',2,'publish'));
+frReject(fn()=>fiqhReviewTransition($db,4,'synthetic',3,'publish'));
+frReject(fn()=>$db->exec('UPDATE fiqh_published SET revision=3'));
+frReject(fn()=>$db->exec('DELETE FROM fiqh_review_events'));
+frCheck($db->query('PRAGMA foreign_key_check')->fetchAll()===[],'foreign keys');
+echo "Fiqh review checks passed\n";
