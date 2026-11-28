@@ -3,6 +3,45 @@
 // post normally.
 'use strict';
 
+const menu = document.querySelector('.menu-toggle');
+const sidebar = document.querySelector('#admin-sidebar');
+if (menu && sidebar) {
+  const setMenuOpen = (open) => {
+    sidebar.toggleAttribute('data-collapsed', !open);
+    menu.setAttribute('aria-expanded', String(open));
+  };
+  setMenuOpen(false);
+  menu.hidden = false;
+  menu.addEventListener('click', () => setMenuOpen(menu.getAttribute('aria-expanded') !== 'true'));
+  sidebar.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && menu.getAttribute('aria-expanded') === 'true' && menu.getClientRects().length) {
+      setMenuOpen(false);
+      menu.focus();
+    }
+  });
+}
+
+const contentItems = document.querySelector('[data-content-items]');
+const entryFilter = contentItems?.querySelector('[data-entry-filter]');
+if (entryFilter) {
+  const normalizeTitle = (value) => value.toLowerCase()
+    .replace(/[\u0610-\u061a\u0640\u064b-\u065f\u0670]/g, '')
+    .replace(/[أإآٱ]/g, 'ا').trim();
+  const entries = [...contentItems.querySelectorAll('.entry')]
+    .map((link) => ({ link, title: normalizeTitle(link.textContent) }));
+  const empty = contentItems.querySelector('[data-entry-empty]');
+  entryFilter.closest('label').hidden = false;
+  entryFilter.addEventListener('input', () => {
+    const query = normalizeTitle(entryFilter.value);
+    let found = false;
+    for (const { link, title } of entries) {
+      link.hidden = !title.includes(query);
+      found ||= !link.hidden;
+    }
+    empty.hidden = found;
+  });
+}
+
 for (const form of document.querySelectorAll('[data-dua-drive]')) {
   form.addEventListener('submit', () => {
     form.querySelector('[data-dua-drive-button]').disabled = true;

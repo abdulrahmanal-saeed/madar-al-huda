@@ -6,8 +6,19 @@ on:
     paths:
       - 'hosting/admin/**'
       - 'hosting/prepare_admin.py'
+      - 'hosting/prepare_site.py'
+      - 'hosting/web/index.html'
+      - 'hosting/web/madar-web/**'
       - 'hosting/web/privacy/**'
       - 'hosting/web/.well-known/assetlinks.json'
+      - 'apps/mobile/assets/brand/logo-dark.png'
+      - 'apps/mobile/assets/brand/book-dark.png'
+      - 'apps/mobile/assets/brand/shortcuts/qa_1_book_light.png'
+      - 'apps/mobile/assets/brand/shortcuts/qa_2_compass_light.png'
+      - 'apps/mobile/assets/brand/shortcuts/qa_5_sun_light.png'
+      - 'apps/mobile/assets/brand/shortcuts/qa_7_story_light.png'
+      - 'apps/mobile/assets/fonts/ibm_plex_sans_arabic/**'
+      - 'apps/mobile/assets/fonts/reem_kufi/**'
       - '.github/workflows/hostinger-admin-deploy.yml'
   workflow_dispatch:
 
@@ -40,6 +51,8 @@ jobs:
           done
           php hosting/tests/apk_signature_test.php
           php -l hosting/web/privacy/index.php
+          python3 hosting/prepare_site.py "$RUNNER_TEMP/madar-web"
+          tar -czf "$RUNNER_TEMP/madar-web.tar.gz" -C "$RUNNER_TEMP/madar-web" .
           cp hosting/web/privacy/index.php "$RUNNER_TEMP/privacy-index.php"
           python3 -m json.tool hosting/web/.well-known/assetlinks.json > "$RUNNER_TEMP/assetlinks.json"
           tar -czf "$RUNNER_TEMP/madar-admin.tar.gz" -C "$RUNNER_TEMP/madar-admin" .
@@ -77,6 +90,7 @@ jobs:
           }
           trap cleanup EXIT
           scp "${opts[@]}" -P 65002 "$RUNNER_TEMP/madar-admin.tar.gz" "$target:$stage/update.tar.gz"
+          scp "${opts[@]}" -P 65002 "$RUNNER_TEMP/madar-web.tar.gz" "$target:$stage/web.tar.gz"
           scp "${opts[@]}" -P 65002 "$RUNNER_TEMP/privacy-index.php" "$target:$stage/privacy-index.php"
           scp "${opts[@]}" -P 65002 "$RUNNER_TEMP/assetlinks.json" "$target:$stage/assetlinks.json"
           ssh "${opts[@]}" -p 65002 "$target" bash -s -- "$stage" <<'REMOTE'
@@ -84,11 +98,16 @@ jobs:
           umask 077
           stage="$1"
           root="$HOME/domains/quran.abdulrahmanalsaeed.com"
+          public="$root/public_html"
           admin="$root/public_html/admin"
           private="$root/.madar-admin"
           privacy="$root/public_html/privacy"
           links_dir="$root/public_html/.well-known"
           links="$links_dir/assetlinks.json"
+          web_assets="$public/madar-web"
+          [[ ! -L "$web_assets" && ! -L "$public/index.html" ]]
+          if [[ -e "$web_assets" ]]; then test -d "$web_assets"; fi
+          if [[ -e "$public/index.html" ]]; then test -f "$public/index.html"; fi
           test ! -L "$links_dir" && test ! -L "$links"
           if [[ -e "$links_dir" ]]; then test -d "$links_dir"; fi
           if [[ -e "$links" ]]; then test -f "$links"; fi
@@ -102,7 +121,10 @@ jobs:
           test ! -L "$admin" && test ! -L "$private"
           mkdir "$stage/code"
           tar -xzf "$stage/update.tar.gz" -C "$stage/code"
+          mkdir "$stage/web"
+          tar -xzf "$stage/web.tar.gz" -C "$stage/web"
           test -f "$stage/code/index.php" && test -f "$stage/code/.htaccess"
+          [[ -f "$stage/web/index.html" && -f "$stage/web/madar-web/landing.css" ]]
           shopt -s dotglob nullglob
           files=()
           for source in "$stage/code/"*; do
@@ -116,19 +138,34 @@ jobs:
             if [[ "$name" != index.php ]]; then files+=("$name"); fi
           done
           files+=(index.php)
+          web_files=()
+          for source in "$stage/web/madar-web/"*; do
+            name=${source##*/}
+            [[ "$name" =~ ^[a-zA-Z0-9_-]+\.(css|png|ttf|txt)$ ]]
+            [[ -f "$source" && ! -L "$source" && ! -L "$web_assets/$name" ]]
+            if [[ -e "$web_assets/$name" ]]; then test -f "$web_assets/$name"; fi
+            web_files+=("madar-web/$name")
+          done
+          web_files+=(index.html)
 
           mkdir -p "$private/backups"
           backup=$(mktemp -d "$private/backups/admin-ci.XXXXXX")
           mkdir "$backup/code"
+          mkdir -p "$backup/web/madar-web"
           for name in "${files[@]}"; do
             if [[ -f "$admin/$name" ]]; then cp -p "$admin/$name" "$backup/code/$name"; fi
           done
           if [[ -f "$privacy/index.php" ]]; then cp -p "$privacy/index.php" "$backup/privacy-index.php"; fi
           if [[ -f "$links" ]]; then cp -p "$links" "$backup/assetlinks.json"; fi
+          for name in "${web_files[@]}"; do
+            if [[ -f "$public/$name" ]]; then cp -p "$public/$name" "$backup/web/$name"; fi
+          done
           # SQLite online snapshot; no direct copy of a live database.
           php -r '$db = new PDO("sqlite:" . $argv[1]); $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); $db->exec("PRAGMA busy_timeout=5000"); $db->exec("VACUUM INTO " . $db->quote($argv[2]));' "$private/library.sqlite3" "$backup/library.sqlite3"
           echo "Private backup created."
           changed=()
+          web_changed=()
+          web_assets_created=0
           privacy_changed=0
           privacy_created=0
           links_changed=0
@@ -147,6 +184,15 @@ jobs:
                   rm -f "$admin/$name" || failed=1
                 fi
               done
+              for (( i=${#web_changed[@]}-1; i>=0; i-- )); do
+                name=${web_changed[i]}
+                if [[ -f "$backup/web/$name" ]]; then
+                  cp -p "$backup/web/$name" "$stage/restore" && mv -f "$stage/restore" "$public/$name" || failed=1
+                else
+                  rm -f "$public/$name" || failed=1
+                fi
+              done
+              if (( web_assets_created )); then rmdir "$web_assets" || failed=1; fi
               if (( privacy_changed )); then
                 if [[ -f "$backup/privacy-index.php" ]]; then
                   cp -p "$backup/privacy-index.php" "$stage/restore" && mv -f "$stage/restore" "$privacy/index.php" || failed=1
@@ -169,6 +215,15 @@ jobs:
             exit "$rc"
           }
           trap rollback EXIT
+          if [[ ! -d "$web_assets" ]]; then
+            mkdir -m 755 "$web_assets"
+            web_assets_created=1
+          fi
+          for name in "${web_files[@]}"; do
+            web_changed+=("$name")
+            install -m 644 "$stage/web/$name" "$stage/next"
+            mv -f "$stage/next" "$public/$name"
+          done
           for name in "${files[@]}"; do
             changed+=("$name")
             install -m 644 "$stage/code/$name" "$stage/next"
@@ -212,6 +267,14 @@ jobs:
           check 'release-view.php' 403
           check 'privacy.css' 200
           check 'privacy.js' 200
+          site=https://quran.abdulrahmanalsaeed.com
+          curl -fsS --max-time 20 --retry 2 "$site/?check=landing" -o "$stage/landing-live.html"
+          grep -Fq 'id="hero-title"' "$stage/landing-live.html"
+          for name in brand.css landing.css mark.png mushaf.png; do
+            curl -fsS --max-time 20 --retry 2 "$site/madar-web/$name" -o "$stage/web-live"
+            cmp "$stage/web/madar-web/$name" "$stage/web-live"
+          done
+          echo 'Public landing page and brand assets health check passed.'
           privacy_url=https://quran.abdulrahmanalsaeed.com/privacy
           status=$(curl -fsSL --max-time 20 -o "$stage/privacy.html" -w '%{http_code}' "$privacy_url")
           test "$status" = 200

@@ -9,6 +9,8 @@ it runs on shared hosting without a build step.
 ```
 domains/quran.abdulrahmanalsaeed.com/
 ├── public_html/
+│   ├── index.html             ← public landing page
+│   ├── madar-web/             ← site style, app brand artwork and web fonts
 │   ├── admin/                 ← hosting/admin/*.php, dashboard.css, .htaccess
 │   │   └── seed.php           ← generated once at setup, kept on updates
 │   └── Prophet Stories/       ← story recordings + catalog.php
@@ -42,6 +44,12 @@ The app caps the library feed at 4 MB. The dashboard shows the draft size, warns
 Delete, restore, story archive, release publish and update notifications all ask for confirmation first.
 
 ## Deploying an update
+
+The Hostinger workflow deploys the public landing page and admin together.
+To stage a local copy, run `python hosting/prepare_site.py /tmp/madar-web`
+and place the prepared `admin` directory alongside `index.html`.
+The public page reuses the app’s brand assets and links to the current dev
+download, so publishing an APK does not require an edit to the page.
 
 From a checkout of `main`:
 

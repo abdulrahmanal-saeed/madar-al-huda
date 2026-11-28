@@ -66,7 +66,7 @@ try {
 }
 
 header('Cache-Control: no-store');
-header("Content-Security-Policy: default-src 'none'; style-src 'self'; script-src 'self'; img-src 'self'; connect-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'");
+header("Content-Security-Policy: default-src 'none'; style-src 'self'; script-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'");
 header('Strict-Transport-Security: max-age=31536000');
 // Sessions live in the private storage folder with the same lifetime as a
 // sign-in, so shared-hosting cleanup cannot end them early and an open login
@@ -441,13 +441,15 @@ if ($active) {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
   <title>إدارة المكتبة · مدار الهدى</title>
+  <link rel="icon" href="/madar-web/mark.png" type="image/png">
+  <link rel="stylesheet" href="/madar-web/brand.css">
   <link rel="stylesheet" href="dashboard.css?v=<?= e((string) @filemtime(__DIR__ . '/dashboard.css')) ?>">
 </head>
 <body>
 <?php if (!$active): ?>
 <main class="auth-wrap">
   <section class="panel auth">
-    <p class="brand">مدار الهدى</p>
+    <a class="brand" href="/"><img src="/madar-web/mark.png" width="44" height="44" alt="">مدار الهدى</a>
     <h1><?= $setup ? 'إعداد لوحة الإدارة' : 'الدخول إلى لوحة الإدارة' ?></h1>
     <?php if ($error): ?><p class="alert error" role="alert"><?= e($error) ?></p><?php endif; ?>
     <form method="post">
@@ -470,21 +472,59 @@ if ($active) {
   </section>
 </main>
 <?php else: ?>
+<a class="skip-link" href="#admin-content">انتقل إلى المحتوى</a>
 <header class="top">
-  <div><p class="brand">مدار الهدى</p><p>إدارة المكتبة · <bdi><?= e($user['username']) ?></bdi> (<?= e(ROLES[$user['role']] ?? $user['role']) ?>)</p></div>
-  <form method="post"><?php controls('logout'); ?><button class="quiet">خروج</button></form>
+  <div class="top-inner">
+    <div class="top-identity">
+      <img src="/madar-web/mark.png" width="44" height="44" alt="">
+      <div>
+        <strong class="brand">مدار الهدى</strong>
+        <p><bdi><?= e($user['username']) ?></bdi> · <?= e(ROLES[$user['role']] ?? $user['role']) ?></p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button class="quiet menu-toggle" type="button" aria-expanded="false" aria-controls="admin-sidebar" hidden>
+        <span class="menu-glyph" aria-hidden="true"></span>الأقسام
+      </button>
+      <a class="site-link" href="/">الموقع</a>
+      <form method="post"><?php controls('logout'); ?><button class="quiet">خروج</button></form>
+    </div>
+  </div>
 </header>
 <div class="layout">
-  <nav aria-label="أقسام الإدارة">
-    <?php foreach ($sections as $key => $name): ?>
-      <?php if (!canSee($user, $key)) continue; ?>
-      <a href="<?= e(route($key)) ?>" <?= $section === $key ? 'aria-current="page"' : '' ?>><?= e($name) ?><?php if ($key === 'chatgpt' && agentPendingCount($db) > 0): ?> <span class="badge warn">طلب نشر</span><?php endif; ?></a>
+  <nav class="sidebar" id="admin-sidebar" aria-label="أقسام الإدارة">
+    <?php
+      $navigation = [
+          'الأذكار والأدعية' => ['daily', 'daily_duas', 'merits', 'hisn', 'duas', 'adhkar_groups'],
+          'المكتبة' => ['stories', 'story_titles', 'fiqh', 'articles', 'lessons', 'names', 'reciters'],
+          'التطبيق والنشر' => ['appearance', 'library_sections', 'app_settings', 'releases', 'history'],
+          'الإدارة' => ['reports', 'chatgpt', 'users', 'audit', 'account'],
+      ];
+    ?>
+    <?php foreach ($navigation as $label => $keys): ?>
+      <?php $visible = array_filter($keys, static fn (string $key): bool => canSee($user, $key)); ?>
+      <?php if (!$visible) continue; ?>
+      <div class="nav-group">
+        <p><?= e($label) ?></p>
+        <ul>
+          <?php foreach ($visible as $key): ?>
+            <li><a href="<?= e(route($key)) ?>" <?= $section === $key ? 'aria-current="page"' : '' ?>>
+              <?= e($sections[$key]) ?><?php if ($key === 'chatgpt' && agentPendingCount($db) > 0): ?> <span class="badge warn">طلب نشر</span><?php endif; ?>
+            </a></li>
+          <?php endforeach; ?>
+        </ul>
+      </div>
     <?php endforeach; ?>
   </nav>
-  <main>
+  <main id="admin-content" tabindex="-1">
     <header class="section-head">
       <div><h1><?= e($sections[$section]) ?></h1>
-        <?php if (!in_array($section, ['stories', 'releases', 'reports', 'chatgpt'], true)): ?><p><?= $dirty ? 'تغييرات في المسودة' : 'المكتبة محدثة' ?> · الحجم <?= e(feedSizeLabel(strlen($state['draft']))) ?></p><?php endif; ?>
+        <?php if (!in_array($section, ['stories', 'releases', 'reports', 'chatgpt'], true)): ?>
+          <div class="section-meta">
+            <span class="badge <?= $dirty ? 'warn' : 'published' ?>"><?= $dirty ? 'مسودة غير منشورة' : 'المكتبة محدثة' ?></span>
+            <span>حجم المسودة <?= e(feedSizeLabel(strlen($state['draft']))) ?></span>
+          </div>
+        <?php endif; ?>
       </div>
       <?php if ($dirty && !in_array($section, ['stories', 'releases', 'reports', 'chatgpt'], true)): ?>
         <?php if (allowedAction($user, 'publish', $section)): ?>
@@ -676,21 +716,32 @@ if ($active) {
           </ol>
         <?php endif; ?>
       </details>
-      <div class="editor-grid">
-        <section class="panel">
-          <div class="row head"><h2>العناصر</h2><a class="button quiet" href="<?= e(route($section, $topic, 'new')) ?>">إضافة</a></div>
+      <div class="editor-grid content-grid<?= $current !== null || $edit === 'new' ? ' has-editor' : '' ?>">
+        <section class="panel" id="content-items" data-content-items tabindex="-1">
+          <div class="row head"><h2>العناصر <span class="item-count"><?= e(arabicDigits((string) count($rows))) ?></span></h2><a class="button quiet" href="<?= e(route($section, $topic, 'new')) ?>#entry-editor">إضافة عنصر</a></div>
           <?php if ($rows === []): ?><p>لا توجد عناصر في هذا القسم.</p><?php endif; ?>
+          <?php if (count($rows) > 5): ?>
+            <label class="entry-filter" hidden>البحث في العناصر
+              <input type="search" data-entry-filter autocomplete="off" placeholder="ابحث بالعنوان">
+            </label>
+            <p data-entry-empty role="status" hidden>لا توجد عناصر تطابق البحث.</p>
+          <?php endif; ?>
+          <div class="entry-list">
           <?php foreach ($rows as $index => $row): ?>
           <?php $key = $row['id'] ?? (string) $index; ?>
-          <a class="entry" href="<?= e(route($section, $topic, $key)) ?>" <?= $key === $edit ? 'aria-current="true"' : '' ?>>
+          <a class="entry" href="<?= e(route($section, $topic, $key)) ?>#entry-editor" <?= $key === $edit ? 'aria-current="true"' : '' ?>>
             <strong><?= $section === 'duas' ? e(verseRangeLabel($row)) : e($row['title']['ar']) ?></strong>
             <?php if ($section !== 'duas'): ?><span lang="en" dir="ltr"><?= e($row['title']['en']) ?></span><?php endif; ?>
           </a>
           <?php endforeach; ?>
+          </div>
         </section>
         <?php if ($current !== null || $edit === 'new'): ?>
-        <section class="panel">
-          <h2><?= $current !== null ? 'تعديل العنصر' : 'إضافة عنصر' ?></h2>
+        <section class="panel" id="entry-editor" tabindex="-1">
+          <div class="row head">
+            <h2><?= $current !== null ? 'تعديل العنصر' : 'إضافة عنصر' ?></h2>
+            <a class="text-link" href="#content-items">العناصر</a>
+          </div>
           <form method="post" enctype="multipart/form-data">
             <?php controls('save', $revision); ?>
             <input type="hidden" name="original" value="<?= $current !== null ? e($edit) : '' ?>">
