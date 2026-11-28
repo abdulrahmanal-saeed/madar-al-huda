@@ -109,3 +109,40 @@ function fiqhAdminStats(PDO $db): array
     $total = (int) $db->query('SELECT COUNT(*) FROM fiqh_issues')->fetchColumn();
     return ['planned' => $planned, 'created' => $total, 'draft' => $total, 'published' => 0];
 }
+
+/** Preserve raw submitted strings, including invalid JSON, without changing the edit lease. */
+function fiqhEditorValue(array $posted, string $key, string|int $fallback = ''): string
+{
+    return is_string($posted[$key] ?? null) ? $posted[$key] : (string) $fallback;
+}
+
+/** Field-level changes across immutable revision bodies and source snapshots. */
+function fiqhRevisionDiff(mixed $before, mixed $after, string $path = ''): array
+{
+    if ($before === $after) return [];
+    if (is_array($before) && is_array($after) && !array_is_list($before) && !array_is_list($after)) {
+        $changes = [];
+        $keys = array_unique(array_merge(array_keys($before), array_keys($after)));
+        sort($keys, SORT_STRING);
+        foreach ($keys as $key) {
+            $child = $path === '' ? (string) $key : $path . '.' . $key;
+            if (!array_key_exists($key, $before) || !array_key_exists($key, $after)) {
+                $changes[] = ['path' => $child, 'before' => $before[$key] ?? null, 'after' => $after[$key] ?? null,
+                    'kind' => array_key_exists($key, $before) ? 'removed' : 'added'];
+            } else {
+                $changes = array_merge($changes, fiqhRevisionDiff($before[$key], $after[$key], $child));
+            }
+        }
+        return $changes;
+    }
+    return [['path' => $path, 'before' => $before, 'after' => $after, 'kind' => 'changed']];
+}
+
+function fiqhGetRevision(PDO $db, string $id, int $revision): ?array
+{
+    if (!fiqhStableId($id) || $revision < 1) return null;
+    $stmt = $db->prepare('SELECT * FROM fiqh_revisions WHERE issue_id = ? AND revision = ?');
+    $stmt->execute([$id, $revision]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $row === false ? null : $row;
+}

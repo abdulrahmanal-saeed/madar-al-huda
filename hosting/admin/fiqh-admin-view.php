@@ -19,8 +19,14 @@ $filter = is_string($_GET['category'] ?? null) && fiqhStableId($_GET['category']
 $issues = fiqhListDrafts($db, $filter, 50, ($fiqhPage - 1) * 50);
 $selected = is_string($_GET['issue'] ?? null) && fiqhStableId($_GET['issue']) ? fiqhLatestRevision($db, $_GET['issue']) : null;
 $issue = $selected === null ? [] : json_decode($selected['body'], true, 64, JSON_THROW_ON_ERROR);
-$pretty = static fn (array $value): string => json_encode($value, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+$pretty = static fn (mixed $value): string => json_encode($value, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 $fiqhLink = static fn (array $query): string => './?' . http_build_query(['section' => 'fiqh_editor'] + $query);
+$failedSave = $error !== null && ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST'
+    && ($_POST['action'] ?? '') === 'fiqh_draft_save';
+$posted = $failedSave ? $_POST : [];
+$fv = static fn (string $key, string|int $fallback = ''): string => fiqhEditorValue($posted, $key, $fallback);
+$comparison = filter_var($_GET['compare'] ?? '', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+$previous = $selected !== null && $comparison !== false ? fiqhGetRevision($db, $issue['id'], $comparison) : null;
 ?>
 <section class="panel">
   <h2>نظرة عامة</h2>
@@ -76,59 +82,89 @@ $fiqhLink = static fn (array $query): string => './?' . http_build_query(['secti
 <section class="panel" id="fiqh-issue">
   <h2><?= $selected === null ? 'مسألة جديدة' : 'تعديل مسودة المسألة' ?></h2>
   <?php if ($selected !== null): ?><p>الإصدار <?= e($selected['revision']) ?>. الحفظ ينشئ إصدارًا جديدًا عند تغير المحتوى.</p><?php endif; ?>
-  <form method="post" action="<?= e($fiqhLink($selected === null ? [] : ['issue'=>$issue['id']])) ?>">
-    <?php controls('fiqh_draft_save'); ?><input type="hidden" name="fiqh_revision" value="<?= e($selected['revision'] ?? 0) ?>">
+  <?php if ($failedSave): ?><p class="alert warn">لم يُحفظ التعديل. بقيت المدخلات ورقم الإصدار الأصلي في النموذج. إذا تغيّر الإصدار في نافذة أخرى، انسخ تعديلاتك ثم أعد فتح أحدث إصدار وقارنها قبل الحفظ.</p><?php endif; ?>
+  <form method="post" data-fiqh-editor action="<?= e($fiqhLink($selected === null ? [] : ['issue'=>$issue['id']])) ?>">
+    <?php controls('fiqh_draft_save'); ?><input type="hidden" name="fiqh_revision" value="<?= e($fv('fiqh_revision', $selected['revision'] ?? 0)) ?>">
     <details open><summary>1. المعلومات العامة / General</summary>
       <?php foreach (['id','number','slug'] as $key): ?>
-        <label><?= e($key) ?><input name="<?= e($key) ?>" dir="ltr" value="<?= e($issue[$key] ?? '') ?>" required <?= $selected !== null ? 'readonly' : '' ?>></label>
+        <label><?= e($key) ?><input name="<?= e($key) ?>" dir="ltr" value="<?= e($fv($key, $issue[$key] ?? '')) ?>" required <?= $selected !== null ? 'readonly' : '' ?>></label>
       <?php endforeach; ?>
       <?php foreach (['categoryId'=>'القسم الرئيسي','subcategoryId'=>'القسم الفرعي'] as $key=>$label): ?>
         <label><?= e($label) ?><select name="<?= e($key) ?>" <?= $key === 'categoryId' ? 'required' : '' ?>><option value="">اختر</option>
         <?php foreach ($categories as $entry): $cat=$entry['record']; ?>
-          <option value="<?= e($cat['id']) ?>" <?= ($issue[$key] ?? null) === $cat['id'] ? 'selected' : '' ?>><?= e($cat['title']['ar']) ?></option>
+          <option value="<?= e($cat['id']) ?>" <?= $fv($key, $issue[$key] ?? '') === $cat['id'] ? 'selected' : '' ?>><?= e($cat['title']['ar']) ?></option>
         <?php endforeach; ?></select></label>
       <?php endforeach; ?>
       <?php foreach (['title'=>'العنوان','summary'=>'الملخص','introduction'=>'المقدمة','scope'=>'نطاق المسألة','scholarlySummary'=>'الخلاصة العلمية'] as $key=>$label): ?>
         <?php foreach (['ar'=>'rtl','en'=>'ltr'] as $lang=>$dir): ?>
-          <label><?= e($label . ' (' . $lang . ')') ?><textarea name="<?= e($key . '_' . $lang) ?>" dir="<?= e($dir) ?>" rows="3" <?= $key==='title' ? 'required' : '' ?>><?= e($issue[$key][$lang] ?? '') ?></textarea></label>
+          <label><?= e($label . ' (' . $lang . ')') ?><textarea name="<?= e($key . '_' . $lang) ?>" dir="<?= e($dir) ?>" rows="3" <?= $key==='title' ? 'required' : '' ?>><?= e($fv($key . '_' . $lang, $issue[$key][$lang] ?? '')) ?></textarea></label>
         <?php endforeach; ?>
       <?php endforeach; ?>
       <?php foreach (['relatedCategoryIds','relatedIssueIds','keywords'] as $key): ?>
-        <label><?= e($key) ?> (JSON)<textarea name="<?= e($key) ?>" dir="ltr" rows="2"><?= e($pretty($issue[$key] ?? [])) ?></textarea></label>
+        <label><?= e($key) ?> (JSON)<textarea name="<?= e($key) ?>" dir="ltr" rows="2"><?= e($fv($key, $pretty($issue[$key] ?? []))) ?></textarea></label>
       <?php endforeach; ?>
-      <label>الترتيب<input type="number" min="0" name="displayOrder" value="<?= e($issue['displayOrder'] ?? 0) ?>"></label>
+      <label>الترتيب<input type="number" min="0" name="displayOrder" value="<?= e($fv('displayOrder', $issue['displayOrder'] ?? 0)) ?>"></label>
       <label>المستوى<select name="difficulty"><?php foreach (['','beginner','intermediate','advanced'] as $level): ?>
-        <option value="<?= e($level) ?>" <?= ($issue['difficulty'] ?? '') === $level ? 'selected' : '' ?>><?= e($level ?: 'غير محدد') ?></option>
+        <option value="<?= e($level) ?>" <?= $fv('difficulty', $issue['difficulty'] ?? '') === $level ? 'selected' : '' ?>><?= e($level ?: 'غير محدد') ?></option>
       <?php endforeach; ?></select></label>
     </details>
     <?php foreach (['hanafi'=>'الحنفي','maliki'=>'المالكي','shafii'=>'الشافعي','hanbali'=>'الحنبلي'] as $school=>$label): $position=$issue['positions'][$school] ?? []; ?>
       <details><summary><?= e($label) ?></summary>
         <?php foreach (['ruling'=>'القول','explanation'=>'الشرح','reasoning'=>'التعليل'] as $key=>$heading): ?>
           <?php foreach (['ar'=>'rtl','en'=>'ltr'] as $lang=>$dir): ?>
-            <label><?= e($heading . ' (' . $lang . ')') ?><textarea name="<?= e($school.'_'.$key.'_'.$lang) ?>" dir="<?= e($dir) ?>" rows="4"><?= e($position[$key][$lang] ?? '') ?></textarea></label>
+            <label><?= e($heading . ' (' . $lang . ')') ?><textarea name="<?= e($school.'_'.$key.'_'.$lang) ?>" dir="<?= e($dir) ?>" rows="4"><?= e($fv($school.'_'.$key.'_'.$lang, $position[$key][$lang] ?? '')) ?></textarea></label>
           <?php endforeach; ?>
         <?php endforeach; ?>
-        <label>الشروط والاستثناءات والأقوال الأخرى والمصادر والأدلة (JSON)<textarea name="<?= e($school.'_details') ?>" dir="ltr" rows="8"><?= e($pretty(array_diff_key($position, array_flip(['ruling','explanation','reasoning'])))) ?></textarea></label>
+        <label>الشروط والاستثناءات والأقوال الأخرى والمصادر والأدلة (JSON)<textarea name="<?= e($school.'_details') ?>" dir="ltr" rows="8"><?= e($fv($school.'_details', $pretty(array_diff_key($position, array_flip(['ruling','explanation','reasoning']))))) ?></textarea></label>
       </details>
     <?php endforeach; ?>
     <?php foreach (fiqhAdminSections() as $key=>$label): ?>
-      <details><summary><?= e($label) ?></summary><label>JSON<textarea name="<?= e($key) ?>" dir="ltr" rows="8"><?= e($pretty($issue[$key] ?? [])) ?></textarea></label></details>
+      <details><summary><?= e($label) ?></summary><label>JSON<textarea name="<?= e($key) ?>" dir="ltr" rows="8"><?= e($fv($key, $pretty($issue[$key] ?? []))) ?></textarea></label></details>
     <?php endforeach; ?>
-    <details><summary>المصادر المتاحة / Sources</summary><p>استخدم معرّفات المصادر في sourceReferences وsourceIds. بيانات الطبعة والصفحات تحتاج توثيقًا.</p>
+    <details><summary>المصادر المتاحة / Sources</summary>
+      <p>اختر المرجع والمذهب واكتب موضع الاستشهاد الموثق باللغتين. لا تُضاف أرقام أو بيانات طبعات تلقائيًا.</p>
+      <div data-fiqh-source-picker hidden>
+        <label>البحث عن مصدر<input type="search" data-fiqh-source-search></label>
+        <label>المصدر<select data-fiqh-source><option value="">اختر</option>
+        <?php foreach ($sources as $entry): $source = $entry['record']; ?>
+          <option value="<?= e($source['id']) ?>"><?= e($source['title']['ar'] . ' | ' . $source['title']['en'] . ' | ' . $source['id']) ?></option>
+        <?php endforeach; ?></select></label>
+        <label>المذهب<select data-fiqh-school><?php foreach (FIQH_SCHOOLS as $school): ?><option value="<?= e($school) ?>"><?= e($school) ?></option><?php endforeach; ?></select></label>
+        <label>موضع الاستشهاد بالعربية<input data-fiqh-locator-ar dir="rtl"></label>
+        <label>Reference locator in English<input data-fiqh-locator-en dir="ltr"></label>
+        <button type="button" data-fiqh-add-source>إضافة المرجع إلى المسودة</button>
+        <p role="status" data-fiqh-source-status></p>
+      </div>
       <?php foreach ($sources as $entry): ?><p><bdi><?= e($entry['record']['id']) ?></bdi> · <?= e($entry['record']['title']['ar']) ?></p><?php endforeach; ?>
     </details>
     <details><summary>المراجعة الشرعية / Review</summary><p>غير متاحة في هذه المرحلة.</p>
       <?php if ($selected !== null): foreach (fiqhCompletenessErrors($issue) as $missing): ?><p><bdi><?= e($missing) ?></bdi></p><?php endforeach; endif; ?>
     </details>
     <details><summary>معاينة المسودة / Preview</summary><p>معاينة بيانات الإصدار المحفوظ، وليست محاكاة Flutter.</p><pre dir="ltr"><?= e($pretty($issue)) ?></pre></details>
-    <details><summary>سجل الإصدارات / History</summary>
+    <details <?= $previous !== null ? 'open' : '' ?>><summary>سجل الإصدارات / History</summary>
       <?php if ($selected !== null):
         $history=$db->prepare('SELECT revision, created_at, actor FROM fiqh_revisions WHERE issue_id = ? ORDER BY revision DESC LIMIT 100');
         $history->execute([$issue['id']]);
         foreach ($history->fetchAll(PDO::FETCH_ASSOC) as $version): ?>
-          <p><bdi>v<?= e($version['revision']) ?> · <?= e($version['actor']) ?></bdi> · <?= e(publishedLabel((int)$version['created_at'])) ?></p>
+          <p><bdi>v<?= e($version['revision']) ?> · <?= e($version['actor']) ?></bdi> · <?= e(publishedLabel((int)$version['created_at'])) ?>
+          <a href="<?= e($fiqhLink(['issue'=>$issue['id'], 'compare'=>$version['revision']])) ?>#fiqh-issue">مقارنة بأحدث إصدار</a></p>
         <?php endforeach; endif; ?>
+      <?php if ($previous !== null):
+        $changes = fiqhRevisionDiff(
+            ['body'=>json_decode($previous['body'], true, 64, JSON_THROW_ON_ERROR), 'sources'=>json_decode($previous['source_snapshot'], true, 64, JSON_THROW_ON_ERROR)],
+            ['body'=>$issue, 'sources'=>json_decode($selected['source_snapshot'], true, 64, JSON_THROW_ON_ERROR)]
+        ); ?>
+        <h3>مقارنة v<?= e($previous['revision']) ?> مع v<?= e($selected['revision']) ?></h3>
+        <?php if (!$changes): ?><p>لا توجد تغييرات في البيانات.</p><?php endif; ?>
+        <?php foreach ($changes as $change): ?>
+          <details><summary><bdi><?= e($change['path'] . ' · ' . $change['kind']) ?></bdi></summary>
+            <h4>قبل</h4><pre dir="auto"><?= e($pretty($change['before'])) ?></pre>
+            <h4>بعد</h4><pre dir="auto"><?= e($pretty($change['after'])) ?></pre>
+          </details>
+        <?php endforeach; ?>
+      <?php endif; ?>
     </details>
+    <p data-fiqh-dirty role="status" hidden>توجد تعديلات لم تُحفظ.</p>
     <button class="primary">حفظ مسودة المسألة</button>
   </form>
 </section>

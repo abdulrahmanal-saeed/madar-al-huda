@@ -395,3 +395,65 @@ for (const fields of document.querySelectorAll('.content-news-fields')) {
   fields.addEventListener('input', update);
   update();
 }
+
+
+// Fiqh staging: unsaved-edit guard and explicit citation insertion.
+// No network requests, automatic citations, or publication calls.
+(() => {
+  const form = document.querySelector('[data-fiqh-editor]');
+  if (!form) return;
+  let dirty = false;
+  const status = form.querySelector('[data-fiqh-dirty]');
+  const markDirty = () => { dirty = true; status.hidden = false; };
+  form.addEventListener('input', markDirty);
+  form.addEventListener('change', markDirty);
+  form.addEventListener('submit', () => { dirty = false; });
+  window.addEventListener('beforeunload', (event) => {
+    if (!dirty) return;
+    event.preventDefault();
+    event.returnValue = '';
+  });
+  const picker = form.querySelector('[data-fiqh-source-picker]');
+  if (!picker) return;
+  picker.hidden = false;
+  const search = picker.querySelector('[data-fiqh-source-search]');
+  const source = picker.querySelector('[data-fiqh-source]');
+  const message = picker.querySelector('[data-fiqh-source-status]');
+  const normalize = (value) => value.toLowerCase()
+    .replace(/[\u0610-\u061a\u0640\u064b-\u065f\u0670]/g, '')
+    .replace(/[أإآٱ]/g, 'ا').trim();
+  search.addEventListener('input', () => {
+    const query = normalize(search.value);
+    for (const option of source.options) {
+      option.hidden = !!option.value && !normalize(option.textContent).includes(query);
+    }
+    if (source.selectedOptions[0]?.hidden) source.value = '';
+  });
+  picker.querySelector('[data-fiqh-add-source]').addEventListener('click', () => {
+    const school = picker.querySelector('[data-fiqh-school]').value;
+    const ar = picker.querySelector('[data-fiqh-locator-ar]').value.trim();
+    const en = picker.querySelector('[data-fiqh-locator-en]').value.trim();
+    if (!source.value || !ar || !en) {
+      message.textContent = 'اختر المصدر واكتب موضع الاستشهاد باللغتين.';
+      return;
+    }
+    const target = form.elements.namedItem(school + '_details');
+    try {
+      let details = JSON.parse(target.value || '{}');
+      if (Array.isArray(details) && details.length === 0) details = {};
+      if (!details || typeof details !== 'object' || Array.isArray(details)) throw new Error('shape');
+      const refs = details.sourceReferences ?? [];
+      if (!Array.isArray(refs)) throw new Error('shape');
+      if (refs.some((ref) => ref?.sourceId === source.value && ref?.locator?.ar === ar && ref?.locator?.en === en)) {
+        message.textContent = 'هذا الاستشهاد موجود بالفعل.';
+        return;
+      }
+      details.sourceReferences = [...refs, { sourceId: source.value, locator: { ar, en } }];
+      target.value = JSON.stringify(details, null, 2);
+      markDirty();
+      message.textContent = 'أُضيف المرجع إلى النموذج فقط. احفظ المسودة لتسجيل التغيير.';
+    } catch {
+      message.textContent = 'راجع JSON الخاص بالمذهب أولًا. لم تتغير البيانات.';
+    }
+  });
+})();
