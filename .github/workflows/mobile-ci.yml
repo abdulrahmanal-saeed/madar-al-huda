@@ -66,6 +66,7 @@ jobs:
           php hosting/tests/library_media_test.php
           php hosting/tests/appearance_test.php
           php hosting/tests/content_news_test.php
+          php hosting/tests/fiqh_model_test.php
           node --check hosting/admin/admin.js
 
   quran-edge:
