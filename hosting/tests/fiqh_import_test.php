@@ -35,4 +35,8 @@ fiReject(fn()=>fiqhImportRun($db,['schemaVersion'=>1,'issues'=>[$bad,$bad]],'use
 $bad['issue']['review']=['approved'=>true];
 fiReject(fn()=>fiqhImportRun($db,['schemaVersion'=>1,'issues'=>[$bad]],'user:2'));
 fiCheck((int)$db->query('SELECT COUNT(*) FROM fiqh_events')->fetchColumn()===2,'no preview audit residue');
+$bad['issue']=array_replace($issue,['id'=>'synthetic-b','number'=>'FIQH-902','slug'=>'synthetic-b',
+    'positions'=>['hanafi'=>['review'=>['approved'=>true]]]]);
+fiReject(fn()=>fiqhImportRun($db,['schemaVersion'=>1,'issues'=>[$bad]],'user:2'));
+fiCheck(fiqhLatestRevision($db,'synthetic-b')===null,'nested injection did not save');
 echo "Fiqh import checks passed\n";

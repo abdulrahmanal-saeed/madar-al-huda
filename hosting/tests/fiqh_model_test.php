@@ -25,4 +25,10 @@ fiqhExpect(!fiqhBilingual(['ar' => 'x', 'en' => ' ']), 'blank translation reject
 fiqhExpect(in_array('positions.hanafi', fiqhCompletenessErrors([]), true), 'missing madhhab rejected');
 fiqhExpect(in_array('evidence', fiqhCompletenessErrors([]), true), 'missing evidence rejected');
 fiqhExpect(in_array('agreements.justification', fiqhCompletenessErrors(['agreements' => ['applicable' => false]]), true), 'N/A justification required');
+fiqhExpect(fiqhShapeErrors(['title'=>['ar'=>'','en'=>''],'agreements'=>[]])===[],'partial draft allowed');
+fiqhExpect(fiqhShapeErrors(['positions'=>['hanafi'=>['review'=>['approved'=>true]]]])!==[],'nested review rejected');
+fiqhExpect(fiqhShapeErrors(['evidence'=>[['id'=>'e1','sourceIds'=>[['id'=>'bad']]]]])!==[],'bad source list rejected');
+fiqhExpect(fiqhShapeErrors(['title'=>['ar'=>'a','en'=>'b','private'=>'x']])!==[],'extra bilingual field rejected');
+fiqhExpect(fiqhShapeErrors(['evidence'=>[['id'=>'e1'],['id'=>'e1']]])!==[],'duplicate evidence rejected');
+fiqhExpect(fiqhShapeErrors(['evidence'=>[['id'=>'e1','madhhabs'=>['unknown']]]])!==[],'unknown school rejected');
 echo "Fiqh foundation checks passed\n";

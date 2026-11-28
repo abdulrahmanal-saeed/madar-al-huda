@@ -159,3 +159,107 @@ function fiqhCompletenessErrors(array $issue): array
     }
     return array_values(array_unique($errors));
 }
+
+
+/** Structural validation is independent of completeness: blank optional draft
+ * fields are allowed, but unknown keys, wrong types and nested approval data
+ * are rejected at every write boundary. */
+function fiqhShapeErrors(array $issue): array
+{
+    $errors=[];
+    $object=static function(mixed $value,array $allowed,string $path) use (&$errors): bool {
+        if (!is_array($value)||array_diff(array_keys($value),$allowed)!==[]) {
+            $errors[]=$path.'.shape'; return false;
+        }
+        return true;
+    };
+    $text=static function(mixed $value,string $path) use (&$errors,$object): void {
+        if (!$object($value,['ar','en'],$path)) return;
+        foreach (['ar','en'] as $lang) {
+            if (!is_string($value[$lang] ?? null)||strlen($value[$lang])>65536
+                || preg_match('//u',$value[$lang])!==1) $errors[]=$path.'.'.$lang;
+        }
+    };
+    $list=static function(mixed $value,string $path) use (&$errors): bool {
+        if (!is_array($value)||!array_is_list($value)||count($value)>200) {
+            $errors[]=$path.'.list'; return false;
+        }
+        return true;
+    };
+    $ids=static function(mixed $value,string $path) use (&$errors,$list): void {
+        if (!$list($value,$path)) return;
+        $seen=[];
+        foreach ($value as $i=>$id) {
+            if (!fiqhStableId($id)||isset($seen[$id])) $errors[]=$path.'.'.$i;
+            else $seen[$id]=true;
+        }
+    };
+    $texts=static function(mixed $value,string $path) use ($list,$text): void {
+        if ($list($value,$path)) foreach ($value as $i=>$item) $text($item,$path.'.'.$i);
+    };
+    $allowed=['id','number','slug','categoryId','subcategoryId','relatedCategoryIds','relatedIssueIds',
+        'title','summary','introduction','scope','keywords','displayOrder','difficulty','positions','evidence',
+        'agreements','disagreements','reasonsForDifferences','scholarlySummary','practicalExamples','importantNotes','terminology'];
+    $object($issue,$allowed,'issue');
+    foreach (['title','summary','introduction','scope','scholarlySummary'] as $key)
+        if (array_key_exists($key,$issue)) $text($issue[$key],$key);
+    foreach (['relatedCategoryIds','relatedIssueIds'] as $key)
+        if (array_key_exists($key,$issue)) $ids($issue[$key],$key);
+    if (array_key_exists('subcategoryId',$issue)&&$issue['subcategoryId']!==null&&!fiqhStableId($issue['subcategoryId'])) $errors[]='subcategoryId';
+    if (array_key_exists('displayOrder',$issue)&&(!is_int($issue['displayOrder'])||$issue['displayOrder']<0)) $errors[]='displayOrder';
+    if (array_key_exists('difficulty',$issue)&&!in_array($issue['difficulty'],['','beginner','intermediate','advanced'],true)) $errors[]='difficulty';
+    if (array_key_exists('keywords',$issue)&&$list($issue['keywords'],'keywords')) {
+        foreach ($issue['keywords'] as $i=>$word) {
+            if (is_string($word)) {
+                if (strlen($word)>512||preg_match('//u',$word)!==1) $errors[]='keywords.'.$i;
+            } else $text($word,'keywords.'.$i);
+        }
+    }
+    if (array_key_exists('positions',$issue)&&$object($issue['positions'],FIQH_SCHOOLS,'positions')) {
+        foreach ($issue['positions'] as $school=>$position) {
+            $path='positions.'.$school;
+            if (!$object($position,['ruling','explanation','reasoning','classification','conditions','exceptions','alternativeOpinions','evidenceIds','sourceReferences'],$path)) continue;
+            foreach (['ruling','explanation','reasoning','classification'] as $key)
+                if (array_key_exists($key,$position)) $text($position[$key],$path.'.'.$key);
+            foreach (['conditions','exceptions','alternativeOpinions'] as $key)
+                if (array_key_exists($key,$position)) $texts($position[$key],$path.'.'.$key);
+            if (array_key_exists('evidenceIds',$position)) $ids($position['evidenceIds'],$path.'.evidenceIds');
+            if (array_key_exists('sourceReferences',$position)&&$list($position['sourceReferences'],$path.'.sourceReferences')) {
+                foreach ($position['sourceReferences'] as $i=>$ref) {
+                    $rp=$path.'.sourceReferences.'.$i;
+                    if (!$object($ref,['sourceId','locator'],$rp)) continue;
+                    if (!fiqhStableId($ref['sourceId'] ?? null)) $errors[]=$rp.'.sourceId';
+                    if (array_key_exists('locator',$ref)) $text($ref['locator'],$rp.'.locator');
+                }
+            }
+        }
+    }
+    if (array_key_exists('evidence',$issue)&&$list($issue['evidence'],'evidence')) {
+        $seen=[];
+        foreach ($issue['evidence'] as $i=>$entry) {
+            $path='evidence.'.$i;
+            if (!$object($entry,['id','type','text','reference','explanation','grading','gradingAttribution','sourceIds','madhhabs'],$path)) continue;
+            if (!fiqhStableId($entry['id'] ?? null)||isset($seen[$entry['id']])) $errors[]=$path.'.id';
+            else $seen[$entry['id']]=true;
+            if (array_key_exists('type',$entry)&&!in_array($entry['type'],FIQH_EVIDENCE_TYPES,true)) $errors[]=$path.'.type';
+            foreach (['text','reference','explanation','grading','gradingAttribution'] as $key)
+                if (array_key_exists($key,$entry)) $text($entry[$key],$path.'.'.$key);
+            if (array_key_exists('sourceIds',$entry)) $ids($entry['sourceIds'],$path.'.sourceIds');
+            if (array_key_exists('madhhabs',$entry)) {
+                $ids($entry['madhhabs'],$path.'.madhhabs');
+                if (is_array($entry['madhhabs'])) foreach ($entry['madhhabs'] as $school)
+                    if (!in_array($school,FIQH_SCHOOLS,true)) $errors[]=$path.'.madhhabs';
+            }
+        }
+    }
+    foreach (['agreements','disagreements','reasonsForDifferences'] as $key) {
+        if (!array_key_exists($key,$issue)||!$object($issue[$key],['applicable','entries','justification'],$key)) continue;
+        $block=$issue[$key];
+        if (array_key_exists('applicable',$block)&&!is_bool($block['applicable'])) $errors[]=$key.'.applicable';
+        if (array_key_exists('entries',$block)) $texts($block['entries'],$key.'.entries');
+        if (array_key_exists('justification',$block)) $text($block['justification'],$key.'.justification');
+    }
+    foreach (['practicalExamples','importantNotes','terminology'] as $key)
+        if (array_key_exists($key,$issue)) $texts($issue[$key],$key);
+    return array_values(array_unique($errors));
+}

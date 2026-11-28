@@ -24,6 +24,10 @@ foreach(FIQH_SCHOOLS as $school) $issue['positions'][$school]=['ruling'=>$bi,'ex
 foreach(['agreements','disagreements','reasonsForDifferences'] as $key) $issue[$key]=['applicable'=>true,'entries'=>[$bi]];
 fiqhSaveDraft($db,$issue,1,'user:2');
 frCheck(fiqhReviewErrors(fiqhLatestRevision($db,'synthetic'))===[],'complete synthetic fixture');
+$tampered=fiqhLatestRevision($db,'synthetic'); $tampered['body'].=' ';
+frCheck(fiqhReviewErrors($tampered)===['revision.hash'],'hash recomputed');
+frCheck(!fiqhIndependentReviewer($db,'synthetic',2),'past author cannot approve');
+frCheck(fiqhIndependentReviewer($db,'synthetic',3),'independent reviewer');
 frReject(fn()=>fiqhReviewTransition($db,1,'synthetic',2,'approve','test'));
 frReject(fn()=>fiqhReviewTransition($db,4,'synthetic',2,'publish'));
 fiqhReviewTransition($db,2,'synthetic',2,'submit');

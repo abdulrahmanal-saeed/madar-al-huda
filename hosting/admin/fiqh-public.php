@@ -16,6 +16,7 @@ function fiqhPublicEnabled(PDO $db): bool
 
 function fiqhPublicBi(mixed $value): array
 {
+    if (!is_array($value)) return ['ar'=>'','en'=>''];
     return ['ar'=>is_string($value['ar'] ?? null)?$value['ar']:'',
         'en'=>is_string($value['en'] ?? null)?$value['en']:''];
 }

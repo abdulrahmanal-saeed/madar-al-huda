@@ -177,10 +177,15 @@ function fiqhReviewErrors(array $revision): array
 {
     $body = json_decode($revision['body'], true, 64, JSON_THROW_ON_ERROR);
     $sources = json_decode($revision['source_snapshot'], true, 64, JSON_THROW_ON_ERROR);
+    if (!fiqhRevisionHashValid($revision)) return ['revision.hash'];
+    $shape=fiqhShapeErrors($body);
+    if ($shape!==[]) return $shape;
     $errors = fiqhCompletenessErrors($body);
     foreach (fiqhCollectSources($body) as $id) {
         $source = $sources[$id] ?? [];
-        if (($source['status'] ?? null) !== 'draft' || !fiqhBilingual($source['title'] ?? null)
+        try { fiqhValidateSource($source); }
+        catch (InvalidArgumentException) { $errors[]='sources.'.$id.'.shape'; continue; }
+        if (($source['id'] ?? null)!==$id || ($source['status'] ?? null) !== 'draft' || !fiqhBilingual($source['title'] ?? null)
             || !is_string($source['license'] ?? null) || trim($source['license']) === '') {
             $errors[] = 'sources.' . $id . '.metadata';
         }
@@ -204,6 +209,13 @@ function fiqhAppendReview(PDO $db, array $revision, string $state, array $user, 
 }
 
 /** Only call from authenticated human session. No MCP or import approval actions. */
+function fiqhIndependentReviewer(PDO $db,string $id,int $userId):bool
+{
+    $q=$db->prepare('SELECT 1 FROM fiqh_revisions WHERE issue_id=? AND actor=? LIMIT 1');
+    $q->execute([$id,'user:'.$userId]);
+    return !$q->fetchColumn();
+}
+
 function fiqhReviewTransition(PDO $db, int $userId, string $id, int $expectedRevision, string $action, string $notes = '', string $corrections = ''): array
 {
     return fiqhTransaction($db, function () use ($db,$userId,$id,$expectedRevision,$action,$notes,$corrections): array {
@@ -244,7 +256,7 @@ function fiqhReviewTransition(PDO $db, int $userId, string $id, int $expectedRev
             if ($action === 'request_changes' && trim($corrections) === '') {
                 throw new InvalidArgumentException('Required corrections must be recorded');
             }
-            if ($action === 'approve' && $revision['actor'] === 'user:' . $userId) {
+            if ($action === 'approve' && !fiqhIndependentReviewer($db,$id,$userId)) {
                 throw new InvalidArgumentException('Independent reviewer required');
             }
         }
@@ -317,7 +329,7 @@ function fiqhAvailableReviewActions(PDO $db, int $userId, array $revision): arra
         if ($state === 'ready_for_review') $actions[] = 'start';
         if ($state === 'under_review' && (int)$last['actor_id'] === $userId) {
             $actions[] = 'request_changes';
-            if ($revision['actor'] !== 'user:' . $userId) $actions[] = 'approve';
+            if (fiqhIndependentReviewer($db,$revision['issue_id'],$userId)) $actions[] = 'approve';
         }
     } catch (InvalidArgumentException) { }
     try {

@@ -185,6 +185,13 @@ function fiqhCollectSources(array $data): array
     return $ids;
 }
 
+function fiqhRevisionHashValid(array $revision): bool
+{
+    return is_string($revision['body'] ?? null)&&is_string($revision['source_snapshot'] ?? null)
+        &&is_string($revision['content_hash'] ?? null)
+        &&hash_equals($revision['content_hash'],hash('sha256',fiqhJson([$revision['body'],$revision['source_snapshot']])));
+}
+
 function fiqhLatestRevision(PDO $db, string $id): ?array
 {
     $query = $db->prepare('SELECT r.* FROM fiqh_revisions r WHERE issue_id = ? ORDER BY revision DESC LIMIT 1');
@@ -221,6 +228,9 @@ function fiqhSaveDraftLocked(PDO $db, array $body, int $expectedRevision, string
         || !fiqhBilingual($body['title'] ?? null)) {
         throw new InvalidArgumentException('Issue number and bilingual title are required');
     }
+    $shape = fiqhShapeErrors($body);
+    if ($shape !== []) throw new InvalidArgumentException('Invalid issue fields: '.implode(', ', $shape));
+    if (strlen(fiqhJson($body)) > 524288) throw new InvalidArgumentException('Issue exceeds 512 KiB');
     $id = $body['id'];
     $category = $body['categoryId'];
     $sub = $body['subcategoryId'] ?? null;
