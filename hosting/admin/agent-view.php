@@ -18,7 +18,7 @@ $activity = $db->query('SELECT l.*, k.label FROM agent_log l LEFT JOIN agent_key
     <?php if ((int) $pending['revision'] !== $revision): ?>
       <p class="alert warn">تغيّرت المسودة بعد إرسال الطلب. راجع التغييرات أدناه، فهي ما سيُنشر.</p>
     <?php endif; ?>
-    <?php $changes = libraryDiff(json_decode($state['published'] ?? 'null', true), $draft); ?>
+    <?php $changes = libraryDiff($publishedPayload,$publishableDraft); ?>
     <h3>ما سيتغيّر في التطبيق (<?= e(arabicDigits((string) count($changes))) ?>)</h3>
     <?php require __DIR__ . '/diff-view.php'; ?>
     <div class="row">

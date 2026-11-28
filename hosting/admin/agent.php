@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__.'/fiqh-agent.php';
 
 /*
  * The ChatGPT connector: an MCP server (Streamable HTTP, plain JSON-RPC over
@@ -24,7 +25,7 @@ const AGENT_SECTIONS = [
     'names' => 'أسماء الله الحسنى (the Beautiful Names of Allah)',
     'articles' => 'المقالات (articles)',
     'lessons' => 'الدروس والاختبارات (lessons with optional quizzes)',
-    'fiqh' => 'الفقه المقارن (comparative fiqh; needs scholarly approval before it can be published)',
+    'fiqh' => 'الفقه المقارن القديم (legacy read-only; no edits or publication until migration)',
 ];
 
 /** The form fields each section's save takes, for the model to read. */
@@ -355,6 +356,7 @@ function agentTools(string $mode = 'chat'): array
     $topicProp = ['type' => 'string', 'enum' => array_keys(topics()), 'description' => 'duas only.'];
     return [
         ...agentLibraryTools(),
+        ...fiqhAgentTools(),
         [
             'name' => 'list_sections',
             'description' => 'The content sections you can edit, with the fields each one takes. Call this first.',
@@ -426,15 +428,18 @@ function agentTools(string $mode = 'chat'): array
 
 function agentCall(PDO $db, array $key, string $tool, array $args): array
 {
+    if (str_starts_with($tool,'fiqh_')) return fiqhAgentCall($db,$key,$tool,$args);
     $state = library($db);
     $draft = json_decode($state['draft'], true, 64, JSON_THROW_ON_ERROR);
+    $published = json_decode($state['published'] ?? 'null',true,64,JSON_THROW_ON_ERROR);
+    $publishable = fiqhGeneralPublication($draft,$published);
     switch ($tool) {
         case 'list_sections':
             return ['sections' => array_map(
                 static fn (string $about, string $section) => ['section' => $section, 'about' => $about, 'fields' => AGENT_FIELDS[$section]],
                 AGENT_SECTIONS, array_keys(AGENT_SECTIONS),
             ), 'duas_topics' => topics(), 'custom_library_tools' => array_column(agentLibraryTools(), 'name'),
-                'daily_dua_audio_tool' => 'attach_dua_audio'];
+                'daily_dua_audio_tool' => 'attach_dua_audio', 'structured_fiqh_tools'=>array_column(fiqhAgentTools(),'name')];
         case 'list_library_sections':
             $sections = [];
             foreach ($draft['appearance']['sections'] ?? [] as $section) {
@@ -489,6 +494,7 @@ function agentCall(PDO $db, array $key, string $tool, array $args): array
             return $item;
         case 'save_item':
             $section = agentSection($args);
+            if ($section === 'fiqh') throw new AgentError('Legacy fiqh is read-only pending migration.');
             $topic = $section === 'duas' ? agentTopic($args) : '';
             $fields = is_array($args['fields'] ?? null) ? $args['fields'] : [];
             $id = (string) ($args['id'] ?? '');
@@ -535,6 +541,7 @@ function agentCall(PDO $db, array $key, string $tool, array $args): array
                 'note' => 'Recording saved in the draft. It reaches the app after publication.'];
         case 'delete_item':
             $section = agentSection($args);
+            if ($section === 'fiqh') throw new AgentError('Legacy fiqh is read-only pending migration.');
             $topic = $section === 'duas' ? agentTopic($args) : '';
             $id = (string) ($args['id'] ?? '');
             if (!array_key_exists($id, agentRows($draft, $section, $topic))) {
@@ -543,16 +550,16 @@ function agentCall(PDO $db, array $key, string $tool, array $args): array
             agentChange($db, $key, 'delete', $section, $topic, ['original' => $id]);
             return ['deleted' => true, 'note' => 'Removed from the draft.'];
         case 'draft_changes':
-            $changes = libraryDiff(json_decode($state['published'] ?? 'null', true), $draft);
+            $changes = libraryDiff($published,$publishable);
             return ['changes' => count($changes), 'lines' => array_slice($changes, 0, 80)];
         case 'publish':
             if (agentPublishMode($db) !== 'chat') {
                 throw new AgentError('Publishing from ChatGPT is turned off. Use request_publish; the owner approves it in the dashboard.');
             }
-            if ($state['published'] === $state['draft']) {
+            if (!fiqhGeneralChanged($draft,$published)) {
                 throw new AgentError('The draft has no changes to publish.');
             }
-            $count = count(libraryDiff(json_decode($state['published'] ?? 'null', true), $draft));
+            $count = count(libraryDiff($published,$publishable));
             $_POST = ['revision' => (string) $state['revision']];
             try {
                 updateLibrary($db, 'publish', require __DIR__ . '/seed.php', 'daily', 'forgiveness',
@@ -566,7 +573,7 @@ function agentCall(PDO $db, array $key, string $tool, array $args): array
             $db->prepare("UPDATE publish_requests SET status = 'superseded' WHERE status = 'pending'")->execute();
             return ['published' => true, 'changes' => $count, 'note' => 'Published. The app picks it up on its next refresh.'];
         case 'request_publish':
-            if ($state['published'] === $state['draft']) {
+            if (!fiqhGeneralChanged($draft,$published)) {
                 throw new AgentError('The draft has no changes to publish.');
             }
             $db->prepare('UPDATE publish_requests SET status = ? WHERE status = ?')->execute(['superseded', 'pending']);
@@ -628,7 +635,7 @@ function serveMcp(PDO $db, string $secret): never
                 'capabilities' => ['tools' => ['listChanged' => false]],
                 'serverInfo' => ['name' => 'Madar Al-Huda dashboard', 'version' => '1.2.0'],
                 'instructions' => 'Edit the content of the Madar Al-Huda app (adhkar, duas, Hisn al-Muslim, Names of Allah, articles, lessons, fiqh, and custom library episode titles). '
-                    . 'Call list_sections first. Every change goes to the DRAFT only. Before save_item, attach_dua_audio, delete_item, update_episode or bulk_update_episode_titles, show the owner exactly what you will write and wait for approval. '
+                    . 'Call list_sections first. Every content edit goes to the DRAFT only. Before save_item, attach_dua_audio, delete_item, update_episode, bulk_update_episode_titles or fiqh_commit_import, show the owner exactly what you will write and wait for approval. Structured fiqh requires fiqh_preview_import before fiqh_commit_import; it cannot be approved or published by MCP, including general publish. '
                     . (agentPublishMode($db) === 'chat'
                         ? 'To put changes in the app, call draft_changes, show the owner the changes, ask whether to publish, and call publish only after an explicit yes. Every publish needs its own yes. '
                         : 'To put changes in the app, call request_publish: the owner approves it in the dashboard; you cannot publish yourself. ')

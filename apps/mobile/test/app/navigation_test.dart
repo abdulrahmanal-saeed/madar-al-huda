@@ -7,6 +7,8 @@ import 'package:madar_al_huda/core/routing/app_sections.dart';
 import 'package:madar_al_huda/core/widgets/content_status_panel.dart';
 import 'package:madar_al_huda/core/widgets/section_card.dart';
 import 'package:madar_al_huda/core/widgets/settings_button.dart';
+import 'package:madar_al_huda/features/fiqh/data/fiqh_catalog.dart';
+import 'package:madar_al_huda/features/fiqh/presentation/fiqh_screen.dart';
 import 'package:madar_al_huda/features/home/data/daily_duas.dart';
 import 'package:madar_al_huda/features/home/presentation/listening_duas.dart';
 import 'package:madar_al_huda/features/learning/data/learning_catalog.dart';
@@ -251,6 +253,23 @@ void main() {
     );
     expect(find.text(l10n.cityBearingApproximate), findsOneWidget);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('empty published fiqh feed is authoritative', (tester) async {
+    await pumpMadarApp(
+      tester,
+      initialLocation: AppSection.fiqh.path,
+      fiqhCatalog: FiqhCatalog.decode({
+        'schemaVersion': 1,
+        'kind': 'published_fiqh',
+        'disclaimer': {'ar': 'اختبار فقط', 'en': 'Synthetic only'},
+        'categories': <Object?>[],
+        'issues': <Object?>[],
+      }),
+    );
+    expect(find.byType(FiqhCatalogScreen), findsOneWidget);
+    expect(find.byType(ContentStatusPanel), findsNothing);
+    expect(find.text('No matching published issues.'), findsOneWidget);
   });
 
   testWidgets('back button returns from a section to its hub', (tester) async {

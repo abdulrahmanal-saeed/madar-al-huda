@@ -25,13 +25,18 @@ require __DIR__ . '/manage.php';
 require __DIR__ . '/governance.php';
 require __DIR__ . '/reports.php';
 require __DIR__ . '/agent.php';
+require __DIR__ . '/fiqh-admin.php';
+require __DIR__ . '/fiqh-public.php';
+require __DIR__ . '/fiqh-web.php';
 
 try {
     $db = database();
+    if (isset($_GET['fiqh_page'])) serveFiqhWeb($db,$_GET['fiqh_page'],$_GET['fiqh_slug'] ?? '');
     if (isset($_GET['library_media'])) {
         serveLibraryMedia($db, $_GET['library_media']);
     }
     if (($_GET['feed'] ?? '') === 'content-news') serveContentNews($db);
+    if (($_GET['feed'] ?? '') === 'fiqh') serveFiqhFeed($db);
     if (($_GET['feed'] ?? '') === 'library') {
         serveFeed($db);
     }
@@ -137,7 +142,7 @@ $sections = [
     'daily' => 'أذكار اليوم', 'daily_duas' => 'دعاء اليوم', 'merits' => 'فضائل الذكر',
     'hisn' => 'حصن المسلم', 'duas' => 'الأدعية القرآنية',
     'stories' => 'قصص الأنبياء', 'history' => 'سجل النشر',
-    'fiqh' => 'الفقه المقارن', 'articles' => 'المقالات',
+    'fiqh' => 'الفقه المقارن', 'fiqh_editor' => 'الفقه المقارن (تجريبي)', 'articles' => 'المقالات',
     'lessons' => 'الدروس والاختبارات', 'names' => 'أسماء الله الحسنى', 'reciters' => 'القراء',
     'appearance' => 'الثيم والألوان', 'library_sections' => 'أقسام المكتبة',
     'releases' => 'إصدارات التطبيق', 'app_settings' => 'إعدادات التطبيق',
@@ -194,8 +199,27 @@ if (isset($_GET['report_image'])) {
 if ($user !== null && !canSee($user, $section)) {
     $section = 'daily';
 }
+if ($active && $user !== null && $section === 'fiqh_editor' && isset($_GET['fiqh_export'])) {
+    if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'GET' || !fiqhAdminReady($db)) {
+        http_response_code(404); exit;
+    }
+    $format=$_GET['fiqh_export'];
+    $offset=filter_var($_GET['offset'] ?? 0,FILTER_VALIDATE_INT,['options'=>['min_range'=>0]]);
+    if (!in_array($format,['json','csv'],true)||$offset===false) { http_response_code(400); exit; }
+    if ($format==='json') {
+        header('Content-Type: application/json; charset=utf-8');
+        header('Content-Disposition: attachment; filename="fiqh-drafts.json"');
+        echo fiqhJson(fiqhExportDrafts($db,50,$offset));
+    } else {
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename="fiqh-metadata.csv"');
+        echo fiqhExportMetadataCsv($db,50,$offset);
+    }
+    exit;
+}
 $signedIn = null;
 $error = null;
+$fiqhImportPreview = null;
 $confirming = null;
 $publishedNewsId = null;
 const CONFIRMATIONS = [
@@ -251,6 +275,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif (!allowedAction($user, $action, $section)) {
             http_response_code(403);
             throw new InvalidArgumentException('صلاحيات حسابك لا تسمح بهذا الإجراء. اطلبه من المالك.');
+        } elseif (($section === 'fiqh_editor' && !in_array($action, ['fiqh_draft_save', 'fiqh_metadata_save', 'fiqh_review_action', 'fiqh_archive', 'fiqh_reviewer_profile', 'fiqh_publisher_grant', 'fiqh_import_preview', 'fiqh_import_commit', 'fiqh_autosave', 'logout'], true))
+            || ($section !== 'fiqh_editor' && in_array($action, ['fiqh_draft_save', 'fiqh_metadata_save', 'fiqh_review_action', 'fiqh_archive', 'fiqh_reviewer_profile', 'fiqh_publisher_grant', 'fiqh_import_preview', 'fiqh_import_commit', 'fiqh_autosave'], true))) {
+            throw new InvalidArgumentException('Invalid fiqh editor action');
         } elseif (isset(CONFIRMATIONS[$action]) && field('confirmed') !== 'yes') {
             // Irreversible actions show a confirmation page first; the CSP
             // blocks scripts, so the check happens on the server.
@@ -264,6 +291,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif ($action === 'logout') {
             $_SESSION = [];
             session_destroy();
+        } elseif ($action === 'fiqh_autosave') {
+            if (!wantsJson()) throw new InvalidArgumentException('JSON response required');
+            $result=fiqhAdminAutosave($db,$user,$_POST);
+            header('Content-Type: application/json; charset=utf-8');
+            echo encode(['ok'=>true,'id'=>$result['id'],'revision'=>$result['revision'],'changed'=>$result['changed']]);
+            exit;
+        } elseif ($action === 'fiqh_import_preview') {
+            $fiqhImportPreview = fiqhAdminImportPreview($db,$user,field('import_payload'),field('import_format'));
+        } elseif (in_array($action, ['fiqh_draft_save', 'fiqh_metadata_save', 'fiqh_review_action', 'fiqh_archive', 'fiqh_reviewer_profile', 'fiqh_publisher_grant', 'fiqh_import_commit'], true)) {
+            $_SESSION['notice'] = fiqhAdminChange($db, $user, $action);
         } elseif (in_array($action, ['save', 'delete', 'publish', 'restore', 'review_approve'], true)) {
             $seed = require __DIR__ . '/seed.php';
             $isDuaDrive = $action === 'save' && $section === 'daily_duas' && field('op') === 'drive_dua_audio';
@@ -373,7 +410,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $who = $signedIn['username'] ?? $user['username'] ?? '?';
             audit($db, $who, $action, $section, auditDetail($action));
         }
-        if ($confirming === null && wantsJson()) {
+        if ($confirming === null && wantsJson() && $fiqhImportPreview === null) {
             header('Content-Type: application/json; charset=utf-8');
             $response = ['ok' => true, 'message' => $_SESSION['notice'] ?? ''];
             if ($action === 'save' && $section === 'library_sections') {
@@ -383,11 +420,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             unset($_SESSION['notice']);
             exit;
         }
-        if ($confirming === null) {
+        if ($confirming === null && $fiqhImportPreview === null) {
             $keepDua = $section === 'daily_duas' && $action !== 'delete' && ($_GET['edit'] ?? '') !== 'new';
             $keep = ($section === 'library_sections' || $keepDua) && is_string($_GET['edit'] ?? null)
                 ? $_GET['edit'] : '';
-            header('Location: ' . route($section, $topic, $keep), true, 303);
+            $target = route($section, $topic, $keep);
+            if ($section === 'fiqh_editor' && in_array($action, ['fiqh_draft_save','fiqh_review_action','fiqh_archive'], true)) {
+                $target .= '&issue=' . rawurlencode(field('id')) . '#fiqh-issue';
+            }
+            header('Location: ' . $target, true, 303);
             exit;
         }
     } catch (InvalidArgumentException $failure) {
@@ -416,14 +457,16 @@ if ($active) {
     $state = library($db);
     $draft = json_decode($state['draft'], true, 64, JSON_THROW_ON_ERROR);
     $revision = (int) $state['revision'];
-    $dirty = $state['published'] !== $state['draft'];
+    $publishedPayload = json_decode($state['published'] ?? 'null',true,64,JSON_THROW_ON_ERROR);
+    $publishableDraft = fiqhGeneralPublication($draft,$publishedPayload);
+    $dirty = fiqhGeneralChanged($draft,$publishedPayload);
     $edit = $_GET['edit'] ?? '';
     if (!is_string($edit)) {
         $edit = '';
     }
     $rows = in_array($section, BOOK_SECTIONS, true)
         ? ($draft['library'][$section] ?? [])
-        : (in_array($section, ['stories', 'history', 'reciters', 'releases', 'appearance', 'library_sections', 'account', 'app_settings', 'story_titles', 'adhkar_groups', 'users', 'audit', 'reports', 'chatgpt'], true)
+        : (in_array($section, ['stories', 'history', 'reciters', 'releases', 'appearance', 'library_sections', 'account', 'app_settings', 'story_titles', 'adhkar_groups', 'users', 'audit', 'reports', 'chatgpt', 'fiqh_editor'], true)
             ? [] : contentRows($draft, $section, $topic));
     $current = null;
     foreach ($rows as $index => $row) {
@@ -496,7 +539,7 @@ if ($active) {
     <?php
       $navigation = [
           'الأذكار والأدعية' => ['daily', 'daily_duas', 'merits', 'hisn', 'duas', 'adhkar_groups'],
-          'المكتبة' => ['stories', 'story_titles', 'fiqh', 'articles', 'lessons', 'names', 'reciters'],
+          'المكتبة' => ['stories', 'story_titles', 'fiqh', 'fiqh_editor', 'articles', 'lessons', 'names', 'reciters'],
           'التطبيق والنشر' => ['appearance', 'library_sections', 'app_settings', 'releases', 'history'],
           'الإدارة' => ['reports', 'chatgpt', 'users', 'audit', 'account'],
       ];
@@ -519,20 +562,20 @@ if ($active) {
   <main id="admin-content" tabindex="-1">
     <header class="section-head">
       <div><h1><?= e($sections[$section]) ?></h1>
-        <?php if (!in_array($section, ['stories', 'releases', 'reports', 'chatgpt'], true)): ?>
+        <?php if (!in_array($section, ['stories', 'releases', 'reports', 'chatgpt', 'fiqh_editor'], true)): ?>
           <div class="section-meta">
             <span class="badge <?= $dirty ? 'warn' : 'published' ?>"><?= $dirty ? 'مسودة غير منشورة' : 'المكتبة محدثة' ?></span>
             <span>حجم المسودة <?= e(feedSizeLabel(strlen($state['draft']))) ?></span>
           </div>
         <?php endif; ?>
       </div>
-      <?php if ($dirty && !in_array($section, ['stories', 'releases', 'reports', 'chatgpt'], true)): ?>
+      <?php if ($dirty && !in_array($section, ['stories', 'releases', 'reports', 'chatgpt', 'fiqh_editor'], true)): ?>
         <?php if (allowedAction($user, 'publish', $section)): ?>
         <form method="post" action="<?= e(route($section, $topic, $edit)) ?>#confirm-action">
           <?php controls('publish', $revision); ?><button class="primary">نشر المسودة للتطبيق</button>
         </form>
         <?php else: ?><p>النشر للمراجع الشرعي أو المالك.</p><?php endif; ?>
-        <?php $changes = libraryDiff(json_decode($state['published'] ?? 'null', true), $draft); ?>
+        <?php $changes = libraryDiff($publishedPayload, $publishableDraft); ?>
         <details class="changes">
           <summary>عرض التغييرات قبل النشر (<?= e(arabicDigits((string) count($changes))) ?>)</summary>
           <?php require __DIR__ . '/diff-view.php'; ?>
@@ -552,7 +595,7 @@ if ($active) {
         <h2 id="confirm-title">تأكيد الإجراء</h2>
         <p><?= e($confirming['message']) ?></p>
         <?php if ($confirming['action'] === 'publish'): ?>
-          <?php $changes = libraryDiff(json_decode($state['published'] ?? 'null', true), $draft); ?>
+          <?php $changes = libraryDiff($publishedPayload, $publishableDraft); ?>
           <h3>ما سيتغيّر في التطبيق</h3>
           <?php require __DIR__ . '/diff-view.php'; ?>
         <?php endif; ?>
@@ -680,6 +723,18 @@ if ($active) {
           </div>
         <?php endforeach; ?>
       </section>
+    <?php elseif ($section === 'fiqh'): ?>
+      <section class="panel"><h2>الفقه القديم — قراءة فقط</h2>
+        <p>تم تجميد التعديل والاعتماد والنشر القديم لحين ترحيل المسائل. نشر الأقسام الأخرى لا يغير الفقه المنشور سابقًا.</p>
+        <p><a href="<?= e(route('fiqh_editor')) ?>">فتح محرر الفقه التجريبي</a></p>
+        <?php foreach ($rows as $legacyIssue): ?>
+          <details><summary><?= e($legacyIssue['title']['ar'] ?? $legacyIssue['id'] ?? '') ?></summary>
+            <pre dir="auto"><?= e(json_encode($legacyIssue,JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR)) ?></pre>
+          </details>
+        <?php endforeach; ?>
+      </section>
+    <?php elseif ($section === 'fiqh_editor'): ?>
+      <?php require __DIR__ . '/fiqh-admin-view.php'; ?>
     <?php elseif (in_array($section, BOOK_SECTIONS, true) || $section === 'reciters'): ?>
       <?php require __DIR__ . '/advanced-view.php'; ?>
     <?php elseif (in_array($section, ['account', 'app_settings', 'story_titles', 'adhkar_groups', 'users', 'audit', 'reports', 'chatgpt'], true)): ?>

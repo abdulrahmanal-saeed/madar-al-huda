@@ -17,6 +17,7 @@ import 'core/storage/key_value_store.dart';
 import 'core/storage/storage_providers.dart';
 import 'core/theme/remote_theme.dart';
 import 'features/adhkar/data/adhkar_progress.dart';
+import 'features/fiqh/data/fiqh_reading.dart';
 import 'features/hadith/data/hadith_favorites.dart';
 import 'features/prayer/application/prayer_preferences.dart';
 import 'features/prayer/application/prayer_widget_sync.dart';
@@ -98,6 +99,7 @@ final Set<String> storageAllowList = {
   ReminderSettingsController.key,
   HanafiAsr.key,
   HadithFavorites.key,
+  FiqhReadingController.key,
   'quran.lastRead.v1',
   LocalQuranBookmarks.key,
   LocalQuranBookmarks.backupKey,

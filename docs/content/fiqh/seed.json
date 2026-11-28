@@ -1,0 +1,637 @@
+{
+  "schemaVersion": 1,
+  "categories": [
+    {
+      "id": "taharah",
+      "title": {
+        "ar": "الطهارة والوضوء والغسل",
+        "en": "Purification"
+      },
+      "description": {
+        "ar": "",
+        "en": ""
+      },
+      "icon": "water",
+      "order": 1,
+      "parentId": null,
+      "plannedIssueCount": 30,
+      "visible": true,
+      "status": "draft"
+    },
+    {
+      "id": "salah",
+      "title": {
+        "ar": "الصلاة",
+        "en": "Prayer"
+      },
+      "description": {
+        "ar": "",
+        "en": ""
+      },
+      "icon": "prayer",
+      "order": 2,
+      "parentId": null,
+      "plannedIssueCount": 40,
+      "visible": true,
+      "status": "draft"
+    },
+    {
+      "id": "fasting",
+      "title": {
+        "ar": "الصيام والاعتكاف",
+        "en": "Fasting and I'tikaf"
+      },
+      "description": {
+        "ar": "",
+        "en": ""
+      },
+      "icon": "moon",
+      "order": 3,
+      "parentId": null,
+      "plannedIssueCount": 25,
+      "visible": true,
+      "status": "draft"
+    },
+    {
+      "id": "zakat",
+      "title": {
+        "ar": "الزكاة والصدقات",
+        "en": "Zakat and Charity"
+      },
+      "description": {
+        "ar": "",
+        "en": ""
+      },
+      "icon": "charity",
+      "order": 4,
+      "parentId": null,
+      "plannedIssueCount": 20,
+      "visible": true,
+      "status": "draft"
+    },
+    {
+      "id": "hajj",
+      "title": {
+        "ar": "الحج والعمرة",
+        "en": "Hajj and Umrah"
+      },
+      "description": {
+        "ar": "",
+        "en": ""
+      },
+      "icon": "kaaba",
+      "order": 5,
+      "parentId": null,
+      "plannedIssueCount": 20,
+      "visible": true,
+      "status": "draft"
+    },
+    {
+      "id": "women",
+      "title": {
+        "ar": "فقه المرأة",
+        "en": "Women's Fiqh"
+      },
+      "description": {
+        "ar": "",
+        "en": ""
+      },
+      "icon": "people",
+      "order": 6,
+      "parentId": null,
+      "plannedIssueCount": 15,
+      "visible": true,
+      "status": "draft"
+    },
+    {
+      "id": "family",
+      "title": {
+        "ar": "الزواج والأسرة",
+        "en": "Marriage and Family"
+      },
+      "description": {
+        "ar": "",
+        "en": ""
+      },
+      "icon": "family",
+      "order": 7,
+      "parentId": null,
+      "plannedIssueCount": 10,
+      "visible": true,
+      "status": "draft"
+    },
+    {
+      "id": "transactions",
+      "title": {
+        "ar": "المعاملات المالية",
+        "en": "Financial Transactions"
+      },
+      "description": {
+        "ar": "",
+        "en": ""
+      },
+      "icon": "trade",
+      "order": 8,
+      "parentId": null,
+      "plannedIssueCount": 15,
+      "visible": true,
+      "status": "draft"
+    },
+    {
+      "id": "funerals",
+      "title": {
+        "ar": "الجنائز وأحكام الموتى",
+        "en": "Funerals"
+      },
+      "description": {
+        "ar": "",
+        "en": ""
+      },
+      "icon": "book",
+      "order": 9,
+      "parentId": null,
+      "plannedIssueCount": 10,
+      "visible": true,
+      "status": "draft"
+    },
+    {
+      "id": "food_clothing",
+      "title": {
+        "ar": "الأطعمة والأشربة واللباس",
+        "en": "Food, Drinks and Clothing"
+      },
+      "description": {
+        "ar": "",
+        "en": ""
+      },
+      "icon": "food",
+      "order": 10,
+      "parentId": null,
+      "plannedIssueCount": 10,
+      "visible": true,
+      "status": "draft"
+    },
+    {
+      "id": "vows",
+      "title": {
+        "ar": "الأيمان والنذور والكفارات",
+        "en": "Oaths, Vows and Expiations"
+      },
+      "description": {
+        "ar": "",
+        "en": ""
+      },
+      "icon": "book",
+      "order": 11,
+      "parentId": null,
+      "plannedIssueCount": 5,
+      "visible": true,
+      "status": "draft"
+    }
+  ],
+  "sources": [
+    {
+      "id": "kuwait-encyclopedia",
+      "title": {
+        "ar": "الموسوعة الفقهية الكويتية",
+        "en": "Kuwaiti Fiqh Encyclopedia"
+      },
+      "author": {
+        "ar": "",
+        "en": ""
+      },
+      "madhhab": null,
+      "sourceType": "book",
+      "publisher": null,
+      "edition": null,
+      "publicationYear": null,
+      "url": null,
+      "license": null,
+      "editorialNotes": "",
+      "status": "placeholder"
+    },
+    {
+      "id": "bidayat",
+      "title": {
+        "ar": "بداية المجتهد ونهاية المقتصد",
+        "en": "Bidayat al-Mujtahid"
+      },
+      "author": {
+        "ar": "",
+        "en": ""
+      },
+      "madhhab": null,
+      "sourceType": "book",
+      "publisher": null,
+      "edition": null,
+      "publicationYear": null,
+      "url": null,
+      "license": null,
+      "editorialNotes": "",
+      "status": "placeholder"
+    },
+    {
+      "id": "four-schools",
+      "title": {
+        "ar": "الفقه على المذاهب الأربعة",
+        "en": "Fiqh of the Four Schools"
+      },
+      "author": {
+        "ar": "",
+        "en": ""
+      },
+      "madhhab": null,
+      "sourceType": "book",
+      "publisher": null,
+      "edition": null,
+      "publicationYear": null,
+      "url": null,
+      "license": null,
+      "editorialNotes": "",
+      "status": "placeholder"
+    },
+    {
+      "id": "fiqh-adillah",
+      "title": {
+        "ar": "الفقه الإسلامي وأدلته",
+        "en": "Islamic Jurisprudence and Its Evidence"
+      },
+      "author": {
+        "ar": "",
+        "en": ""
+      },
+      "madhhab": null,
+      "sourceType": "book",
+      "publisher": null,
+      "edition": null,
+      "publicationYear": null,
+      "url": null,
+      "license": null,
+      "editorialNotes": "",
+      "status": "placeholder"
+    },
+    {
+      "id": "badai",
+      "title": {
+        "ar": "بدائع الصنائع",
+        "en": "Bada'i al-Sana'i"
+      },
+      "author": {
+        "ar": "",
+        "en": ""
+      },
+      "madhhab": "hanafi",
+      "sourceType": "book",
+      "publisher": null,
+      "edition": null,
+      "publicationYear": null,
+      "url": null,
+      "license": null,
+      "editorialNotes": "",
+      "status": "placeholder"
+    },
+    {
+      "id": "mabsut",
+      "title": {
+        "ar": "المبسوط",
+        "en": "Al-Mabsut"
+      },
+      "author": {
+        "ar": "",
+        "en": ""
+      },
+      "madhhab": "hanafi",
+      "sourceType": "book",
+      "publisher": null,
+      "edition": null,
+      "publicationYear": null,
+      "url": null,
+      "license": null,
+      "editorialNotes": "",
+      "status": "placeholder"
+    },
+    {
+      "id": "radd",
+      "title": {
+        "ar": "رد المحتار على الدر المختار",
+        "en": "Radd al-Muhtar"
+      },
+      "author": {
+        "ar": "",
+        "en": ""
+      },
+      "madhhab": "hanafi",
+      "sourceType": "book",
+      "publisher": null,
+      "edition": null,
+      "publicationYear": null,
+      "url": null,
+      "license": null,
+      "editorialNotes": "",
+      "status": "placeholder"
+    },
+    {
+      "id": "mudawwana",
+      "title": {
+        "ar": "المدونة الكبرى",
+        "en": "Al-Mudawwana al-Kubra"
+      },
+      "author": {
+        "ar": "",
+        "en": ""
+      },
+      "madhhab": "maliki",
+      "sourceType": "book",
+      "publisher": null,
+      "edition": null,
+      "publicationYear": null,
+      "url": null,
+      "license": null,
+      "editorialNotes": "",
+      "status": "placeholder"
+    },
+    {
+      "id": "sharh-dasuqi",
+      "title": {
+        "ar": "الشرح الكبير للدردير وحاشية الدسوقي",
+        "en": "Al-Sharh al-Kabir and Hashiyat al-Dasuqi"
+      },
+      "author": {
+        "ar": "",
+        "en": ""
+      },
+      "madhhab": "maliki",
+      "sourceType": "book",
+      "publisher": null,
+      "edition": null,
+      "publicationYear": null,
+      "url": null,
+      "license": null,
+      "editorialNotes": "",
+      "status": "placeholder"
+    },
+    {
+      "id": "mawahib",
+      "title": {
+        "ar": "مواهب الجليل",
+        "en": "Mawahib al-Jalil"
+      },
+      "author": {
+        "ar": "",
+        "en": ""
+      },
+      "madhhab": "maliki",
+      "sourceType": "book",
+      "publisher": null,
+      "edition": null,
+      "publicationYear": null,
+      "url": null,
+      "license": null,
+      "editorialNotes": "",
+      "status": "placeholder"
+    },
+    {
+      "id": "umm",
+      "title": {
+        "ar": "الأم",
+        "en": "Al-Umm"
+      },
+      "author": {
+        "ar": "",
+        "en": ""
+      },
+      "madhhab": "shafii",
+      "sourceType": "book",
+      "publisher": null,
+      "edition": null,
+      "publicationYear": null,
+      "url": null,
+      "license": null,
+      "editorialNotes": "",
+      "status": "placeholder"
+    },
+    {
+      "id": "majmu",
+      "title": {
+        "ar": "المجموع شرح المهذب",
+        "en": "Al-Majmu' Sharh al-Muhadhdhab"
+      },
+      "author": {
+        "ar": "",
+        "en": ""
+      },
+      "madhhab": "shafii",
+      "sourceType": "book",
+      "publisher": null,
+      "edition": null,
+      "publicationYear": null,
+      "url": null,
+      "license": null,
+      "editorialNotes": "",
+      "status": "placeholder"
+    },
+    {
+      "id": "mughni-muhtaj",
+      "title": {
+        "ar": "مغني المحتاج",
+        "en": "Mughni al-Muhtaj"
+      },
+      "author": {
+        "ar": "",
+        "en": ""
+      },
+      "madhhab": "shafii",
+      "sourceType": "book",
+      "publisher": null,
+      "edition": null,
+      "publicationYear": null,
+      "url": null,
+      "license": null,
+      "editorialNotes": "",
+      "status": "placeholder"
+    },
+    {
+      "id": "mughni",
+      "title": {
+        "ar": "المغني",
+        "en": "Al-Mughni"
+      },
+      "author": {
+        "ar": "",
+        "en": ""
+      },
+      "madhhab": "hanbali",
+      "sourceType": "book",
+      "publisher": null,
+      "edition": null,
+      "publicationYear": null,
+      "url": null,
+      "license": null,
+      "editorialNotes": "",
+      "status": "placeholder"
+    },
+    {
+      "id": "kashshaf",
+      "title": {
+        "ar": "كشاف القناع",
+        "en": "Kashshaf al-Qina'"
+      },
+      "author": {
+        "ar": "",
+        "en": ""
+      },
+      "madhhab": "hanbali",
+      "sourceType": "book",
+      "publisher": null,
+      "edition": null,
+      "publicationYear": null,
+      "url": null,
+      "license": null,
+      "editorialNotes": "",
+      "status": "placeholder"
+    },
+    {
+      "id": "insaf",
+      "title": {
+        "ar": "الإنصاف",
+        "en": "Al-Insaf"
+      },
+      "author": {
+        "ar": "",
+        "en": ""
+      },
+      "madhhab": "hanbali",
+      "sourceType": "book",
+      "publisher": null,
+      "edition": null,
+      "publicationYear": null,
+      "url": null,
+      "license": null,
+      "editorialNotes": "",
+      "status": "placeholder"
+    },
+    {
+      "id": "iifa",
+      "title": {
+        "ar": "مجمع الفقه الإسلامي الدولي",
+        "en": "International Islamic Fiqh Academy"
+      },
+      "author": {
+        "ar": "",
+        "en": ""
+      },
+      "madhhab": null,
+      "sourceType": "institution",
+      "publisher": null,
+      "edition": null,
+      "publicationYear": null,
+      "url": null,
+      "license": null,
+      "editorialNotes": "",
+      "status": "placeholder"
+    }
+  ],
+  "introductions": [
+    {
+      "id": "what-is-fiqh",
+      "title": {
+        "ar": "ما هو الفقه؟",
+        "en": "What is Fiqh?"
+      },
+      "body": {
+        "ar": "",
+        "en": ""
+      },
+      "status": "draft"
+    },
+    {
+      "id": "comparative",
+      "title": {
+        "ar": "ما هو الفقه المقارن؟",
+        "en": "What is Comparative Fiqh?"
+      },
+      "body": {
+        "ar": "",
+        "en": ""
+      },
+      "status": "draft"
+    },
+    {
+      "id": "schools",
+      "title": {
+        "ar": "المذاهب السنية الأربعة",
+        "en": "The Four Sunni Madhhabs"
+      },
+      "body": {
+        "ar": "",
+        "en": ""
+      },
+      "status": "draft"
+    },
+    {
+      "id": "development",
+      "title": {
+        "ar": "نشأة المذاهب وتطورها",
+        "en": "Development of the Four Schools"
+      },
+      "body": {
+        "ar": "",
+        "en": ""
+      },
+      "status": "draft"
+    },
+    {
+      "id": "differences",
+      "title": {
+        "ar": "لماذا يختلف العلماء؟",
+        "en": "Why Scholars Differ"
+      },
+      "body": {
+        "ar": "",
+        "en": ""
+      },
+      "status": "draft"
+    },
+    {
+      "id": "terminology",
+      "title": {
+        "ar": "المصطلحات الفقهية",
+        "en": "Jurisprudential Terminology"
+      },
+      "body": {
+        "ar": "",
+        "en": ""
+      },
+      "status": "draft"
+    },
+    {
+      "id": "etiquette",
+      "title": {
+        "ar": "أدب الاختلاف",
+        "en": "Etiquette of Scholarly Disagreement"
+      },
+      "body": {
+        "ar": "",
+        "en": ""
+      },
+      "status": "draft"
+    },
+    {
+      "id": "fatwa",
+      "title": {
+        "ar": "الفرق بين الفقه التعليمي والفتوى الشخصية",
+        "en": "Educational Fiqh and Personal Fatwas"
+      },
+      "body": {
+        "ar": "",
+        "en": ""
+      },
+      "status": "draft"
+    }
+  ],
+  "disclaimer": {
+    "ar": "يقدم قسم الفقه المقارن محتوى تعليميًا لبيان أقوال المذاهب الفقهية الأربعة وأدلتها ومصادرها، ولا يُعد بديلًا عن سؤال أهل العلم المختصين في المسائل الشخصية والنوازل.",
+    "en": "The Comparative Fiqh section provides educational information about the four schools of Islamic jurisprudence, their evidence, and scholarly sources. It is not a substitute for consulting qualified scholars regarding personal circumstances and contemporary issues."
+  },
+  "issues": []
+}

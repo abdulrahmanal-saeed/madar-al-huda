@@ -1,0 +1,5 @@
+# Legacy publication isolation
+
+Until a verified migration is approved, old fiqh records are read-only in admin and MCP. General publication carries forward the existing published legacy fiqh subtree exactly as data, regardless of draft edits or legacy approval flags. If no earlier publication contains fiqh, the first general publication omits it. No new scholarly approval is implied for grandfathered existing content. The private legacy draft is retained; restoring a historical library revision preserves the current legacy draft, not the historical fiqh. Publication history and notification payloads receive the filtered projection. General dirty indicators and MCP change preview use the publishable projection. New structured fiqh tables have no public feed yet.
+
+This deliberately pauses legacy fiqh editorial changes while leaving other sections publishable. Validate against a staging database copy before deploying; existing public inventory must be reviewed by a qualified human before migration. Pure helper tests cover preservation, restore projection and mutation guard; full endpoint/integration tests remain outstanding.

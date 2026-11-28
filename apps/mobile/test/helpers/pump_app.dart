@@ -16,6 +16,7 @@ import 'package:madar_al_huda/core/storage/key_value_store.dart';
 import 'package:madar_al_huda/core/storage/storage_providers.dart';
 import 'package:madar_al_huda/features/adhkar/data/adhkar_catalog.dart';
 import 'package:madar_al_huda/features/adhkar/data/quran_dua_index.dart';
+import 'package:madar_al_huda/features/fiqh/data/fiqh_catalog.dart';
 import 'package:madar_al_huda/features/hadith/data/hadeeth_enc.dart';
 import 'package:madar_al_huda/features/quran/data/mushaf_edition.dart';
 import 'package:madar_al_huda/features/quran/data/quran_services.dart';
@@ -63,6 +64,7 @@ Future<InMemoryKeyValueStore> pumpMadarApp(
   QuranApi? quranApi,
   AudioPlayer? audioPlayer,
   AdhkarCatalog? adhkarCatalog,
+  FiqhCatalog? fiqhCatalog,
   Uri? cairoRadioStream,
   List<Override> additionalOverrides = const [],
 }) async {
@@ -91,6 +93,8 @@ Future<InMemoryKeyValueStore> pumpMadarApp(
         ),
         quranDuaIndexProvider.overrideWith((_) => quranDuaIndex),
         managedLibraryProvider.overrideWith((_) => null),
+        // Widget tests must not wait on the hosted fiqh feed or disk cache.
+        fiqhCatalogProvider.overrideWith((_) => fiqhCatalog),
         worldCitiesProvider.overrideWith((_) => testCities()),
         offlineProvider.overrideWith((_) => Stream.value(offline)),
         hadeethEncProvider.overrideWithValue(OfflineHadeethEnc()),

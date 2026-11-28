@@ -395,3 +395,190 @@ for (const fields of document.querySelectorAll('.content-news-fields')) {
   fields.addEventListener('input', update);
   update();
 }
+
+
+// Fiqh staging: unsaved-edit guard and explicit citation insertion.
+// No network requests, automatic citations, or publication calls.
+(() => {
+  const form = document.querySelector('[data-fiqh-editor]');
+  if (!form) return;
+  let dirty = false;
+  const status = form.querySelector('[data-fiqh-dirty]');
+  const markDirty = () => { dirty = true; status.hidden = false; };
+  form.addEventListener('input', markDirty);
+  form.addEventListener('change', markDirty);
+  form.addEventListener('submit', () => { dirty = false; });
+  window.addEventListener('beforeunload', (event) => {
+    if (!dirty) return;
+    event.preventDefault();
+    event.returnValue = '';
+  });
+  const picker = form.querySelector('[data-fiqh-source-picker]');
+  if (!picker) return;
+  picker.hidden = false;
+  const search = picker.querySelector('[data-fiqh-source-search]');
+  const source = picker.querySelector('[data-fiqh-source]');
+  const message = picker.querySelector('[data-fiqh-source-status]');
+  const normalize = (value) => value.toLowerCase()
+    .replace(/[\u0610-\u061a\u0640\u064b-\u065f\u0670]/g, '')
+    .replace(/[أإآٱ]/g, 'ا').trim();
+  search.addEventListener('input', () => {
+    const query = normalize(search.value);
+    for (const option of source.options) {
+      option.hidden = !!option.value && !normalize(option.textContent).includes(query);
+    }
+    if (source.selectedOptions[0]?.hidden) source.value = '';
+  });
+  picker.querySelector('[data-fiqh-add-source]').addEventListener('click', () => {
+    const school = picker.querySelector('[data-fiqh-school]').value;
+    const ar = picker.querySelector('[data-fiqh-locator-ar]').value.trim();
+    const en = picker.querySelector('[data-fiqh-locator-en]').value.trim();
+    if (!source.value || !ar || !en) {
+      message.textContent = 'اختر المصدر واكتب موضع الاستشهاد باللغتين.';
+      return;
+    }
+    const target = form.elements.namedItem(school + '_details');
+    try {
+      let details = JSON.parse(target.value || '{}');
+      if (Array.isArray(details) && details.length === 0) details = {};
+      if (!details || typeof details !== 'object' || Array.isArray(details)) throw new Error('shape');
+      const refs = details.sourceReferences ?? [];
+      if (!Array.isArray(refs)) throw new Error('shape');
+      if (refs.some((ref) => ref?.sourceId === source.value && ref?.locator?.ar === ar && ref?.locator?.en === en)) {
+        message.textContent = 'هذا الاستشهاد موجود بالفعل.';
+        return;
+      }
+      details.sourceReferences = [...refs, { sourceId: source.value, locator: { ar, en } }];
+      target.value = JSON.stringify(details, null, 2);
+      markDirty();
+      message.textContent = 'أُضيف المرجع إلى النموذج فقط. احفظ المسودة لتسجيل التغيير.';
+    } catch {
+      message.textContent = 'راجع JSON الخاص بالمذهب أولًا. لم تتغير البيانات.';
+    }
+  });
+})();
+
+
+// Draft-only, opt-in autosave. Never retry an ambiguous write or advance a
+// review form's revision; a reload is required before review.
+(() => {
+  const form = document.querySelector('[data-fiqh-editor]');
+  const toggle = form?.querySelector('[data-fiqh-autosave]');
+  if (!toggle) return;
+  const status = form.querySelector('[data-fiqh-autosave-status]');
+  const revision = form.elements.namedItem('fiqh_revision');
+  const buttons = [...form.querySelectorAll('button[type="submit"], button:not([type])')];
+  const reviews = [...document.querySelectorAll('#fiqh-review form')];
+  let timer, saving = false, stopped = false, changed = false;
+  const snapshot = () => JSON.stringify([...new FormData(form)].filter(([key]) => key !== 'fiqh_revision'));
+  let saved = snapshot();
+  toggle.closest('[data-fiqh-autosave-option]').hidden = false;
+  const blockReview = () => {
+    for (const review of reviews) for (const button of review.querySelectorAll('button')) button.disabled = true;
+  };
+  const schedule = () => {
+    clearTimeout(timer);
+    if (!toggle.checked || stopped || saving || snapshot() === saved) return;
+    timer = setTimeout(save, 1800);
+  };
+  const stop = (message) => {
+    stopped = true;
+    toggle.checked = false;
+    toggle.disabled = true;
+    blockReview();
+    status.textContent = message;
+  };
+  async function save() {
+    if (!toggle.checked || stopped || saving || !form.checkValidity() || snapshot() === saved) return;
+    const before = snapshot();
+    const lease = Number(revision.value);
+    const body = new FormData(form);
+    body.set('action', 'fiqh_autosave');
+    body.set('autosave_enabled', 'yes');
+    saving = true;
+    buttons.forEach(button => { button.disabled = true; });
+    blockReview();
+    status.textContent = 'جارٍ حفظ المسودة…';
+    try {
+      const response = await fetch(form.action, {method:'POST', body, credentials:'same-origin', headers:{Accept:'application/json'}});
+      const result = await response.json();
+      if (!response.ok || result.ok !== true || result.id !== form.elements.namedItem('id').value
+          || !Number.isSafeInteger(result.revision) || ![lease,lease+1].includes(result.revision)) {
+        throw new Error('unconfirmed write');
+      }
+      revision.value = String(result.revision);
+      saved = before;
+      changed = changed || result.changed === true;
+      status.textContent = 'حُفظت المسودة v' + result.revision + '؛ أعد فتح الصفحة قبل المراجعة.';
+      // Existing unsaved guard stays conservative; clearing it without
+      // refreshing the server-rendered review/preview could mislead editors.
+    } catch {
+      stop('توقف الحفظ التلقائي: تعارض أو تعذّر تأكيد الحفظ. احتفظ بنسخة من مدخلاتك وافتح أحدث إصدار للمقارنة.');
+    } finally {
+      saving = false;
+      buttons.forEach(button => { button.disabled = stopped; });
+      if (changed || stopped) blockReview();
+      schedule();
+    }
+  }
+  toggle.addEventListener('change', schedule);
+  form.addEventListener('input', schedule);
+  form.addEventListener('change', schedule);
+  form.addEventListener('submit', event => {
+    clearTimeout(timer);
+    if (saving || stopped) { event.preventDefault(); return; }
+    toggle.checked = false;
+  });
+  // Source and evidence builders update named JSON fields programmatically.
+  form.addEventListener('click', event => {
+    if (event.target.closest('[data-fiqh-add-source], [data-evidence-add]')) schedule();
+  });
+})();
+
+// Guided evidence entry; server-side canonical validation remains authoritative.
+(() => {
+  const form = document.querySelector('[data-fiqh-editor]');
+  const builder = form?.querySelector('[data-fiqh-evidence-builder]');
+  if (!builder) return;
+  const get = key => builder.querySelector('[data-evidence-' + key + ']');
+  const text = key => ({
+    ar: builder.querySelector('[data-evidence-field="' + key + '_ar"]').value.trim(),
+    en: builder.querySelector('[data-evidence-field="' + key + '_en"]').value.trim()
+  });
+  const type = get('type');
+  const sync = () => {
+    get('quran').hidden = type.value !== 'quran';
+    get('hadith').hidden = type.value !== 'hadith';
+  };
+  builder.hidden = false;
+  type.addEventListener('change', sync);
+  sync();
+  get('add').addEventListener('click', () => {
+    const id = get('id').value.trim(), source = get('source').value;
+    const status = get('status');
+    if (!/^[a-z0-9][a-z0-9_-]{0,95}$/.test(id) || !source) {
+      status.textContent = 'أدخل معرّفًا صحيحًا واختر مصدرًا.'; return;
+    }
+    try {
+      const target = form.elements.namedItem('evidence');
+      const list = JSON.parse(target.value || '[]');
+      if (!Array.isArray(list) || list.some(item => item?.id === id)) throw new Error('duplicate or shape');
+      const entry = {id, type:type.value, text:text('text'), reference:text('reference'), explanation:text('explanation'), sourceIds:[source]};
+      if (type.value === 'quran') {
+        const [surah,firstAyah,lastAyah] = ['surah','first','last'].map(key => Number(get(key).value));
+        if (![surah,firstAyah,lastAyah].every(Number.isSafeInteger) || surah<1 || surah>114 || firstAyah<1 || lastAyah<firstAyah) throw new Error('range');
+        entry.quranLocator = {surah,firstAyah,lastAyah};
+      }
+      if (type.value === 'hadith') {
+        entry.grading = text('grading');
+        entry.gradingAttribution = text('gradingAttribution');
+        entry.hadithLocator = {collectionSourceId:source, number:text('number'), book:text('book'), chapter:text('chapter'), editionLocator:text('editionLocator')};
+      }
+      target.value = JSON.stringify([...list,entry],null,2);
+      target.dispatchEvent(new Event('input',{bubbles:true}));
+      status.textContent = 'أُضيف إلى النموذج. راجع النص والمصدر قبل الحفظ.';
+    } catch {
+      status.textContent = 'راجع معرّف الدليل أو حدود الآيات أو JSON. لم يُضف شيء.';
+    }
+  });
+})();
