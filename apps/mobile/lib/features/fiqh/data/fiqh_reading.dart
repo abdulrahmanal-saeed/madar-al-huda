@@ -28,9 +28,7 @@ class FiqhReadingController extends Notifier<FiqhReadingState> {
       return (
         favorites: _ids(value['favorites']),
         history: _ids(value['history']).take(100).toList(growable: false),
-        fontScale: scale is num
-            ? scale.toDouble().clamp(0.9, 1.5)
-            : 1.0,
+        fontScale: scale is num ? scale.toDouble().clamp(0.9, 1.5) : 1.0,
       );
     } on Object {
       return (favorites: const [], history: const [], fontScale: 1.0);
@@ -39,9 +37,7 @@ class FiqhReadingController extends Notifier<FiqhReadingState> {
 
   List<String> _ids(Object? value) {
     if (value is! List) return const [];
-    return List.unmodifiable(
-      value.whereType<String>().where(_validId).toSet(),
-    );
+    return List.unmodifiable(value.whereType<String>().where(_validId).toSet());
   }
 
   bool _validId(String id) =>

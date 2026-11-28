@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-require __DIR__ . '/../admin/fiqh-review.php';
+require __DIR__ . '/../admin/fiqh-public.php';
 function frCheck(bool $condition, string $message): void { if (!$condition) throw new RuntimeException($message); }
 function frReject(callable $work): void { try { $work(); } catch (Exception) { return; } throw new RuntimeException('Expected rejection'); }
 $db = new PDO('sqlite::memory:', null, null, [PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
@@ -37,11 +37,20 @@ $approved=fiqhReviewTransition($db,3,'synthetic',2,'approve','synthetic approval
 frReject(fn()=>fiqhReviewTransition($db,1,'synthetic',2,'publish'));
 frReject(fn()=>fiqhReviewTransition($db,0,'synthetic',2,'publish'));
 fiqhReviewTransition($db,4,'synthetic',2,'publish');
+frCheck(!fiqhPublicEnabled($db),'public feed disabled by default');
+frReject(fn()=>fiqhPublicCatalog($db));
+$db->exec("INSERT INTO fiqh_settings VALUES ('public_enabled','true')");
+$public=fiqhPublicCatalog($db);
+frCheck(count($public['issues'])===1 && count($public['categories'])===11,'public approved catalog');
+frCheck($public['issues'][0]['status']==='published','public status');
+frCheck(!str_contains(fiqhJson($public),'synthetic approval') && !str_contains(fiqhJson($public),'Synthetic qualification fixture'),'private fields excluded');
 frCheck((int)fiqhPublishedRevision($db,'synthetic')['revision']===2,'approved pointer');
 $issue['summary']['en']='New synthetic revision';
 fiqhSaveDraft($db,$issue,2,'user:2');
 frCheck(fiqhReviewCurrent($db,'synthetic',3)===null,'new revision not approved');
 frCheck((int)fiqhPublishedRevision($db,'synthetic')['revision']===2,'old publication retained');
+frCheck(fiqhPublicCatalog($db)['issues'][0]['revision']===2,'new draft not in public feed');
+frCheck(!str_contains(fiqhJson(fiqhPublicCatalog($db)),'New synthetic revision'),'unpublished body excluded');
 frReject(fn()=>fiqhReviewTransition($db,4,'synthetic',2,'publish'));
 frReject(fn()=>fiqhReviewTransition($db,4,'synthetic',3,'publish'));
 frReject(fn()=>$db->exec('UPDATE fiqh_published SET revision=3'));
@@ -52,6 +61,7 @@ frReject(fn()=>fiqhArchivePublication($db,4,'synthetic',3,'test'));
 frReject(fn()=>fiqhArchivePublication($db,4,'synthetic',2,''));
 fiqhArchivePublication($db,4,'synthetic',2,'synthetic withdrawal');
 frCheck(fiqhPublishedRevision($db,'synthetic')===null,'archive removes pointer');
+frCheck(fiqhPublicCatalog($db)['issues']===[],'withdrawn issue removed');
 frCheck(fiqhReviewCurrent($db,'synthetic',2)['state']==='archived','archive event');
 frCheck((int)fiqhLatestRevision($db,'synthetic')['revision']===3,'new draft retained');
 frCheck((int)$db->query('SELECT COUNT(*) FROM fiqh_permission_events')->fetchColumn()===2,'permission audit');

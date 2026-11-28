@@ -26,6 +26,7 @@ require __DIR__ . '/governance.php';
 require __DIR__ . '/reports.php';
 require __DIR__ . '/agent.php';
 require __DIR__ . '/fiqh-admin.php';
+require __DIR__ . '/fiqh-public.php';
 
 try {
     $db = database();
@@ -33,6 +34,7 @@ try {
         serveLibraryMedia($db, $_GET['library_media']);
     }
     if (($_GET['feed'] ?? '') === 'content-news') serveContentNews($db);
+    if (($_GET['feed'] ?? '') === 'fiqh') serveFiqhFeed($db);
     if (($_GET['feed'] ?? '') === 'library') {
         serveFeed($db);
     }

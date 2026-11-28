@@ -81,10 +81,7 @@ class _FiqhCatalogScreenState extends ConsumerState<FiqhCatalogScreen> {
     final ids = _view == 'favorites' ? reading.favorites : reading.history;
     final rows = _view == 'all'
         ? matches
-        : [
-            for (final id in ids)
-              ...matches.where((row) => row['id'] == id),
-          ];
+        : [for (final id in ids) ...matches.where((row) => row['id'] == id)];
     return Scaffold(
       appBar: AppBar(title: Text(AppSection.fiqh.title(context.l10n))),
       body: RefreshIndicator(
@@ -117,7 +114,8 @@ class _FiqhCatalogScreenState extends ConsumerState<FiqhCatalogScreen> {
                           onPressed: () async {
                             await _saveReading(
                               context,
-                              ref.read(fiqhReadingProvider.notifier)
+                              ref
+                                  .read(fiqhReadingProvider.notifier)
                                   .clearHistory(),
                             );
                           },
@@ -171,7 +169,8 @@ class _FiqhCatalogScreenState extends ConsumerState<FiqhCatalogScreen> {
                         onTap: () {
                           _saveReading(
                             context,
-                            ref.read(fiqhReadingProvider.notifier)
+                            ref
+                                .read(fiqhReadingProvider.notifier)
                                 .recordReading(row['id'] as String),
                           );
                           Navigator.of(context).push<void>(
@@ -200,7 +199,9 @@ Future<void> _saveReading(BuildContext context, Future<void> write) async {
     if (context.mounted) {
       final ar = _arabic(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(ar ? 'تعذّر الحفظ المحلي' : 'Local save failed')),
+        SnackBar(
+          content: Text(ar ? 'تعذّر الحفظ المحلي' : 'Local save failed'),
+        ),
       );
     }
   }
@@ -281,7 +282,8 @@ class FiqhIssueScreen extends ConsumerWidget {
                         icon: const Icon(Icons.remove),
                         onPressed: () => _saveReading(
                           context,
-                          ref.read(fiqhReadingProvider.notifier)
+                          ref
+                              .read(fiqhReadingProvider.notifier)
                               .setFontScale(reading.fontScale - 0.1),
                         ),
                       ),
@@ -290,7 +292,8 @@ class FiqhIssueScreen extends ConsumerWidget {
                         icon: const Icon(Icons.add),
                         onPressed: () => _saveReading(
                           context,
-                          ref.read(fiqhReadingProvider.notifier)
+                          ref
+                              .read(fiqhReadingProvider.notifier)
                               .setFontScale(reading.fontScale + 0.1),
                         ),
                       ),
@@ -343,7 +346,10 @@ class FiqhIssueScreen extends ConsumerWidget {
                   for (final (key, heading) in [
                     ('agreements', ar ? 'مواضع الاتفاق' : 'Agreement'),
                     ('disagreements', ar ? 'مواضع الاختلاف' : 'Disagreement'),
-                    ('reasonsForDifferences', ar ? 'أسباب الاختلاف' : 'Reasons'),
+                    (
+                      'reasonsForDifferences',
+                      ar ? 'أسباب الاختلاف' : 'Reasons',
+                    ),
                   ])
                     _TextSection(
                       heading: heading,
@@ -441,7 +447,6 @@ class _SchoolCard extends StatelessWidget {
     ),
   );
 }
-
 
 class _ComparisonScreen extends ConsumerWidget {
   const _ComparisonScreen({required this.issue});
