@@ -208,6 +208,35 @@ Future<void> _saveReading(BuildContext context, Future<void> write) async {
   }
 }
 
+Future<void> _shareIssue(BuildContext context, String text) async {
+  final ar = _arabic(context);
+  try {
+    await const MethodChannel('madar/share').invokeMethod<void>(
+      'shareText',
+      text,
+    );
+    return;
+  } on MissingPluginException {
+    // The native Android share channel is not available on every platform.
+  } on PlatformException {
+    // A failed native share can still offer a copy of the public link.
+  }
+  try {
+    await Clipboard.setData(ClipboardData(text: text));
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(ar ? 'تم نسخ الرابط' : 'Link copied')),
+      );
+    }
+  } on PlatformException {
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(ar ? 'تعذّرت المشاركة' : 'Sharing failed')),
+      );
+    }
+  }
+}
+
 class FiqhIssueScreen extends ConsumerWidget {
   const FiqhIssueScreen({required this.issue, super.key});
 
@@ -220,6 +249,7 @@ class FiqhIssueScreen extends ConsumerWidget {
     final id = issue['id'] as String;
     final favorite = reading.favorites.contains(id);
     final title = fiqhText(issue['title'], ar);
+    final shareText = fiqhShareText(issue, ar);
     final positions = fiqhRecord(issue['positions']);
     final sources = fiqhRecord(issue['sources']);
     return Scaffold(
@@ -234,12 +264,20 @@ class FiqhIssueScreen extends ConsumerWidget {
               ref.read(fiqhReadingProvider.notifier).toggleFavorite(id),
             ),
           ),
+          if (shareText != null)
+            IconButton(
+              tooltip: ar ? 'مشاركة رابط المسألة' : 'Share issue link',
+              icon: const Icon(Icons.share),
+              onPressed: () => _shareIssue(context, shareText),
+            ),
           IconButton(
             tooltip: ar ? 'نسخ عنوان المسألة' : 'Copy issue reference',
             icon: const Icon(Icons.copy),
             onPressed: () async {
               await Clipboard.setData(
-                ClipboardData(text: '$title · ${issue['number'] ?? ''}'),
+                ClipboardData(
+                  text: shareText ?? '$title · ${issue['number'] ?? ''}',
+                ),
               );
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(

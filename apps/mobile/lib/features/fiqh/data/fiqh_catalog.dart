@@ -31,6 +31,22 @@ bool _bilingual(Object? value) =>
 bool _id(Object? value) =>
     value is String && RegExp(r'^[a-z0-9][a-z0-9_-]{0,95}$').hasMatch(value);
 
+/// A public issue link is built from the verified stable slug, never a URL
+/// supplied by the issue body.
+Uri? fiqhIssueUrl(FiqhRecord issue, bool ar) {
+  final slug = issue['slug'];
+  if (issue['status'] != 'published' || !_id(slug)) return null;
+  final lang = ar ? 'ar' : 'en';
+  return Uri.https(fiqhFeedUrl.host, '/admin/fiqh/$lang/$slug/');
+}
+
+String? fiqhShareText(FiqhRecord issue, bool ar) {
+  final url = fiqhIssueUrl(issue, ar);
+  if (url == null) return null;
+  final title = fiqhText(issue['title'], ar);
+  return '$title\n$url';
+}
+
 /// The dedicated feed is authoritative when available, even if empty.
 /// It accepts a published projection, never a draft export.
 class FiqhCatalog {
@@ -64,11 +80,14 @@ class FiqhCatalog {
       }
     }
     final issueIds = <Object?>{};
+    final slugs = <Object?>{};
     for (final issue in issues) {
       final positions = fiqhRecord(issue['positions']);
       final revision = issue['revision'];
       if (!_id(issue['id']) ||
           !issueIds.add(issue['id']) ||
+          !_id(issue['slug']) ||
+          !slugs.add(issue['slug']) ||
           !ids.contains(issue['categoryId']) ||
           !_bilingual(issue['title']) ||
           issue['status'] != 'published' ||

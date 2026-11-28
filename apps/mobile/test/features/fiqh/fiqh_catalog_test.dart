@@ -13,6 +13,7 @@ Map<String, Object?> fixture() => {
   'issues': [
     {
       'id': 'synthetic',
+      'slug': 'synthetic',
       'number': 'FIQH-999',
       'categoryId': 'test',
       'revision': 1,
@@ -46,6 +47,21 @@ void main() {
     issue['status'] = 'published';
     issue['positions'] = <String, Object?>{};
     expect(() => FiqhCatalog.decode(feed), throwsFormatException);
+  });
+
+  test('share links use only stable published slugs and locale', () {
+    final issue = FiqhCatalog.decode(fixture()).issues.single;
+    expect(
+      fiqhIssueUrl(issue, true).toString(),
+      'https://quran.abdulrahmanalsaeed.com/admin/fiqh/ar/synthetic/',
+    );
+    expect(
+      fiqhShareText(issue, false),
+      'Synthetic example\n'
+      'https://quran.abdulrahmanalsaeed.com/admin/fiqh/en/synthetic/',
+    );
+    expect(fiqhIssueUrl({...issue, 'status': 'draft'}, true), isNull);
+    expect(fiqhIssueUrl({...issue, 'slug': '../private'}, true), isNull);
   });
 
   test('valid empty feed is distinct from absent or invalid feed', () {
