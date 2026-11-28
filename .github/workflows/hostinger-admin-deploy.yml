@@ -270,9 +270,19 @@ jobs:
           site=https://quran.abdulrahmanalsaeed.com
           curl -fsS --max-time 20 --retry 2 "$site/?check=landing" -o "$stage/landing-live.html"
           grep -Fq 'id="hero-title"' "$stage/landing-live.html"
-          for name in brand.css landing.css mark.png mushaf.png; do
-            curl -fsS --max-time 20 --retry 2 "$site/madar-web/$name" -o "$stage/web-live"
+          for name in brand.css landing.css; do
+            checksum=$(sha256sum "$stage/web/madar-web/$name" | cut -d' ' -f1)
+            curl -fsS --max-time 20 --retry 2 "$site/madar-web/$name?check=$checksum" -o "$stage/web-live"
             cmp "$stage/web/madar-web/$name" "$stage/web-live"
+          done
+          # The public server may optimize PNGs. Verify the exact source on disk
+          # and a decodable image with the correct media type over HTTP.
+          for name in mark.png mushaf.png; do
+            cmp "$stage/web/madar-web/$name" "$web_assets/$name"
+            checksum=$(sha256sum "$stage/web/madar-web/$name" | cut -d' ' -f1)
+            type=$(curl -fsS --max-time 20 --retry 2 "$site/madar-web/$name?check=$checksum" -o "$stage/web-live" -w '%{content_type}')
+            [[ "$type" == image/* ]]
+            php -r 'if (getimagesize($argv[1]) === false) { exit(1); }' "$stage/web-live"
           done
           echo 'Public landing page and brand assets health check passed.'
           privacy_url=https://quran.abdulrahmanalsaeed.com/privacy
