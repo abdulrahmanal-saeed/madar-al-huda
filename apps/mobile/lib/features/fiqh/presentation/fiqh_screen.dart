@@ -34,7 +34,8 @@ class FiqhScreen extends ConsumerWidget {
     return FiqhCatalogScreen(
       catalog: catalog,
       onRefresh: () async {
-        await ref.refresh(fiqhCatalogProvider.future);
+        ref.invalidate(fiqhCatalogProvider);
+        await ref.read(fiqhCatalogProvider.future);
       },
     );
   }

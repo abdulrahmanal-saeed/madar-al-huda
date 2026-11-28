@@ -1,0 +1,9 @@
+:root { color-scheme: light dark; font-family: system-ui, sans-serif; line-height: 1.75; }
+body { margin: 0; background: Canvas; color: CanvasText; }
+header, main { max-width: 75rem; margin: auto; padding: 1rem; }
+nav { display: flex; flex-wrap: wrap; gap: 1rem; }
+a { color: LinkText; text-underline-offset: .2em; }
+a:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
+aside, article { border: 1px solid GrayText; border-radius: .75rem; padding: 1rem; margin-block: 1rem; overflow-wrap: anywhere; }
+.schools { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 1rem; }
+@media (max-width: 45rem) { .schools { grid-template-columns: 1fr; } }

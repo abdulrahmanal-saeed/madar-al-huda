@@ -27,9 +27,11 @@ require __DIR__ . '/reports.php';
 require __DIR__ . '/agent.php';
 require __DIR__ . '/fiqh-admin.php';
 require __DIR__ . '/fiqh-public.php';
+require __DIR__ . '/fiqh-web.php';
 
 try {
     $db = database();
+    if (isset($_GET['fiqh_page'])) serveFiqhWeb($db,$_GET['fiqh_page'],$_GET['fiqh_slug'] ?? '');
     if (isset($_GET['library_media'])) {
         serveLibraryMedia($db, $_GET['library_media']);
     }

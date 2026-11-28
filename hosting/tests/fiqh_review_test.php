@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-require __DIR__ . '/../admin/fiqh-public.php';
+require __DIR__ . '/../admin/fiqh-web.php';
 function frCheck(bool $condition, string $message): void { if (!$condition) throw new RuntimeException($message); }
 function frReject(callable $work): void { try { $work(); } catch (Exception) { return; } throw new RuntimeException('Expected rejection'); }
 $db = new PDO('sqlite::memory:', null, null, [PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
@@ -43,6 +43,12 @@ $db->exec("INSERT INTO fiqh_settings VALUES ('public_enabled','true')");
 $public=fiqhPublicCatalog($db);
 frCheck(count($public['issues'])===1 && count($public['categories'])===11,'public approved catalog');
 frCheck($public['issues'][0]['status']==='published','public status');
+$html=fiqhWebPage($public,'ar','synthetic');
+frCheck(is_string($html)&&str_contains($html,'dir="rtl"'),'Arabic page');
+frCheck(str_contains(fiqhWebPage($public,'en','synthetic'),'hreflang="ar"'),'English alternate');
+frCheck(fiqhWebPage($public,'en','missing')===null,'missing slug');
+frCheck(str_contains(fiqhWebSitemap($public),'/admin/fiqh/en/synthetic/'),'sitemap approved');
+frCheck(fiqhWebEscape('<script>')==='&lt;script&gt;','HTML escaping');
 frCheck(!str_contains(fiqhJson($public),'synthetic approval') && !str_contains(fiqhJson($public),'Synthetic qualification fixture'),'private fields excluded');
 frCheck((int)fiqhPublishedRevision($db,'synthetic')['revision']===2,'approved pointer');
 $issue['summary']['en']='New synthetic revision';
@@ -62,6 +68,8 @@ frReject(fn()=>fiqhArchivePublication($db,4,'synthetic',2,''));
 fiqhArchivePublication($db,4,'synthetic',2,'synthetic withdrawal');
 frCheck(fiqhPublishedRevision($db,'synthetic')===null,'archive removes pointer');
 frCheck(fiqhPublicCatalog($db)['issues']===[],'withdrawn issue removed');
+frCheck(fiqhWebPage(fiqhPublicCatalog($db),'ar','synthetic')===null,'withdrawn page removed');
+frCheck(!str_contains(fiqhWebSitemap(fiqhPublicCatalog($db)),'/synthetic/'),'withdrawn sitemap entry removed');
 frCheck(fiqhReviewCurrent($db,'synthetic',2)['state']==='archived','archive event');
 frCheck((int)fiqhLatestRevision($db,'synthetic')['revision']===3,'new draft retained');
 frCheck((int)$db->query('SELECT COUNT(*) FROM fiqh_permission_events')->fetchColumn()===2,'permission audit');
