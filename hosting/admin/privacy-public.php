@@ -10,7 +10,7 @@ if (!in_array($_SERVER['REQUEST_METHOD'] ?? '', ['GET', 'HEAD'], true)) {
 }
 header('Content-Type: text/html; charset=utf-8');
 header('Cache-Control: no-cache');
-header("Content-Security-Policy: default-src 'none'; style-src 'self'; script-src 'self'; connect-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'");
+header("Content-Security-Policy: default-src 'none'; style-src 'self'; script-src 'self'; font-src 'self'; connect-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'");
 header('Strict-Transport-Security: max-age=31536000');
 if ($_SERVER['REQUEST_METHOD'] === 'HEAD') {
     exit;
@@ -21,7 +21,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'HEAD') {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>سياسة الخصوصية | Madar Al-Huda Privacy Policy</title>
-  <link rel="stylesheet" href="/admin/privacy.css">
+  <meta name="theme-color" content="#161123">
+  <link rel="stylesheet" href="/madar-web/brand.css?v=<?= (int) @filemtime(__DIR__ . '/../madar-web/brand.css') ?>">
+  <link rel="stylesheet" href="/admin/privacy.css?v=<?= (int) filemtime(__DIR__ . '/privacy.css') ?>">
   <script src="/admin/privacy.js" defer></script>
 </head>
 <body>
