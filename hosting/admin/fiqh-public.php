@@ -88,6 +88,17 @@ function fiqhPublicIssue(array $row): array
         $entry=['id'=>$evidence['id'],'type'=>$evidence['type'],'sourceIds'=>fiqhPublicIds($evidence['sourceIds'])];
         foreach (['text','reference','explanation','grading','gradingAttribution'] as $key) $entry[$key]=fiqhPublicBi($evidence[$key] ?? null);
         $entry['madhhabs']=array_values(array_intersect(FIQH_SCHOOLS,fiqhPublicIds($evidence['madhhabs'] ?? [])));
+        if (fiqhQuranLocatorValid($evidence['quranLocator'] ?? null)) {
+            $q=$evidence['quranLocator'];
+            $entry['quranLocator']=['surah'=>$q['surah'],'firstAyah'=>$q['firstAyah'],'lastAyah'=>$q['lastAyah']];
+        }
+        if (fiqhHadithLocatorValid($evidence['hadithLocator'] ?? null)) {
+            $h=$evidence['hadithLocator'];
+            $entry['hadithLocator']=['collectionSourceId'=>$h['collectionSourceId']];
+            foreach (['number','book','chapter','editionLocator'] as $key)
+                $entry['hadithLocator'][$key]=fiqhPublicBi($h[$key] ?? null);
+        }
+        if (fiqhEvidenceUrlValid($evidence['url'] ?? null)) $entry['url']=$evidence['url'];
         $out['evidence'][]=$entry;
     }
     foreach (['agreements','disagreements','reasonsForDifferences'] as $key) $out[$key]=fiqhPublicBlock($body[$key]);

@@ -334,6 +334,7 @@ class FiqhIssueScreen extends ConsumerWidget {
                           children: [
                             SelectableText(fiqhText(evidence['text'], ar)),
                             SelectableText(fiqhText(evidence['reference'], ar)),
+                            ..._evidenceLocators(evidence, sources, ar),
                             Text(fiqhText(evidence['explanation'], ar)),
                             if (fiqhText(evidence['grading'], ar).isNotEmpty)
                               Text(
@@ -526,4 +527,29 @@ class _ComparisonScreen extends ConsumerWidget {
       ),
     );
   }
+}
+
+
+List<Widget> _evidenceLocators(
+  FiqhRecord evidence,
+  FiqhRecord sources,
+  bool ar,
+) {
+  final quran = fiqhRecord(evidence['quranLocator']);
+  final hadith = fiqhRecord(evidence['hadithLocator']);
+  return [
+    if (quran.isNotEmpty)
+      SelectableText(
+        '${ar ? 'السورة والآيات' : 'Surah and verses'}: '
+        '${quran['surah']}:${quran['firstAyah']}–${quran['lastAyah']}',
+      ),
+    if (hadith.isNotEmpty) ...[
+      Text(
+        fiqhText(fiqhRecord(sources[hadith['collectionSourceId']])['title'], ar),
+      ),
+      for (final key in ['number', 'book', 'chapter', 'editionLocator'])
+        if (fiqhText(hadith[key], ar).isNotEmpty)
+          SelectableText(fiqhText(hadith[key], ar)),
+    ],
+  ];
 }

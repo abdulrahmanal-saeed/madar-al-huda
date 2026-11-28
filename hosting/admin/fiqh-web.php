@@ -84,6 +84,17 @@ function fiqhWebPage(array $catalog,string $lang,string $slug=''):?string
             $out.='<article>';
             foreach (['text'=>$tr('نص الدليل','Evidence text'),'reference'=>$tr('المرجع','Reference'),'explanation'=>$tr('الشرح','Explanation'),'grading'=>$tr('درجة الحديث','Hadith grading'),'gradingAttribution'=>$tr('نسبة الحكم','Grading attribution')] as $key=>$label)
                 $out.=fiqhWebParagraph($label,$entry[$key],$lang);
+            if (isset($entry['quranLocator'])) {
+                $q=$entry['quranLocator'];
+                $out.='<p>'.$tr('السورة والآيات','Surah and verses').': <bdi>'.$q['surah'].':'.$q['firstAyah'].'–'.$q['lastAyah'].'</bdi></p>';
+            }
+            if (isset($entry['hadithLocator'])) {
+                $h=$entry['hadithLocator']; $source=(array)$issue['sources'];
+                $out.='<p>'.fiqhWebText($source[$h['collectionSourceId']]['title'] ?? null,$lang).'</p>';
+                foreach (['number'=>$tr('الرقم','Number'),'book'=>$tr('الكتاب','Book'),'chapter'=>$tr('الباب','Chapter'),'editionLocator'=>$tr('الطبعة والموضع','Edition and locator')] as $key=>$label)
+                    $out.=fiqhWebParagraph($label,$h[$key],$lang);
+            }
+            if (isset($entry['url'])) $out.='<p><a rel="noopener noreferrer" href="'.$e($entry['url']).'">'.$tr('رابط المصدر','Source link').'</a></p>';
             $out.='</article>';
         }
         foreach (['agreements'=>$tr('مواضع الاتفاق','Agreement'),'disagreements'=>$tr('مواضع الاختلاف','Disagreement'),'reasonsForDifferences'=>$tr('أسباب الاختلاف','Reasons for differences')] as $key=>$label) {

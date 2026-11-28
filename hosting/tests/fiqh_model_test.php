@@ -31,4 +31,15 @@ fiqhExpect(fiqhShapeErrors(['evidence'=>[['id'=>'e1','sourceIds'=>[['id'=>'bad']
 fiqhExpect(fiqhShapeErrors(['title'=>['ar'=>'a','en'=>'b','private'=>'x']])!==[],'extra bilingual field rejected');
 fiqhExpect(fiqhShapeErrors(['evidence'=>[['id'=>'e1'],['id'=>'e1']]])!==[],'duplicate evidence rejected');
 fiqhExpect(fiqhShapeErrors(['evidence'=>[['id'=>'e1','madhhabs'=>['unknown']]]])!==[],'unknown school rejected');
+fiqhExpect(count(FIQH_AYAH_COUNTS)===114&&array_sum(FIQH_AYAH_COUNTS)===6236,'Quran metadata count');
+fiqhExpect(fiqhQuranLocatorValid(['surah'=>1,'firstAyah'=>1,'lastAyah'=>7]),'valid verse bounds');
+fiqhExpect(!fiqhQuranLocatorValid(['surah'=>1,'firstAyah'=>1,'lastAyah'=>8]),'invalid verse bounds');
+fiqhExpect(!fiqhQuranLocatorValid(['surah'=>114,'firstAyah'=>5,'lastAyah'=>4]),'reversed range');
+fiqhExpect(!fiqhQuranLocatorValid(['surah'=>115,'firstAyah'=>1,'lastAyah'=>1]),'invalid surah');
+fiqhExpect(!fiqhEvidenceUrlValid('javascript:alert(1)'),'unsafe URL rejected');
+fiqhExpect(fiqhEvidenceUrlValid('https://example.org/test'),'HTTPS URL');
+fiqhExpect(fiqhHadithLocatorValid(['collectionSourceId'=>'synthetic','number'=>['ar'=>'','en'=>'']]),'partial draft hadith locator');
+fiqhExpect(!fiqhHadithLocatorValid(['collectionSourceId'=>'synthetic','review'=>true]),'nested approval rejected');
+fiqhExpect(in_array('evidence.0.quranLocator',fiqhCompletenessErrors(['evidence'=>[['id'=>'e1','type'=>'quran']]]),true),'Quran locator mandatory for review');
+fiqhExpect(in_array('evidence.0.hadithLocator',fiqhCompletenessErrors(['evidence'=>[['id'=>'e1','type'=>'hadith']]]),true),'Hadith locator mandatory for review');
 echo "Fiqh foundation checks passed\n";

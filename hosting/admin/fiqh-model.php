@@ -94,9 +94,20 @@ function fiqhCompletenessErrors(array $issue): array
             if (!is_array($entry['sourceIds'] ?? null) || $entry['sourceIds'] === []) {
                 $errors[] = "evidence.$i.sourceIds";
             }
-            if (($entry['type'] ?? null) === 'hadith'
-                && (!fiqhBilingual($entry['grading'] ?? null) || !fiqhBilingual($entry['gradingAttribution'] ?? null))) {
-                $errors[] = "evidence.$i.grading";
+            if (($entry['type'] ?? null) === 'quran' && !fiqhQuranLocatorValid($entry['quranLocator'] ?? null)) {
+                $errors[] = "evidence.$i.quranLocator";
+            }
+            if (($entry['type'] ?? null) === 'hadith') {
+                if (!fiqhBilingual($entry['grading'] ?? null) || !fiqhBilingual($entry['gradingAttribution'] ?? null)) {
+                    $errors[] = "evidence.$i.grading";
+                }
+                $locator=$entry['hadithLocator'] ?? null;
+                if (!fiqhHadithLocatorValid($locator)
+                    || !fiqhBilingual($locator['editionLocator'] ?? null)
+                    || (!fiqhBilingual($locator['number'] ?? null)&&!fiqhBilingual($locator['chapter'] ?? null))
+                    || !in_array($locator['collectionSourceId'] ?? null,is_array($entry['sourceIds'] ?? null)?$entry['sourceIds']:[],true)) {
+                    $errors[] = "evidence.$i.hadithLocator";
+                }
             }
         }
     }
@@ -238,12 +249,15 @@ function fiqhShapeErrors(array $issue): array
         $seen=[];
         foreach ($issue['evidence'] as $i=>$entry) {
             $path='evidence.'.$i;
-            if (!$object($entry,['id','type','text','reference','explanation','grading','gradingAttribution','sourceIds','madhhabs'],$path)) continue;
+            if (!$object($entry,['id','type','text','reference','explanation','grading','gradingAttribution','sourceIds','madhhabs','quranLocator','hadithLocator','url'],$path)) continue;
             if (!fiqhStableId($entry['id'] ?? null)||isset($seen[$entry['id']])) $errors[]=$path.'.id';
             else $seen[$entry['id']]=true;
             if (array_key_exists('type',$entry)&&!in_array($entry['type'],FIQH_EVIDENCE_TYPES,true)) $errors[]=$path.'.type';
             foreach (['text','reference','explanation','grading','gradingAttribution'] as $key)
                 if (array_key_exists($key,$entry)) $text($entry[$key],$path.'.'.$key);
+            if (array_key_exists('quranLocator',$entry)&&(($entry['type'] ?? null)!=='quran'||!fiqhQuranLocatorValid($entry['quranLocator']))) $errors[]=$path.'.quranLocator';
+            if (array_key_exists('hadithLocator',$entry)&&(($entry['type'] ?? null)!=='hadith'||!fiqhHadithLocatorValid($entry['hadithLocator']))) $errors[]=$path.'.hadithLocator';
+            if (array_key_exists('url',$entry)&&!fiqhEvidenceUrlValid($entry['url'])) $errors[]=$path.'.url';
             if (array_key_exists('sourceIds',$entry)) $ids($entry['sourceIds'],$path.'.sourceIds');
             if (array_key_exists('madhhabs',$entry)) {
                 $ids($entry['madhhabs'],$path.'.madhhabs');
@@ -262,4 +276,48 @@ function fiqhShapeErrors(array $issue): array
     foreach (['practicalExamples','importantNotes','terminology'] as $key)
         if (array_key_exists($key,$issue)) $texts($issue[$key],$key);
     return array_values(array_unique($errors));
+}
+
+
+// Verse counts derived from apps/mobile/assets/quran/metadata.xml (Hafs).
+const FIQH_AYAH_COUNTS = [
+    7, 286, 200, 176, 120, 165, 206, 75, 129, 109, 123, 111, 43, 52, 99,
+    128, 111, 110, 98, 135, 112, 78, 118, 64, 77, 227, 93, 88, 69, 60,
+    34, 30, 73, 54, 45, 83, 182, 88, 75, 85, 54, 53, 89, 59, 37,
+    35, 38, 29, 18, 45, 60, 49, 62, 55, 78, 96, 29, 22, 24, 13,
+    14, 11, 11, 18, 12, 12, 30, 52, 52, 44, 28, 28, 20, 56, 40,
+    31, 50, 40, 46, 42, 29, 19, 36, 25, 22, 17, 19, 26, 30, 20,
+    15, 21, 11, 8, 8, 19, 5, 8, 8, 11, 11, 8, 3, 9, 5,
+    4, 7, 3, 6, 3, 5, 4, 5, 6,
+];
+
+/** Location validation does not authenticate quoted text or establish a ruling. */
+function fiqhQuranLocatorValid(mixed $value):bool
+{
+    if (!is_array($value)||array_diff(array_keys($value),['surah','firstAyah','lastAyah'])!==[]) return false;
+    $surah=$value['surah'] ?? null; $first=$value['firstAyah'] ?? null; $last=$value['lastAyah'] ?? null;
+    return is_int($surah)&&$surah>=1&&$surah<=114&&is_int($first)&&is_int($last)
+        &&$first>=1&&$last>=$first&&$last<=FIQH_AYAH_COUNTS[$surah-1];
+}
+
+/** Hadith numbering varies by edition; preserve the supplied bibliographic locator verbatim. */
+function fiqhHadithLocatorValid(mixed $value):bool
+{
+    if (!is_array($value)||array_diff(array_keys($value),['collectionSourceId','number','book','chapter','editionLocator'])!==[]
+        ||!fiqhStableId($value['collectionSourceId'] ?? null)) return false;
+    foreach (['number','book','chapter','editionLocator'] as $key) {
+        if (!array_key_exists($key,$value)) continue;
+        if (!is_array($value[$key])||count($value[$key])!==2
+            ||!is_string($value[$key]['ar'] ?? null)||!is_string($value[$key]['en'] ?? null)
+            ||strlen($value[$key]['ar'])>4096||strlen($value[$key]['en'])>4096
+            ||preg_match('//u',$value[$key]['ar'])!==1||preg_match('//u',$value[$key]['en'])!==1) return false;
+    }
+    return true;
+}
+
+function fiqhEvidenceUrlValid(mixed $url):bool
+{
+    return is_string($url)&&strlen($url)<=2048&&filter_var($url,FILTER_VALIDATE_URL)!==false
+        &&parse_url($url,PHP_URL_SCHEME)==='https'&&parse_url($url,PHP_URL_USER)===null
+        &&parse_url($url,PHP_URL_PASS)===null;
 }
