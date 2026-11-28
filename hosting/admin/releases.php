@@ -205,22 +205,34 @@ function serveReleaseFeed(PDO $db, mixed $value): never
 function serveApk(PDO $db, mixed $id): never
 {
     releasesRequest();
-    if (!is_string($id) || !preg_match('/\A(dev|preview)-([1-9]\d{0,9})\z/D', $id, $parts)) {
+    if (!is_string($id) || !preg_match('/\A(dev|preview)-(latest|[1-9]\d{0,9})\z/D', $id, $parts)) {
         http_response_code(404);
         exit;
     }
-    $query = $db->prepare('SELECT name, bytes FROM app_releases WHERE channel = ? AND code = ? AND published = 1');
-    $query->execute([$parts[1], (int) $parts[2]]);
-    $row = $query->fetch();
-    $path = releaseFile($parts[1], (int) $parts[2]);
-    if ($row === false || !is_file($path) || filesize($path) !== (int) $row['bytes']) {
+    [, $channel, $version] = $parts;
+    if ($version === 'latest') {
+        header('Cache-Control: no-store');
+        $row = currentRelease($db, $channel);
+    } else {
+        $query = $db->prepare('SELECT code, name, bytes FROM app_releases WHERE channel = ? AND code = ? AND published = 1');
+        $query->execute([$channel, (int) $version]);
+        $row = $query->fetch() ?: null;
+    }
+    if ($row === null) {
+        http_response_code(404);
+        exit;
+    }
+    $path = releaseFile($channel, (int) $row['code']);
+    if (!is_file($path) || filesize($path) !== (int) $row['bytes']) {
         http_response_code(404);
         exit;
     }
     header('Content-Type: application/vnd.android.package-archive');
     header('Content-Length: ' . $row['bytes']);
     header('Content-Disposition: attachment; filename="madar-al-huda-' . $row['name'] . '.apk"');
-    header('Cache-Control: public, max-age=86400, immutable');
+    if ($version !== 'latest') {
+        header('Cache-Control: public, max-age=86400, immutable');
+    }
     if ($_SERVER['REQUEST_METHOD'] !== 'HEAD') {
         readfile($path);
     }
